@@ -1,8 +1,9 @@
-```
-/tests
-    - Unit and functional tests.
-```
+# /tests
 
-## License
+This folder is dedicated to testing the project, including:
 
-This project is licensed under the MIT License. For more details, see the `LICENSE` file.
+- **Unit Tests**: Tests for individual components or functions of the project.
+- **Integration Tests**: Tests ensuring that different parts of the project work together as expected.
+- **Functional Tests**: Tests verifying that the software works according to the requirements.
+
+Place all test-related scripts and files in this folder.
