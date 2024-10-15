@@ -1,8 +1,9 @@
-```
-/meeting-notes
-    - Summaries and minutes of team meetings.
-```
+# /meeting-notes
 
-## License
+This folder contains:
 
-This project is licensed under the MIT License. For more details, see the `LICENSE` file.
+- **Meeting Summaries**: Brief summaries of what was discussed during team meetings.
+- **Action Items**: Tasks or actions that need to be completed based on meetings.
+- **Decisions**: Important decisions made during meetings.
+
+Use this folder to track the outcomes of team meetings.
