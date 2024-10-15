@@ -1,6 +1,6 @@
 
 # Software Engineering - Group B1 (2024)
-
+Created by Matthew Ayete Corrales, Daniel González Braza, Albert Digon Quintillà, Wenwen Yang, Raquel Nuñez Padial, Guillem Vera Pérez
 Welcome to the repository for the **Software Engineering** course, Group B1, for the academic year 2024. This repository contains all files and documentation related to the development of projects and activities for this course.
 
 ## Description
