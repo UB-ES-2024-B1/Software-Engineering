@@ -1,7 +1,9 @@
-```
-/docs
-    - Project documentation, including requirements analysis, designs, and user manuals.
-``` 
-## License
+# /docs
 
-This project is licensed under the MIT License. For more details, see the `LICENSE` file.
+This folder contains all the project documentation, including:
+
+- **Requirements Analysis**: Detailed analysis of the project requirements.
+- **Designs**: System and architectural designs for the project.
+- **User Manuals**: Documentation intended for end-users explaining how to use the software.
+
+All formal documentation related to the project should be placed in this folder.
