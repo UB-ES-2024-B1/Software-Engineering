@@ -14,7 +14,6 @@ Several tools will be utilized to help us organize and develop the projects effi
 - **Trello**: We will use Trello for project and task management, implementing Kanban boards to plan activities.
 - **GitHub**: This repository will serve as version control and for collaborative development of the projects. Each student is required to submit pull requests and perform code reviews.
 - **Programming Languages**: Depending on the project, various programming languages will be used (e.g., Python, Java, etc.).
-- **JIRA** (optional): An additional tool for project management if needed.
 
 ## Repository Structure
 
