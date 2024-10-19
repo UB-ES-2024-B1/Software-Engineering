@@ -1,8 +1,7 @@
 # backend/database.py
 
 from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 DATABASE_URL = "sqlite:///./test.db"  # Puedes cambiar el nombre del archivo
 

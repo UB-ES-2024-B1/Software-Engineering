@@ -106,9 +106,13 @@ Asegúrate de tener instalados los siguientes programas antes de comenzar:
 5. **Ejecutar las pruebas del backend** (opcional, pero recomendado para asegurarte de que todo esté funcionando correctamente):
 
    ```bash
+   pytest
+   ```
+   o
+   ```bash
    python -m pytest
    ```
-
+   
 6. **Ejecutar el servidor del backend**:
    
    Inicia el servidor FastAPI:
