@@ -53,6 +53,128 @@ We will use **agile methodologies**, such as Scrum or Kanban, to organize the te
 - **Daily meetings**: Short meetings to track task progress and address any blockers.
 - **Sprint reviews**: At the end of each sprint, a review of the completed work will be done, and the objectives for the next sprint will be adjusted.
 
+
+## How to use
+
+### Documentación del Proyecto
+
+Este proyecto es una aplicación Fullstack con un **backend** construido con **FastAPI** y una **base de datos SQLite**, y un **frontend** simple creado con **Vue.js**. A continuación, se describe cómo configurar y ejecutar el proyecto en tu máquina local.
+
+---
+
+### **Requisitos**
+
+Asegúrate de tener instalados los siguientes programas antes de comenzar:
+- **Python 3.10+**
+- **Node.js y npm**
+- **Vue CLI** (si no lo tienes instalado globalmente, sigue las instrucciones más abajo)
+
+---
+
+### **Configuración y Ejecución del Backend (FastAPI)**
+
+1. **Clonar el repositorio**:
+   
+   Clona este proyecto en tu máquina local:
+   ```bash
+   git clone https://github.com/tu-usuario/tu-repositorio.git
+   cd tu-repositorio
+   ```
+
+2. **Crear y activar un entorno virtual de Python**:
+   
+   ```bash
+   python -m venv venv
+   venv/Scripts/activate
+   ```
+
+3. **Instalar dependencias del backend**:
+
+   ```bash
+   pip install fastapi uvicorn
+   pip install pytest httpx
+   pip install sqlalchemy databases[sqlite]
+   pip install fastapi[all]
+   ```
+
+4. **Navegar a la carpeta del backend**:
+   
+   ```bash
+   cd backend
+   ```
+
+5. **Ejecutar las pruebas del backend** (opcional, pero recomendado para asegurarte de que todo esté funcionando correctamente):
+
+   ```bash
+   python -m pytest
+   ```
+
+6. **Ejecutar el servidor del backend**:
+   
+   Inicia el servidor FastAPI:
+   ```bash
+   uvicorn backend.main:app --reload
+   ```
+
+   El backend estará disponible en `http://localhost:8000`.
+
+7. **Desactivar el entorno virtual** cuando termines de trabajar en el backend:
+   
+   ```bash
+   deactivate
+   ```
+
+---
+
+### **Configuración y Ejecución del Frontend (Vue.js)**
+
+1. **Instalar Vue CLI globalmente** (si aún no lo tienes):
+
+   ```bash
+   npm install -g @vue/cli
+   ```
+
+2. **Navegar a la carpeta del frontend**:
+
+   ```bash
+   cd frontend
+   ```
+
+3. **Instalar dependencias del frontend**:
+   
+   ```bash
+   npm install
+   npm install axios
+   ```
+
+4. **Ejecutar el servidor del frontend**:
+
+   Inicia el servidor de desarrollo de Vue.js:
+   ```bash
+   npm run serve
+   ```
+
+   El frontend estará disponible en `http://localhost:8080`.
+
+---
+
+### **Instrucciones Finales**
+
+Para ejecutar el proyecto completo:
+
+1. **Iniciar el backend** con FastAPI:
+   ```bash
+   uvicorn backend.main:app --reload
+   ```
+
+2. **Iniciar el frontend** con Vue.js:
+   ```bash
+   npm run serve
+   ```
+
+Ahora, deberías tener tanto el **backend** en `http://localhost:8000` como el **frontend** en `http://localhost:8080` funcionando en tu máquina local.
+
+
 ## License
 
 This project is licensed under the MIT License. For more details, see the `LICENSE` file.
