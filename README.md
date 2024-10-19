@@ -85,7 +85,7 @@ Asegúrate de tener instalados los siguientes programas antes de comenzar:
    
    ```bash
    python -m venv venv
-   venv/Scripts/activate
+   venv\Scripts\activate
    ```
 
 3. **Instalar dependencias del backend**:
