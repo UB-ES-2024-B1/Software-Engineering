@@ -14,7 +14,7 @@ Several tools will be utilized to help us organize and develop the projects effi
 
 - **Trello**: We will use Trello for project and task management, implementing Kanban boards to plan activities.
 - **GitHub**: This repository will serve as version control and for collaborative development of the projects. Each student is required to submit pull requests and perform code reviews.
-- **Programming Languages**: Depending on the project, various programming languages will be used (e.g., Python, Java, etc.).
+- **Programming Languages**: Depending on the project, various programming languages will be used (e.g., Python, Java, etc.). You could find more details in the folder src/backend or src/frontend.
 
 ## Repository Structure
 
@@ -25,7 +25,7 @@ The repository will be organized as follows:
     - Project documentation, including requirements analysis, designs, and user manuals.
     
 /src
-    - Project source code.
+    - Project source code. You can find also the description about the execution steps in each folder, backend and frontend.
     
 /tests
     - Unit and functional tests.
@@ -56,127 +56,20 @@ We will use **agile methodologies**, such as Scrum or Kanban, to organize the te
 
 ## How to use
 
-### Documentación del Proyecto
+### Project Documentation
 
-Este proyecto es una aplicación Fullstack con un **backend** construido con **FastAPI** y una **base de datos SQLite**, y un **frontend** simple creado con **Vue.js**. A continuación, se describe cómo configurar y ejecutar el proyecto en tu máquina local.
+This project is a Fullstack application with a **backend** built using **FastAPI** and an **SQLite** database, and a simple **frontend** created with **Vue.js**. Below is a brief summary of how to set up and run the project on your local machine. For detailed instructions, refer to the `src` folder.
 
 ---
 
-### **Requisitos**
+### **Requirements**
 
-Asegúrate de tener instalados los siguientes programas antes de comenzar:
+Make sure you have the following installed before you begin:
 - **Python 3.10+**
-- **Node.js y npm**
-- **Vue CLI** (si no lo tienes instalado globalmente, sigue las instrucciones más abajo)
+- **Node.js and npm**
+- **Vue CLI** (if it's not installed globally, follow the instructions in the folder src/frontend)
 
 ---
-
-### **Configuración y Ejecución del Backend (FastAPI)**
-
-1. **Clonar el repositorio**:
-   
-   Clona este proyecto en tu máquina local:
-   ```bash
-   git clone https://github.com/tu-usuario/tu-repositorio.git
-   cd tu-repositorio
-   ```
-
-2. **Crear y activar un entorno virtual de Python**:
-   
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate
-   ```
-
-3. **Instalar dependencias del backend**:
-
-   ```bash
-   pip install fastapi uvicorn
-   pip install pytest httpx
-   pip install sqlalchemy databases[sqlite]
-   pip install fastapi[all]
-   ```
-
-4. **Navegar a la carpeta del backend**:
-   
-   ```bash
-   cd backend
-   ```
-
-5. **Ejecutar las pruebas del backend** (opcional, pero recomendado para asegurarte de que todo esté funcionando correctamente):
-
-   ```bash
-   pytest
-   ```
-   o
-   ```bash
-   python -m pytest
-   ```
-   
-6. **Ejecutar el servidor del backend**:
-   
-   Inicia el servidor FastAPI:
-   ```bash
-   uvicorn backend.main:app --reload
-   ```
-
-   El backend estará disponible en `http://localhost:8000`.
-
-7. **Desactivar el entorno virtual** cuando termines de trabajar en el backend:
-   
-   ```bash
-   deactivate
-   ```
-
----
-
-### **Configuración y Ejecución del Frontend (Vue.js)**
-
-1. **Instalar Vue CLI globalmente** (si aún no lo tienes):
-
-   ```bash
-   npm install -g @vue/cli
-   ```
-
-2. **Navegar a la carpeta del frontend**:
-
-   ```bash
-   cd frontend
-   ```
-
-3. **Instalar dependencias del frontend**:
-   
-   ```bash
-   npm install
-   npm install axios
-   ```
-
-4. **Ejecutar el servidor del frontend**:
-
-   Inicia el servidor de desarrollo de Vue.js:
-   ```bash
-   npm run serve
-   ```
-
-   El frontend estará disponible en `http://localhost:8080`.
-
----
-
-### **Instrucciones Finales**
-
-Para ejecutar el proyecto completo:
-
-1. **Iniciar el backend** con FastAPI:
-   ```bash
-   uvicorn backend.main:app --reload
-   ```
-
-2. **Iniciar el frontend** con Vue.js:
-   ```bash
-   npm run serve
-   ```
-
-Ahora, deberías tener tanto el **backend** en `http://localhost:8000` como el **frontend** en `http://localhost:8080` funcionando en tu máquina local.
 
 
 ## License

@@ -1,0 +1,110 @@
+# backend/app/api/routes/user_routes.py
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from app.db.database import SessionLocal  # Import the SessionLocal from database.py
+from app.crud import user_crud
+from app.models import (
+    User, UserOut, UserCreate, Message, UserUpdate
+)
+from typing import List
+
+router = APIRouter()
+
+# Instance of CryptContext for hash the password
+from passlib.context import CryptContext
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Dependency to get a new database session for each request
+def get_db():
+    db = SessionLocal()  # Open a new session
+    try:
+        yield db  # Yield the session to be used by the route handler
+    finally:
+        db.close()  # Ensure the session is closed after the request is done
+
+# Route to create a new user
+@router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    """
+    Create a new user.
+    :param user: UserCreate (input validation)
+    :param db: Database session (injected via dependency)
+    :return: The created user object
+    """
+    # Check if the email is already registered
+    existing_user = user_crud.get_user_by_email(db, email=user.email)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    # Hash the password
+    hashed_password = pwd_context.hash(user.password)
+
+    # Call the CRUD operation to create the user in the database
+    new_user = user_crud.create_user(db, full_name=user.full_name, email=user.email, hashed_password=hashed_password)
+    return new_user
+
+# Route to get all users
+@router.get("/", response_model=List[UserOut])
+def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Get a list of users.
+    :param skip: Pagination offset
+    :param limit: Pagination limit
+    :param db: Database session (injected via dependency)
+    :return: A list of users
+    """
+    # Fetch the list of users with pagination
+    users = user_crud.get_users(db, skip=skip, limit=limit)
+
+    # Return the list of users
+    return users
+
+# Route to get a user by ID
+@router.get("/{user_id}", response_model=UserOut)
+def read_user(user_id: int, db: Session = Depends(get_db)):
+    """
+    Get a user by their ID.
+    :param user_id: The ID of the user
+    :param db: Database session (injected via dependency)
+    :return: User object or 404 if not found
+    """
+    user = user_crud.get_user(db, user_id=user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+# Route to delete a user by ID
+@router.delete("/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)) -> Message:
+    """
+    Delete a user by their ID.
+    :param user_id: The ID of the user to delete
+    :param db: Database session (injected via dependency)
+    :return: The deleted user object
+    """
+    user = user_crud.delete_user(db, user_id=user_id)
+    if user is False:
+        raise HTTPException(status_code=404, detail="User not found")
+    return Message(id=user_id)
+
+@router.put("/{user_id}", response_model=UserOut)
+def update_user(
+    user_id: int,
+    user_data: UserUpdate,  # Modelo con los datos que se quieren actualizar
+    db: Session = Depends(get_db)
+):
+    """
+    Update an existing user by ID.
+    :param user_id: The ID of the user to update
+    :param user_data: The data to update the user
+    :param db: The database session
+    :return: The updated user
+    """
+    # Use the CRUD function to update the user
+    updated_user = user_crud.update_user(db, user_id, user_data.model_dump(exclude_unset=True))
+
+    # If the user doesn't exist, return error 404
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return updated_user
