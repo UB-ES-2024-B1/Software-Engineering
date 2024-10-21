@@ -37,6 +37,8 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install fastapi[all]
     pip install sqlmodel
     pip install alembic
+    pip install passlib
+    pip install bcrypt
     ```
 
 4. **Navigate to the backend folder**:
