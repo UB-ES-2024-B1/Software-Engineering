@@ -22,6 +22,33 @@ def get_db():
     finally:
         db.close()  # Ensure the session is closed after the request is done
 
+
+def init_db():
+    # Consumir el generador para obtener la sesión
+    db: Session = next(get_db())  # Obtener una sesión válida
+
+    # Verificar si ya existen usuarios
+    if len(user_crud.get_users(db)) == 0:
+        # Crear 6 usuarios
+        initial_users = [
+            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1"},
+            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2"},
+            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3"},
+            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4"},
+            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5"},
+            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6"},
+        ]
+        # Insertar usuarios en la base de datos
+        for user_data in initial_users:
+            user_crud.create_user(
+                db=db,
+                full_name=user_data.get("full_name"),
+                email=user_data.get("email"),
+                hashed_password=pwd_context.hash(user_data.get("password")),
+                is_admin=user_data.get("is_admin")
+            )
+    db.close()  # Cerrar la sesión
+    
 # Route to create a new user
 @router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):

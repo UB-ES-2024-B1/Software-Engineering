@@ -9,6 +9,7 @@ from . import crud  # Asegúrate de importar correctamente el archivo crud
 from .api.routes import user_routes
 
 
+
 app = FastAPI()
 
 '''try:
@@ -48,3 +49,8 @@ def create_user(name: str, email: str, db: Session = Depends(get_db)):
 
 # Import the routes from the other files
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
+
+@app.on_event("startup")
+def startup_event():
+    user_routes.init_db()
+    print("Database initialized")

@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from app.models.user_models import User, UserOut
 
 # Function to create a user
-def create_user(db: Session, full_name: str, email: str, hashed_password: str) -> UserOut:
-    db_user = User(full_name=full_name, email=email, hashed_password=hashed_password)
+def create_user(db: Session, full_name: str, email: str, hashed_password: str, is_admin: bool =False) -> UserOut:
+    db_user = User(full_name=full_name, email=email, hashed_password=hashed_password,is_admin=is_admin)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
