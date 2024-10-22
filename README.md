@@ -14,7 +14,7 @@ Several tools will be utilized to help us organize and develop the projects effi
 
 - **Trello**: We will use Trello for project and task management, implementing Kanban boards to plan activities.
 - **GitHub**: This repository will serve as version control and for collaborative development of the projects. Each student is required to submit pull requests and perform code reviews.
-- **Programming Languages**: Depending on the project, various programming languages will be used (e.g., Python, Java, etc.).
+- **Programming Languages**: Depending on the project, various programming languages will be used (e.g., Python, Java, etc.). You could find more details in the folder src/backend or src/frontend.
 
 ## Repository Structure
 
@@ -25,7 +25,7 @@ The repository will be organized as follows:
     - Project documentation, including requirements analysis, designs, and user manuals.
     
 /src
-    - Project source code.
+    - Project source code. You can find also the description about the execution steps in each folder, backend and frontend.
     
 /tests
     - Unit and functional tests.
@@ -52,6 +52,25 @@ We will use **agile methodologies**, such as Scrum or Kanban, to organize the te
 - **Sprints**: Each sprint will last 1 or 2 weeks. During the sprint, assigned tasks will be worked on, and progress will be reviewed.
 - **Daily meetings**: Short meetings to track task progress and address any blockers.
 - **Sprint reviews**: At the end of each sprint, a review of the completed work will be done, and the objectives for the next sprint will be adjusted.
+
+
+## How to use
+
+### Project Documentation
+
+This project is a Fullstack application with a **backend** built using **FastAPI** and an **SQLite** database, and a simple **frontend** created with **Vue.js**. Below is a brief summary of how to set up and run the project on your local machine. For detailed instructions, refer to the `src` folder.
+
+---
+
+### **Requirements**
+
+Make sure you have the following installed before you begin:
+- **Python 3.10+**
+- **Node.js and npm**
+- **Vue CLI** (if it's not installed globally, follow the instructions in the folder src/frontend)
+
+---
+
 
 ## License
 
