@@ -59,3 +59,21 @@ def update_user(db: Session, user_id: int, user_data: dict):
         db.refresh(user)
         return user
     return None
+
+def update_password(db: Session, user_id: int, new_password: str):
+    """
+    Update the password of an existing user in the database by ID.
+    :param db: Database session
+    :param user_id: The ID of the user to update
+    :param new_password: The new password
+    :return: Updated User object
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        user.hashed_password = new_password
+        db.commit()
+        db.refresh(user)
+        return user
+    return None
+
+

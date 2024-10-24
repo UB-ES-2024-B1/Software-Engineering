@@ -7,10 +7,19 @@ from sqlalchemy.orm import Session
 from .db.database import SessionLocal
 from . import crud  # Asegúrate de importar correctamente el archivo crud
 from .api.routes import user_routes
+from .api.routes import login_routes
+from contextlib import asynccontextmanager
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    user_routes.init_db()
+    print("Database initialized")
+    yield
+    print("Shutting down")
+    app.state.db.close()
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 '''try:
     Base.metadata.create_all(bind=engine)
@@ -28,7 +37,7 @@ app.add_middleware(
 )
 
 @app.get("/")
-def read_root():
+async def read_root():
     return {"message": "Hello, FilmHub!"}
 
 '''@app.get("/items/{item_id}")
@@ -49,8 +58,5 @@ def create_user(name: str, email: str, db: Session = Depends(get_db)):
 
 # Import the routes from the other files
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
+app.include_router(login_routes.router, prefix="/login",tags=["login"])
 
-@app.on_event("startup")
-def startup_event():
-    user_routes.init_db()
-    print("Database initialized")
