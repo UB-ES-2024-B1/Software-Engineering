@@ -2,11 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
-from app.utils.auth import authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_user, decode_token, get_password_hash
+from app.core.jwt import create_access_token, decode_token
+from app.core.security import get_password_hash, authenticate_user
+from app.core.jwt import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.api.dependencies import get_current_user
 from .user_routes import get_db
 from app.models.user_models import User, TokenRequest
-from app.utils.auth import authenticate_user
+
 from app.crud import user_crud
+
 router = APIRouter()
 
 @router.post("/")
