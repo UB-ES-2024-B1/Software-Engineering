@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal  # Import the SessionLocal from database.py
 from app.crud import user_crud
+from app.api.dependencies import get_db  # Import the get_db function
 from app.models import (
     User, UserOut, UserCreate, Message, UserUpdate
 )
@@ -13,15 +14,6 @@ router = APIRouter()
 # Instance of CryptContext for hash the password
 from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Dependency to get a new database session for each request
-def get_db():
-    db = SessionLocal()  # Open a new session
-    try:
-        yield db  # Yield the session to be used by the route handler
-    finally:
-        db.close()  # Ensure the session is closed after the request is done
-
 
 def init_db():
     # Consumir el generador para obtener la sesión
@@ -47,8 +39,8 @@ def init_db():
                 hashed_password=pwd_context.hash(user_data.get("password")),
                 is_admin=user_data.get("is_admin")
             )
-    db.close()  # Cerrar la sesión
-    
+    db.close()  # Close session
+
 # Route to create a new user
 @router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -113,6 +105,28 @@ def delete_user(user_id: int, db: Session = Depends(get_db)) -> Message:
     if user is False:
         raise HTTPException(status_code=404, detail="User not found")
     return Message(id=user_id)
+
+@router.put("/{user_email}", response_model=UserOut)
+def update_user(
+    user_email: str,  # The user's email to identify the user
+    user_data: UserUpdate,  # Modelo con los datos que se quieren actualizar
+    db: Session = Depends(get_db)
+):
+    """
+    Update an existing user by email.
+    :param user_email: The email of the user to update
+    :param user_data: The data to update the user
+    :param db: The database session
+    :return: The updated user
+    """
+    # Use the CRUD function to update the user by email
+    updated_user = user_crud.update_user_by_email(db, user_email, user_data.model_dump(exclude_unset=True))
+
+    # If the user doesn't exist, return error 404
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return updated_user
 
 @router.put("/{user_id}", response_model=UserOut)
 def update_user(

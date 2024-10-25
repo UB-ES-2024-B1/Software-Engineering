@@ -1,3 +1,4 @@
+# backend/app/tests/user_tests.py
 from fastapi.testclient import TestClient
 from app.main import app  # Ensure the import is correct
 
@@ -136,3 +137,5 @@ def test_deleted_user_cannot_be_retrieved():
     # Attempt to retrieve the user after deletion
     get_response = client.get(f"/users/{user_id}")
     assert get_response.status_code == 404  # The user should no longer exist
+
+

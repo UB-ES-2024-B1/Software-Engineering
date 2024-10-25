@@ -59,3 +59,21 @@ def update_user(db: Session, user_id: int, user_data: dict):
         db.refresh(user)
         return user
     return None
+
+def update_user_by_email(db: Session, email: str, user_data: dict):
+    # Find the user by email
+    user = db.query(User).filter(User.email == email).first()
+    
+    # If the user doesn't exist, return None
+    if not user:
+        return None
+    
+    # Update the user's fields
+    for key, value in user_data.items():
+        setattr(user, key, value)
+    
+    # Commit the transaction
+    db.commit()
+    db.refresh(user)
+    
+    return user
