@@ -2,6 +2,7 @@ from passlib.context import CryptContext
 from app.models import User
 from sqlalchemy.orm import Session
 from app.crud import user_crud
+from typing import Union
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -14,7 +15,7 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 # Autenticación de usuario
-def authenticate_user(db: Session, email: str, password: str) -> User | bool:
+def authenticate_user(db: Session, email: str, password: str) -> Union[User, bool]:
     user = user_crud.get_user_by_email(db, email)
     if not user or not verify_password(password, user.hashed_password):
         return False

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal  # Import the SessionLocal from database.py
 from app.crud import user_crud
-from app.api.dependencies import get_db  # Import the get_db function
+from app.api.dependencies import *  # Import the get_db function
 from app.models import (
     User, UserOut, UserCreate,UserUpdate
 )
@@ -106,7 +106,7 @@ def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return users
 
 # Route to get a user by ID
-@router.get("/{user_id}", response_model=UserOut)
+@router.get("/id/{user_id}", response_model=UserOut)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     """
     Get a user by their ID.
@@ -119,8 +119,21 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+@router.get("/email/{user_email}", response_model=UserOut)
+def read_user(user_email: str, db: Session = Depends(get_db)):
+    """
+    Get a user by their ID.
+    :param user_id: The ID of the user
+    :param db: Database session (injected via dependency)
+    :return: User object or 404 if not found
+    """
+    user = user_crud.get_user_by_email(db, user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
 # Route to delete a user by ID
-@router.delete("/{user_id}")
+@router.delete("/id/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     """
     Delete a user by their ID.
@@ -133,32 +146,25 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted succesfully"}
 
-@router.put("/{user_email}", response_model=UserOut)
-def update_user(
-    user_email: str,  # The user's email to identify the user
-    user_data: UserUpdate,  # Modelo con los datos que se quieren actualizar
-    db: Session = Depends(get_db)
-):
+# Route to delete a user by email
+@router.delete("/email/{user_email}")
+def delete_user(user_email: str, db: Session = Depends(get_db)):
     """
-    Update an existing user by email.
-    :param user_email: The email of the user to update
-    :param user_data: The data to update the user
-    :param db: The database session
-    :return: The updated user
+    Delete a user by their ID.
+    :param user_id: The ID of the user to delete
+    :param db: Database session (injected via dependency)
+    :return: The deleted user object
     """
-    # Use the CRUD function to update the user by email
-    updated_user = user_crud.update_user_by_email(db, user_email, user_data.model_dump(exclude_unset=True))
-
-    # If the user doesn't exist, return error 404
-    if not updated_user:
+    user = user_crud.delete_user_by_email(db, user_email=user_email)
+    if user is False:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    return updated_user
+    return {"message": "User deleted succesfully"}
 
-@router.put("/{user_id}", response_model=UserOut)
-def update_user(
+# Endpoint to update an existing user by ID
+@router.put("/id/{user_id}", response_model=UserOut)
+def update_user_by_id(
     user_id: int,
-    user_data: UserUpdate,  # Modelo con los datos que se quieren actualizar
+    user_data: UserUpdate,  # Model with the data to update
     db: Session = Depends(get_db)
 ):
     """
@@ -170,6 +176,29 @@ def update_user(
     """
     # Use the CRUD function to update the user
     updated_user = user_crud.update_user(db, user_id, user_data.model_dump(exclude_unset=True))
+
+    # If the user doesn't exist, return error 404
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return updated_user
+
+# Endpoint to update an existing user by email
+@router.put("/email/{user_email}", response_model=UserOut)
+def update_user_by_email(
+    user_email: str,  # The user's email to identify the user
+    user_data: UserUpdate,  # Model with the data to update
+    db: Session = Depends(get_db)
+):
+    """
+    Update an existing user by email.
+    :param user_email: The email of the user to update
+    :param user_data: The data to update the user
+    :param db: The database session
+    :return: The updated user
+    """
+    # Use the CRUD function to update the user by email
+    updated_user = user_crud.update_user_by_email(db, user_email, user_data.model_dump(exclude_unset=True))
 
     # If the user doesn't exist, return error 404
     if not updated_user:

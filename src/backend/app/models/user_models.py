@@ -28,6 +28,5 @@ class UserUpdate(SQLModel):
     is_active: Union[bool, None] = None
     is_admin: Union[bool, None] = None
 
-
 class TokenRequest(SQLModel):
     token: str
