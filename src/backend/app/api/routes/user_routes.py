@@ -106,32 +106,11 @@ def delete_user(user_id: int, db: Session = Depends(get_db)) -> Message:
         raise HTTPException(status_code=404, detail="User not found")
     return Message(id=user_id)
 
-@router.put("/{user_email}", response_model=UserOut)
-def update_user(
-    user_email: str,  # The user's email to identify the user
-    user_data: UserUpdate,  # Modelo con los datos que se quieren actualizar
-    db: Session = Depends(get_db)
-):
-    """
-    Update an existing user by email.
-    :param user_email: The email of the user to update
-    :param user_data: The data to update the user
-    :param db: The database session
-    :return: The updated user
-    """
-    # Use the CRUD function to update the user by email
-    updated_user = user_crud.update_user_by_email(db, user_email, user_data.model_dump(exclude_unset=True))
-
-    # If the user doesn't exist, return error 404
-    if not updated_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    return updated_user
-
-@router.put("/{user_id}", response_model=UserOut)
-def update_user(
+# Endpoint to update an existing user by ID
+@router.put("/id/{user_id}", response_model=UserOut)
+def update_user_by_id(
     user_id: int,
-    user_data: UserUpdate,  # Modelo con los datos que se quieren actualizar
+    user_data: UserUpdate,  # Model with the data to update
     db: Session = Depends(get_db)
 ):
     """
@@ -143,6 +122,29 @@ def update_user(
     """
     # Use the CRUD function to update the user
     updated_user = user_crud.update_user(db, user_id, user_data.model_dump(exclude_unset=True))
+
+    # If the user doesn't exist, return error 404
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return updated_user
+
+# Endpoint to update an existing user by email
+@router.put("/email/{user_email}", response_model=UserOut)
+def update_user_by_email(
+    user_email: str,  # The user's email to identify the user
+    user_data: UserUpdate,  # Model with the data to update
+    db: Session = Depends(get_db)
+):
+    """
+    Update an existing user by email.
+    :param user_email: The email of the user to update
+    :param user_data: The data to update the user
+    :param db: The database session
+    :return: The updated user
+    """
+    # Use the CRUD function to update the user by email
+    updated_user = user_crud.update_user_by_email(db, user_email, user_data.model_dump(exclude_unset=True))
 
     # If the user doesn't exist, return error 404
     if not updated_user:
