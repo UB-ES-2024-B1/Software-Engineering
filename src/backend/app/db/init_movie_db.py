@@ -16,11 +16,11 @@ def add_initial_genres(db_session):
         ]
         
         for genre_name in genres:
-            genre = Genre(name=genre_name)
+            genre = Genre(type=genre_name)
             db_session.add(genre)
         
         db_session.commit()
-
+        
 # List of movies to be added
 '''movies_data = [
     {"title": "Inception", "year": 2010},

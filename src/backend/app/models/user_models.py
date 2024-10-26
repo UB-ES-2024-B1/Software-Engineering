@@ -26,7 +26,6 @@ class UserUpdate(SQLModel):
     email: Union[str, None] = None
     full_name: Union[str, None] = None
     is_active: Union[bool, None] = None
-    is_admin: Union[bool, None] = None
 
 class Message(SQLModel):
     id: int
