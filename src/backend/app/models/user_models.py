@@ -27,5 +27,6 @@ class UserUpdate(SQLModel):
     full_name: Union[str, None] = None
     is_active: Union[bool, None] = None
 
-class Message(SQLModel):
-    id: int
+
+class TokenRequest(SQLModel):
+    token: str
