@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal  # Import the SessionLocal from database.py
 from app.crud import user_crud
+from app.api.dependencies import get_db  # Import the get_db function
 from app.models import (
     User, UserOut, UserCreate,UserUpdate
 )
@@ -14,13 +15,31 @@ router = APIRouter()
 from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Dependency to get a new database session for each request
-def get_db():
-    db = SessionLocal()  # Open a new session
-    try:
-        yield db  # Yield the session to be used by the route handler
-    finally:
-        db.close()  # Ensure the session is closed after the request is done
+def init_db():
+    # Consumir el generador para obtener la sesión
+    db: Session = next(get_db())  # Obtener una sesión válida
+
+    # Verificar si ya existen usuarios
+    if len(user_crud.get_users(db)) == 0:
+        # Crear 6 usuarios
+        initial_users = [
+            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1"},
+            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2"},
+            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3"},
+            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4"},
+            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5"},
+            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6"},
+        ]
+        # Insertar usuarios en la base de datos
+        for user_data in initial_users:
+            user_crud.create_user(
+                db=db,
+                full_name=user_data.get("full_name"),
+                email=user_data.get("email"),
+                hashed_password=pwd_context.hash(user_data.get("password")),
+                is_admin=user_data.get("is_admin")
+            )
+    db.close()  # Close session
 
 
 def init_db():
@@ -113,6 +132,28 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     if user is False:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted succesfully"}
+
+@router.put("/{user_email}", response_model=UserOut)
+def update_user(
+    user_email: str,  # The user's email to identify the user
+    user_data: UserUpdate,  # Modelo con los datos que se quieren actualizar
+    db: Session = Depends(get_db)
+):
+    """
+    Update an existing user by email.
+    :param user_email: The email of the user to update
+    :param user_data: The data to update the user
+    :param db: The database session
+    :return: The updated user
+    """
+    # Use the CRUD function to update the user by email
+    updated_user = user_crud.update_user_by_email(db, user_email, user_data.model_dump(exclude_unset=True))
+
+    # If the user doesn't exist, return error 404
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return updated_user
 
 @router.put("/{user_id}", response_model=UserOut)
 def update_user(

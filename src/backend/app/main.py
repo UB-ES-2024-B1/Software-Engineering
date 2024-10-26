@@ -11,6 +11,7 @@ from .api.routes import login_routes
 from contextlib import asynccontextmanager
 
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     user_routes.init_db()
@@ -20,6 +21,7 @@ async def lifespan(app: FastAPI):
     app.state.db.close()
 
 app = FastAPI(lifespan=lifespan)
+
 
 '''try:
     Base.metadata.create_all(bind=engine)
@@ -58,5 +60,11 @@ def create_user(name: str, email: str, db: Session = Depends(get_db)):
 
 # Import the routes from the other files
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
+
 app.include_router(login_routes.router, prefix="/login",tags=["login"])
 
+
+@app.on_event("startup")
+def startup_event():
+    user_routes.init_db()
+    print("Database initialized")
