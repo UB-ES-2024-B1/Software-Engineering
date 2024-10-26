@@ -20,7 +20,7 @@ def create_user():
     yield new_user
     # Eliminar el usuario después de la prueba
     user_data = response.json()
-    client.delete(f"/users/{user_data['id']}")
+    client.delete(f"/users/id/{user_data['id']}")
 
 def test_login_for_access_token(create_user):
     # Intenta iniciar sesión

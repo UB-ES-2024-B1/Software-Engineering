@@ -106,7 +106,7 @@ def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return users
 
 # Route to get a user by ID
-@router.get("/{user_id}", response_model=UserOut)
+@router.get("/id/{user_id}", response_model=UserOut)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     """
     Get a user by their ID.
@@ -119,8 +119,21 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+@router.get("/email/{user_email}", response_model=UserOut)
+def read_user(user_email: str, db: Session = Depends(get_db)):
+    """
+    Get a user by their ID.
+    :param user_id: The ID of the user
+    :param db: Database session (injected via dependency)
+    :return: User object or 404 if not found
+    """
+    user = user_crud.get_user_by_email(db, user_email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
 # Route to delete a user by ID
-@router.delete("/{user_id}")
+@router.delete("/id/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     """
     Delete a user by their ID.
@@ -129,6 +142,20 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     :return: The deleted user object
     """
     user = user_crud.delete_user(db, user_id=user_id)
+    if user is False:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deleted succesfully"}
+
+# Route to delete a user by email
+@router.delete("/email/{user_email}")
+def delete_user(user_email: str, db: Session = Depends(get_db)):
+    """
+    Delete a user by their ID.
+    :param user_id: The ID of the user to delete
+    :param db: Database session (injected via dependency)
+    :return: The deleted user object
+    """
+    user = user_crud.delete_user_by_email(db, user_email=user_email)
     if user is False:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted succesfully"}

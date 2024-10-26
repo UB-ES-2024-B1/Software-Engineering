@@ -26,41 +26,9 @@ def create_movie(movie: MovieIn, db: Session = Depends(get_db)):
     if existing_movie:
         raise HTTPException(status_code=400, detail="Movie title already registered")
     
-    # Create new movie instance
-    db_movie = Movie(
-        title=movie.title,
-        description=movie.description,
-        director=movie.director,
-        country=movie.country,
-        release_date=movie.release_date,
-        rating=movie.rating,
-        rating_count=movie.rating_count,
-        likes=movie.likes
-    )
-
-    # Handle genres
-    for genre_name in movie.genres or []:  # Use the genres from the input
-        genre = db.execute(select(Genre).where(Genre.type == genre_name)).scalars().first()
-        if genre is None:
-            genre = Genre(type=genre_name)  # Ensure genre type is not None
-            db.add(genre)  # Add new genre to the session
-        db_movie.genres.append(genre)  # Associate genre with the movie
-
-    # Handle cast members
-    for cast_name in movie.cast_members or []:
-        cast_member = db.execute(select(CastMember).where(CastMember.name == cast_name)).scalars().first()
-        if cast_member is None:
-            cast_member = CastMember(name=cast_name)  # Ensure cast name is not None
-            db.add(cast_member)  # Add new cast member to the session
-        db_movie.cast_members.append(cast_member)  # Associate cast member with the movie
-
-    # Add movie to the session and commit
-    db.add(db_movie)
-    db.commit()  # Commit the transaction
-    db.refresh(db_movie)  # Refresh to get the updated data
-
+    movie = movie_crud.create_movie(db, movie)
     # Return the created movie details
-    return MovieOut.from_orm(db_movie)
+    return movie
 
 # Endpoint to retrieve a list of movies
 @router.get("/", response_model=List[MovieOut])
@@ -146,7 +114,7 @@ def get_movies_sorted_by_likes(db: Session = Depends(get_db)):
     movies = movie_crud.get_movies_sorted_by_likes(db=db)
     return movies
 
-
+'''
 # Endpoint to update an existing movie by its ID
 @router.put("/{movie_id}", response_model=MovieOut)
 def update_movie(movie_id: int, movie_data: MovieIn, db: Session = Depends(get_db)):
@@ -161,6 +129,26 @@ def update_movie(movie_id: int, movie_data: MovieIn, db: Session = Depends(get_d
     """
     # Call the CRUD function to update the movie
     updated_movie = movie_crud.update_movie(db, movie_id, movie_data)
+    # If the movie does not exist, raise a 404 error
+    if updated_movie is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    return updated_movie
+'''
+
+# Endpoint to update an existing movie by its title
+@router.put("/{movie_title}", response_model=MovieOut)
+def update_movie(movie_title: str, movie_data: MovieIn, db: Session = Depends(get_db)):
+    """
+    Updates an existing movie's details by its ID.
+    
+    :param movie_id: int - The ID of the movie to update
+    :param movie_data: MovieUpdate - The data to update the movie with
+    :param db: Session - Database session dependency
+    :return: MovieOut - The updated movie's details
+    :raises HTTPException: 404 if the movie is not found
+    """
+    # Call the CRUD function to update the movie
+    updated_movie = movie_crud.update_movie(db, movie_title, movie_data)
     # If the movie does not exist, raise a 404 error
     if updated_movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")

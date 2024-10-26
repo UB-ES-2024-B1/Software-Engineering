@@ -1,19 +1,45 @@
 # backend/app/crud/movie_crud.py
 from sqlmodel import Session, select
-from app.models.movie_models import Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateLikes, MovieUpdateRating
+from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast) 
 from typing import List
 
 # Function to create a new movie
-def create_movie(db: Session, movie_data: MovieIn) -> MovieOut:
+def create_movie(db: Session, movie: MovieIn) -> MovieOut:
     # Check if a movie with the same title already exists
-    existing_movie = db.execute(select(Movie).where(Movie.title == movie_data.title)).first()
-    if existing_movie:
-        return None
-    
-    db.add(movie_data)
-    db.commit()
-    db.refresh(movie_data)  # Refresh to get the new ID
-    return MovieOut.model_validate(movie_data)  # Use model_validate instead of from_orm
+    # Create new movie instance
+    db_movie = Movie(
+        title=movie.title,
+        description=movie.description,
+        director=movie.director,
+        country=movie.country,
+        release_date=movie.release_date,
+        rating=movie.rating,
+        rating_count=movie.rating_count,
+        likes=movie.likes
+    )
+
+    # Handle genres
+    for genre_name in movie.genres or []:  # Use the genres from the input
+        genre = db.execute(select(Genre).where(Genre.type == genre_name)).scalars().first()
+        if genre is None:
+            genre = Genre(type=genre_name)  # Ensure genre type is not None
+            db.add(genre)  # Add new genre to the session
+        db_movie.genres.append(genre)  # Associate genre with the movie
+
+    # Handle cast members
+    for cast_name in movie.cast_members or []:
+        cast_member = db.execute(select(CastMember).where(CastMember.name == cast_name)).scalars().first()
+        if cast_member is None:
+            cast_member = CastMember(name=cast_name)  # Ensure cast name is not None
+            db.add(cast_member)  # Add new cast member to the session
+        db_movie.cast_members.append(cast_member)  # Associate cast member with the movie
+
+    # Add movie to the session and commit
+    db.add(db_movie)
+    db.commit()  # Commit the transaction
+    db.refresh(db_movie)  # Refresh to get the updated data
+
+    return MovieOut.from_orm(db_movie)  # Use model_validate instead of from_orm
 
 # Function to get a list of movies with pagination
 def get_movies(db: Session, skip: int = 0, limit: int = 100) -> List[MovieOut]:
@@ -45,7 +71,7 @@ def get_movies_sorted_by_rating(db: Session) -> List[MovieOut]:
 def get_movies_sorted_by_likes(db: Session) -> List[MovieOut]:
     statement = select(Movie).order_by(Movie.likes.desc())  # Assuming more likes is better
     return db.execute(statement).scalars().all()
-
+'''
 # Function to update a movie by ID
 def update_movie(db: Session, movie_id: int, movie_data: MovieUpdate) -> MovieOut:
     statement = select(Movie).where(Movie.id == movie_id)
@@ -57,6 +83,38 @@ def update_movie(db: Session, movie_id: int, movie_data: MovieUpdate) -> MovieOu
         db.commit()
         db.refresh(movie)  # Refresh to get updated data
         return MovieOut.model_validate(movie)  # Use model_validate
+    return None  # If movie not found
+'''
+
+# Function to update a movie by title
+def update_movie(db: Session, movie_title: str, movie_data: MovieUpdate) -> MovieOut:
+    statement = select(Movie).where(Movie.title == movie_title)
+    movie = db.execute(statement).scalars().first()
+    if movie:
+        for key, value in movie_data.dict(exclude_unset=True).items():
+            if key not in ["genres", "cast_members"]:
+                setattr(movie, key, value)
+        # Handle genres
+        movie.genres.clear()
+        for genre_name in movie_data.genres or []:  # Use the genres from the input
+            genre = db.execute(select(Genre).where(Genre.type == genre_name)).scalars().first()
+            if genre is None:
+                genre = Genre(type=genre_name)  # Ensure genre type is not None
+                db.add(genre)  # Add new genre to the session
+            movie.genres.append(genre)  # Associate genre with the movie
+
+        # Handle cast members
+        movie.cast_members.clear()
+        for cast_name in movie_data.cast_members or []:
+            cast_member = db.execute(select(CastMember).where(CastMember.name == cast_name)).scalars().first()
+            if cast_member is None:
+                cast_member = CastMember(name=cast_name)  # Ensure cast name is not None
+                db.add(cast_member)  # Add new cast member to the session
+            movie.cast_members.append(cast_member)  # Associate cast member with the movie
+        db.add(movie)
+        db.commit()
+        db.refresh(movie)  # Refresh to get updated data
+        return MovieOut.from_orm(movie)  # Use model_validate
     return None  # If movie not found
 
 def update_movie_rating_by_title(db: Session, movie_title: str, new_rating: float):
@@ -99,7 +157,8 @@ def add_movie_like(db: Session, movie_title: str):
 # Function to delete a movie by ID
 def delete_movie(db: Session, movie_id: int) -> bool:
     statement = select(Movie).where(Movie.id == movie_id)
-    movie = db.exec(statement).first()
+    result = db.execute(statement).first()
+    movie = result[0] if result else None
     if movie:
         db.delete(movie)
         db.commit()
@@ -109,7 +168,8 @@ def delete_movie(db: Session, movie_id: int) -> bool:
 # Function to delete a movie by title
 def delete_movie_by_title(db: Session, movie_title: str) -> bool:
     statement = select(Movie).where(Movie.title == movie_title)
-    movie = db.exec(statement).first()
+    result = db.execute(statement).first()
+    movie = result[0] if result else None
     if movie:
         db.delete(movie)
         db.commit()
