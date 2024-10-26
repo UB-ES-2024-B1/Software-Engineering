@@ -25,7 +25,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     For Mac:
    ```bash
    python3 -m venv venv
-   source venv\bin\activate 
+   source venv/bin/activate 
    ```
 
 3. **Install backend dependencies**:
@@ -47,17 +47,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     cd backend
     ````
 
-5. **Run backend tests (optional, but recommended to ensure everything is working correctly)**:
-
-    ```bash
-    pytest
-    ```
-    or
-    ```bash
-    python -m pytest
-    ```
-
-6. **Sep up for Alembic (databases)**:
+5. **Sep up for Alembic (databases)**:
 
     - To create a migration based on model changes, run:
     ```bash
@@ -81,6 +71,16 @@ This project consists of two main parts: the **backend** developed with **FastAP
     Now you need to eliminate the last alembic version file, and run again this command:
     ```bash
     alembic upgrade head
+    ```
+
+6. **Run backend tests (optional, but recommended to ensure everything is working correctly)**:
+
+    ```bash
+    pytest
+    ```
+    or
+    ```bash
+    python -m pytest
     ```
 
 7. **Run the backend server**:
