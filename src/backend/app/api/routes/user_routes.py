@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal  # Import the SessionLocal from database.py
 from app.crud import user_crud
-from app.api.dependencies import get_db  # Import the get_db function
+from app.api.dependencies import *  # Import the get_db function
 from app.models import (
     User, UserOut, UserCreate,UserUpdate
 )

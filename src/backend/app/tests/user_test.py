@@ -103,7 +103,7 @@ def test_update_user():
         "is_admin": True,
         "full_name": "updateduser"
     }
-    update_response = client.put(f"/users/{user_id}", json=update_data)
+    update_response = client.put(f"/users/id/{user_id}", json=update_data)
 
     # Verify the update was successful
     assert update_response.status_code == 200

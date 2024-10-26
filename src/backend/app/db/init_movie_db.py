@@ -1,5 +1,4 @@
-# app/api/db/init_db.py
-from app.api.dependencies import get_db
+# app/api/db/init_movie_db.py
 from sqlmodel import Session, select
 from app.models import Movie, CastMember, Genre  # Adjust the import based on your project structure
 from datetime import date

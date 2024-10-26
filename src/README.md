@@ -39,6 +39,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install alembic
     pip install passlib
     pip install bcrypt
+    pip install python-jose
     ```
 
 4. **Navigate to the backend folder**:
