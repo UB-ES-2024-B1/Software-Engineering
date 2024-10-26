@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.database import SessionLocal  # Import the SessionLocal from database.py
 from app.crud import user_crud
 from app.models import (
-    User, UserOut, UserCreate, Message, UserUpdate
+    User, UserOut, UserCreate,UserUpdate
 )
 from typing import List
 
@@ -102,7 +102,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 
 # Route to delete a user by ID
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)) -> Message:
+def delete_user(user_id: int, db: Session = Depends(get_db)):
     """
     Delete a user by their ID.
     :param user_id: The ID of the user to delete
@@ -112,7 +112,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)) -> Message:
     user = user_crud.delete_user(db, user_id=user_id)
     if user is False:
         raise HTTPException(status_code=404, detail="User not found")
-    return Message(id=user_id)
+    return {"message": "User deleted succesfully"}
 
 @router.put("/{user_id}", response_model=UserOut)
 def update_user(

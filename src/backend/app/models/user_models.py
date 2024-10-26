@@ -31,7 +31,3 @@ class UserUpdate(SQLModel):
 
 class TokenRequest(SQLModel):
     token: str
-
-class Message(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
-    content: str
