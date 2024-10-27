@@ -160,6 +160,8 @@ To run the full project:
 
    ```bash
     cd src/backend
+    source venv/bin/activate
+    alembic upgrade head
     uvicorn app.main:app --reload
     ```
 
