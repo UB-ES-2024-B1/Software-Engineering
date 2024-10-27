@@ -15,7 +15,13 @@ This project consists of two main parts: the **backend** developed with **FastAP
    cd your-repository
    ```
 
-2. **Create and activate a Python virtual environment**:
+2. **Navigate to the backend folder**:
+
+    ```bash
+    cd backend
+    ````
+
+3. **Create and activate a Python virtual environment**:
 
     For Windows:
    ```bash
@@ -28,7 +34,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
    source venv/bin/activate 
    ```
 
-3. **Install backend dependencies**:
+4. **Install backend dependencies**:
 
     For Windows:
     ```bash
@@ -55,22 +61,8 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install bcrypt
     pip install python-jose
     ```
-4. **Navigate to the backend folder**:
-
-    ```bash
-    cd backend
-    ````
 
 5. **Sep up for Alembic (databases)**:
-
-    - To create a migration based on model changes, run:
-    ```bash
-    alembic revision --autogenerate -m "the reason or changes"
-    ```
-    For example:
-    ```bash
-    alembic revision --autogenerate -m "updated user table"
-    ```
 
     - Once you've reviewed the migration script and are confident it's correct, you can apply it to the database with:
     ```bash
@@ -89,10 +81,12 @@ This project consists of two main parts: the **backend** developed with **FastAP
 
 6. **Run backend tests (optional, but recommended to ensure everything is working correctly)**:
 
+    For Windows:
     ```bash
     pytest
     ```
-    or
+    
+    For Mac:
     ```bash
     python -m pytest
     ```
@@ -113,7 +107,6 @@ This project consists of two main parts: the **backend** developed with **FastAP
     ```
 
 
-
 ### **Frontend Setup and Execution (Vue.js)**
 
 1. **Install Vue CLI globally** (if you haven't installed it yet):
@@ -125,24 +118,37 @@ This project consists of two main parts: the **backend** developed with **FastAP
 2. **Navigate to the frontend folder**:
 
     ```bash
-    cd frontend
+    cd filmHub
     ```
 
 3. **Install frontend dependencies**:
 
+    For Windows:
     ```bash
     npm install
     npm install axios
     ```
 
+    For Mac:
+    ```bash
+    sudo npm install
+    sudo npm install axios
+    ```
+
 4. **Run the frontend server**:
 
     Start the Vue.js development server:
+
+    For Windows:
     ```bash
     npm run serve
     ```
-    The frontend will be available at http://localhost:8080.
 
+    For Mac:
+    ```bash
+    sudo npm run serve
+    ```
+    The frontend will be available at http://localhost:8080.
 
 
 ### **Final Instructions**
@@ -150,13 +156,25 @@ This project consists of two main parts: the **backend** developed with **FastAP
 To run the full project:
 
 1. **Start the backend** with FastAPI:
+
+
    ```bash
-    uvicorn backend.main:app --reload
+    cd src/backend
+    uvicorn app.main:app --reload
     ```
 
 2. **Start the frontend with Vue.js**:
+
+    For Windows:
     ```bash
+    cd src/filmHub
     npm run serve
+    ```
+
+    For Mac:
+    ```bash
+    cd src/filmHub
+    sudo npm run serve
     ```
 
 Now, you should have both the backend running at http://localhost:8000 and the frontend running at http://localhost:8080 on your local machine.
