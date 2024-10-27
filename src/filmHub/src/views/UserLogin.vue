@@ -1,8 +1,7 @@
 <template>
   <div class="login-page">
     <HeaderPage />
-    
-    <!-- Capa negra con opacidad -->
+
     <div class="overlay"></div>
 
     <div class="main-content">
@@ -16,7 +15,7 @@
             <input type="password" id="password" v-model="password" placeholder="Password" required />
           </div>
           <button type="submit">LOGIN</button>
-          <p>Don't have an account? 
+          <p>Don't have an account?
             <router-link to="/register" class="create-account-link">Create account</router-link>
           </p>
         </form>
@@ -29,10 +28,10 @@
   </div>
 </template>
 
-
 <script>
-// Importar el componente HeaderPage
 import HeaderPage from '@/components/HeaderPage.vue';
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
 
 export default {
   name: 'UserLogin',
@@ -46,9 +45,41 @@ export default {
     };
   },
   methods: {
-    handleLogin() {
+    async handleLogin() {
       console.log('Iniciando sesión con:', this.email);
+
+      const loginData = new URLSearchParams();
+      loginData.append('username', this.email);
+      loginData.append('password', this.password);
+
+      try {
+        const response = await axios.post(`${API_BASE_URL}/login/`, loginData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+        console.log('Respuesta de login:', response.data);
+
+        // Almacena el token en localStorage
+        localStorage.setItem('access_token', response.data.access_token);
+
+        // Redirige a la página principal
+        this.$router.push({ name: 'MainPageView' });
+
+      } catch (error) {
+        if (error.response) {
+          console.error('Error en la respuesta:', error.response.data);
+          alert('Error en el inicio de sesión: ' + (error.response.data.detail || 'Error desconocido'));
+        } else if (error.request) {
+          console.error('Error en la solicitud:', error.request);
+          alert('Error en la solicitud: No se recibió respuesta del servidor.');
+        } else {
+          console.error('Error:', error.message);
+          alert('Error: ' + error.message);
+        }
+      }
     },
+
   },
 };
 </script>
@@ -171,7 +202,8 @@ export default {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  background-image: url('@/assets/fondo_login.jpg'); /* Aplicar la imagen de fondo */
+  background-image: url('@/assets/fondo_login.jpg');
+  /* Aplicar la imagen de fondo */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

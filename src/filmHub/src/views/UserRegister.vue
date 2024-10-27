@@ -37,7 +37,7 @@
 <script>
 import HeaderPage from '@/components/HeaderPage.vue'; 
 import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
+import { API_BASE_URL } from '@/config.js'; // Asegúrate de que esta línea apunte a tu archivo config.js
 
 export default {
   name: 'UserRegister',
@@ -72,7 +72,6 @@ export default {
         // Redirigir o mostrar un mensaje de éxito aquí
       } catch (error) {
         console.error('Error en el registro:', error);
-        // Mostrar un mensaje de error
         alert('Error en el registro: ' + error.response.data.detail);
       }
     },
