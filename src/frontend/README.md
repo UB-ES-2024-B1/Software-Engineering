@@ -1,5 +1,16 @@
 # frontend
 
+# Comprobar versiones
+```
+node -v
+npm -v
+```
+
+# Link to install nodejs
+```
+https://nodejs.org/.
+```
+
 ## Project setup
 ```
 npm install
