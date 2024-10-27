@@ -30,6 +30,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
 
 3. **Install backend dependencies**:
 
+    For Windows:
     ```bash
     pip install fastapi uvicorn
     pip install pytest httpx
@@ -42,6 +43,18 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install python-jose
     ```
 
+    For Mac:
+    ```bash
+    pip install fastapi uvicorn
+    pip install pytest httpx
+    pip install sqlalchemy databases\[sqlite\]
+    pip install fastapi\[all\]
+    pip install sqlmodel
+    pip install alembic
+    pip install passlib
+    pip install bcrypt
+    pip install python-jose
+    ```
 4. **Navigate to the backend folder**:
 
     ```bash
