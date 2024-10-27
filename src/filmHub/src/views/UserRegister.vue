@@ -2,7 +2,6 @@
   <div class="register-page">
     <HeaderPage />
     
-    <!-- Capa negra con opacidad -->
     <div class="overlay"></div>
 
     <div class="main-content">
@@ -19,7 +18,7 @@
             <input type="password" id="password" v-model="password" placeholder="Password" required />
           </div>
           <div>
-            <input type="password" id="rePassword" v-model="rePassword" placeholder="Password" required />
+            <input type="password" id="rePassword" v-model="rePassword" placeholder="Repeat Password" required />
           </div>
           <button type="submit">REGISTER</button>
           <p>Already have an account? 
@@ -36,8 +35,9 @@
 </template>
 
 <script>
-// Importar el componente HeaderPage
 import HeaderPage from '@/components/HeaderPage.vue'; 
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
 export default {
   name: 'UserRegister',
@@ -53,8 +53,28 @@ export default {
     };
   },
   methods: {
-    handleSubmit() {
-      console.log('Registrando usuario:', this.name, this.email);
+    async handleSubmit() {
+      // Validar que las contraseñas coincidan
+      if (this.password !== this.rePassword) {
+        alert('Las contraseñas no coinciden.');
+        return;
+      }
+
+      const userData = {
+        full_name: this.name,
+        email: this.email,
+        password: this.password,
+      };
+
+      try {
+        const response = await axios.post(`${API_BASE_URL}/users/`, userData);
+        console.log('Usuario registrado:', response.data);
+        // Redirigir o mostrar un mensaje de éxito aquí
+      } catch (error) {
+        console.error('Error en el registro:', error);
+        // Mostrar un mensaje de error
+        alert('Error en el registro: ' + error.response.data.detail);
+      }
     },
   },
 };

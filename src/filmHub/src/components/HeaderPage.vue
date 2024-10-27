@@ -33,6 +33,7 @@
 
 
 <script>
+  import axios from 'axios';
   export default {
     name: 'HeaderPage',
     data() {
@@ -59,6 +60,16 @@
     mounted() {
       // Agrega el evento de scroll cuando el componente se monta
       window.addEventListener('scroll', this.handleScroll);
+
+      axios.get('/')
+      .then(response => {
+        this.message = response.data.message;
+        console.log("Data fetched successfully:", response.data); // Confirmación en consola
+      })
+      .catch(error => {
+        console.error("Error fetching data from backend:", error);
+      });
+
     },
     beforeUnmount() {
       // Elimina el evento de scroll cuando el componente se desmonta
