@@ -43,6 +43,21 @@ def delete_user(db: Session, user_id: int) -> bool:
         return True  # Deletion successful
     return False  # User not found
 
+def delete_user_by_email(db: Session, user_email: str) -> bool:
+    """
+    Delete a user from the database by their ID.
+    :param db: The database session
+    :param user_id: The ID of the user to be deleted
+    :return: True if the user was deleted, False if not found
+    """
+    user = db.query(User).filter(User.email == user_email).first()
+    if user:
+        db.delete(user)
+        db.commit()
+        return True  # Deletion successful
+    return False  # User not found
+
+
 def update_user(db: Session, user_id: int, user_data: dict):
     """
     Update an existing user in the database by ID.
@@ -59,6 +74,23 @@ def update_user(db: Session, user_id: int, user_data: dict):
         db.refresh(user)
         return user
     return None
+
+def update_password(db: Session, user_id: int, new_password: str):
+    """
+    Update the password of an existing user in the database by ID.
+    :param db: Database session
+    :param user_id: The ID of the user to update
+    :param new_password: The new password
+    :return: Updated User object
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        user.hashed_password = new_password
+        db.commit()
+        db.refresh(user)
+        return user
+    return None
+
 
 def update_user_by_email(db: Session, email: str, user_data: dict):
     # Find the user by email
