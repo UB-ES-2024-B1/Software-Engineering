@@ -10,7 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
-
+from sqlalchemy.dialects.postgresql import JSON
 # revision identifiers, used by Alembic.
 revision: str = '2f3d87a037d3'
 down_revision: Union[str, None] = 'a81434976ea3'
@@ -41,6 +41,7 @@ def upgrade() -> None:
     sa.Column('rating_count', sa.Integer(), nullable=True),
     sa.Column('likes', sa.Integer(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('image', JSON, nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_movie_title'), 'movie', ['title'], unique=True)

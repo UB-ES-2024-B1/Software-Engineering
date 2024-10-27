@@ -6,6 +6,7 @@ from app.api.dependencies import get_db  # Import the get_db function for databa
 from app.crud import movie_crud  # Import CRUD functions for movie operations
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast)  # Import movie models for input and output
 from typing import List
+from fastapi.responses import FileResponse
 
 # Create a router for movie-related endpoints
 router = APIRouter()
@@ -77,6 +78,7 @@ def get_movie_by_title(movie_title: str, db: Session = Depends(get_db)):
     if movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")
     return movie
+    # return FileResponse(movie.image)
 
 # Endpoint to retrieve movies sorted by release date
 @router.get("/sorted/release_date", response_model=List[MovieOut])

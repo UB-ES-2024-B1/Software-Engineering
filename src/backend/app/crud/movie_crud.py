@@ -2,9 +2,10 @@
 from sqlmodel import Session, select
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast) 
 from typing import List
+from fastapi import File, UploadFile
 
 # Function to create a new movie
-def create_movie(db: Session, movie: MovieIn) -> MovieOut:
+def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> MovieOut:
     # Check if a movie with the same title already exists
     # Create new movie instance
     db_movie = Movie(
@@ -15,7 +16,8 @@ def create_movie(db: Session, movie: MovieIn) -> MovieOut:
         release_date=movie.release_date,
         rating=movie.rating,
         rating_count=movie.rating_count,
-        likes=movie.likes
+        likes=movie.likes,
+        image=movie.image
     )
 
     # Handle genres
