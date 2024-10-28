@@ -15,7 +15,10 @@ from .api.dependencies import get_db
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     user_routes.init_db()
-    print("Database initialized")
+    with next(get_db()) as db:
+        #init_movie_db.add_new_movie(db)  # Pass the session instance to the function
+        init_movie_db.add_initial_genres(db)
+        init_movie_db.init_db_movies(db)
     yield
     print("Shutting down")
     app.state.db.close()
@@ -42,15 +45,3 @@ app.include_router(user_routes.router, prefix="/users", tags=["users"])
 app.include_router(movie_routes.router, prefix="/movies", tags=["movies"])
 app.include_router(genre_routes.router, prefix="/genres", tags=["genres"])
 app.include_router(login_routes.router, prefix="/login",tags=["login"])
-
-
-# Doing this before starting the app
-@app.on_event("startup")
-def startup_event():
-    user_routes.init_db()
-    with next(get_db()) as db:
-        #init_movie_db.add_new_movie(db)  # Pass the session instance to the function
-        init_movie_db.add_initial_genres(db)
-        init_movie_db.init_db_movies(db)
-    #init_movie_db(Session)  # Initialize the database with sample movies
-    print("Database initialized")
