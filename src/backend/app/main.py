@@ -51,5 +51,6 @@ def startup_event():
     with next(get_db()) as db:
         #init_movie_db.add_new_movie(db)  # Pass the session instance to the function
         init_movie_db.add_initial_genres(db)
+        init_movie_db.init_db_movies(db)
     #init_movie_db(Session)  # Initialize the database with sample movies
     print("Database initialized")
