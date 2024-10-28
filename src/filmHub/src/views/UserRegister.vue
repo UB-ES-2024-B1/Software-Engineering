@@ -1,12 +1,19 @@
 <template>
   <div class="register-page">
     <HeaderPage />
-    
+
     <div class="overlay"></div>
 
     <div class="main-content">
-      <div class="register-form">
+      <!-- Clase condicional 'expanded' que se activa si 'passwordError' es true -->
+      <div :class="['register-form', { 'expanded': passwordError }]">
         <h2>Registration</h2>
+
+        <!-- Mensaje de error de contraseñas no coincidentes -->
+        <p v-if="passwordError" class="error-message">
+          Passwords do not match. Try again.
+        </p>
+
         <form @submit.prevent="handleSubmit">
           <div>
             <input type="text" id="name" v-model="name" placeholder="First and last name" required />
@@ -21,7 +28,7 @@
             <input type="password" id="rePassword" v-model="rePassword" placeholder="Repeat Password" required />
           </div>
           <button type="submit">REGISTER</button>
-          <p>Already have an account? 
+          <p>Already have an account?
             <router-link to="/login" class="create-account-link">Sign in</router-link>
           </p>
         </form>
@@ -35,9 +42,9 @@
 </template>
 
 <script>
-import HeaderPage from '@/components/HeaderPage.vue'; 
+import HeaderPage from '@/components/HeaderPage.vue';
 import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
+import { API_BASE_URL } from '@/config.js';
 
 export default {
   name: 'UserRegister',
@@ -50,14 +57,17 @@ export default {
       email: '',
       password: '',
       rePassword: '',
+      passwordError: false, // Estado para mostrar o esconder el mensaje de error
     };
   },
   methods: {
     async handleSubmit() {
       // Validar que las contraseñas coincidan
       if (this.password !== this.rePassword) {
-        alert('Las contraseñas no coinciden.');
+        this.passwordError = true; // Muestra el mensaje de error
         return;
+      } else {
+        this.passwordError = false; // Oculta el mensaje de error si coinciden
       }
 
       const userData = {
@@ -69,10 +79,9 @@ export default {
       try {
         const response = await axios.post(`${API_BASE_URL}/users/`, userData);
         console.log('Usuario registrado:', response.data);
-        // Redirigir o mostrar un mensaje de éxito aquí
+        this.$router.push('/login');
       } catch (error) {
         console.error('Error en el registro:', error);
-        // Mostrar un mensaje de error
         alert('Error en el registro: ' + error.response.data.detail);
       }
     },
@@ -81,13 +90,36 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos específicos para el componente de registro */
-
-/* Ajustes del header */
-.banner {
-  display: none; /* Ocultar el banner anterior */
+/* Estilo del formulario de registro */
+.register-form {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 40px;
+  border-radius: 10px;
+  width: 450px;
+  height: 550px;
+  text-align: center;
+  transform: translateY(30px);
+  z-index: 10;
+  transition: height 0.3s ease; /* Transición para cambio de altura */
 }
 
+/* Expande el formulario cuando hay un error */
+.register-form.expanded {
+  height: 600px; /* Aumenta la altura solo cuando hay un error */
+}
+
+/* Estilo del mensaje de error */
+.error-message {
+  background-color: rgba(255, 0, 0, 0.5);
+  width: 100%; /* Ancho completo para alinearlo al centro */
+  max-width: 80%; /* Ajusta el ancho máximo dentro del formulario */
+  color: white;
+  padding: 8px;
+  border-radius: 5px;
+  margin: 0 auto 20px; /* Centra horizontalmente y añade margen inferior */
+  text-align: center;
+  z-index: 30;
+}
 
 /* Estilo principal del contenido */
 .main-content {
@@ -99,25 +131,13 @@ export default {
   z-index: 10;
 }
 
-/* Estilo del formulario de registro */
-.register-form {
-  background-color: rgba(0, 0, 0, 0.8 );
-  padding: 40px;
-  border-radius: 10px;
-  width: 450px;
-  height: 550px;
-  text-align: center;
-  transform: translateY(30px);
-  z-index: 10;
-
-}
-
 .register-form h2 {
   margin-bottom: 30px;
   color: #fff;
   font-weight: bold;
 }
 
+/* Estilo de entrada y botones en el formulario */
 .register-form input {
   width: 80%;
   padding: 15px;
@@ -159,15 +179,15 @@ export default {
 }
 
 .register-form a {
-  color: white; /* Cambia el color del enlace */
-  text-decoration: none; /* Quita el subrayado */
-  font-weight: bold; /* Haz el texto más grueso */
-  transition: color 0.3s ease; /* Añade una transición suave al color */
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
 }
 
 .register-form a:hover {
-  color: white; /* Cambia el color al pasar el ratón */
-  text-decoration: underline; /* Puedes agregar un subrayado al pasar el ratón si lo deseas */
+  color: white;
+  text-decoration: underline;
 }
 
 /* Footer básico */
@@ -185,13 +205,13 @@ export default {
 
 /* Capa negra con opacidad */
 .overlay {
-  position: absolute; /* Para cubrir toda la página */
+  position: absolute;
   top: 0;
   left: 0;
   right: 0; 
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Negro con opacidad */
-  z-index: 1; /* Asegura que esté encima del fondo pero debajo del contenido */
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 /* Estilos globales para la página de registro */
@@ -200,10 +220,10 @@ export default {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  background-image: url('@/assets/fondo_register.jpg'); /* Aplicar la imagen de fondo solo a la página de registro */
-  background-size: cover; /* Asegura que la imagen cubra todo el fondo */
-  background-position: center; /* Centrar la imagen */
-  background-repeat: no-repeat; /* Evita que la imagen se repita */
+  background-image: url('@/assets/fondo_register.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: -1;
 }
 </style>
