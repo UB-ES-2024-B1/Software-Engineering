@@ -31,8 +31,9 @@
 
 
 <script>
-// Importar el componente HeaderPage
-import HeaderPage from '@/components/HeaderPage.vue';
+import HeaderPage from '@/components/HeaderPage.vue'; 
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
 export default {
   name: 'UserLogin',
@@ -46,12 +47,38 @@ export default {
     };
   },
   methods: {
-    handleLogin() {
-      console.log('Iniciando sesión con:', this.email);
-    },
+    async handleLogin() {
+      try {
+        // Usar FormData para enviar los datos en el formato adecuado
+        const formData = new FormData();
+        formData.append('username', this.email); // OAuth2PasswordRequestForm espera 'username'
+        formData.append('password', this.password); // Y también espera 'password'
+
+        // Realizar la solicitud POST al backend para el login
+        const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+        // Si la solicitud tiene éxito, almacenar el token en localStorage
+        localStorage.setItem('token', response.data.access_token);
+        alert('Usuario registrado');
+        // Redirigir al usuario a la página principal
+        this.$router.push('/');
+
+        // Asegúrate de que los componentes parent puedan actualizar el estado
+        window.dispatchEvent(new Event('storage')); // Para informar a otros componentes del cambio
+      } catch (error) {
+        console.error('Error al iniciar sesión:', error);
+        alert('Usuario no registrado');
+      }
+    }
+    ,
   },
 };
 </script>
+
 
 <style scoped>
 /* Estilos específicos para el componente de login (idénticos a los de registro) */
