@@ -24,60 +24,61 @@
 </template>
 
 <script>
-  export default {
-    name: 'HeaderPage',
-    data() {
-      return {
-        scrolled: false, // Propiedad para controlar la opacidad
-        isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
-      };
+export default {
+  name: 'HeaderPage',
+  data() {
+    return {
+      scrolled: false, // Propiedad para controlar la opacidad
+      isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
+    };
+  },
+  computed: {
+    // Computada para verificar si estamos en las páginas de login o registro
+    isAuthPage() {
+      return this.$route.path === '/login' || this.$route.path === '/register';
     },
-    computed: {
-      // Computada para verificar si estamos en las páginas de login o registro
-      isAuthPage() {
-        return this.$route.path === '/login' || this.$route.path === '/register';
-      },
+  },
+  methods: {
+    searchMovies() {
+      const query = this.$refs.searchInput.value;
+      console.log('Searching for:', query);
     },
-    methods: {
-      searchMovies() {
-        const query = this.$refs.searchInput.value;
-        console.log('Searching for:', query);
-      },
-      handleScroll() {
-        // Cambia la propiedad "scrolled" dependiendo de si el scroll es mayor a 60px
-        this.scrolled = window.scrollY > 60;
-      },
-      logout() {
-        // Método para cerrar sesión
-        localStorage.removeItem('token'); // Elimina el token del almacenamiento local
-        this.isAuthenticated = false; // Actualiza el estado de autenticación
-        this.$router.push('/'); // Redirigir a la página de inicio
-      },
+    handleScroll() {
+      // Cambia la propiedad "scrolled" dependiendo de si el scroll es mayor a 60px
+      this.scrolled = window.scrollY > 60;
     },
-    mounted() {
-      // Agrega el evento de scroll cuando el componente se monta
-      window.addEventListener('scroll', this.handleScroll);
+    logout() {
+      // Método para cerrar sesión
+      localStorage.removeItem('token'); // Elimina el token del almacenamiento local
+      this.isAuthenticated = false; // Actualiza el estado de autenticación
+      this.$router.push('/'); // Redirigir a la página de inicio
+    },
+  },
+  mounted() {
+    // Agrega el evento de scroll cuando el componente se monta
+    window.addEventListener('scroll', this.handleScroll);
 
-      // Verificar el estado de autenticación al montar el componente
-      this.isAuthenticated = !!localStorage.getItem('token');
-    },
-    beforeUnmount() {
-      // Elimina el evento de scroll cuando el componente se desmonta
-      window.removeEventListener('scroll', this.handleScroll);
-    },
-  };
+    // Verificar el estado de autenticación al montar el componente
+    this.isAuthenticated = !!localStorage.getItem('token');
+  },
+  beforeUnmount() {
+    // Elimina el evento de scroll cuando el componente se desmonta
+    window.removeEventListener('scroll', this.handleScroll);
+  },
+};
 </script>
 
-  
+
 
 <style scoped>
-
-
 .header {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0)); /* Degradado de arriba abajo */
-  transition: background-color 0.3s ease; /* Transición suave */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
+  /* Degradado de arriba abajo */
+  transition: background-color 0.3s ease;
+  /* Transición suave */
   color: white;
-  padding: 20px; /* Aumenta el padding para hacer el encabezado más alto */
+  padding: 20px;
+  /* Aumenta el padding para hacer el encabezado más alto */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -86,11 +87,13 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  height: 70px; /* Establece una altura fija si es necesario */
+  height: 70px;
+  /* Establece una altura fija si es necesario */
 }
 
 .header.scrolled {
-  background-color: rgba(18, 18, 18, 0.9); /* Fondo completamente opaco cuando se desplaza */
+  background-color: rgba(18, 18, 18, 0.9);
+  /* Fondo completamente opaco cuando se desplaza */
 }
 
 .logo img {
@@ -104,8 +107,9 @@
   flex-grow: 1;
   justify-content: center;
   margin: 0 20px;
-  
+
 }
+
 .search-bar input {
   background-color: rgba(255, 255, 255, 0.3);
   color: white;
@@ -116,9 +120,12 @@
 }
 
 .search-bar input::placeholder {
-  color: white; /* Cambia este color al que desees para el placeholder */
-  opacity: 0.7; /* Opcional: Cambia la opacidad del placeholder */
+  color: white;
+  /* Cambia este color al que desees para el placeholder */
+  opacity: 0.7;
+  /* Opcional: Cambia la opacidad del placeholder */
 }
+
 .search-bar button {
   padding: 10px 15px;
   background-color: rgba(255, 255, 255, 0.3);
@@ -132,10 +139,13 @@
 
 .auth-buttons {
   display: flex;
-  gap: 10px; /* Añade espacio entre los botones */
+  gap: 10px;
+  /* Añade espacio entre los botones */
 }
 
-.sign-up, .login, .logout {
+.sign-up,
+.login,
+.logout {
   padding: 10px 15px;
   background-color: rgba(255, 255, 255, 0.3);
   color: white;
@@ -144,7 +154,9 @@
   cursor: pointer;
 }
 
-.sign-up:hover, .login:hover, .logout:hover {
+.sign-up:hover,
+.login:hover,
+.logout:hover {
   background-color: rgba(255, 255, 255, 0.4);
 }
 
@@ -155,7 +167,7 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 150px; /* Añadir margen solo al botón */
+  margin-left: 150px;
+  /* Añadir margen solo al botón */
 }
-
 </style>
