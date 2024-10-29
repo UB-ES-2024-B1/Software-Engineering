@@ -264,8 +264,8 @@ export default {
   },
   created() {
     this.fetchMovies(0, 9, 1);
-    this.fetchMovies(9, 19, 2);
-    this.fetchMovies(19, 29, 3);
+    this.fetchMovies(0, 10, 2);
+    this.fetchMovies(0, 10, 3);
   },
 };
 </script>
