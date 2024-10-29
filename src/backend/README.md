@@ -95,8 +95,6 @@
 
 ### Backend quick start:
 
-1. **Start the backend** with FastAPI:
-
 For Mac:
 
    ```bash
