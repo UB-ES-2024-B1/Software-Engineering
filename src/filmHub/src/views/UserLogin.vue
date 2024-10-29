@@ -1,8 +1,7 @@
 <template>
   <div class="login-page">
     <HeaderPage />
-    
-    <!-- Capa negra con opacidad -->
+
     <div class="overlay"></div>
 
     <div class="main-content">
@@ -22,7 +21,7 @@
             <input type="password" id="password" v-model="password" placeholder="Password" required />
           </div>
           <button type="submit">LOGIN</button>
-          <p>Don't have an account? 
+          <p>Don't have an account?
             <router-link to="/register" class="create-account-link">Create account</router-link>
           </p>
         </form>
@@ -66,7 +65,6 @@ export default {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         });
-
         // Si la solicitud tiene éxito, almacenar el token en localStorage
         localStorage.setItem('token', response.data.access_token);
         // Redirigir al usuario a la página principal
@@ -80,6 +78,7 @@ export default {
         this.loginError = true; // Muestra el mensaje de error
       }
     },
+
   },
 };
 </script>
@@ -222,7 +221,8 @@ export default {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  background-image: url('@/assets/fondo_login.jpg'); /* Aplicar la imagen de fondo */
+  background-image: url('@/assets/fondo_login.jpg');
+  /* Aplicar la imagen de fondo */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

@@ -1,9 +1,9 @@
 # app/api/db/init_movie_db.py
 from sqlmodel import Session, select
-from app.models import Movie, CastMember, Genre  # Adjust the import based on your project structure
-from datetime import date
+from app.models import Movie, MovieIn, CastMember, Genre  # Adjust the import based on your project structure
+from datetime import date, datetime
 from app.crud import movie_crud, genre_crud
-
+import json
 # Function to add initial genres
 def add_initial_genres(db_session):
     if len(genre_crud.get_genres(db_session)) == 0:
@@ -20,6 +20,92 @@ def add_initial_genres(db_session):
         
         db_session.commit()
         
+movies_data = [
+    {
+        "title": "Avatar: The Way of Water",
+        "description": "James Cameron returns to the world of Pandora. Set a decade plus after events of the first film, this breathtaking new movie tells the story of the Sully family and introduces audiences to the majestic ocean tulkun.",
+        "director": "James Cameron",
+        "country": "USA",
+        "release_date": date(2022, 12, 16),
+        "rating": 4.5,
+        "rating_count": 50,
+        "likes": 100,
+        "genres": ["Action", "Adventure", "Science Fiction"],
+        "cast_members": ["Sam Worthington", "Zoe Saldana"]
+    },
+    {
+        "title": "Dune: Part Two",
+        "description": "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.",
+        "director": "Denis Villeneuve",
+        "country": "USA",
+        "release_date": date(2024, 3, 15),
+        "rating": 4.2,
+        "rating_count": 45,
+        "likes": 90,
+        "genres": ["Action", "Adventure", "Science Fiction"],
+        "cast_members": ["Timothée Chalamet", "Zendaya"]
+    }
+]
+'''    
+movies_data = [{
+    "title": "Spider-Man: No Way Home",
+    "description": "When Peter Parker's secret identity is discovered, he turns to Doctor Strange to make the world forget that he is Spider-Man.",
+    "director": "Jon Watts",
+    "country": "USA",
+    "release_date": date(2021, 12, 17),
+    "rating": 4.7,
+    "rating_count": 85000,
+    "likes": 200000,
+    "genres": ["Action", "Adventure", "Fantasy"],
+    "cast_members": ["Tom Holland", "Zendaya"],
+    "image": "images/spider-manNoWayHome_cover.jpg"
+},
+{
+    "title": "Barbie",
+    "description": "Living in Barbie Land is about being a perfect being in a perfect place. Unless you have a total existential crisis. Or you are a Ken.",
+    "director": "Greta Gerwig",
+    "country": "USA",
+    "release_date": date(2023, 7, 21),
+    "rating": 4.3,
+    "rating_count": 70000,
+    "likes": 180000,
+    "genres": ["Comedy", "Adventure", "Fantasy"],
+    "cast_members": ["Margot Robbie", "Ryan Gosling"],
+    "image": "images/barbie_cover.jpg"
+},
+{
+    "title": "War for the Planet of the Apes",
+    "description": "Caesar and his apes face an army of humans in a battle that will determine the fate of both species and the future of the planet.",
+    "director": "Matt Reeves",
+    "country": "USA",
+    "release_date": date(2017, 7, 14),
+    "rating": 4.1,
+    "rating_count": 40000,
+    "likes": 100000,
+    "genres": ["Action", "Drama", "Sci-Fi"],
+    "cast_members": ["Andy Serkis", "Woody Harrelson"],
+    "image": "images/warForThePlanetOfTheApes_cover.jpg"
+}
+]
+'''
+file_path = 'data_movies.json'
+
+def init_db_movies(db_session):
+    if len(movie_crud.get_movies(db_session)) == 0:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+
+        # Insertar usuarios en la base de datos
+        for movie_data in data:
+            if 'release_date' in movie_data:
+                movie_data['release_date'] = datetime.strptime(movie_data['release_date'], '%Y, %m, %d').date()
+            
+            movie_crud.create_movie(
+                db=db_session,
+                movie=MovieIn(**movie_data)
+            )
+    db_session.close()  # Cerrar la sesión
+
 # List of movies to be added
 '''movies_data = [
     {"title": "Inception", "year": 2010},

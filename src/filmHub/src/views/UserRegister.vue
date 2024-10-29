@@ -90,7 +90,6 @@ export default {
         this.$router.push('/login');
       } catch (error) {
         console.error('Error en el registro:', error);
-        
         // Verificar si el error es debido a un email ya registrado
         if (error.response && error.response.data.detail === 'Email already registered') {
           this.emailError = true; // Muestra solo el mensaje de error de email
