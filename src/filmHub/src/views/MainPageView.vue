@@ -146,9 +146,7 @@
     <footer class="footer">
       <p>&copy; 2024 Web Name. All rights reserved.</p>
       <div class="socials">
-        <a href="#">Facebook</a>
-        <a href="#">Twitter</a>
-        <a href="#">Instagram</a>
+        <a href="#">FilmHub Enterpise</a>
       </div>
     </footer>
   </div>
@@ -162,45 +160,45 @@ import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuraci
 
 // Función para formatear el título de la película
 function formatTitle(movieTitle) {
-    // Eliminar el contenido entre paréntesis y los propios paréntesis
-    const cleanedTitle = movieTitle.replace(/\(.*?\)/g, '').trim();
-    // Eliminar los dos puntos
-    const titleWithoutColons = cleanedTitle.replace(/:/g, '').trim();
-    
-    // Dividir en palabras y capitalizar cada palabra
-    const words = titleWithoutColons.split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    );
+  // Eliminar el contenido entre paréntesis y los propios paréntesis
+  const cleanedTitle = movieTitle.replace(/\(.*?\)/g, '').trim();
+  // Eliminar los dos puntos
+  const titleWithoutColons = cleanedTitle.replace(/:/g, '').trim();
 
-    // Juntar las palabras y hacer la primera letra en minúscula
-    const formattedTitle = words.join('');
-    return formattedTitle.charAt(0).toLowerCase() + formattedTitle.slice(1);
+  // Dividir en palabras y capitalizar cada palabra
+  const words = titleWithoutColons.split(' ').map(word =>
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  );
+
+  // Juntar las palabras y hacer la primera letra en minúscula
+  const formattedTitle = words.join('');
+  return formattedTitle.charAt(0).toLowerCase() + formattedTitle.slice(1);
 }
 
 
 async function generateMovieObject(movieData) {
-    const movieObject = {
-        id: movieData.id,
-        image: require(`@/assets/${formatTitle(movieData.title)}_banner.jpg`),
-        smallImage: require(`@/assets/${formatTitle(movieData.title)}_cover.jpg`),
-        title: movieData.title,
-        description: movieData.description,
-        rating: movieData.rating,
-        likes: movieData.likes
-    };
+  const movieObject = {
+    id: movieData.id,
+    image: require(`@/assets/${formatTitle(movieData.title)}_banner.jpg`),
+    smallImage: require(`@/assets/${formatTitle(movieData.title)}_cover.jpg`),
+    title: movieData.title,
+    description: movieData.description,
+    rating: movieData.rating,
+    likes: movieData.likes
+  };
 
-    return movieObject;
+  return movieObject;
 }
 
 async function generateRecentMovieObject(movieData) {
-    const movieObject = {
-        id: movieData.id,
-        image: require(`@/assets/${formatTitle(movieData.title)}_cover.jpg`),
-        rating: movieData.rating,
-        likes: movieData.likes
-    };
+  const movieObject = {
+    id: movieData.id,
+    image: require(`@/assets/${formatTitle(movieData.title)}_cover.jpg`),
+    rating: movieData.rating,
+    likes: movieData.likes
+  };
 
-    return movieObject;
+  return movieObject;
 }
 
 export default {
@@ -219,42 +217,42 @@ export default {
     };
   },
   methods: {
-    async fetchMovies(start,end,movies_section) {
+    async fetchMovies(start, end, movies_section) {
       try {
-          let url;
+        let url;
 
-          if (movies_section === 1){ url = `${API_BASE_URL}/movies/sorted/likes/`;}
-          else if (movies_section === 2){ url = `${API_BASE_URL}/movies/sorted/release_date`;}
-          else { url = `${API_BASE_URL}/movies/sorted/rating/`;}
+        if (movies_section === 1) { url = `${API_BASE_URL}/movies/sorted/likes/`; }
+        else if (movies_section === 2) { url = `${API_BASE_URL}/movies/sorted/release_date`; }
+        else { url = `${API_BASE_URL}/movies/sorted/rating/`; }
 
-          const movieObjects = [];
-          const response = await axios.get(url);
-          const movies = response.data; // Suponiendo que la respuesta es un arreglo de películas
+        const movieObjects = [];
+        const response = await axios.get(url);
+        const movies = response.data; // Suponiendo que la respuesta es un arreglo de películas
 
-          // Limitar a las primeras 8 películas
-          const topMovies = movies.slice(start, end);
+        // Limitar a las primeras 8 películas
+        const topMovies = movies.slice(start, end);
 
-          for (let i = 0; i < topMovies.length; i++) {
-              const movieData = topMovies[i];
+        for (let i = 0; i < topMovies.length; i++) {
+          const movieData = topMovies[i];
 
-              let movieObject;
+          let movieObject;
 
-              if (movies_section === 1) {
-                movieObject = await generateMovieObject(movieData);
-                
-              } else {
-                movieObject = await generateRecentMovieObject(movieData);
-                
-              }
-              
-              if (movieObject) movieObjects.push(movieObject);
+          if (movies_section === 1) {
+            movieObject = await generateMovieObject(movieData);
+
+          } else {
+            movieObject = await generateRecentMovieObject(movieData);
+
           }
-          if (movies_section === 1) {this.movies = movieObjects;} 
-          else if (movies_section === 2) {this.recentMovies = movieObjects;} 
-          else {this.topRatedMovies = movieObjects;}
+
+          if (movieObject) movieObjects.push(movieObject);
+        }
+        if (movies_section === 1) { this.movies = movieObjects; }
+        else if (movies_section === 2) { this.recentMovies = movieObjects; }
+        else { this.topRatedMovies = movieObjects; }
 
       } catch (error) {
-          console.error("Error retrieving movies:", error);
+        console.error("Error retrieving movies:", error);
       }
     },
 
@@ -265,9 +263,9 @@ export default {
     },
   },
   created() {
-    this.fetchMovies(0,9,1);
-    this.fetchMovies(9,19,2);
-    this.fetchMovies(19,29,3);
+    this.fetchMovies(0, 9, 1);
+    this.fetchMovies(9, 19, 2);
+    this.fetchMovies(19, 29, 3);
   },
 };
 </script>
@@ -400,7 +398,8 @@ body {
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-  background-color: rgba(0, 0, 0, 0.5); /* Cambio de color al pasar el mouse */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Cambio de color al pasar el mouse */
   opacity: 1;
 }
 
