@@ -5,13 +5,18 @@
     <div class="overlay"></div>
 
     <div class="main-content">
-      <!-- Clase condicional 'expanded' que se activa si 'passwordError' es true -->
-      <div :class="['register-form', { 'expanded': passwordError }]">
+      <!-- Clase condicional 'expanded' que se activa si 'passwordError' o 'emailError' es true -->
+      <div :class="['register-form', { 'expanded': passwordError || emailError }]">
         <h2>Registration</h2>
 
         <!-- Mensaje de error de contraseñas no coincidentes -->
         <p v-if="passwordError" class="error-message">
           Passwords do not match. Try again.
+        </p>
+        
+        <!-- Mensaje de error de email ya registrado -->
+        <p v-if="emailError" class="error-message">
+          Email already registered. Try again.
         </p>
 
         <form @submit.prevent="handleSubmit">
@@ -57,17 +62,20 @@ export default {
       email: '',
       password: '',
       rePassword: '',
-      passwordError: false, // Estado para mostrar o esconder el mensaje de error
+      passwordError: false, // Estado para mostrar o esconder el mensaje de error de contraseñas
+      emailError: false,    // Estado para mostrar o esconder el mensaje de error de email
     };
   },
   methods: {
     async handleSubmit() {
+      // Restablecer los mensajes de error antes de verificar condiciones
+      this.passwordError = false;
+      this.emailError = false;
+
       // Validar que las contraseñas coincidan
       if (this.password !== this.rePassword) {
-        this.passwordError = true; // Muestra el mensaje de error
-        return;
-      } else {
-        this.passwordError = false; // Oculta el mensaje de error si coinciden
+        this.passwordError = true; // Muestra el mensaje de error de contraseñas
+        return; // Sale de la función para evitar otros errores simultáneos
       }
 
       const userData = {
@@ -82,12 +90,17 @@ export default {
         this.$router.push('/login');
       } catch (error) {
         console.error('Error en el registro:', error);
-        alert('Error en el registro: ' + error.response.data.detail);
+        
+        // Verificar si el error es debido a un email ya registrado
+        if (error.response && error.response.data.detail === 'Email already registered') {
+          this.emailError = true; // Muestra solo el mensaje de error de email
+        }
       }
     },
   },
 };
 </script>
+  
 
 <style scoped>
 /* Estilo del formulario de registro */
@@ -121,7 +134,7 @@ export default {
   z-index: 30;
 }
 
-/* Estilo principal del contenido */
+/* Resto de los estilos, no cambian */
 .main-content {
   display: flex;
   justify-content: center;
@@ -137,7 +150,6 @@ export default {
   font-weight: bold;
 }
 
-/* Estilo de entrada y botones en el formulario */
 .register-form input {
   width: 80%;
   padding: 15px;
@@ -190,7 +202,6 @@ export default {
   text-decoration: underline;
 }
 
-/* Footer básico */
 .footer {
   background-color: #121212;
   color: #fff;
@@ -203,7 +214,6 @@ export default {
   z-index: 5;
 }
 
-/* Capa negra con opacidad */
 .overlay {
   position: absolute;
   top: 0;
@@ -214,7 +224,6 @@ export default {
   z-index: 1;
 }
 
-/* Estilos globales para la página de registro */
 .register-page {
   height: 100vh;
   margin: 0;
