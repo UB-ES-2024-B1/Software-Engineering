@@ -74,7 +74,8 @@
     "rating_count": 60000,
     "likes": 140000,
     "genres": ["Action", "Comedy", "Adventure"],
-    "cast_members": ["Ryan Reynolds", "Hugh Jackman"]
+    "cast_members": ["Ryan Reynolds", "Hugh Jackman"],
+    "image": ["images/deadpool&wolverine_cover.jpg"]
 },
 {
     "title": "The Batman",
@@ -86,7 +87,8 @@
     "rating_count": 75000,
     "likes": 130000,
     "genres": ["Action", "Crime", "Drama"],
-    "cast_members": ["Robert Pattinson", "Zoë Kravitz"]
+    "cast_members": ["Robert Pattinson", "Zoë Kravitz"],
+    "image": ["images/theBatman_cover.jpg"]
 },
 {
     "title": "Kung Fu Panda 4",
@@ -98,7 +100,8 @@
     "rating_count": 30000,
     "likes": 90000,
     "genres": ["Animation", "Action", "Adventure"],
-    "cast_members": ["Jack Black", "Dustin Hoffman"]
+    "cast_members": ["Jack Black", "Dustin Hoffman"],
+    "image": ["images/kunfuPanda4_cover.jpg"]
 },
 {
     "title": "The Nun",
@@ -110,7 +113,8 @@
     "rating_count": 35000,
     "likes": 90000,
     "genres": ["Horror", "Mystery", "Thriller"],
-    "cast_members": ["Taissa Farmiga", "Demián Bichir"]
+    "cast_members": ["Taissa Farmiga", "Demián Bichir"],
+    "image": ["images/theNum_cover.jpg"]
 },
 {
     "title": "Up",
@@ -122,7 +126,8 @@
     "rating_count": 100000,
     "likes": 250000,
     "genres": ["Animation", "Adventure", "Comedy"],
-    "cast_members": ["Ed Asner", "Jordan Nagai"]
+    "cast_members": ["Ed Asner", "Jordan Nagai"],
+    "image": ["images/up_cover.jpg"]
 },
 {
     "title": "The Meg",
@@ -134,7 +139,8 @@
     "rating_count": 28000,
     "likes": 85000,
     "genres": ["Action", "Sci-Fi", "Horror"],
-    "cast_members": ["Jason Statham", "Bingbing Li"]
+    "cast_members": ["Jason Statham", "Bingbing Li"],
+    "image": ["theMeg_cover.jpg"]
 },
 {
     "title": "Inception",
@@ -146,7 +152,8 @@
     "rating_count": 95000,
     "likes": 220000,
     "genres": ["Action", "Sci-Fi", "Thriller"],
-    "cast_members": ["Leonardo DiCaprio", "Joseph Gordon-Levitt"]
+    "cast_members": ["Leonardo DiCaprio", "Joseph Gordon-Levitt"],
+    "image": ["images/inception_cover.jpg"]
 },
 {
     "title": "Furiosa: A Mad Max Saga",
@@ -158,7 +165,8 @@
     "rating_count": 37000,
     "likes": 95000,
     "genres": ["Action", "Adventure", "Sci-Fi"],
-    "cast_members": ["Anya Taylor-Joy", "Chris Hemsworth"]
+    "cast_members": ["Anya Taylor-Joy", "Chris Hemsworth"],
+    "image": ["images/furiosaMadMaxSaga_cover.jpg"]
 },
 {
     "title": "The Fall Guy",
@@ -170,7 +178,8 @@
     "rating_count": 15000,
     "likes": 60000,
     "genres": ["Action", "Drama"],
-    "cast_members": ["Ryan Gosling", "Emily Blunt"]
+    "cast_members": ["Ryan Gosling", "Emily Blunt"],
+    "image": ["images/theFallGuy_cover.jpg"]
 },
 {
     "title": "Napoleon",
@@ -182,7 +191,8 @@
     "rating_count": 40000,
     "likes": 110000,
     "genres": ["Biography", "Drama", "History"],
-    "cast_members": ["Joaquin Phoenix", "Vanessa Kirby"]
+    "cast_members": ["Joaquin Phoenix", "Vanessa Kirby"],
+    "image": ["images/napoleon_cover.jpg"]
 },
 {
     "title": "Uncharted",
@@ -194,7 +204,8 @@
     "rating_count": 32000,
     "likes": 90000,
     "genres": ["Action", "Adventure"],
-    "cast_members": ["Tom Holland", "Mark Wahlberg"]
+    "cast_members": ["Tom Holland", "Mark Wahlberg"],
+    "image": ["images/uncharted_cover.jpg"]
 },
 {
     "title": "Bullet Train",
@@ -206,7 +217,8 @@
     "rating_count": 38000,
     "likes": 100000,
     "genres": ["Action", "Comedy", "Thriller"],
-    "cast_members": ["Brad Pitt", "Joey King"]
+    "cast_members": ["Brad Pitt", "Joey King"],
+    "image": ["images/bulletTrain_cover.jpg"]
 },
 {
     "title": "Ratatouille",
@@ -218,7 +230,8 @@
     "rating_count": 97000,
     "likes": 230000,
     "genres": ["Animation", "Comedy", "Family"],
-    "cast_members": ["Patton Oswalt", "Ian Holm"]
+    "cast_members": ["Patton Oswalt", "Ian Holm"],
+    "image": ["images/ratatouille_cover.jpg"]
 },
 {
     "title": "Toy Story 4",
@@ -230,7 +243,8 @@
     "rating_count": 78000,
     "likes": 160000,
     "genres": ["Animation", "Adventure", "Comedy"],
-    "cast_members": ["Tom Hanks", "Tim Allen"]
+    "cast_members": ["Tom Hanks", "Tim Allen"],
+    "image": ["images/toyStory4_cover.jpg"]
 },
 {
     "title": "Dunkirk",
@@ -242,7 +256,8 @@
     "rating_count": 65000,
     "likes": 140000,
     "genres": ["Action", "Drama", "History"],
-    "cast_members": ["Fionn Whitehead", "Tom Hardy"]
+    "cast_members": ["Fionn Whitehead", "Tom Hardy"],
+    "image": ["images/dunkirk_cover.jpg"]
 },
 {
     "title": "Oppenheimer",
@@ -254,7 +269,8 @@
     "rating_count": 82000,
     "likes": 190000,
     "genres": ["Biography", "Drama", "History"],
-    "cast_members": ["Cillian Murphy", "Emily Blunt"]
+    "cast_members": ["Cillian Murphy", "Emily Blunt"],
+    "image": ["images/oppenheimer_cover.jpg"]
 },
 {
     "title": "Jumanji: The Next Level",
@@ -266,7 +282,8 @@
     "rating_count": 43000,
     "likes": 95000,
     "genres": ["Action", "Adventure", "Comedy"],
-    "cast_members": ["Dwayne Johnson", "Kevin Hart"]
+    "cast_members": ["Dwayne Johnson", "Kevin Hart"],
+    "image": ["images/jumanjiTheNextLevel_cover.jpg"]
 },
 {
     "title": "Bohemian Rhapsody",
@@ -278,7 +295,8 @@
     "rating_count": 71000,
     "likes": 160000,
     "genres": ["Biography", "Drama", "Music"],
-    "cast_members": ["Rami Malek", "Lucy Boynton"]
+    "cast_members": ["Rami Malek", "Lucy Boynton"],
+    "image": ["images/bohemianRhapsody_cover.jpg"]
 },
 {
     "title": "The Hunger Games: The Ballad of Songbirds and Snakes",
@@ -290,7 +308,8 @@
     "rating_count": 36000,
     "likes": 88000,
     "genres": ["Action", "Adventure", "Sci-Fi"],
-    "cast_members": ["Tom Blyth", "Rachel Zegler"]
+    "cast_members": ["Tom Blyth", "Rachel Zegler"],
+    "image": ["images/theHungerGamesTheBalladOfSongbirdsAndSnakes_cover.jpg"]
 },
 {
     "title": "Coco",
@@ -302,7 +321,8 @@
     "rating_count": 92000,
     "likes": 210000,
     "genres": ["Animation", "Adventure", "Family"],
-    "cast_members": ["Anthony Gonzalez", "Gael García Bernal"]
+    "cast_members": ["Anthony Gonzalez", "Gael García Bernal"],
+    "image": ["images/coco_cover.jpg"]
 },
 {
     "title": "Incredibles 2",
@@ -314,7 +334,8 @@
     "rating_count": 83000,
     "likes": 180000,
     "genres": ["Animation", "Action", "Adventure"],
-    "cast_members": ["Craig T. Nelson", "Holly Hunter"]
+    "cast_members": ["Craig T. Nelson", "Holly Hunter"],
+    "image": ["images/incredibles2_cover.jpg"]
 },
 {
     "title": "Jurassic World: Fallen Kingdom",
@@ -326,7 +347,8 @@
     "rating_count": 37000,
     "likes": 95000,
     "genres": ["Action", "Adventure", "Sci-Fi"],
-    "cast_members": ["Chris Pratt", "Bryce Dallas Howard"]
+    "cast_members": ["Chris Pratt", "Bryce Dallas Howard"],
+    "image": ["images/jurassicWorldFallenKingdom_cover.jpg"]
 },
 {
     "title": "Cars 3",
@@ -338,7 +360,8 @@
     "rating_count": 45000,
     "likes": 99000,
     "genres": ["Animation", "Adventure", "Comedy"],
-    "cast_members": ["Owen Wilson", "Cristela Alonzo"]
+    "cast_members": ["Owen Wilson", "Cristela Alonzo"],
+    "image": ["images/cars3_cover.jpg"]
 },
 {
     "title": "Bad Boys: Ride or Die",
@@ -350,6 +373,7 @@
     "rating_count": 41000,
     "likes": 105000,
     "genres": ["Action", "Comedy", "Crime"],
-    "cast_members": ["Will Smith", "Martin Lawrence"]
+    "cast_members": ["Will Smith", "Martin Lawrence"],
+    "image": ["images/badBoysRideOrDie_cover.jpg"]
 }
 ]
