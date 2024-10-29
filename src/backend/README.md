@@ -92,3 +92,25 @@
     ```bash
     deactivate
     ```
+
+### Backend quick start:
+
+1. **Start the backend** with FastAPI:
+
+For Mac:
+
+   ```bash
+    cd src/backend
+    source venv/bin/activate
+    alembic upgrade head
+    uvicorn app.main:app --reload
+   ```
+
+For Windows:
+   
+   ```bash
+    cd src/backend
+    venv\Scripts\activate
+    alembic upgrade head
+    uvicorn app.main:app --reload
+   ```
