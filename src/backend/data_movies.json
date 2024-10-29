@@ -8,9 +8,19 @@
         "rating": 4.5,
         "rating_count": 50,
         "likes": 100,
-        "genres": ["Action", "Adventure", "Science Fiction"],
-        "cast_members": ["Sam Worthington", "Zoe Saldana"],
-        "image": ["images/avatarTheWayOfWater_cover.jpg"]
+        "genres": [
+            "Action",
+            "Adventure",
+            "Science Fiction"
+        ],
+        "cast_members": [
+            "Sam Worthington",
+            "Zoe Saldana"
+        ],
+        "image": [
+            "avatarTheWayOfWater_cover.jpg",
+            "avatarTheWayOfWater_banner.jpg"
+        ]
     },
     {
         "title": "Dune: Part Two",
@@ -21,359 +31,637 @@
         "rating": 4.2,
         "rating_count": 45,
         "likes": 90,
-        "genres": ["Action", "Adventure", "Science Fiction"],
-        "cast_members": ["Timothée Chalamet", "Zendaya"],
-        "image": ["images/dunePartTwo_cover.jpg"]
+        "genres": [
+            "Action",
+            "Adventure",
+            "Science Fiction"
+        ],
+        "cast_members": [
+            "Timothée Chalamet",
+            "Zendaya"
+        ],
+        "image": [
+            "dunePartTwo_cover.jpg",
+            "dunePartTwo_banner.jpg"
+        ]
     },
-{
-    "title": "Spider-Man: No Way Home",
-    "description": "When Peter Parker's secret identity is discovered, he turns to Doctor Strange to make the world forget that he is Spider-Man.",
-    "director": "Jon Watts",
-    "country": "USA",
-    "release_date": "2021, 12, 17",
-    "rating": 4.7,
-    "rating_count": 85000,
-    "likes": 200000,
-    "genres": ["Action", "Adventure", "Fantasy"],
-    "cast_members": ["Tom Holland", "Zendaya"],
-    "image": ["images/spider-manNoWayHome_cover.jpg"]
-},
-{
-    "title": "Barbie",
-    "description": "Living in Barbie Land is about being a perfect being in a perfect place. Unless you have a total existential crisis. Or you are a Ken.",
-    "director": "Greta Gerwig",
-    "country": "USA",
-    "release_date": "2023, 7, 21",
-    "rating": 4.3,
-    "rating_count": 70000,
-    "likes": 180000,
-    "genres": ["Comedy", "Adventure", "Fantasy"],
-    "cast_members": ["Margot Robbie", "Ryan Gosling"],
-    "image": ["images/barbie_cover.jpg"]
-},
-{
-    "title": "War for the Planet of the Apes",
-    "description": "Caesar and his apes face an army of humans in a battle that will determine the fate of both species and the future of the planet.",
-    "director": "Matt Reeves",
-    "country": "USA",
-    "release_date": "2017, 7, 14",
-    "rating": 4.1,
-    "rating_count": 40000,
-    "likes": 100000,
-    "genres": ["Action", "Drama", "Sci-Fi"],
-    "cast_members": ["Andy Serkis", "Woody Harrelson"],
-    "image": ["images/warForThePlanetOfTheApes_cover.jpg"]
-},
-{
-    "title": "Deadpool & Wolverine",
-    "description": "Marvel Studios presents its biggest mistake to date. His escapades as Deadpool are in the past, and an apathetic Wade Wilson goes about his day with reluctance.",
-    "director": "Shawn Levy",
-    "country": "USA",
-    "release_date": "2024, 5, 3",
-    "rating": 4.6,
-    "rating_count": 60000,
-    "likes": 140000,
-    "genres": ["Action", "Comedy", "Adventure"],
-    "cast_members": ["Ryan Reynolds", "Hugh Jackman"],
-    "image": ["images/deadpool&wolverine_cover.jpg"]
-},
-{
-    "title": "The Batman",
-    "description": "A murderer threatens Gotham's elite, and Batman sets out to unmask him: he must fit the pieces of the puzzle, forge new alliances, and punish corruption.",
-    "director": "Matt Reeves",
-    "country": "USA",
-    "release_date": "2022, 3, 4",
-    "rating": 4.3,
-    "rating_count": 75000,
-    "likes": 130000,
-    "genres": ["Action", "Crime", "Drama"],
-    "cast_members": ["Robert Pattinson", "Zoë Kravitz"],
-    "image": ["images/theBatman_cover.jpg"]
-},
-{
-    "title": "Kung Fu Panda 4",
-    "description": "Po and his new ally face a sorceress who wants to take their Staff of Wisdom from them.",
-    "director": "TBA",
-    "country": "USA",
-    "release_date": "2024, 3, 8",
-    "rating": 4.0,
-    "rating_count": 30000,
-    "likes": 90000,
-    "genres": ["Animation", "Action", "Adventure"],
-    "cast_members": ["Jack Black", "Dustin Hoffman"],
-    "image": ["images/kunfuPanda4_cover.jpg"]
-},
-{
-    "title": "The Nun",
-    "description": "When a nun commits suicide, a priest and a novice investigate and discover the secret of the order: a demonic nun who appeared in 'The Conjuring.'",
-    "director": "Corin Hardy",
-    "country": "USA",
-    "release_date": "2018, 9, 7",
-    "rating": 3.8,
-    "rating_count": 35000,
-    "likes": 90000,
-    "genres": ["Horror", "Mystery", "Thriller"],
-    "cast_members": ["Taissa Farmiga", "Demián Bichir"],
-    "image": ["images/theNum_cover.jpg"]
-},
-{
-    "title": "Up",
-    "description": "Two peculiar travel companions head to heaven for the adventure of their lives.",
-    "director": "Pete Docter",
-    "country": "USA",
-    "release_date": "2009, 5, 29",
-    "rating": 4.8,
-    "rating_count": 100000,
-    "likes": 250000,
-    "genres": ["Animation", "Adventure", "Comedy"],
-    "cast_members": ["Ed Asner", "Jordan Nagai"],
-    "image": ["images/up_cover.jpg"]
-},
-{
-    "title": "The Meg",
-    "description": "A rescue diver and an oceanographer face a prehistoric shark more than 20 meters long known as the Megalodon.",
-    "director": "Jon Turteltaub",
-    "country": "USA",
-    "release_date": "2018, 8, 10",
-    "rating": 3.5,
-    "rating_count": 28000,
-    "likes": 85000,
-    "genres": ["Action", "Sci-Fi", "Horror"],
-    "cast_members": ["Jason Statham", "Bingbing Li"],
-    "image": ["theMeg_cover.jpg"]
-},
-{
-    "title": "Inception",
-    "description": "Dom Cobb is a thief who can enter people's dreams and take their secrets.",
-    "director": "Christopher Nolan",
-    "country": "USA",
-    "release_date": "2010, 7, 16",
-    "rating": 4.8,
-    "rating_count": 95000,
-    "likes": 220000,
-    "genres": ["Action", "Sci-Fi", "Thriller"],
-    "cast_members": ["Leonardo DiCaprio", "Joseph Gordon-Levitt"],
-    "image": ["images/inception_cover.jpg"]
-},
-{
-    "title": "Furiosa: A Mad Max Saga",
-    "description": "After the destruction of the world, the young Furiosa finds her bones in the Green Place of Many Mothers and falls into the clutches of the Biker Horde.",
-    "director": "George Miller",
-    "country": "Australia",
-    "release_date": "2024, 5, 24",
-    "rating": 4.4,
-    "rating_count": 37000,
-    "likes": 95000,
-    "genres": ["Action", "Adventure", "Sci-Fi"],
-    "cast_members": ["Anya Taylor-Joy", "Chris Hemsworth"],
-    "image": ["images/furiosaMadMaxSaga_cover.jpg"]
-},
-{
-    "title": "The Fall Guy",
-    "description": "Colt Seavers, a stuntman, returns to action when a movie star goes missing.",
-    "director": "David Leitch",
-    "country": "USA",
-    "release_date": "2024, 3, 1",
-    "rating": 3.9,
-    "rating_count": 15000,
-    "likes": 60000,
-    "genres": ["Action", "Drama"],
-    "cast_members": ["Ryan Gosling", "Emily Blunt"],
-    "image": ["images/theFallGuy_cover.jpg"]
-},
-{
-    "title": "Napoleon",
-    "description": "Napoleon is a spectacle-packed action epic detailing the eventful rise and fall of the iconic French Emperor Napoleon Bonaparte.",
-    "director": "Ridley Scott",
-    "country": "France",
-    "release_date": "2023, 11, 22",
-    "rating": 4.4,
-    "rating_count": 40000,
-    "likes": 110000,
-    "genres": ["Biography", "Drama", "History"],
-    "cast_members": ["Joaquin Phoenix", "Vanessa Kirby"],
-    "image": ["images/napoleon_cover.jpg"]
-},
-{
-    "title": "Uncharted",
-    "description": "Treasure hunter Nathan Drake, a descendent of explorer Sir Francis Drake, learns the whereabouts of El Dorado, the fabled South American golden city.",
-    "director": "Ruben Fleischer",
-    "country": "USA",
-    "release_date": "2022, 2, 18",
-    "rating": 3.9,
-    "rating_count": 32000,
-    "likes": 90000,
-    "genres": ["Action", "Adventure"],
-    "cast_members": ["Tom Holland", "Mark Wahlberg"],
-    "image": ["images/uncharted_cover.jpg"]
-},
-{
-    "title": "Bullet Train",
-    "description": "In Bullet Train, Brad Pitt plays Mariquita, a down-on-his-luck assassin determined to carry out his job quietly after several derailed assignments. However, destiny has other plans, Mariquita's latest mission pits him against deadly adversaries from around the world, all with intertwined and competing objectives, on the world's fastest train.",
-    "director": "David Leitch",
-    "country": "USA",
-    "release_date": "2022, 8, 5",
-    "rating": 4.1,
-    "rating_count": 38000,
-    "likes": 100000,
-    "genres": ["Action", "Comedy", "Thriller"],
-    "cast_members": ["Brad Pitt", "Joey King"],
-    "image": ["images/bulletTrain_cover.jpg"]
-},
-{
-    "title": "Ratatouille",
-    "description": "In one of Paris' finest restaurants, Remy, a determined young rat, dreams of becoming a renowned French chef.",
-    "director": "Brad Bird",
-    "country": "USA",
-    "release_date": "2007, 6, 29",
-    "rating": 4.7,
-    "rating_count": 97000,
-    "likes": 230000,
-    "genres": ["Animation", "Comedy", "Family"],
-    "cast_members": ["Patton Oswalt", "Ian Holm"],
-    "image": ["images/ratatouille_cover.jpg"]
-},
-{
-    "title": "Toy Story 4",
-    "description": "Woody has always known his priority is to take care of his child, whether it be Andy or Bonnie. But when Bonnie brings a reluctant new toy named Forky into her room, an exciting adventure begins.",
-    "director": "Josh Cooley",
-    "country": "USA",
-    "release_date": "2019, 6, 21",
-    "rating": 4.5,
-    "rating_count": 78000,
-    "likes": 160000,
-    "genres": ["Animation", "Adventure", "Comedy"],
-    "cast_members": ["Tom Hanks", "Tim Allen"],
-    "image": ["images/toyStory4_cover.jpg"]
-},
-{
-    "title": "Dunkirk",
-    "description": "During the Second World War, British and Allied troops find themselves surrounded by enemy forces on the beach with their backs to the sea, facing a tough battle.",
-    "director": "Christopher Nolan",
-    "country": "UK",
-    "release_date": "2017, 7, 21",
-    "rating": 4.6,
-    "rating_count": 65000,
-    "likes": 140000,
-    "genres": ["Action", "Drama", "History"],
-    "cast_members": ["Fionn Whitehead", "Tom Hardy"],
-    "image": ["images/dunkirk_cover.jpg"]
-},
-{
-    "title": "Oppenheimer",
-    "description": "Experience the global phenomenon that has captivated audiences, immersing them in the mind of physicist J. Robert Oppenheimer and his work on the Manhattan Project.",
-    "director": "Christopher Nolan",
-    "country": "USA",
-    "release_date": "2023, 7, 21",
-    "rating": 4.8,
-    "rating_count": 82000,
-    "likes": 190000,
-    "genres": ["Biography", "Drama", "History"],
-    "cast_members": ["Cillian Murphy", "Emily Blunt"],
-    "image": ["images/oppenheimer_cover.jpg"]
-},
-{
-    "title": "Jumanji: The Next Level",
-    "description": "Return to the game with the whole gang in Jumanji: The Next Level. When the friends return to rescue Spencer, they discover that the game has changed.",
-    "director": "Jake Kasdan",
-    "country": "USA",
-    "release_date": "2019, 12, 13",
-    "rating": 4.0,
-    "rating_count": 43000,
-    "likes": 95000,
-    "genres": ["Action", "Adventure", "Comedy"],
-    "cast_members": ["Dwayne Johnson", "Kevin Hart"],
-    "image": ["images/jumanjiTheNextLevel_cover.jpg"]
-},
-{
-    "title": "Bohemian Rhapsody",
-    "description": "Bohemian Rhapsody is a celebration of Queen, their music, and their singer Freddie Mercury, who defied stereotypes and became one of the most beloved artists in history.",
-    "director": "Bryan Singer",
-    "country": "UK",
-    "release_date": "2018, 11, 2",
-    "rating": 4.4,
-    "rating_count": 71000,
-    "likes": 160000,
-    "genres": ["Biography", "Drama", "Music"],
-    "cast_members": ["Rami Malek", "Lucy Boynton"],
-    "image": ["images/bohemianRhapsody_cover.jpg"]
-},
-{
-    "title": "The Hunger Games: The Ballad of Songbirds and Snakes",
-    "description": "The story follows a young Coriolanus Snow, the last hope for the once-proud Snow family, as he mentors Lucy Gray Baird, a Tribute from District 12, in the 10th Hunger Games.",
-    "director": "Francis Lawrence",
-    "country": "USA",
-    "release_date": "2023, 11, 17",
-    "rating": 4.2,
-    "rating_count": 36000,
-    "likes": 88000,
-    "genres": ["Action", "Adventure", "Sci-Fi"],
-    "cast_members": ["Tom Blyth", "Rachel Zegler"],
-    "image": ["images/theHungerGamesTheBalladOfSongbirdsAndSnakes_cover.jpg"]
-},
-{
-    "title": "Coco",
-    "description": "Miguel, a young aspiring musician, accidentally arrives in the Land of the Dead, where he discovers his true musical heritage.",
-    "director": "Lee Unkrich",
-    "country": "USA",
-    "release_date": "2017, 11, 22",
-    "rating": 4.8,
-    "rating_count": 92000,
-    "likes": 210000,
-    "genres": ["Animation", "Adventure", "Family"],
-    "cast_members": ["Anthony Gonzalez", "Gael García Bernal"],
-    "image": ["images/coco_cover.jpg"]
-},
-{
-    "title": "Incredibles 2",
-    "description": "Helen is brought in to help re-legalize supers, while Bob leads a 'normal' life at home. A dangerous new villain appears, and only the Incredibles can defeat him together.",
-    "director": "Brad Bird",
-    "country": "USA",
-    "release_date": "2018, 6, 15",
-    "rating": 4.5,
-    "rating_count": 83000,
-    "likes": 180000,
-    "genres": ["Animation", "Action", "Adventure"],
-    "cast_members": ["Craig T. Nelson", "Holly Hunter"],
-    "image": ["images/incredibles2_cover.jpg"]
-},
-{
-    "title": "Jurassic World: Fallen Kingdom",
-    "description": "With a volcano threatening to destroy Isla Nublar, two former Jurassic World employees race to save the surviving dinosaurs.",
-    "director": "J.A. Bayona",
-    "country": "USA",
-    "release_date": "2018, 6, 22",
-    "rating": 3.8,
-    "rating_count": 37000,
-    "likes": 95000,
-    "genres": ["Action", "Adventure", "Sci-Fi"],
-    "cast_members": ["Chris Pratt", "Bryce Dallas Howard"],
-    "image": ["images/jurassicWorldFallenKingdom_cover.jpg"]
-},
-{
-    "title": "Cars 3",
-    "description": "Surprised by a new generation of racers, Lightning McQueen finds himself separated from the sport he loves. To compete again, she will need the help of young coach Cruz Ramírez.",
-    "director": "Brian Fee",
-    "country": "USA",
-    "release_date": "2017, 6, 16",
-    "rating": 4.0,
-    "rating_count": 45000,
-    "likes": 99000,
-    "genres": ["Animation", "Adventure", "Comedy"],
-    "cast_members": ["Owen Wilson", "Cristela Alonzo"],
-    "image": ["images/cars3_cover.jpg"]
-},
-{
-    "title": "Bad Boys: Ride or Die",
-    "description": "When their late police captain is linked to drug cartels, Miami cops Mike Lowrey and Marcus Burnett embark on a dangerous mission to clear his name.",
-    "director": "Adil & Bilall",
-    "country": "USA",
-    "release_date": "2024, 1, 17",
-    "rating": 4.3,
-    "rating_count": 41000,
-    "likes": 105000,
-    "genres": ["Action", "Comedy", "Crime"],
-    "cast_members": ["Will Smith", "Martin Lawrence"],
-    "image": ["images/badBoysRideOrDie_cover.jpg"]
-}
+    {
+        "title": "Spider-Man: No Way Home",
+        "description": "When Peter Parker's secret identity is discovered, he turns to Doctor Strange to make the world forget that he is Spider-Man.",
+        "director": "Jon Watts",
+        "country": "USA",
+        "release_date": "2021, 12, 17",
+        "rating": 4.7,
+        "rating_count": 85000,
+        "likes": 200000,
+        "genres": [
+            "Action",
+            "Adventure",
+            "Fantasy"
+        ],
+        "cast_members": [
+            "Tom Holland",
+            "Zendaya"
+        ],
+        "image": [
+            "spider-manNoWayHome_cover.jpg",
+            "spider-manNoWayHome_banner.jpg"
+        ]
+    },
+    {
+        "title": "Barbie",
+        "description": "Living in Barbie Land is about being a perfect being in a perfect place. Unless you have a total existential crisis. Or you are a Ken.",
+        "director": "Greta Gerwig",
+        "country": "USA",
+        "release_date": "2023, 7, 21",
+        "rating": 4.3,
+        "rating_count": 70000,
+        "likes": 180000,
+        "genres": [
+            "Comedy",
+            "Adventure",
+            "Fantasy"
+        ],
+        "cast_members": [
+            "Margot Robbie",
+            "Ryan Gosling"
+        ],
+        "image": [
+            "barbie_cover.jpg",
+            "barbie_banner.jpg"
+        ]
+    },
+    {
+        "title": "War for the Planet of the Apes",
+        "description": "Caesar and his apes face an army of humans in a battle that will determine the fate of both species and the future of the planet.",
+        "director": "Matt Reeves",
+        "country": "USA",
+        "release_date": "2017, 7, 14",
+        "rating": 4.1,
+        "rating_count": 40000,
+        "likes": 100000,
+        "genres": [
+            "Action",
+            "Drama",
+            "Sci-Fi"
+        ],
+        "cast_members": [
+            "Andy Serkis",
+            "Woody Harrelson"
+        ],
+        "image": [
+            "warForThePlanetOfTheApes_cover.jpg",
+            "warForThePlanetOfTheApes_banner.jpg"
+        ]
+    },
+    {
+        "title": "Deadpool & Wolverine",
+        "description": "Marvel Studios presents its biggest mistake to date. His escapades as Deadpool are in the past, and an apathetic Wade Wilson goes about his day with reluctance.",
+        "director": "Shawn Levy",
+        "country": "USA",
+        "release_date": "2024, 5, 3",
+        "rating": 4.6,
+        "rating_count": 60000,
+        "likes": 140000,
+        "genres": [
+            "Action",
+            "Comedy",
+            "Adventure"
+        ],
+        "cast_members": [
+            "Ryan Reynolds",
+            "Hugh Jackman"
+        ],
+        "image": [
+            "deadpool&Wolverine_cover.jpg",
+            "deadpool&Wolverine_banner.jpg"
+        ]
+    },
+    {
+        "title": "The Batman",
+        "description": "A murderer threatens Gotham's elite, and Batman sets out to unmask him: he must fit the pieces of the puzzle, forge new alliances, and punish corruption.",
+        "director": "Matt Reeves",
+        "country": "USA",
+        "release_date": "2022, 3, 4",
+        "rating": 4.3,
+        "rating_count": 75000,
+        "likes": 130000,
+        "genres": [
+            "Action",
+            "Crime",
+            "Drama"
+        ],
+        "cast_members": [
+            "Robert Pattinson",
+            "Zoë Kravitz"
+        ],
+        "image": [
+            "theBatman_cover.jpg",
+            "theBatman_banner.jpg"
+        ]
+    },
+    {
+        "title": "Kung Fu Panda 4",
+        "description": "Po and his new ally face a sorceress who wants to take their Staff of Wisdom from them.",
+        "director": "TBA",
+        "country": "USA",
+        "release_date": "2024, 3, 8",
+        "rating": 4.0,
+        "rating_count": 30000,
+        "likes": 90000,
+        "genres": [
+            "Animation",
+            "Action",
+            "Adventure"
+        ],
+        "cast_members": [
+            "Jack Black",
+            "Dustin Hoffman"
+        ],
+        "image": [
+            "kungFuPanda4_cover.jpg",
+            "kungFuPanda4_banner.jpg"
+        ]
+    },
+    {
+        "title": "The Nun",
+        "description": "When a nun commits suicide, a priest and a novice investigate and discover the secret of the order: a demonic nun who appeared in 'The Conjuring.'",
+        "director": "Corin Hardy",
+        "country": "USA",
+        "release_date": "2018, 9, 7",
+        "rating": 3.8,
+        "rating_count": 35000,
+        "likes": 90000,
+        "genres": [
+            "Horror",
+            "Mystery",
+            "Thriller"
+        ],
+        "cast_members": [
+            "Taissa Farmiga",
+            "Demián Bichir"
+        ],
+        "image": [
+            "theNun_cover.jpg",
+            "theNun_banner.jpg"
+        ]
+    },
+    {
+        "title": "Up",
+        "description": "Two peculiar travel companions head to heaven for the adventure of their lives.",
+        "director": "Pete Docter",
+        "country": "USA",
+        "release_date": "2009, 5, 29",
+        "rating": 4.8,
+        "rating_count": 100000,
+        "likes": 250000,
+        "genres": [
+            "Animation",
+            "Adventure",
+            "Comedy"
+        ],
+        "cast_members": [
+            "Ed Asner",
+            "Jordan Nagai"
+        ],
+        "image": [
+            "up_cover.jpg",
+            "up_banner.jpg"
+        ]
+    },
+    {
+        "title": "The Meg",
+        "description": "A rescue diver and an oceanographer face a prehistoric shark more than 20 meters long known as the Megalodon.",
+        "director": "Jon Turteltaub",
+        "country": "USA",
+        "release_date": "2018, 8, 10",
+        "rating": 3.5,
+        "rating_count": 28000,
+        "likes": 85000,
+        "genres": [
+            "Action",
+            "Sci-Fi",
+            "Horror"
+        ],
+        "cast_members": [
+            "Jason Statham",
+            "Bingbing Li"
+        ],
+        "image": [
+            "theMeg_cover.jpg",
+            "theMeg_banner.jpg"
+        ]
+    },
+    {
+        "title": "Inception",
+        "description": "Dom Cobb is a thief who can enter people's dreams and take their secrets.",
+        "director": "Christopher Nolan",
+        "country": "USA",
+        "release_date": "2010, 7, 16",
+        "rating": 4.8,
+        "rating_count": 95000,
+        "likes": 220000,
+        "genres": [
+            "Action",
+            "Sci-Fi",
+            "Thriller"
+        ],
+        "cast_members": [
+            "Leonardo DiCaprio",
+            "Joseph Gordon-Levitt"
+        ],
+        "image": [
+            "inception_cover.jpg",
+            "inception_banner.jpg"
+        ]
+    },
+    {
+        "title": "Furiosa: A Mad Max Saga",
+        "description": "After the destruction of the world, the young Furiosa finds her bones in the Green Place of Many Mothers and falls into the clutches of the Biker Horde.",
+        "director": "George Miller",
+        "country": "Australia",
+        "release_date": "2024, 5, 24",
+        "rating": 4.4,
+        "rating_count": 37000,
+        "likes": 95000,
+        "genres": [
+            "Action",
+            "Adventure",
+            "Sci-Fi"
+        ],
+        "cast_members": [
+            "Anya Taylor-Joy",
+            "Chris Hemsworth"
+        ],
+        "image": [
+            "furiosaAMadMaxSaga_cover.jpg",
+            "furiosaAMadMaxSaga_banner.jpg"
+        ]
+    },
+    {
+        "title": "The Fall Guy",
+        "description": "Colt Seavers, a stuntman, returns to action when a movie star goes missing.",
+        "director": "David Leitch",
+        "country": "USA",
+        "release_date": "2024, 3, 1",
+        "rating": 3.9,
+        "rating_count": 15000,
+        "likes": 60000,
+        "genres": [
+            "Action",
+            "Drama"
+        ],
+        "cast_members": [
+            "Ryan Gosling",
+            "Emily Blunt"
+        ],
+        "image": [
+            "theFallGuy_cover.jpg",
+            "theFallGuy_banner.jpg"
+        ]
+    },
+    {
+        "title": "Napoleon",
+        "description": "Napoleon is a spectacle-packed action epic detailing the eventful rise and fall of the iconic French Emperor Napoleon Bonaparte.",
+        "director": "Ridley Scott",
+        "country": "France",
+        "release_date": "2023, 11, 22",
+        "rating": 4.4,
+        "rating_count": 40000,
+        "likes": 110000,
+        "genres": [
+            "Biography",
+            "Drama",
+            "History"
+        ],
+        "cast_members": [
+            "Joaquin Phoenix",
+            "Vanessa Kirby"
+        ],
+        "image": [
+            "napoleon_cover.jpg",
+            "napoleon_banner.jpg"
+        ]
+    },
+    {
+        "title": "Uncharted",
+        "description": "Treasure hunter Nathan Drake, a descendent of explorer Sir Francis Drake, learns the whereabouts of El Dorado, the fabled South American golden city.",
+        "director": "Ruben Fleischer",
+        "country": "USA",
+        "release_date": "2022, 2, 18",
+        "rating": 3.9,
+        "rating_count": 32000,
+        "likes": 90000,
+        "genres": [
+            "Action",
+            "Adventure"
+        ],
+        "cast_members": [
+            "Tom Holland",
+            "Mark Wahlberg"
+        ],
+        "image": [
+            "uncharted_cover.jpg",
+            "uncharted_banner.jpg"
+        ]
+    },
+    {
+        "title": "Bullet Train",
+        "description": "In Bullet Train, Brad Pitt plays Mariquita, a down-on-his-luck assassin determined to carry out his job quietly after several derailed assignments. However, destiny has other plans, Mariquita's latest mission pits him against deadly adversaries from around the world, all with intertwined and competing objectives, on the world's fastest train.",
+        "director": "David Leitch",
+        "country": "USA",
+        "release_date": "2022, 8, 5",
+        "rating": 4.1,
+        "rating_count": 38000,
+        "likes": 100000,
+        "genres": [
+            "Action",
+            "Comedy",
+            "Thriller"
+        ],
+        "cast_members": [
+            "Brad Pitt",
+            "Joey King"
+        ],
+        "image": [
+            "bulletTrain_cover.jpg",
+            "bulletTrain_banner.jpg"
+        ]
+    },
+    {
+        "title": "Ratatouille",
+        "description": "In one of Paris' finest restaurants, Remy, a determined young rat, dreams of becoming a renowned French chef.",
+        "director": "Brad Bird",
+        "country": "USA",
+        "release_date": "2007, 6, 29",
+        "rating": 4.7,
+        "rating_count": 97000,
+        "likes": 230000,
+        "genres": [
+            "Animation",
+            "Comedy",
+            "Family"
+        ],
+        "cast_members": [
+            "Patton Oswalt",
+            "Ian Holm"
+        ],
+        "image": [
+            "ratatouille_cover.jpg",
+            "ratatouille_banner.jpg"
+        ]
+    },
+    {
+        "title": "Toy Story 4",
+        "description": "Woody has always known his priority is to take care of his child, whether it be Andy or Bonnie. But when Bonnie brings a reluctant new toy named Forky into her room, an exciting adventure begins.",
+        "director": "Josh Cooley",
+        "country": "USA",
+        "release_date": "2019, 6, 21",
+        "rating": 4.5,
+        "rating_count": 78000,
+        "likes": 160000,
+        "genres": [
+            "Animation",
+            "Adventure",
+            "Comedy"
+        ],
+        "cast_members": [
+            "Tom Hanks",
+            "Tim Allen"
+        ],
+        "image": [
+            "toyStory4_cover.jpg",
+            "toyStory4_banner.jpg"
+        ]
+    },
+    {
+        "title": "Dunkirk",
+        "description": "During the Second World War, British and Allied troops find themselves surrounded by enemy forces on the beach with their backs to the sea, facing a tough battle.",
+        "director": "Christopher Nolan",
+        "country": "UK",
+        "release_date": "2017, 7, 21",
+        "rating": 4.6,
+        "rating_count": 65000,
+        "likes": 140000,
+        "genres": [
+            "Action",
+            "Drama",
+            "History"
+        ],
+        "cast_members": [
+            "Fionn Whitehead",
+            "Tom Hardy"
+        ],
+        "image": [
+            "dunkirk_cover.jpg",
+            "dunkirk_banner.jpg"
+        ]
+    },
+    {
+        "title": "Oppenheimer",
+        "description": "Experience the global phenomenon that has captivated audiences, immersing them in the mind of physicist J. Robert Oppenheimer and his work on the Manhattan Project.",
+        "director": "Christopher Nolan",
+        "country": "USA",
+        "release_date": "2023, 7, 21",
+        "rating": 4.8,
+        "rating_count": 82000,
+        "likes": 190000,
+        "genres": [
+            "Biography",
+            "Drama",
+            "History"
+        ],
+        "cast_members": [
+            "Cillian Murphy",
+            "Emily Blunt"
+        ],
+        "image": [
+            "oppenheimer_cover.jpg",
+            "oppenheimer_banner.jpg"
+        ]
+    },
+    {
+        "title": "Jumanji: The Next Level",
+        "description": "Return to the game with the whole gang in Jumanji: The Next Level. When the friends return to rescue Spencer, they discover that the game has changed.",
+        "director": "Jake Kasdan",
+        "country": "USA",
+        "release_date": "2019, 12, 13",
+        "rating": 4.0,
+        "rating_count": 43000,
+        "likes": 95000,
+        "genres": [
+            "Action",
+            "Adventure",
+            "Comedy"
+        ],
+        "cast_members": [
+            "Dwayne Johnson",
+            "Kevin Hart"
+        ],
+        "image": [
+            "jumanjiTheNextLevel_cover.jpg",
+            "jumanjiTheNextLevel_banner.jpg"
+        ]
+    },
+    {
+        "title": "Bohemian Rhapsody",
+        "description": "Bohemian Rhapsody is a celebration of Queen, their music, and their singer Freddie Mercury, who defied stereotypes and became one of the most beloved artists in history.",
+        "director": "Bryan Singer",
+        "country": "UK",
+        "release_date": "2018, 11, 2",
+        "rating": 4.4,
+        "rating_count": 71000,
+        "likes": 160000,
+        "genres": [
+            "Biography",
+            "Drama",
+            "Music"
+        ],
+        "cast_members": [
+            "Rami Malek",
+            "Lucy Boynton"
+        ],
+        "image": [
+            "bohemianRhapsody_cover.jpg",
+            "bohemianRhapsody_banner.jpg"
+        ]
+    },
+    {
+        "title": "The Hunger Games: The Ballad of Songbirds and Snakes",
+        "description": "The story follows a young Coriolanus Snow, the last hope for the once-proud Snow family, as he mentors Lucy Gray Baird, a Tribute from District 12, in the 10th Hunger Games.",
+        "director": "Francis Lawrence",
+        "country": "USA",
+        "release_date": "2023, 11, 17",
+        "rating": 4.2,
+        "rating_count": 36000,
+        "likes": 88000,
+        "genres": [
+            "Action",
+            "Adventure",
+            "Sci-Fi"
+        ],
+        "cast_members": [
+            "Tom Blyth",
+            "Rachel Zegler"
+        ],
+        "image": [
+            "theHungerGamesTheBalladOfSongbirdsAndSnakes_cover.jpg",
+            "theHungerGamesTheBalladOfSongbirdsAndSnakes_banner.jpg"
+        ]
+    },
+    {
+        "title": "Coco",
+        "description": "Miguel, a young aspiring musician, accidentally arrives in the Land of the Dead, where he discovers his true musical heritage.",
+        "director": "Lee Unkrich",
+        "country": "USA",
+        "release_date": "2017, 11, 22",
+        "rating": 4.8,
+        "rating_count": 92000,
+        "likes": 210000,
+        "genres": [
+            "Animation",
+            "Adventure",
+            "Family"
+        ],
+        "cast_members": [
+            "Anthony Gonzalez",
+            "Gael García Bernal"
+        ],
+        "image": [
+            "coco_cover.jpg",
+            "coco_banner.jpg"
+        ]
+    },
+    {
+        "title": "Incredibles 2",
+        "description": "Helen is brought in to help re-legalize supers, while Bob leads a 'normal' life at home. A dangerous new villain appears, and only the Incredibles can defeat him together.",
+        "director": "Brad Bird",
+        "country": "USA",
+        "release_date": "2018, 6, 15",
+        "rating": 4.5,
+        "rating_count": 83000,
+        "likes": 180000,
+        "genres": [
+            "Animation",
+            "Action",
+            "Adventure"
+        ],
+        "cast_members": [
+            "Craig T. Nelson",
+            "Holly Hunter"
+        ],
+        "image": [
+            "incredibles2_cover.jpg",
+            "incredibles2_banner.jpg"
+        ]
+    },
+    {
+        "title": "Jurassic World: Fallen Kingdom",
+        "description": "With a volcano threatening to destroy Isla Nublar, two former Jurassic World employees race to save the surviving dinosaurs.",
+        "director": "J.A. Bayona",
+        "country": "USA",
+        "release_date": "2018, 6, 22",
+        "rating": 3.8,
+        "rating_count": 37000,
+        "likes": 95000,
+        "genres": [
+            "Action",
+            "Adventure",
+            "Sci-Fi"
+        ],
+        "cast_members": [
+            "Chris Pratt",
+            "Bryce Dallas Howard"
+        ],
+        "image": [
+            "jurassicWorldFallenKingdom_cover.jpg",
+            "jurassicWorldFallenKingdom_banner.jpg"
+        ]
+    },
+    {
+        "title": "Cars 3",
+        "description": "Surprised by a new generation of racers, Lightning McQueen finds himself separated from the sport he loves. To compete again, she will need the help of young coach Cruz Ramírez.",
+        "director": "Brian Fee",
+        "country": "USA",
+        "release_date": "2017, 6, 16",
+        "rating": 4.0,
+        "rating_count": 45000,
+        "likes": 99000,
+        "genres": [
+            "Animation",
+            "Adventure",
+            "Comedy"
+        ],
+        "cast_members": [
+            "Owen Wilson",
+            "Cristela Alonzo"
+        ],
+        "image": [
+            "cars3_cover.jpg",
+            "cars3_banner.jpg"
+        ]
+    },
+    {
+        "title": "Bad Boys: Ride or Die",
+        "description": "When their late police captain is linked to drug cartels, Miami cops Mike Lowrey and Marcus Burnett embark on a dangerous mission to clear his name.",
+        "director": "Adil & Bilall",
+        "country": "USA",
+        "release_date": "2024, 1, 17",
+        "rating": 4.3,
+        "rating_count": 41000,
+        "likes": 105000,
+        "genres": [
+            "Action",
+            "Comedy",
+            "Crime"
+        ],
+        "cast_members": [
+            "Will Smith",
+            "Martin Lawrence"
+        ],
+        "image": [
+            "badBoysRideOrDie_cover.jpg",
+            "badBoysRideOrDie_banner.jpg"
+        ]
+    }
 ]

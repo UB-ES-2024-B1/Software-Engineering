@@ -157,29 +157,11 @@ import axios from 'axios';
 import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
 
 
-// Función para formatear el título de la película
-function formatTitle(movieTitle) {
-  // Eliminar el contenido entre paréntesis y los propios paréntesis
-  const cleanedTitle = movieTitle.replace(/\(.*?\)/g, '').trim();
-  // Eliminar los dos puntos
-  const titleWithoutColons = cleanedTitle.replace(/:/g, '').trim();
-
-  // Dividir en palabras y capitalizar cada palabra
-  const words = titleWithoutColons.split(' ').map(word =>
-    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-  );
-
-  // Juntar las palabras y hacer la primera letra en minúscula
-  const formattedTitle = words.join('');
-  return formattedTitle.charAt(0).toLowerCase() + formattedTitle.slice(1);
-}
-
-
 async function generateMovieObject(movieData) {
   const movieObject = {
     id: movieData.id,
-    image: require(`@/assets/${formatTitle(movieData.title)}_banner.jpg`),
-    smallImage: require(`@/assets/${formatTitle(movieData.title)}_cover.jpg`),
+    image: require(`@/assets/${movieData.image[1]}`),
+    smallImage: require(`@/assets/${movieData.image[0]}`),
     title: movieData.title,
     description: movieData.description,
     rating: movieData.rating,
@@ -192,7 +174,7 @@ async function generateMovieObject(movieData) {
 async function generateRecentMovieObject(movieData) {
   const movieObject = {
     id: movieData.id,
-    image: require(`@/assets/${formatTitle(movieData.title)}_cover.jpg`),
+    image: require(`@/assets/${movieData.image[0]}`),
     rating: movieData.rating,
     likes: movieData.likes
   };
