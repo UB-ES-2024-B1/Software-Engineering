@@ -400,8 +400,7 @@ body {
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  /* Cambio de color al pasar el mouse */
+  background-color: rgba(0, 0, 0, 0.5); /* Cambio de color al pasar el mouse */
   opacity: 1;
 }
 

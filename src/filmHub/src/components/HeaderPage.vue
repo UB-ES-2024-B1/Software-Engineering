@@ -16,29 +16,29 @@
     </div>
 
     <div class="auth-buttons">
-      <!-- Mostrar el botón "Sign Up" solo si no estamos en la página de registro -->
-      <router-link v-if="!isAuthPage" to="/register">
+      <!-- Mostrar el botón "Sign Up" solo si el usuario NO está autenticado -->
+      <router-link v-if="!isAuthenticated" to="/register">
         <button class="sign-up">Sign Up</button>
       </router-link>
 
-      <!-- Mostrar el botón "Login" solo si no estamos en la página de login -->
-      <router-link v-if="!isAuthPage" to="/login">
+      <!-- Mostrar el botón "Login" solo si el usuario NO está autenticado -->
+      <router-link v-if="!isAuthenticated" to="/login">
         <button class="login">Login</button>
       </router-link>
+
+      <!-- Mostrar el botón "Logout" solo si el usuario está autenticado -->
+      <button v-if="isAuthenticated" @click="logout" class="logout">Logout</button>
     </div>
   </header>
 </template>
 
-
-
-
 <script>
-  import axios from 'axios';
   export default {
     name: 'HeaderPage',
     data() {
       return {
         scrolled: false, // Propiedad para controlar la opacidad
+        isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
       };
     },
     computed: {
@@ -56,20 +56,19 @@
         // Cambia la propiedad "scrolled" dependiendo de si el scroll es mayor a 60px
         this.scrolled = window.scrollY > 60;
       },
+      logout() {
+        // Método para cerrar sesión
+        localStorage.removeItem('token'); // Elimina el token del almacenamiento local
+        this.isAuthenticated = false; // Actualiza el estado de autenticación
+        this.$router.push('/'); // Redirigir a la página de inicio
+      },
     },
     mounted() {
       // Agrega el evento de scroll cuando el componente se monta
       window.addEventListener('scroll', this.handleScroll);
 
-      axios.get('/')
-      .then(response => {
-        this.message = response.data.message;
-        console.log("Data fetched successfully:", response.data); // Confirmación en consola
-      })
-      .catch(error => {
-        console.error("Error fetching data from backend:", error);
-      });
-
+      // Verificar el estado de autenticación al montar el componente
+      this.isAuthenticated = !!localStorage.getItem('token');
     },
     beforeUnmount() {
       // Elimina el evento de scroll cuando el componente se desmonta
@@ -77,6 +76,7 @@
     },
   };
 </script>
+
   
 
 <style scoped>
@@ -144,7 +144,7 @@
   gap: 10px; /* Añade espacio entre los botones */
 }
 
-.sign-up, .login {
+.sign-up, .login, .logout {
   padding: 10px 15px;
   background-color: rgba(255, 255, 255, 0.3);
   color: white;
@@ -153,7 +153,7 @@
   cursor: pointer;
 }
 
-.sign-up:hover, .login:hover {
+.sign-up:hover, .login:hover, .logout:hover {
   background-color: rgba(255, 255, 255, 0.4);
 }
 

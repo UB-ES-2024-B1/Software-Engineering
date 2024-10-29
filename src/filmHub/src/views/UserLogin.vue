@@ -5,8 +5,14 @@
     <div class="overlay"></div>
 
     <div class="main-content">
-      <div class="login-form">
+      <div :class="['login-form', { 'expanded': loginError }]">
         <h2>Login</h2>
+
+        <!-- Mensaje de error si el login falla -->
+        <p v-if="loginError" class="error-message">
+          User not registered. Please try again.
+        </p>
+
         <form @submit.prevent="handleLogin">
           <div>
             <input type="email" id="email" v-model="email" placeholder="example@email.com" required />
@@ -29,9 +35,9 @@
 </template>
 
 <script>
-import HeaderPage from '@/components/HeaderPage.vue';
+import HeaderPage from '@/components/HeaderPage.vue'; 
 import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
+import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
 export default {
   name: 'UserLogin',
@@ -42,41 +48,34 @@ export default {
     return {
       email: '',
       password: '',
+      loginError: false, // Estado para mostrar o esconder el mensaje de error
     };
   },
   methods: {
     async handleLogin() {
-      console.log('Iniciando sesión con:', this.email);
-
-      const loginData = new URLSearchParams();
-      loginData.append('username', this.email);
-      loginData.append('password', this.password);
-
       try {
-        const response = await axios.post(`${API_BASE_URL}/login/`, loginData, {
+        // Usar FormData para enviar los datos en el formato adecuado
+        const formData = new FormData();
+        formData.append('username', this.email); // OAuth2PasswordRequestForm espera 'username'
+        formData.append('password', this.password); // Y también espera 'password'
+
+        // Realizar la solicitud POST al backend para el login
+        const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         });
-        console.log('Respuesta de login:', response.data);
+        // Si la solicitud tiene éxito, almacenar el token en localStorage
+        localStorage.setItem('token', response.data.access_token);
+        // Redirigir al usuario a la página principal
+        this.$router.push('/');
 
-        // Almacena el token en localStorage
-        localStorage.setItem('access_token', response.data.access_token);
-
-        // Redirige a la página principal
-        this.$router.push({ name: 'MainPageView' });
-
+        // Asegúrate de que los componentes parent puedan actualizar el estado
+        window.dispatchEvent(new Event('storage')); // Para informar a otros componentes del cambio
+        this.loginError = false; // Reiniciar el error en caso de éxito
       } catch (error) {
-        if (error.response) {
-          console.error('Error en la respuesta:', error.response.data);
-          alert('Error en el inicio de sesión: ' + (error.response.data.detail || 'Error desconocido'));
-        } else if (error.request) {
-          console.error('Error en la solicitud:', error.request);
-          alert('Error en la solicitud: No se recibió respuesta del servidor.');
-        } else {
-          console.error('Error:', error.message);
-          alert('Error: ' + error.message);
-        }
+        console.error('Error al iniciar sesión:', error);
+        this.loginError = true; // Muestra el mensaje de error
       }
     },
 
@@ -112,8 +111,28 @@ export default {
   text-align: center;
   transform: translateY(20px);
   z-index: 10;
+  transition: height 0.3s ease; /* Transición para cambio de altura */
 }
 
+/* Expande el formulario cuando hay un error */
+.login-form.expanded {
+  height: 450px; /* Aumenta la altura solo cuando hay un error */
+}
+
+/* Estilo del mensaje de error */
+.error-message {
+  background-color: rgba(255, 0, 0, 0.5);
+  width: 100%; /* Ancho completo para alinearlo al centro */
+  max-width: 80%; /* Ajusta el ancho máximo dentro del formulario */
+  color: white;
+  padding: 8px;
+  border-radius: 5px;
+  margin: 0 auto 20px; /* Centra horizontalmente y añade margen inferior */
+  text-align: center;
+  z-index: 30;
+}
+
+/* Estilo del resto del formulario */
 .login-form h2 {
   margin-bottom: 30px;
   color: #fff;
