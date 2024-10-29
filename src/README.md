@@ -81,12 +81,6 @@ This project consists of two main parts: the **backend** developed with **FastAP
 
 6. **Run backend tests (optional, but recommended to ensure everything is working correctly)**:
 
-    For Windows:
-    ```bash
-    pytest
-    ```
-    
-    For Mac:
     ```bash
     python -m pytest
     ```
@@ -157,13 +151,23 @@ To run the full project:
 
 1. **Start the backend** with FastAPI:
 
+For Mac:
 
    ```bash
     cd src/backend
     source venv/bin/activate
     alembic upgrade head
     uvicorn app.main:app --reload
-    ```
+   ```
+
+For Windows:
+   
+   ```bash
+    cd src/backend
+    venv\Scripts\activate
+    alembic upgrade head
+    uvicorn app.main:app --reload
+   ```
 
 2. **Start the frontend with Vue.js**:
 
