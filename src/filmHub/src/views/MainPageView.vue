@@ -221,8 +221,14 @@ export default {
   methods: {
     async fetchMovies(start,end,movies_section) {
       try {
+          let url;
+
+          if (movies_section === 1){ url = `${API_BASE_URL}/movies/sorted/likes/`;}
+          else if (movies_section === 2){ url = `${API_BASE_URL}/movies/sorted/release_date`;}
+          else { url = `${API_BASE_URL}/movies/sorted/rating/`;}
+
           const movieObjects = [];
-          const response = await axios.get(`${API_BASE_URL}/movies/`);
+          const response = await axios.get(url);
           const movies = response.data; // Suponiendo que la respuesta es un arreglo de películas
 
           // Limitar a las primeras 8 películas
@@ -245,7 +251,7 @@ export default {
           }
           if (movies_section === 1) {this.movies = movieObjects;} 
           else if (movies_section === 2) {this.recentMovies = movieObjects;} 
-          else if (movies_section === 3) {this.topRatedMovies = movieObjects;}
+          else {this.topRatedMovies = movieObjects;}
 
       } catch (error) {
           console.error("Error retrieving movies:", error);
