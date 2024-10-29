@@ -57,7 +57,7 @@
       <div id="recentMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <div class="movie-grid">
+            <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(0, 5)" :key="movie.id">
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
@@ -70,7 +70,7 @@
             </div>
           </div>
           <div class="carousel-item">
-            <div class="movie-grid">
+            <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(5, 10)" :key="movie.id">
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
@@ -101,7 +101,7 @@
       <div id="topRatedMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <div class="movie-grid">
+            <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(0, 5)" :key="movie.id">
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
@@ -114,7 +114,7 @@
             </div>
           </div>
           <div class="carousel-item">
-            <div class="movie-grid">
+            <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(5, 10)" :key="movie.id">
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
@@ -140,7 +140,6 @@
         </button>
       </div>
     </section>
-
 
     <!-- Pie de Página -->
     <footer class="footer">
