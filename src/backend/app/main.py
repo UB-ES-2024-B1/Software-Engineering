@@ -30,7 +30,8 @@ app = FastAPI(lifespan=lifespan)
 # Habilitar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080"],  # Permitir peticiones desde este origen
+    #allow_origins=["http://localhost:8080"],  # Permitir peticiones desde este origen
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],  # Permitir todos los métodos
     allow_headers=["*"],  # Permitir todas las cabeceras
