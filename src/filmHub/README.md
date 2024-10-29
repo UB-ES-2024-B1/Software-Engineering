@@ -4,6 +4,7 @@
 1. **Install Vue CLI globally** (if you haven't installed it yet):
 
    ```bash
+   cd src
    npm install -g @vue/cli
    ````
 
