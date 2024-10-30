@@ -82,6 +82,32 @@
               </div>
             </div>
           </div>
+          <div class="carousel-item">
+            <div class="movie-grid responsive-carousel">
+              <div class="movie-item" v-for="movie in recentMovies.slice(10, 15)" :key="movie.id">
+                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <div class="rating-likes-cover">
+                  <div class="likes">
+                    <img src="@/assets/like.png" alt="Like" class="icon" />
+                    <span>{{ movie.likes }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="movie-grid responsive-carousel">
+              <div class="movie-item" v-for="movie in recentMovies.slice(15, 20)" :key="movie.id">
+                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <div class="rating-likes-cover">
+                  <div class="likes">
+                    <img src="@/assets/like.png" alt="Like" class="icon" />
+                    <span>{{ movie.likes }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- Controles -->
         <button class="carousel-control-prev" type="button" data-bs-target="#recentMoviesCarousel" data-bs-slide="prev">
@@ -94,7 +120,6 @@
         </button>
       </div>
     </section>
-
     <!-- Sección de películas mejor valoradas -->
     <section class="top-rated-movies">
       <h2 class="section-title">Películas Mejor Valoradas</h2>
@@ -120,7 +145,33 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating }}</span>   
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="movie-grid responsive-carousel">
+              <div class="movie-item" v-for="movie in topRatedMovies.slice(10, 15)" :key="movie.id">
+                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <div class="rating-likes-cover">
+                  <div class="rating">
+                    <img src="@/assets/star.png" alt="Star" class="icon" />
+                    <span>{{ movie.rating }}</span>   
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="movie-grid responsive-carousel">
+              <div class="movie-item" v-for="movie in topRatedMovies.slice(15, 20)" :key="movie.id">
+                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <div class="rating-likes-cover">
+                  <div class="rating">
+                    <img src="@/assets/star.png" alt="Star" class="icon" />
+                    <span>{{ movie.rating }}</span>   
                   </div>
                 </div>
               </div>
@@ -143,7 +194,7 @@
 
     <!-- Pie de Página -->
     <footer class="footer">
-      <p>&copy; 2024 Web Name. All rights reserved.</p>
+      <p>&copy; 2024 FilmHub Enterpise. All rights reserved.</p>
       <div class="socials">
         <a href="#">FilmHub Enterpise</a>
       </div>
@@ -156,30 +207,21 @@ import HeaderPage from '@/components/HeaderPage.vue'; // Importa el componente H
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
 
-
-// Función para formatear el título de la película
-function formatTitle(movieTitle) {
-  // Eliminar el contenido entre paréntesis y los propios paréntesis
-  const cleanedTitle = movieTitle.replace(/\(.*?\)/g, '').trim();
-  // Eliminar los dos puntos
-  const titleWithoutColons = cleanedTitle.replace(/:/g, '').trim();
-
-  // Dividir en palabras y capitalizar cada palabra
-  const words = titleWithoutColons.split(' ').map(word =>
-    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-  );
-
-  // Juntar las palabras y hacer la primera letra en minúscula
-  const formattedTitle = words.join('');
-  return formattedTitle.charAt(0).toLowerCase() + formattedTitle.slice(1);
+function getImagePath(image) {
+  // Comprobar si la imagen es una URL
+  if (image && image.startsWith('http')) {
+    return image; // Retorna la URL tal cual
+  } else {
+    // Retorna la ruta de la imagen en assets
+    return require(`@/assets/${image}`);
+  }
 }
-
 
 async function generateMovieObject(movieData) {
   const movieObject = {
     id: movieData.id,
-    image: require(`@/assets/${formatTitle(movieData.title)}_banner.jpg`),
-    smallImage: require(`@/assets/${formatTitle(movieData.title)}_cover.jpg`),
+    image: getImagePath(movieData.image[1]),
+    smallImage: getImagePath(movieData.image[0]),
     title: movieData.title,
     description: movieData.description,
     rating: movieData.rating,
@@ -192,7 +234,7 @@ async function generateMovieObject(movieData) {
 async function generateRecentMovieObject(movieData) {
   const movieObject = {
     id: movieData.id,
-    image: require(`@/assets/${formatTitle(movieData.title)}_cover.jpg`),
+    image: getImagePath(movieData.image[0]),
     rating: movieData.rating,
     likes: movieData.likes
   };
@@ -216,6 +258,8 @@ export default {
     };
   },
   methods: {
+
+    
     async fetchMovies(start, end, movies_section) {
       try {
         let url;
@@ -227,8 +271,8 @@ export default {
         const movieObjects = [];
         const response = await axios.get(url);
         const movies = response.data; // Suponiendo que la respuesta es un arreglo de películas
-
-        // Limitar a las primeras 8 películas
+        if (movies_section === 2){movies.reverse();}
+        // Limitar a las primeras películas
         const topMovies = movies.slice(start, end);
 
         for (let i = 0; i < topMovies.length; i++) {
@@ -263,8 +307,8 @@ export default {
   },
   created() {
     this.fetchMovies(0, 9, 1);
-    this.fetchMovies(19, 29, 2);
-    this.fetchMovies(0, 10, 3);
+    this.fetchMovies(0, 50, 2);
+    this.fetchMovies(0, 50, 3);
   },
 };
 </script>
