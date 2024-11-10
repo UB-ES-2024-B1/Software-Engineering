@@ -7,12 +7,14 @@ from app.crud import movie_crud  # Import CRUD functions for movie operations
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast)  # Import movie models for input and output
 from typing import List
 from fastapi.responses import FileResponse
+from app.api.routes.user_routes import is_admin_user
+from app.scrape_movies import scrape_movie
 
 # Create a router for movie-related endpoints
 router = APIRouter()
 
-# Endpoint to create a new movie
-@router.post("/", response_model=MovieOut)
+'''# Endpoint to create a new movie
+@router.post("/", response_model=MovieOut, dependencies=[Depends(is_admin_user)])
 def create_movie(movie: MovieIn, db: Session = Depends(get_db)):
     """
     Creates a new movie entry in the database.
@@ -28,6 +30,30 @@ def create_movie(movie: MovieIn, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Movie title already registered")
     
     movie = movie_crud.create_movie(db, movie)
+    # Return the created movie details
+    return movie'''
+
+@router.post("/", response_model=MovieOut, dependencies=[Depends(is_admin_user)])
+def create_movie_by_name(movie_title: str, db: Session = Depends(get_db)):
+    """
+    Creates a new movie entry in the database.
+    
+    :param movie: Movie - Pydantic model containing the movie data to create
+    :param db: Session - Database session dependency
+    :return: MovieOut - Pydantic model representing the created movie's details
+    """
+    # Call the CRUD function to create a new movie record
+    # Check if the email is already registered
+
+    movie = scrape_movie(title=movie_title)
+    movie_data = MovieIn(**movie)
+    existing_movie = movie_crud.get_movie_by_title(db, movie_title=movie_data.title)
+    if existing_movie:
+        raise HTTPException(status_code=400, detail="Movie title already registered")
+    
+    movie = movie_crud.create_movie(db, movie_data)
+    if movie is None:
+        raise HTTPException(status_code=404, detail= f"Movie '{movie_title}' not found")
     # Return the created movie details
     return movie
 

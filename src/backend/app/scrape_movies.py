@@ -54,10 +54,10 @@ def fetch_movie_data(movie_id):
             "description": data.get('overview'),
             "director": next((member['name'] for member in credits_data.get('crew', []) if member['job'] == 'Director'), None),
             "country": ', '.join(country['iso_3166_1'] for country in data.get('production_countries', [])),
-            "release_date": data.get('release_date').replace("-", ", ") if data.get('release_date') else None,
+            "release_date": data.get('release_date') if data.get('release_date') else None,
             "rating": (data.get('vote_average') / 2) if data.get('vote_average') else None,
             "rating_count": data.get('vote_count') if data.get('vote_count') else None,
-            "likes": 270001,
+            "likes": random.randint(0, 1000000),
             "genres": [genre['name'] for genre in data.get('genres', [])],
             "cast_members": [actor['name'] for actor in credits_data.get('cast', [])],
             "image": [
@@ -120,13 +120,27 @@ def scrape_movies(num_movies=100, genre_name=None, title=None):
 
     save_data(filename, existing_data)
 
-if __name__ == '__main__':
-    # Puedes llamar a scrape_movies con un género o título específico 
-    scrape_movies(num_movies=5, genre_name='Action') 
-    scrape_movies(num_movies=1, title='Mulan')
-    scrape_movies(num_movies=1, title='Super Mario Bros')
-    scrape_movies(num_movies=1, title='The Godfather')
-    scrape_movies(num_movies=1, title='Kimetsu no Yaiba: Mugen Ressha-Hen')
-    scrape_movies(num_movies=1, title='How to Train Your Dragon')
-    scrape_movies(num_movies=1, title='The Lion King')
-    scrape_movies(num_movies=1, title='The Avengers Infinity War')
+def scrape_movie(title=None, movie_id=None):
+    """
+    Devuelve los datos de una sola película basados en el título o ID.
+    
+    :param title: str - El título de la película que quieres buscar
+    :param movie_id: int - El ID de la película en TMDb
+    :return: dict - Los datos de la película, o None si no se encuentra o es inválida
+    """
+    if title:
+        # Busca la película por título
+        movies = search_movies_by_title(title, num_movies=1)
+        if not movies:
+            return None
+        movie_id = movies[0]['id']
+    elif not movie_id:
+        return None
+
+    # Obtener datos completos de la película por ID
+    movie_data = fetch_movie_data(movie_id)
+    
+    if movie_data and is_valid_movie(movie_data):
+        return movie_data
+    else:
+        return None
