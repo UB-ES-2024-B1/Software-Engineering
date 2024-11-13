@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast) 
 from typing import List
 from fastapi import File, UploadFile
+from sqlalchemy import extract
 
 # Function to create a new movie
 def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> MovieOut:
@@ -178,3 +179,8 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
         return True  # Deletion successful
     return False  # Movie not found
 
+
+# Function get movie by data release
+def get_movie_by_year(db: Session, movie_year: int)-> List[MovieOut]:
+    statement = select(Movie).where(extract('year', Movie.release_date) == movie_year)
+    return db.execute(statement).scalars().all()
