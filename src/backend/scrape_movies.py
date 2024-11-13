@@ -26,7 +26,6 @@ def fetch_movie_data(movie_id):
         credits_response.raise_for_status()  # Lanza un error si la solicitud no fue exitosa
         credits_data = credits_response.json()
 
-        print("helllo", data)
         # Estructurando los datos
         movie = {
             "title": data.get('title'),

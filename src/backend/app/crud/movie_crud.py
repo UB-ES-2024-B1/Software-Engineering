@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast) 
 from typing import List
 from fastapi import File, UploadFile
+from sqlalchemy.sql import func, case
 
 # Function to create a new movie
 def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> MovieOut:
@@ -74,6 +75,51 @@ def get_movies_sorted_by_rating(db: Session) -> List[MovieOut]:
 def get_movies_sorted_by_likes(db: Session) -> List[MovieOut]:
     statement = select(Movie).order_by(Movie.likes.desc())  # Assuming more likes is better
     return db.execute(statement).scalars().all()
+
+# The idea is to return the five top relaetd movies given a movie name, by genre, cast and director
+def get_movies_sorted_by_related(db: Session, target_movie_title: str, limit: int = 5) -> List[MovieOut]:
+    # Step 1: Get the target movie by title
+    target_movie = db.execute(select(Movie).where(Movie.title == target_movie_title)).scalars().first()
+    
+    if not target_movie:
+        return []  # Return empty list if movie is not found
+    
+    # Step 2: Extract target movie's related data
+    target_genres = [genre.type for genre in target_movie.genres]
+    target_cast_members = [cast.name for cast in target_movie.cast_members]
+    target_director = target_movie.director
+
+    # Step 3: Build the query for matching movies, excluding the target movie itself
+    statement = select(Movie).where(Movie.id != target_movie.id)
+    
+    # Step 4: Calculate a score for each movie based on how many attributes match
+    movies_with_scores = []
+    for movie in db.execute(statement).scalars().all():
+        score = 0
+
+        # Check genre match
+        movie_genres = [genre.type for genre in movie.genres]
+        score += len(set(target_genres).intersection(set(movie_genres)))  # Count matching genres
+        
+        # Check cast member match
+        movie_cast_members = [cast.name for cast in movie.cast_members]
+        score += len(set(target_cast_members).intersection(set(movie_cast_members)))  # Count matching cast members
+        
+        # Check director match
+        if movie.director == target_director:
+            score += 1  # Count if director matches
+
+        # Add movie and its score to the list
+        movies_with_scores.append((movie, score))
+
+    # Step 5: Sort movies by score in descending order (highest score first)
+    sorted_movies = sorted(movies_with_scores, key=lambda x: x[1], reverse=True)
+    
+    # Step 6: Limit the results and return
+    top_movies = [movie for movie, score in sorted_movies[:limit]]
+    
+    return [MovieOut.model_validate(movie) for movie in top_movies]
+    
 '''
 # Function to update a movie by ID
 def update_movie(db: Session, movie_id: int, movie_data: MovieUpdate) -> MovieOut:
