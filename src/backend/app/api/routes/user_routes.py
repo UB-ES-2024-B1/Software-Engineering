@@ -23,12 +23,12 @@ def init_db():
     if len(user_crud.get_users(db)) == 0:
         # Crear 6 usuarios
         initial_users = [
-            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1"},
-            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2"},
-            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3"},
-            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4"},
-            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5"},
-            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6"},
+            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1", "image_url": "https://example.com/image1.jpg"},
+            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2", "image_url": "https://example.com/image2.jpg"},
+            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3", "image_url": "https://example.com/image3.jpg"},
+            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4", "image_url": "https://example.com/image4.jpg"},
+            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5", "image_url": "https://example.com/image5.jpg"},
+            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6", "image_url": "https://example.com/image6.jpg"},
         ]
         # Insertar usuarios en la base de datos
         for user_data in initial_users:
@@ -41,32 +41,6 @@ def init_db():
             )
     db.close()  # Close session
 
-
-def init_db():
-    # Consumir el generador para obtener la sesión
-    db: Session = next(get_db())  # Obtener una sesión válida
-
-    # Verificar si ya existen usuarios
-    if len(user_crud.get_users(db)) == 0:
-        # Crear 6 usuarios
-        initial_users = [
-            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1"},
-            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2"},
-            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3"},
-            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4"},
-            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5"},
-            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6"},
-        ]
-        # Insertar usuarios en la base de datos
-        for user_data in initial_users:
-            user_crud.create_user(
-                db=db,
-                full_name=user_data.get("full_name"),
-                email=user_data.get("email"),
-                hashed_password=pwd_context.hash(user_data.get("password")),
-                is_admin=user_data.get("is_admin")
-            )
-    db.close()  # Cerrar la sesión
     
 # Route to create a new user
 @router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -199,6 +173,25 @@ def update_user_by_email(
     """
     # Use the CRUD function to update the user by email
     updated_user = user_crud.update_user_by_email(db, user_email, user_data.model_dump(exclude_unset=True))
+
+    # If the user doesn't exist, return error 404
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return updated_user
+
+# Endpoint to update the profile image of a user by ID
+@router.put("/id/{user_id}/image", response_model=UserOut)
+def update_profile_image_by_id(user_id: int, image_url: str,  db: Session = Depends(get_db)):
+    """
+    Update the profile image of an existing user by ID.
+    :param user_id: The ID of the user to update
+    :param image_url: The new profile image URL
+    :param db: The database session
+    :return: The updated user
+    """
+    # Use the CRUD function to update the user's profile image
+    updated_user = user_crud.update_profile_image(db, user_id, image_url)
 
     # If the user doesn't exist, return error 404
     if not updated_user:

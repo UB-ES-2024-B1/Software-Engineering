@@ -109,3 +109,19 @@ def update_user_by_email(db: Session, email: str, user_data: dict):
     db.refresh(user)
     
     return user
+
+def update_profile_image(db: Session, user_id: int, image_url: str):
+    """
+    Update the profile image URL of an existing user in the database by ID.
+    :param db: Database session
+    :param user_id: The ID of the user to update
+    :param image_url: The new profile image URL
+    :return: Updated User object
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        user.image_url = image_url
+        db.commit()
+        db.refresh(user)
+        return user
+    return None
