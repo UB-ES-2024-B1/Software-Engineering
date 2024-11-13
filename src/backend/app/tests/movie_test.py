@@ -22,7 +22,8 @@ def test_create_movie():
             "John Doe",
             "Jane Smith",
             "Mike Johnson"
-        ]
+        ],
+        "trailer": ""
     }
 
     response = client.post("/movies/", json=new_movie)
@@ -40,6 +41,7 @@ def test_create_movie():
     assert response_data["rating"] == new_movie["rating"]
     assert response_data["rating_count"] == new_movie["rating_count"]
     assert response_data["likes"] == new_movie["likes"]
+    assert response_data["trailer"] == new_movie["trailer"]
 
     assert "id" in response_data
 

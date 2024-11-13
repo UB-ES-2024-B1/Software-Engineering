@@ -17,7 +17,8 @@ def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> 
         rating=movie.rating,
         rating_count=movie.rating_count,
         likes=movie.likes,
-        image=movie.image
+        image=movie.image,
+        trailer=movie.trailer
     )
 
     # Handle genres
