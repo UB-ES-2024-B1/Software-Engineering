@@ -204,3 +204,43 @@ def test_get_movies_by_year_2():
     movies = response.json()
     assert isinstance(movies, list)
     assert len(movies) == 0
+
+
+# Test get movies with genre
+def test_get_movies_by_genre():
+    response = client.get("/movies/genre/Crime")
+    assert response.status_code == 200
+    movies = response.json()
+    assert isinstance(movies, list)
+    # Check if the movies in the list have all the genre
+    for movie in movies:
+        
+        assert "genres" in movie
+        assert isinstance(movie["genres"], list)
+        
+        assert any(genre["type"] == "Crime" for genre in movie["genres"])
+
+
+# Test get movies with genre
+def test_get_movies_by_genre_2():
+    response = client.get("/movies/genre/Fun")
+    assert response.status_code == 404
+
+# Test get movies with multiple genre
+def test_get_movies_by_genre_list():
+    response = client.get("/movies/genre/list/Adventure,Science Fiction")
+    assert response.status_code == 200
+    movies = response.json()
+    assert isinstance(movies, list)
+    # Check if the movies in the list have all the genre
+    for movie in movies:        
+        assert "genres" in movie
+        assert isinstance(movie["genres"], list)
+        assert any(genre["type"] == "Science Fiction" for genre in movie["genres"])
+        assert any(genre["type"] == "Adventure" for genre in movie["genres"])
+
+
+# Test get movies with multiplegenre
+def test_get_movies_by_genre_list_2():
+    response = client.get("/movies/genre/list/Adventure,Science Fiction,Fun")
+    assert response.status_code == 404
