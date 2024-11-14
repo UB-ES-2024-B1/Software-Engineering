@@ -1,363 +1,381 @@
 <template>
-<div class="add-movies">
-        <HeaderPage />
-        <div class="left-top-container">
-            <RadioForm v-model="selectedRadio" />
-        </div>
 
-        <form class="form">
-            <p class="title">Add Movie</p>
-            <p class="message">Fill in the details below to add a new movie to the database.</p>
-            <div class="form-content">
-                <div class="left-form">
-                    <div class="flex" v-if="selectedRadio === 'value-1'">
-                        <label>
-                            <input
-                                class="input"
-                                type="text"
-                                placeholder="Enter movie name"
-                                v-model="movieName"
-                            />
-                            <span>Movie Name</span>
-                        </label>
-                    </div>
-                    
-                    <div v-if="selectedRadio === 'value-2'">
-                        <div class="flex">
-                            <label>
-                                <input
-                                    class="input"
-                                    type="text"
-                                    placeholder="Enter genre"
-                                    v-model="genreInput"
-                                    @keydown.enter="addGenre"
-                                    @keydown="checkCommaOrEnter($event, 'genre')"
-                                />
-                                <span>Genre</span>
-                            </label>
-                            <div class="tags">
-                                <span v-for="(tag, index) in genres" :key="index" class="tag">
-                                    {{ tag }}
-                                    <button @click="removeGenre(index)" class="remove-tag">x</button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <label>
-                                <input
-                                    class="input"
-                                    type="text"
-                                    placeholder="Enter cast members"
-                                    v-model="castInput"
-                                    @keydown.enter="addCast"
-                                    @keydown="checkCommaOrEnter($event, 'cast')"
-                                />
-                                <span>Cast</span>
-                            </label>
-                            <div class="tags">
-                                <span v-for="(tag, index) in cast" :key="index" class="tag">
-                                    {{ tag }}
-                                    <button @click="removeCast(index)" class="remove-tag">x</button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex" id="director-flex">
-                            <label>
-                                <input
-                                    class="input"
-                                    type="text"
-                                    placeholder="Enter Director"
-                                    v-model="directorInput"
-                                    @keydown.enter="addDirector"
-                                    @keydown="checkCommaOrEnter($event, 'director')"
-                                />
-                                <span>Director</span>
-                            </label>
-                            <div class="tags">
-                                <span v-for="(tag, index) in director" :key="index" class="tag">
-                                    {{ tag }}
-                                    <button @click="removeDirector(index)" class="remove-tag">x</button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <label>
-                                <input
-                                    class="input"
-                                    type="number"
-                                    placeholder="Number of Movies"
-                                    v-model="numMovies"
-                                    min="1"
-                                    max="100"
-                                />
-                                <span>Number of Movies</span>
-                            </label>
-                        </div>
-                    </div>
+    <div class="min-vh-100 d-flex flex-column align-items-center text-white p-5" id="addMoviesPage">
+        <HeaderPage class="mb-5" />
+        <div class="container">
+
+            <!-- Use flexbox to place RadioForm to the left side of the form -->
+            <div class="radio d-flex mb-4">
+                <div class="me-4">
+                    <RadioForm v-model="formType" />
                 </div>
-                <div class="vertical-line" v-if="selectedRadio === 'value-2'"></div>
-                <div class="right-form" v-if="selectedRadio === 'value-2'">
-                    <div class="flex">
-                        <RatingSlider v-model="rating" />
+                <main :class="['main-form', 'rounded-3', 'shadow-lg', 'p-4', { 'small-form': formType === 'value-1' }]"
+                    id="formBox">
+                    <h2 class="fs-4 fw-bolder mb-4">Add Movie</h2>
+
+                    <div v-if="formType === 'value-1'" class="mb-3">
+                        <!-- Display single movie name input field if 'Add Movie by Name' is selected -->
+                        <label for="movieName" class="form-label">Movie Name</label>
+                        <input id="movieName" v-model="movieName" placeholder="Enter movie name" class="form-control" />
                     </div>
-                    <div class="flex" id="date-flex">
-                        <label>
-                            <span>Min Release Date</span>
-                            <DatePicker v-model="releaseDate" placeholder="dd-mm-yyyy" class="date-1" />
-                        </label>
-                        <label>
-                            <span>Max Release Date</span>
-                            <DatePicker v-model="endDate" placeholder="dd-mm-yyyy" class="date-2" />
-                        </label>
+
+                    <div v-else>
+                        <!-- Display the full form if 'Add Movie by Features' is selected -->
+                        <div class="row g-4">
+                            <div class="col-md-5">
+                                <div class="mb-3">
+                                    <label for="genre" class="form-label">Genre</label>
+                                    <div class="d-flex flex-wrap gap-2 mt-2" id="genreListTag">
+                                        <span v-for="(genre, index) in genres" :key="index"
+                                            class="badge text-sm d-flex align-items-center" id="tagGenre">
+                                            {{ genre }}
+                                            <button class="btn-close btn-close-white ms-2"
+                                                @click="removeItem(index, 'genres')"></button>
+                                        </span>
+                                    </div>
+                                    <div class="input-group mt-2">
+                                        <input id="genre" v-model="newGenre" placeholder="Add genre"
+                                            class="form-control" @keyup.enter="addItem(newGenre, 'genres')"
+                                            @keyup="checkComma(newGenre, 'genres')" />
+                                        <button class="btn btn-primary" @click="addItem(newGenre, 'genres')"
+                                            id="btn-genre">
+                                            <i class='bx bx-plus-medical'></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="cast" class="form-label">Cast</label>
+                                    <div class="d-flex flex-wrap gap-2 mt-2" id="castListTag">
+                                        <span v-for="(member, index) in cast" :key="index"
+                                            class="badge text-sm d-flex align-items-center" id="tagMember">
+                                            {{ member }}
+                                            <button class="btn-close btn-close-white ms-2"
+                                                @click="removeItem(index, 'cast')"></button>
+                                        </span>
+                                    </div>
+                                    <div class="input-group mt-2">
+                                        <input id="cast" v-model="newCastMember" placeholder="Add cast member"
+                                            class="form-control" @keyup.enter="addItem(newCastMember, 'cast')"
+                                            @keyup="checkComma(newCastMember, 'cast')" />
+                                        <button class="btn btn-primary" @click="addItem(newCastMember, 'cast')"
+                                            id="btn-cast">
+                                            <i class='bx bx-plus-medical'></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="director" class="form-label">Director</label>
+                                    <div class="d-flex flex-wrap gap-2 mt-2" id="directorListTag">
+                                        <span v-for="(dir, index) in director" :key="index"
+                                            class="badge text-sm d-flex align-items-center" id="tagDirector">
+                                            {{ dir }}
+                                            <button class="btn-close btn-close-white ms-2"
+                                                @click="removeItem(index, 'director')"></button>
+                                        </span>
+                                    </div>
+                                    <div class="input-group mt-2">
+                                        <input id="director" v-model="newDirector" placeholder="Add a Director"
+                                            class="form-control" @keyup.enter="addItem(newDirector, 'director')"
+                                            @keyup="checkComma(newDirector, 'director')" />
+                                        <button class="btn btn-primary" @click="addItem(newDirector, 'director')"
+                                            id="btn-director">
+                                            <i class='bx bx-plus-medical'></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="movieCount" class="form-label">Number of Movies</label>
+                                    <input id="movieCount" v-model="movieCount" type="number" class="form-control"
+                                        placeholder="8" />
+                                </div>
+                            </div>
+                            <div class="col-md-1" id="division">
+                                <div class="vertical-line"></div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="mb-3">
+                                    <label class="form-label">Movie Rating</label>
+                                    <input type="range" v-model.number="rating" min="0" max="5" step="0.1"
+                                        class="form-range" id="slidingBar" />
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <span>0</span>
+                                        <span>{{ rating.toFixed(1) }}</span>
+                                        <span>5</span>
+                                    </div>
+                                    <StarRating :rating="6 - Math.floor(rating)" class="star-rating"
+                                        @update:rating="updateRating" />
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="minDate" class="form-label">Min Release Date</label>
+                                    <input id="minDate" v-model="minDate" type="date" class="form-control" />
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="maxDate" class="form-label">Max Release Date</label>
+                                    <input id="maxDate" v-model="maxDate" type="date" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div class="d-flex justify-content-center" id="submit">
+                        <button class="btn-submit btn-dark w-100 mt-3" @click="submitForm">Submit</button>
+                    </div>
+                </main>
             </div>
-
-            <button class="submit">Submit</button>
-        </form>
+        </div>
     </div>
 </template>
 
 <script>
-import RadioForm from '@/components/RadioForm.vue';
-import RatingSlider from '@/components/RatingSlider.vue';
-import DatePicker from '@/components/DatePicker.vue';
 import HeaderPage from '@/components/HeaderPage.vue';
+import RadioForm from '@/components/RadioForm.vue';
+import StarRating from '@/components/StarRating.vue';
+
 
 export default {
     name: 'AddMovies',
     components: {
+        HeaderPage,
         RadioForm,
-        RatingSlider,
-        DatePicker,
-        HeaderPage
+        StarRating,
+
     },
     data() {
         return {
-            selectedRadio: 'value-1',
+            formType: 'value-2', // Default to 'Add Movie by Features'
             movieName: '',
-            genreInput: '',
-            castInput: '',
-            directorInput: '',
-            genres: [],
-            cast: [],
-            director: [],
+            genres: ['Horror', 'Action'],
+            cast: ['John Cena', 'Tom Holland'],
+            director: ['Steven Spielberg'],
             rating: 0,
-            releaseDate: null,
-            endDate: null,
+            movieCount: 1,
+            minDate: 'dd-mm-yyyy',
+            maxDate: 'dd-mm-yyyy',
+            newGenre: '',
+            newCastMember: '',
+            newDirector: '',
         };
     },
     methods: {
-        addGenre() {
-            // Remove commas before adding the genre
-            const genre = this.genreInput.trim().replace(/,/g, '');
-            if (genre && !this.genres.includes(genre)) {
-                this.genres.push(genre);
-            }
-            this.genreInput = ''; // Clear input field after adding tag
-        },
-        addCast() {
-            // Remove commas before adding the cast member
-            const castMember = this.castInput.trim().replace(/,/g, '');
-            if (castMember && !this.cast.includes(castMember)) {
-                this.cast.push(castMember);
-            }
-            this.castInput = ''; // Clear input field after adding tag
-        },
-        addDirector() {
-            // Remove commas before adding the director
-            const director = this.directorInput.trim().replace(/,/g, '');
-            if (director && !this.director.includes(director)) {
-                this.director.push(director);
-            }
-            this.directorInput = ''; // Clear input field after adding tag
-        },
-        checkCommaOrEnter(event, type) {
-            if (event.key === ',' || event.key === 'Enter') {
-                if (type === 'genre') {
-                    this.addGenre();
-                } else if (type === 'cast') {
-                    this.addCast();
-                } else if (type === 'director') {
-                    this.addDirector();
-                }
-                event.preventDefault(); // Prevent default behavior of comma or enter key
+        addItem(item, list) {
+            if (item && !this[list].includes(item)) {
+                this[list].push(item);
+                if (list === 'genres') this.newGenre = '';
+                if (list === 'cast') this.newCastMember = '';
+                if (list === 'director') this.newDirector = '';
             }
         },
-        removeGenre(index) {
-            this.genres.splice(index, 1);
+
+        checkComma(input, list) {
+            // If the input contains a comma, add the item to the list
+            if (input.includes(',')) {
+                // Split by commas and add each item
+                input.split(',').forEach(item => {
+                    const trimmedItem = item.trim();
+                    if (trimmedItem && !this[list].includes(trimmedItem)) {
+                        this[list].push(trimmedItem);
+                    }
+                });
+                // Reset input field
+                if (list === 'genres') this.newGenre = '';
+                if (list === 'cast') this.newCastMember = '';
+                if (list === 'director') this.newDirector = '';
+            }
         },
-        removeCast(index) {
-            this.cast.splice(index, 1);
+        removeItem(index, list) {
+            this[list].splice(index, 1);
         },
-        removeDirector(index) {
-            this.director.splice(index, 1);
+        submitForm() {
+            // Handle form submission based on the selected form type
+            if (this.formType === 'value-1') {
+                console.log({
+                    movieName: this.movieName,
+                });
+            } else {
+                console.log({
+                    genres: this.genres,
+                    cast: this.cast,
+                    director: this.director,
+                    rating: this.rating,
+                    movieCount: this.movieCount,
+                    minDate: this.minDate,
+                    maxDate: this.maxDate,
+                });
+            }
+
+            // Clear the fields and lists after submission
+            this.movieName = '';
+            this.genres = [];
+            this.cast = [];
+            this.director = [];
+            this.rating = 0;
+            this.movieCount = 1;
+            this.minDate = 'dd-mm-yyyy';
+            this.maxDate = 'dd-mm-yyyy';
+            this.newGenre = '';
+            this.newCastMember = '';
+            this.newDirector = '';
         },
-    }
+
+        updateRating(newRating) {
+            this.rating = newRating;
+        }
+    },
 };
 </script>
 
-<style scoped>
-.add-movies {
-    background: #212121;
+
+<style>
+.movie-popup {
+
+    z-index: 1000;
+}
+
+#addMoviesPage {
+    width: 100%;
+    height: 100%;
+
+    background: #000000;
+    --gap: 3.9em;
+    --line: 1px;
+    --color: rgba(255, 255, 255, 0.2);
+
+    background-image: linear-gradient(-90deg,
+            transparent calc(var(--gap) - var(--line)),
+            var(--color) calc(var(--gap) - var(--line) + 1px),
+            var(--color) var(--gap)),
+        linear-gradient(0deg,
+            transparent calc(var(--gap) - var(--line)),
+            var(--color) calc(var(--gap) - var(--line) + 1px),
+            var(--color) var(--gap));
+    background-size: var(--gap) var(--gap);
+}
+
+#genreListTag,
+#castListTag,
+#directorListTag {
+    max-height: 100px;
+    overflow: auto;
+}
+
+.container {
+    position: relative;
+    /* Establishes a reference point for absolute positioning */
     height: 100vh;
-    display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: flex-start; /* Alinea los elementos hacia la parte superior */
-    padding-top: 50px; /* Da espacio hacia arriba para que el contenido esté más abajo */
+    /* Full height of the viewport */
+
 }
 
-
-.left-top-container {
-    margin: 20px;
-    margin-top: 50px; /* Añadido para bajar la radio y alinearla con el formulario */
+.main-form {
+    background-color: rgb(17, 17, 17);
+    width: 100%;
+    /* Default full width */
 }
 
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 70vw;
+.main-form.small-form {
+    background-color: rgb(17, 17, 17);
+    width: 100%;
+    /* Full width */
+    max-width: 600px;
+    /* Maintain the original size with max width */
     padding: 20px;
-    border-radius: 20px;
-    position: relative;
-    background-color: #1a1a1a;
-    color: #fff;
-    border: 1px solid #333;
-    margin-top: 50px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    /* Absolute positioning to center it */
+    top: 40%;
+    /* Center vertically */
+    left: 50%;
+    /* Center horizontally */
+    transform: translate(-50%, -50%);
+    /* Offset by 50% of its own dimensions */
 }
 
-.title {
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: -1px;
-    position: relative;
+.radio {
+    margin-left: -10%;
+    margin-top: 10%;
+
+}
+
+.star-rating {
     display: flex;
-    align-items: center;
-    padding-left: 30px;
-    color: #00bfff;
+    padding: 1%;
 }
 
-.message,
-.signin {
-    font-size: 14.5px;
-    color: rgba(255, 255, 255, 0.7);
+#btn-genre,
+#btn-cast,
+#btn-director {
+    margin-left: 0.3vw;
+    background-color: rgba(67, 93, 216, 0.3);
+    border: 2px solid rgb(67, 93, 216);
 }
 
-.form-content {
-    display: flex;
-    gap: 40px;
+#tagGenre,
+#tagMember,
+#tagDirector {
+    background-color: rgba(67, 93, 216, 0.3);
+    border: 2px solid rgb(67, 93, 216);
 }
 
-#director-flex {
-    gap: 100px;
-}
-.tags{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16;
-}
-
-.left-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 35%; /* Reduce width to 35% */
-}
-
-.right-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 65%; /* Increase width to 65% */
+#movieCount {
+    width: 20%;
 }
 
 .vertical-line {
-    width: 1px;
-    background-color: #333;
-    height: auto;
+    height: 100%;
+    /* Ensure it stretches across the full height of the form */
+    background: rgb(88, 85, 85) !important;
+    width: 1px !important;
+    margin-left: 50%;
+
+
 }
 
-.flex {
-    display: flex;
-    flex-direction: column; /* Keep the stack of input and tags vertically */
-    width: 100%;
-    gap: 15px; /* Increased gap between the fields (genres, cast, director) */
+#division {
+    margin-left: 2vw;
+    margin-right: 2vw;
 }
 
-.form label {
-    position: relative;
+#slidingBar {
+    padding-top: 10%;
+    height: 4vh;
 }
 
-.form label .input {
-    background-color: #333;
-    color: #fff;
-    width: 100%;
-    padding: 20px 5px 5px 10px;
-    outline: 0;
-    border: 1px solid rgba(105, 105, 105, 0.397);
-    border-radius: 10px;
+.btn-submit {
+    background-color: rgba(67, 93, 216, 0.3);
+    border: 2px solid rgb(67, 93, 216);
+    color: aliceblue;
+    padding: 0.6vh;
+    border-radius: 6px;
+    max-width: 50%;
 }
 
-.form label .input+span {
-    color: rgba(255, 255, 255, 0.5);
-    position: absolute;
-    left: 10px;
-    top: 0px;
-    font-size: 0.9em;
-    cursor: text;
-    transition: 0.4s;
+.btn-submit:hover {
+    background-color: rgba(67, 92, 216, 0.6);
+    border: 2px solid rgb(67, 93, 216);
 }
 
-.form label .input:focus+span {
-    color: rgba(0, 191, 255, 0.94);
-    transform: translateY(-25px);
-    font-size: 0.8em;
+.btn-submit:active {
+    background-color: rgb(43, 68, 196);
+    background-color: rgba(43, 68, 196, 0.9);
 }
 
-.submit {
-    background-color: #00bfff;
-    border: none;
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 10px;
-    margin-top: 20px;
-    align-self: flex-end;
-    transition: background-color 0.3s;
+#submit {
+    margin-top: 2vh;
 }
 
-.submit:hover {
-    background-color: #009ac7;
+.form-control:focus {
+    border-color: rgb(67, 93, 216) !important;
+    /* Use !important to override Bootstrap styles */
+    box-shadow: 0 0 0 0.15rem rgba(120, 133, 206, 0.25);
+    /* Optional: Add subtle shadow */
 }
 
-.tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 8px; /* Ensures tags appear below the input field */
-}
-
-.tag {
-    background-color: #333;
-    color: #00bfff;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-}
-
-.remove-tag {
-    background: none;
-    border: none;
-    color: #ffffff;
-    margin-left: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-#date-flex {
-    max-width: 200px;
+.form-label {
+    font-weight: 500;
 }
 </style>

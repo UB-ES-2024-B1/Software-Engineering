@@ -124,12 +124,15 @@ export default {
 }
 
 .radio-input .label:hover {
-    background-color: #2a2e3c;
+    background-color: #00000081;
+    border: 2px solid rgb(67, 93, 216);
     /* Fondo al pasar el cursor */
 }
 
 .radio-input .label .text {
-    color: #fff;
+    color: #bbbbbb;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
 }
 
 .radio-input input[type="radio"] {
