@@ -236,25 +236,8 @@ export default {
 }
 
 #addMoviesPage {
-    width: 100%;
-    height: 100%;
-
-    background: #000000;
-    --gap: 3.9em;
-    --line: 1px;
-    --color: rgba(255, 255, 255, 0.2);
-
-    background-image: linear-gradient(-90deg,
-            transparent calc(var(--gap) - var(--line)),
-            var(--color) calc(var(--gap) - var(--line) + 1px),
-            var(--color) var(--gap)),
-        linear-gradient(0deg,
-            transparent calc(var(--gap) - var(--line)),
-            var(--color) calc(var(--gap) - var(--line) + 1px),
-            var(--color) var(--gap));
-    background-size: var(--gap) var(--gap);
+background: black;
 }
-
 #genreListTag,
 #castListTag,
 #directorListTag {
