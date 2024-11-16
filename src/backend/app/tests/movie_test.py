@@ -245,3 +245,16 @@ def test_delete_movie():
 def test_get_movie_by_title_2():
     response = client.get("/movies/title/The Lost City")
     assert response.status_code == 404
+
+# Test to search movies by name (valid search)
+def test_search_movies_by_name():
+    response = client.get("/movies/search/name/barb")
+    assert response.status_code == 200
+    response_data = response.json()
+
+    # Check if we have movies returned that match the search query
+    assert isinstance(response_data, list)
+
+    # Check if movie titles contain 'barb'
+    for movie in response_data:
+        assert "barb" in movie["title"].lower()
