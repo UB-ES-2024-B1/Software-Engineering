@@ -108,7 +108,7 @@ def get_movie_by_title(movie_genre: str, db: Session = Depends(get_db)):
     movie = movie_crud.get_movie_by_genre(db=db, movie_genre=movie_genre)
     return movie
 
-# Endpoint to retrieve movies with multiplr genre
+# Endpoint to retrieve movies with multiple genre
 @router.get("/genre/list/{movie_genre_list}", response_model=List[MovieOut])
 def get_movie_by_title(movie_genre_list: str, db: Session = Depends(get_db)):
     """
@@ -127,6 +127,21 @@ def get_movie_by_title(movie_genre_list: str, db: Session = Depends(get_db)):
 
     movie = movie_crud.get_movie_by_genre_list(db=db, genre_list=genre_list)
     return movie
+
+# Endpoint to retrieve movies by a string of movie name given
+@router.get("/search/name/{input}", response_model=List[MovieOut])
+def get_movies_by_search(input: str, db: Session = Depends(get_db)):
+    """
+    Retrieves a list of movies that includes the input string in the movie name
+    
+    :param movie_name_string: str - input that users introduce to find out a list of movies with the same pattern 
+                       Example: barb, panda, etc \n
+    :param db: Session - Database session dependency \n
+    return: List[MovieOut] - A list of movies with that pattern included
+    """
+    # Use the function defined above to search by name pattern
+    return movie_crud.get_movies_by_input(db=db, input=input)
+
 
 # Endpoint to retrieve movies sorted by release date
 @router.get("/sorted/release_date", response_model=List[MovieOut])
