@@ -175,15 +175,6 @@ def test_add_movie_like():
     # Assuming likes were initially set to 5300
     assert response_data["likes"] == 5301
 
-# Test delete movie 
-def test_delete_movie():
-    response = client.delete("/movies/title/The Lost City")
-    assert response.status_code == 200
-
-# Test to get movie by title
-def test_get_movie_by_title_2():
-    response = client.get("/movies/title/The Lost City")
-    assert response.status_code == 404
 
 
 # Test get movies by year
@@ -208,7 +199,7 @@ def test_get_movies_by_year_2():
 
 # Test get movies with genre
 def test_get_movies_by_genre():
-    response = client.get("/movies/genre/Crime")
+    response = client.get("/movies/genre/Adventure")
     assert response.status_code == 200
     movies = response.json()
     assert isinstance(movies, list)
@@ -218,7 +209,7 @@ def test_get_movies_by_genre():
         assert "genres" in movie
         assert isinstance(movie["genres"], list)
         
-        assert any(genre["type"] == "Crime" for genre in movie["genres"])
+        assert any(genre["type"] == "Adventure" for genre in movie["genres"])
 
 
 # Test get movies with genre
@@ -228,7 +219,7 @@ def test_get_movies_by_genre_2():
 
 # Test get movies with multiple genre
 def test_get_movies_by_genre_list():
-    response = client.get("/movies/genre/list/Adventure,Science Fiction")
+    response = client.get("/movies/genre/list/Adventure,Thriller")
     assert response.status_code == 200
     movies = response.json()
     assert isinstance(movies, list)
@@ -236,11 +227,21 @@ def test_get_movies_by_genre_list():
     for movie in movies:        
         assert "genres" in movie
         assert isinstance(movie["genres"], list)
-        assert any(genre["type"] == "Science Fiction" for genre in movie["genres"])
+        assert any(genre["type"] == "Thriller" for genre in movie["genres"])
         assert any(genre["type"] == "Adventure" for genre in movie["genres"])
 
 
 # Test get movies with multiplegenre
 def test_get_movies_by_genre_list_2():
     response = client.get("/movies/genre/list/Adventure,Science Fiction,Fun")
+    assert response.status_code == 404
+
+# Test delete movie 
+def test_delete_movie():
+    response = client.delete("/movies/title/The Lost City")
+    assert response.status_code == 200
+
+# Test to get movie by title
+def test_get_movie_by_title_2():
+    response = client.get("/movies/title/The Lost City")
     assert response.status_code == 404
