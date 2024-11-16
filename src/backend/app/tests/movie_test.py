@@ -143,3 +143,38 @@ def test_add_movie_like():
 def test_delete_movie():
     response = client.delete("/movies/title/The Lost City")
     assert response.status_code == 200
+
+# Test to get related movies by title
+def test_get_related_movies_by_title():
+    # Precondition: "The Lost City" should already exist in the database with appropriate genres, cast, and director
+    response = client.get("/movies/sorted/related_movies/The Lost City")
+    assert response.status_code == 200
+
+    related_movies = response.json()
+    assert isinstance(related_movies, list)
+    
+    # Check that no more than 5 movies are returned
+    assert len(related_movies) <= 5
+
+    # Validate structure and relation to the target movie
+    for movie in related_movies:
+        assert "title" in movie
+        assert "genres" in movie
+        assert "cast_members" in movie
+        assert "director" in movie
+        # Ensure it's not the same movie as the input
+        assert movie["title"] != "The Lost City"
+
+    # Optional: Verify that genres, cast, or director match the target movie
+    target_movie = {
+        "genres": ["Adventure", "Thriller"],
+        "cast_members": ["John Doe", "Jane Smith", "Mike Johnson"],
+        "director": "Sarah Connors"
+    }
+    for movie in related_movies:
+        shared_genres = set(movie["genres"]).intersection(set(target_movie["genres"]))
+        shared_cast = set(movie["cast_members"]).intersection(set(target_movie["cast_members"]))
+        director_match = movie["director"] == target_movie["director"]
+
+        # At least one attribute should match to be considered related
+        assert len(shared_genres) > 0 or len(shared_cast) > 0 or director_match
