@@ -64,7 +64,7 @@ def fetch_movies_by_filters_with_names(
     start_date=None,
     end_date=None,
     min_rating=None,
-    num_movies=10
+    num_movies=1
 ):
     """
     Busca películas usando filtros y excluye las películas ya presentes en la base de datos.
@@ -188,28 +188,8 @@ def is_valid_movie(movie):
             movie.get('rating_count') is not None and
             all(img is not None for img in movie.get('image', [])))
 
-def scrape_movies(num_movies=100, title=None):
-    filename = 'src/backend/data_movies.json'
-    existing_data = load_existing_data(filename)
-    existing_ids = {movie['title']: movie for movie in existing_data}
 
-
-    if title:
-        movies = search_movies_by_title(title, num_movies)
-    else:
-        movies = []
-
-    for movie in movies:
-        movie_data = fetch_movie_data(movie['id'])
-
-        if movie_data and is_valid_movie(movie_data) and movie_data['title'] not in existing_ids:
-            existing_data.append(movie_data)
-            existing_ids[movie_data['title']] = movie_data
-            print(f"Agregada: {movie_data['title']}")
-
-    save_data(filename, existing_data)
-
-def scrape_movie(title=None, movie_id=None):
+def scrape_movie(title=None):
     """
     Devuelve los datos de una sola película basados en el título o ID.
     
@@ -223,8 +203,6 @@ def scrape_movie(title=None, movie_id=None):
         if not movies:
             return None
         movie_id = movies[0]['id']
-    elif not movie_id:
-        return None
 
     # Obtener datos completos de la película por ID
     movie_data = fetch_movie_data(movie_id)
@@ -270,6 +248,7 @@ def scrape_movies_by_feats(db:Session, actors_names=None, genres_names=None, dir
         if movie_data and is_valid_movie(movie_data):
             movie_data_list.append(movie_data)
 
+    
     return movie_data_list
 
     

@@ -66,24 +66,13 @@
                                 </div>
 
                                 <div class="mb-3">
+
                                     <label for="director" class="form-label">Director</label>
-                                    <div class="d-flex flex-wrap gap-2 mt-2" id="directorListTag">
-                                        <span v-for="(dir, index) in director" :key="index"
-                                            class="badge text-sm d-flex align-items-center" id="tagDirector">
-                                            {{ dir }}
-                                            <button class="btn-close btn-close-white ms-2"
-                                                @click="removeItem(index, 'director')"></button>
-                                        </span>
-                                    </div>
                                     <div class="input-group mt-2">
-                                        <input id="director" v-model="newDirector" placeholder="Add a Director"
-                                            class="form-control" @keyup.enter="addItem(newDirector, 'director')"
-                                            @keyup="checkComma(newDirector, 'director')" />
-                                        <button class="btn btn-primary" @click="addItem(newDirector, 'director')"
-                                            id="btn-director">
-                                            <i class='bx bx-plus-medical'></i>
-                                        </button>
+                                        <input id="director" v-model="director" placeholder="Enter director's name"
+                                            class="form-control">
                                     </div>
+
                                 </div>
 
                                 <div class="mb-3">
@@ -134,7 +123,8 @@
 import HeaderPage from '@/components/HeaderPage.vue';
 import RadioForm from '@/components/RadioForm.vue';
 import StarRating from '@/components/StarRating.vue';
-
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js';
 
 export default {
     name: 'AddMovies',
@@ -146,18 +136,18 @@ export default {
     },
     data() {
         return {
-            formType: 'value-2', // Default to 'Add Movie by Features'
+            formType: 'value-1', // Default to 'Add Movie by Features'
             movieName: '',
-            genres: ['Horror', 'Action'],
-            cast: ['John Cena', 'Tom Holland'],
-            director: ['Steven Spielberg'],
+            genres: [],
+            cast: [],
+            director: '',
             rating: 0,
             movieCount: 1,
-            minDate: 'dd-mm-yyyy',
-            maxDate: 'dd-mm-yyyy',
+            minDate: '',
+            maxDate: '',
             newGenre: '',
             newCastMember: '',
-            newDirector: '',
+
         };
     },
     methods: {
@@ -166,7 +156,6 @@ export default {
                 this[list].push(item);
                 if (list === 'genres') this.newGenre = '';
                 if (list === 'cast') this.newCastMember = '';
-                if (list === 'director') this.newDirector = '';
             }
         },
 
@@ -183,42 +172,70 @@ export default {
                 // Reset input field
                 if (list === 'genres') this.newGenre = '';
                 if (list === 'cast') this.newCastMember = '';
-                if (list === 'director') this.newDirector = '';
             }
         },
         removeItem(index, list) {
             this[list].splice(index, 1);
         },
-        submitForm() {
-            // Handle form submission based on the selected form type
-            if (this.formType === 'value-1') {
-                console.log({
-                    movieName: this.movieName,
-                });
-            } else {
-                console.log({
-                    genres: this.genres,
-                    cast: this.cast,
-                    director: this.director,
-                    rating: this.rating,
-                    movieCount: this.movieCount,
-                    minDate: this.minDate,
-                    maxDate: this.maxDate,
-                });
-            }
+        async submitForm() {
+            const token = localStorage.getItem('token');
+            try {
+                if (this.formType === 'value-1') {
+                    // Post movie by name
+                    console.log('movieName:', this.movieName);
+                    axios.post(`${API_BASE_URL}/movies/byName`, {
+                        movie_title: this.movieName
+                    },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
+                        })
+                        .then(response => {
+                            console.log(response.data);
+                        })
+                        .catch(error => {
+                            console.error('Error details:', error.response?.data || error.message);
+                            alert(error.response?.data?.detail || 'An error occurred.');
+                        });
 
-            // Clear the fields and lists after submission
-            this.movieName = '';
-            this.genres = [];
-            this.cast = [];
-            this.director = [];
-            this.rating = 0;
-            this.movieCount = 1;
-            this.minDate = 'dd-mm-yyyy';
-            this.maxDate = 'dd-mm-yyyy';
-            this.newGenre = '';
-            this.newCastMember = '';
-            this.newDirector = '';
+                } else {
+                    console.log('num:', this.movieCount);
+                    // Post movies by features
+                    axios.post(`${API_BASE_URL}/movies/byFeatures`, {
+                        genres_names: this.genres.length ? this.genres : null,
+                        actors_names: this.cast.length ? this.cast : null,
+                        directors_names: this.director || null,
+                        min_rating: this.rating || null,
+                        start_date: this.minDate ? this.minDate.replace(/\//g, '-') : null,
+                        end_date: this.maxDate ? this.maxDate.replace(/\//g, '-') : null,
+                        num_movies: this.movieCount,
+                    },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
+                        })
+                        .then(response => {
+                            if (response && response.data) {
+                                console.log('Movie added successfully:', response.data);
+                            } else {
+                                console.error('Unexpected response format:', response);
+                                this.errorMessage = 'Unexpected server response. Please try again.';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('There was an error!', error);
+                        });
+                }
+            } catch (error) {
+                console.error(error);
+                const errorMessage =
+                    error.response && error.response.data && error.response.data.detail
+                        ? error.response.data.detail
+                        : 'An error occurred while adding movies. Please try again.';
+                alert(errorMessage);
+            }
         },
 
         updateRating(newRating) {
@@ -236,8 +253,9 @@ export default {
 }
 
 #addMoviesPage {
-background: black;
+    background: black;
 }
+
 #genreListTag,
 #castListTag,
 #directorListTag {

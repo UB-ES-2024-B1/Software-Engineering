@@ -1,5 +1,5 @@
 # backend/app/api/routes/movie_routes.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlmodel import Session, select
 from app.api.dependencies import get_db  # Import the get_db function for database session management
@@ -9,6 +9,7 @@ from typing import List, Optional
 from datetime import datetime
 from fastapi.responses import FileResponse
 from app.api.routes.user_routes import is_admin_user
+from app.api.dependencies import oauth2_scheme
 from app.scrape_movies import scrape_movie, scrape_movies_by_feats
 
 
@@ -36,7 +37,7 @@ def create_movie(movie: MovieIn, db: Session = Depends(get_db)):
     return movie'''
 
 @router.post("/byName", response_model=MovieOut, dependencies=[Depends(is_admin_user)])
-def create_movie_by_name(movie_title: str, db: Session = Depends(get_db)):
+def create_movie_by_name(movie_title: str , db: Session = Depends(get_db)):
     """
     Creates a new movie entry in the database.
     
@@ -45,19 +46,17 @@ def create_movie_by_name(movie_title: str, db: Session = Depends(get_db)):
     :return: MovieOut - Pydantic model representing the created movie's details
     """
     # Call the CRUD function to create a new movie record
-    # Check if the email is already registered
-
     movie = scrape_movie(title=movie_title)
     movie_data = MovieIn(**movie)
     existing_movie = movie_crud.get_movie_by_title(db, movie_title=movie_data.title)
     if existing_movie:
         raise HTTPException(status_code=400, detail="Movie title already registered")
     
-    movie_crud = movie_crud.create_movie(db, movie_data)
-    if movie_crud is None:
+    movie = movie_crud.create_movie(db, movie_data)
+    if movie is None:
         raise HTTPException(status_code=404, detail= f"Movie '{movie_title}' not found")
     # Return the created movie details
-    return movie_crud
+    return movie
 
 
 @router.post("/byFeatures", response_model=List[MovieOut], dependencies=[Depends(is_admin_user)])
@@ -68,7 +67,7 @@ def create_movies_by_features(
     min_rating: Optional[float] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    num_movies: int = 10,
+    num_movies: int = Query(..., ge=1, le=100),
     db: Session = Depends(get_db)
 ):
     """
