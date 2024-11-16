@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast) 
 from typing import List
 from fastapi import File, UploadFile
+from sqlalchemy import extract, func
 
 # Function to create a new movie
 def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> MovieOut:
@@ -178,3 +179,33 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
         return True  # Deletion successful
     return False  # Movie not found
 
+
+# Function get movie by data release
+def get_movie_by_year(db: Session, movie_year: int)-> List[MovieOut]:
+    statement = select(Movie).where(extract('year', Movie.release_date) == movie_year)
+    return db.execute(statement).scalars().all()
+
+# Check if genre exist
+def is_valid_genre(db: Session, movie_genre: str) -> bool:
+    genre = db.execute(select(Genre).where(Genre.type == movie_genre)).scalars().first()
+    return genre is not None
+
+# Function get movies with one genre
+def get_movie_by_genre(db: Session, movie_genre: str)-> List[MovieOut]:
+    statement = (
+        select(Movie)
+        .join(Movie.genres)  # Join the genres relationship
+        .where(Genre.type == movie_genre)  # Filter by the genre type
+    )
+    return db.execute(statement).scalars().all()
+
+# Function get movies with multiple genre
+def get_movie_by_genre_list(db: Session, genre_list: List[str])-> List[MovieOut]:
+    statement = (
+        select(Movie)
+        .join(Movie.genres)
+        .where(Genre.type.in_(genre_list))  # Filter by all specified genres
+        .group_by(Movie.id)
+        .having(func.count(Genre.id) == len(genre_list))  # Ensure all genres match
+    )
+    return db.execute(statement).scalars().all()
