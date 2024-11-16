@@ -47,6 +47,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install passlib
     pip install bcrypt
     pip install python-jose
+    pip install requests
     ```
 
     For Mac:
@@ -60,6 +61,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install passlib
     pip install bcrypt
     pip install python-jose
+    pip install requests
     ```
 
 5. **Sep up for Alembic (databases)**:

@@ -5,14 +5,18 @@ from sqlmodel import Session, select
 from app.api.dependencies import get_db  # Import the get_db function for database session management
 from app.crud import movie_crud  # Import CRUD functions for movie operations
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast)  # Import movie models for input and output
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 from fastapi.responses import FileResponse
+from app.api.routes.user_routes import is_admin_user
+from app.scrape_movies import scrape_movie, scrape_movies_by_feats
+
 
 # Create a router for movie-related endpoints
 router = APIRouter()
 
-# Endpoint to create a new movie
-@router.post("/", response_model=MovieOut)
+'''# Endpoint to create a new movie
+@router.post("/", response_model=MovieOut, dependencies=[Depends(is_admin_user)])
 def create_movie(movie: MovieIn, db: Session = Depends(get_db)):
     """
     Creates a new movie entry in the database.
@@ -29,7 +33,117 @@ def create_movie(movie: MovieIn, db: Session = Depends(get_db)):
     
     movie = movie_crud.create_movie(db, movie)
     # Return the created movie details
-    return movie
+    return movie'''
+
+@router.post("/byName", response_model=MovieOut, dependencies=[Depends(is_admin_user)])
+def create_movie_by_name(movie_title: str, db: Session = Depends(get_db)):
+    """
+    Creates a new movie entry in the database.
+    
+    :param movie: Movie - Pydantic model containing the movie data to create
+    :param db: Session - Database session dependency
+    :return: MovieOut - Pydantic model representing the created movie's details
+    """
+    # Call the CRUD function to create a new movie record
+    # Check if the email is already registered
+
+    movie = scrape_movie(title=movie_title)
+    movie_data = MovieIn(**movie)
+    existing_movie = movie_crud.get_movie_by_title(db, movie_title=movie_data.title)
+    if existing_movie:
+        raise HTTPException(status_code=400, detail="Movie title already registered")
+    
+    movie_crud = movie_crud.create_movie(db, movie_data)
+    if movie_crud is None:
+        raise HTTPException(status_code=404, detail= f"Movie '{movie_title}' not found")
+    # Return the created movie details
+    return movie_crud
+
+
+@router.post("/byFeatures", response_model=List[MovieOut], dependencies=[Depends(is_admin_user)])
+def create_movies_by_features(
+    genres_names: Optional[List[str]] = None,
+    actors_names: Optional[List[str]] = None,
+    directors_names: Optional[str] = None,
+    min_rating: Optional[float] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    num_movies: int = 10,
+    db: Session = Depends(get_db)
+):
+    """
+    Creates a list of movies based on given features like genres, actors, directors, rating, and release dates.
+
+    Parameters:
+    - genres: List of genre names to filter movies by.
+    - actors: List of actor names to filter movies by.
+    - directors: List of director names to filter movies by.
+    - min_rating: Minimum movie rating.
+    - min_release_date: Minimum release date in "YYYY-MM-DD" format.
+    - max_release_date: Maximum release date in "YYYY-MM-DD" format.
+    - num_movies: Maximum number of movies to fetch.
+    - db: Database session.
+
+    Returns:
+    - List of newly added movies.
+    """
+    # Sanitize input lists
+    def sanitize_list(input_list):
+        if input_list and len(input_list) == 1 and input_list[0].lower() == "string":
+            return None
+        return input_list
+
+    genres_names = sanitize_list(genres_names)
+    actors_names = sanitize_list(actors_names)
+
+    # Validate and convert release dates
+    try:
+        if start_date:
+            try:
+                start_date = datetime.strptime(start_date, "%d-%m-%Y").date()
+            except ValueError:
+                start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            start_date = start_date.strftime("%Y-%m-%d")
+            
+        if end_date:
+            try:
+                end_date = datetime.strptime(end_date, "%d-%m-%Y").date()
+            except ValueError:
+                end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+            end_date = end_date.strftime("%Y-%m-%d")
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use 'DD-MM-YYYY' or 'YYYY-MM-DD'.")
+
+    # Fetch movies based on features
+    movies = scrape_movies_by_feats(
+        db=db,
+        genres_names=genres_names,
+        actors_names=actors_names,
+        directors_names=directors_names,
+        start_date=start_date,
+        end_date=end_date,
+        min_rating=min_rating,
+        num_movies=num_movies
+    )
+    if movies is None:
+        raise HTTPException(status_code=400, detail="No movies found based on the given features")
+
+    # Process and add movies to the database
+    added_movies = []
+    for movie in movies:
+        movie_data = MovieIn(**movie)
+        added_movie = movie_crud.create_movie(db, movie_data)
+        added_movies.append(added_movie)
+
+    if not added_movies:
+        raise HTTPException(status_code=404, detail="No new movies were added. All movies already exist.")
+
+    return added_movies
+
+
+   
+
 
 # Endpoint to retrieve a list of movies
 @router.get("/", response_model=List[MovieOut])
