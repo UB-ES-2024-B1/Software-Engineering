@@ -1,133 +1,57 @@
 <template>
   <div class="home-page">
-    <HeaderPage /> <!-- Aquí importas y usas el componente HeaderPage -->
+    <HeaderPage /> <!-- Componente HeaderPage -->
 
-    <!-- Carrusel de películas -->
-    <section class="banner">
-      <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-        <!-- Indicators/dots -->
-        <div class="carousel-indicators">
-          <button v-for="(movie, index) in movies" :key="index" type="button" :data-bs-target="'#movieCarousel'"
-            :data-bs-slide-to="index" :class="{ active: index === 0 }" aria-current="index === 0 ? 'true' : 'false'"
-            :aria-label="'Slide ' + (index + 1)"></button>
-        </div>
+    <!-- Banner -->
+    <section class="banner" v-if="bannerMovie">
+      <div class="carousel-inner">
+        <img :src="bannerMovie.image" class="d-block w-100 carousel-image" alt="Movie poster" />
+        <div class="shadow-overlay"></div>
 
-        <!-- The slideshow/carousel items -->
-        <div class="carousel-inner">
-          <div class="carousel-item" v-for="(movie, index) in movies" :class="{ active: index === 0 }" :key="index">
-            <img :src="movie.image" class="d-block w-100 carousel-image" alt="Movie poster" />
-            <div class="shadow-overlay"></div>
-
-            <div class="small-cover">
-              <img :src="movie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
-              <div class="movie-info">
-                <h5>{{ movie.title }}</h5>
-                <p>{{ movie.description }}</p>
-              </div>
-            </div>
-
-            <div class="rating-likes-banner">
-              <div class="rating">
-                <img src="@/assets/star.png" alt="Star" class="icon" />
-                <span>{{ movie.rating }}</span>
-              </div>
-              <div class="likes">
-                <img src="@/assets/like.png" alt="Like" class="icon" />
-                <span>{{ movie.likes }}</span>
-              </div>
-            </div>
+        <div class="small-cover">
+          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
+          <div class="movie-info">
+            <h4>{{ bannerMovie.title }}</h4>
+            <h6>Director:</h6>
+            <p>{{ bannerMovie.director }}</p>
+            <h6>Country:</h6>
+            <p>{{ bannerMovie.country }}</p>
+            <h6>Date:</h6>
+            <p>{{ bannerMovie.release_date }}</p>
           </div>
         </div>
 
-        <!-- Left and right controls/icons -->
-        <button class="carousel-control-prev-banner" type="button" data-bs-target="#movieCarousel" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next-banner" type="button" data-bs-target="#movieCarousel" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Next</span>
-        </button>
+        <div class="rating-likes-banner">
+          <div class="rating">
+            <img src="@/assets/star.png" alt="Star" class="icon" />
+            <span>{{ bannerMovie.rating }}</span>
+          </div>
+          <div class="likes">
+            <img src="@/assets/like.png" alt="Like" class="icon" />
+            <span>{{ bannerMovie.likes }}</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Sección de películas recientes -->
-    <section class="recent-movies">
-      <h2 class="section-title">Películas Más Recientes</h2>
-      <div id="recentMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in recentMovies.slice(0, 5)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
-                <div class="rating-likes-cover">
-                  <div class="likes">
-                    <img src="@/assets/like.png" alt="Like" class="icon" />
-                    <span>{{ movie.likes }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in recentMovies.slice(5, 10)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
-                <div class="rating-likes-cover">
-                  <div class="likes">
-                    <img src="@/assets/like.png" alt="Like" class="icon" />
-                    <span>{{ movie.likes }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in recentMovies.slice(10, 15)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
-                <div class="rating-likes-cover">
-                  <div class="likes">
-                    <img src="@/assets/like.png" alt="Like" class="icon" />
-                    <span>{{ movie.likes }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in recentMovies.slice(15, 20)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
-                <div class="rating-likes-cover">
-                  <div class="likes">
-                    <img src="@/assets/like.png" alt="Like" class="icon" />
-                    <span>{{ movie.likes }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <!-- Nueva zona de detalles de la película -->
+    <section class="movie-details" v-if="bannerMovie">
+      <div class="details-grid" style="background-color: #121212; padding: 30px; color: white;">
+        <div class="detail-item">
+          <p>{{ bannerMovie.description }}</p>
         </div>
-        <!-- Controles -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#recentMoviesCarousel" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#recentMoviesCarousel" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Next</span>
-        </button>
       </div>
     </section>
-    <!-- Sección de películas mejor valoradas -->
+
+    <!-- Sección de películas relacionadas -->
     <section class="top-rated-movies">
-      <h2 class="section-title">Películas Mejor Valoradas</h2>
+      <h2 class="section-title">Related Movies</h2>
       <div id="topRatedMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
+          <!-- Primer bloque: películas 0-4 -->
           <div class="carousel-item active">
             <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in topRatedMovies.slice(0, 5)" :key="movie.id">
+              <div class="movie-item" v-for="movie in relatedMovies.slice(0, 5)" :key="movie.id">
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
@@ -138,180 +62,161 @@
               </div>
             </div>
           </div>
+          <!-- Segundo bloque: películas 5-9 -->
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in topRatedMovies.slice(5, 10)" :key="movie.id">
+              <div class="movie-item" v-for="movie in relatedMovies.slice(5, 10)" :key="movie.id">
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          <!-- Tercer bloque: películas 10-14 -->
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in topRatedMovies.slice(10, 15)" :key="movie.id">
+              <div class="movie-item" v-for="movie in relatedMovies.slice(10, 15)" :key="movie.id">
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          <!-- Cuarto bloque: películas 15-19 -->
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in topRatedMovies.slice(15, 20)" :key="movie.id">
+              <div class="movie-item" v-for="movie in relatedMovies.slice(15, 20)" :key="movie.id">
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <!-- Controles -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#topRatedMoviesCarousel"
-          data-bs-slide="prev">
+        <!-- Controles del carrusel -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#topRatedMoviesCarousel" data-bs-slide="prev">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#topRatedMoviesCarousel"
-          data-bs-slide="next">
+        <button class="carousel-control-next" type="button" data-bs-target="#topRatedMoviesCarousel" data-bs-slide="next">
           <span class="carousel-control-next-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Next</span>
         </button>
       </div>
     </section>
+    
 
     <!-- Pie de Página -->
     <footer class="footer">
-      <p>&copy; 2024 FilmHub Enterpise. All rights reserved.</p>
+      <p>&copy; 2024 FilmHub Enterprise. All rights reserved.</p>
       <div class="socials">
-        <a href="#">FilmHub Enterpise</a>
+        <a href="#">FilmHub Enterprise</a>
       </div>
     </footer>
   </div>
 </template>
 
 <script>
-import HeaderPage from '@/components/HeaderPage.vue'; // Importa el componente HeaderPage
-import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
-
-function getImagePath(image) {
-  // Comprobar si la imagen es una URL
-  if (image && image.startsWith('http')) {
-    return image; // Retorna la URL tal cual
-  } else {
-    // Retorna la ruta de la imagen en assets
-    return require(`@/assets/${image}`);
+  import HeaderPage from '@/components/HeaderPage.vue';
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config.js';
+  
+  function getImagePath(image) {
+    if (image && image.startsWith('http')) {
+      return image;
+    } else {
+      return require(`@/assets/${image}`);
+    }
   }
-}
-
-async function generateMovieObject(movieData) {
-  const movieObject = {
-    id: movieData.id,
-    image: getImagePath(movieData.image[1]),
-    smallImage: getImagePath(movieData.image[0]),
-    title: movieData.title,
-    description: movieData.description,
-    rating: movieData.rating,
-    likes: movieData.likes
-  };
-
-  return movieObject;
-}
-
-async function generateRecentMovieObject(movieData) {
-  const movieObject = {
-    id: movieData.id,
-    image: getImagePath(movieData.image[0]),
-    rating: movieData.rating,
-    likes: movieData.likes
-  };
-
-  return movieObject;
-}
-
-export default {
-  name: 'MainPageView',
-  components: {
-    HeaderPage, // Registra el componente
-  },
-  data() {
+  
+  async function generateMovieObject(movieData) {
     return {
-      movies: [],
-
-      recentMovies: [],
-
-      topRatedMovies: [],
-
+      id: movieData.id,
+      image: getImagePath(movieData.image[1]),
+      smallImage: getImagePath(movieData.image[0]),
+      title: movieData.title,
+      description: movieData.description,
+      rating: movieData.rating,
+      likes: movieData.likes,
+      director: movieData.director,
+      country: movieData.country,
+      release_date: movieData.release_date,
     };
-  },
-  methods: {
-
-    
-    async fetchMovies(start, end, movies_section) {
-      try {
-        let url;
-
-        if (movies_section === 1) { url = `${API_BASE_URL}/movies/sorted/likes/`; }
-        else if (movies_section === 2) { url = `${API_BASE_URL}/movies/sorted/release_date`; }
-        else { url = `${API_BASE_URL}/movies/sorted/rating/`; }
-
-        const movieObjects = [];
-        const response = await axios.get(url);
-        const movies = response.data; // Suponiendo que la respuesta es un arreglo de películas
-        if (movies_section === 2){movies.reverse();}
-        // Limitar a las primeras películas
-        const topMovies = movies.slice(start, end);
-
-        for (let i = 0; i < topMovies.length; i++) {
-          const movieData = topMovies[i];
-
-          let movieObject;
-
-          if (movies_section === 1) {
-            movieObject = await generateMovieObject(movieData);
-
-          } else {
-            movieObject = await generateRecentMovieObject(movieData);
-
-          }
-
-          if (movieObject) movieObjects.push(movieObject);
+  }
+  
+  async function generateRecentMovieObject(movieData) {
+    return {
+      id: movieData.id,
+      image: getImagePath(movieData.image[0]),
+      rating: movieData.rating,
+      likes: movieData.likes,
+    };
+  }
+  
+  export default {
+    name: 'MovieDetails',
+    components: { HeaderPage },
+    data() {
+      return {
+        bannerMovie: null, // Nueva propiedad para la película del banner
+        movies: [], // Lista de películas ordenadas
+        relatedMovies: [], // Lista de películas relacionadas
+      };
+    },
+    methods: {
+      async fetchBannerMovie(id) {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/movies/${id}`);
+          this.bannerMovie = await generateMovieObject(response.data);
+        } catch (error) {
+          console.error('Error retrieving banner movie:', error);
         }
-        if (movies_section === 1) { this.movies = movieObjects; }
-        else if (movies_section === 2) { this.recentMovies = movieObjects; }
-        else { this.topRatedMovies = movieObjects; }
-
-      } catch (error) {
-        console.error("Error retrieving movies:", error);
-      }
+      },
+      async fetchMovies(start, end, movies_section) {
+        try {
+          const url =
+            movies_section === 1
+              ? `${API_BASE_URL}/movies/sorted/likes/`
+              : `${API_BASE_URL}/movies/sorted/rating/`;
+          const movieObjects = [];
+          const response = await axios.get(url);
+          const movies = response.data.slice(start, end);
+          for (const movieData of movies) {
+            const movieObject = movies_section === 1
+              ? await generateMovieObject(movieData)
+              : await generateRecentMovieObject(movieData);
+            movieObjects.push(movieObject);
+          }
+          if (movies_section === 1) {
+            this.movies = movieObjects;
+          } else {
+            this.relatedMovies = movieObjects;
+          }
+        } catch (error) {
+          console.error('Error retrieving movies:', error);
+        }
+      },
     },
-
-
-
-    navigateToMovie(movieId) {
-      console.log(`Navigating to movie with ID: ${movieId}`);
+    created() {
+      const movieId = this.$route.params.id; // ID de la película desde la URL
+      this.fetchBannerMovie(movieId); // Carga la película para el banner
+      this.fetchMovies(0, 50, 2); // Carga las películas mejor valoradas
     },
-  },
-  created() {
-    this.fetchMovies(0, 9, 1);
-    this.fetchMovies(0, 50, 2);
-    this.fetchMovies(0, 50, 3);
-  },
-};
-</script>
+  };
+  </script>
+  
 
 <style scoped>
 body {
@@ -359,60 +264,6 @@ body {
   /* Cambia el tamaño aquí si lo deseas */
   object-fit: cover;
   /* Asegura que la imagen cubra todo el contenedor */
-}
-
-
-
-.carousel-control-prev-banner,
-.carousel-control-next-banner {
-  z-index: 20;
-  /* Aumenta el z-index para que estén encima de la imagen de portada */
-  width: 50px;
-  /* Ancho de los botones */
-  opacity: 1;
-  /* Opacidad inicial */
-  background-color: rgba(255, 255, 255, 0);
-  /* Fondo transparente */
-  transition: background-color 0.3s;
-  border: none;
-  /* Eliminar el borde */
-  outline: none;
-  /* Eliminar el contorno que aparece al hacer clic */
-}
-
-.carousel-control-prev-banner:focus,
-.carousel-control-next-banner:focus {
-  outline: none;
-  /* Asegúrate de que no haya contorno al enfocarlo */
-}
-
-/* Posicionamiento de los controles */
-.carousel-control-prev-banner,
-.carousel-control-next-banner {
-  position: absolute;
-  /* Asegúrate de que se posicione correctamente */
-  top: 50%;
-  /* Centrado vertical */
-  transform: translateY(-50%);
-  /* Ajuste para centrar verticalmente */
-  opacity: 0.5;
-}
-
-/* Posición de los botones */
-.carousel-control-prev-banner {
-  left: 5px;
-  /* Ajusta según sea necesario */
-}
-
-.carousel-control-next-banner {
-  right: 5px;
-  /* Ajusta según sea necesario */
-}
-
-.carousel-control-prev-banner:hover,
-.carousel-control-next-banner:hover {
-  opacity: 1;
-  /* Cambio de color al pasar el mouse */
 }
 
 .carousel-control-next {
@@ -477,7 +328,7 @@ body {
   /* Posiciona de forma absoluta */
   bottom: 50px;
   /* Distancia desde el fondo */
-  left: 60px;
+  left: 200px;
   /* Distancia desde el lado izquierdo */
   z-index: 10;
   /* Asegura que esté encima de la imagen del carrusel */
@@ -488,15 +339,15 @@ body {
 }
 
 .small-cover-image {
-  width: 250px !important;
+  width: 350px !important;
   /* Cambia el tamaño aquí si lo deseas */
-  height: 350px !important;
+  height: 450px !important;
   /* Mantiene la proporción */
   border-radius: 15px;
   /* Bordes redondeados */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   /* Sombra para un mejor contraste */
-  margin-right: 20px;
+  margin-right: 100px;
   /* Espacio entre la imagen pequeña y la caja de texto */
 }
 
@@ -511,7 +362,7 @@ body {
   /* Bordes redondeados */
   width: 350px;
   /* Ancho mínimo de la caja */
-  height: 350px;
+  height: 450px;
   /* Altura mínima para la caja */
   display: flex;
   /* Usar flexbox para alinear el contenido */
@@ -525,23 +376,35 @@ body {
   /* Asegura que el contenido no se desborde */
   text-align: left;
   /* Alinea el texto a la izquierda */
+
 }
 
-.movie-info h5 {
-  margin: 0;
-  /* Elimina el margen por defecto del encabezado */
-  font-weight: bold;
+/* Estilo para el título */
+.movie-info h4 {
+  margin-bottom: 35px; /* Espacio entre el título y la siguiente sección */
+  font-size: 1.5em; /* Tamaño de fuente para el título */
+  font-weight: bold; /* Hacer que el título sea más destacable */
 }
 
+/* Estilo para los subtítulos (h6) */
+.movie-info h6 {
+  margin-bottom: 7px; /* Espacio entre cada subtítulo y el contenido */
+  font-size: 1.1em; /* Tamaño de fuente para los subtítulos */
+  font-weight: normal; /* Hacer que el subtítulo sea más ligero */
+  color: #f0f0f0; /* Color más suave para los subtítulos */
+}
+
+/* Estilo para los párrafos (p) */
 .movie-info p {
-  margin-top: 20px;
-  /* Añade un margen entre el título y la descripción */
+  margin-bottom: 35px; /* Espacio entre los párrafos */
+  font-size: 1em; /* Tamaño de fuente para los párrafos */
+  color: #d1d1d1; /* Color más suave para el texto */
 }
 
 .rating-likes-banner {
   position: absolute;
-  bottom: 50px;
-  right: 40px;
+  bottom: 60px;
+  right: 530px;
   background-color: rgba(0, 0, 0, 0.6);
   /* Fondo oscuro semi-transparente */
   color: white;
@@ -551,7 +414,7 @@ body {
   gap: 10px;
   /* Espacio entre los elementos */
   align-items: center;
-  z-index: 5;
+  z-index: 15;
   /* Asegura que se muestre sobre otros elementos */
 }
 
@@ -674,4 +537,5 @@ body {
   border-radius: 20px;
   /* Bordes redondeados */
 }
+
 </style>
