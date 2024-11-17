@@ -179,64 +179,61 @@ export default {
         },
         async submitForm() {
             const token = localStorage.getItem('token');
-            try {
-                if (this.formType === 'value-1') {
-                    // Post movie by name
-                    console.log('movieName:', this.movieName);
-                    axios.post(`${API_BASE_URL}/movies/byName`, {
-                        movie_title: this.movieName
-                    },
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            }
-                        })
-                        .then(response => {
-                            console.log(response.data);
-                        })
-                        .catch(error => {
-                            console.error('Error details:', error.response?.data || error.message);
-                            alert(error.response?.data?.detail || 'An error occurred.');
-                        });
 
-                } else {
-                    console.log('num:', this.movieCount);
-                    // Post movies by features
-                    axios.post(`${API_BASE_URL}/movies/byFeatures`, {
-                        genres_names: this.genres.length ? this.genres : null,
-                        actors_names: this.cast.length ? this.cast : null,
-                        directors_names: this.director || null,
-                        min_rating: this.rating || null,
-                        start_date: this.minDate ? this.minDate.replace(/\//g, '-') : null,
-                        end_date: this.maxDate ? this.maxDate.replace(/\//g, '-') : null,
-                        num_movies: this.movieCount,
-                    },
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            }
-                        })
-                        .then(response => {
-                            if (response && response.data) {
-                                console.log('Movie added successfully:', response.data);
-                            } else {
-                                console.error('Unexpected response format:', response);
-                                this.errorMessage = 'Unexpected server response. Please try again.';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('There was an error!', error);
-                        });
+
+            if (this.formType === 'value-1') {
+                try {
+                    const movieTitle = this.movieName.trim();
+                    const response = await axios.post(`${API_BASE_URL}/movies/byName`, {}, {
+                        headers: {
+                            'accept': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        params: {
+                            movie_title: movieTitle
+                        }
+                    });
+                    console.log('Movie added successfully:', response.data);
                 }
-            } catch (error) {
-                console.error(error);
-                const errorMessage =
-                    error.response && error.response.data && error.response.data.detail
-                        ? error.response.data.detail
-                        : 'An error occurred while adding movies. Please try again.';
-                alert(errorMessage);
+                catch (error) {
+                    console.error('Error adding movie:', error);
+                }
+
+
+            } else if (this.formType === 'value-2') {
+                try {
+                    const genresNames = this.genres;
+                    const actorsNames = this.cast;
+                    const directorsNames = this.director.trim();
+                    const minRating = this.rating * 2;
+                    const startDate = this.minDate;
+                    const endDate = this.maxDate;
+                    const numMovies = this.movieCount;
+                    const response = await axios.post(`${API_BASE_URL}/movies/byFeatures`, {}, {
+
+                        headers: {
+                            'accept': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+
+                        params: {
+                            genres_names: genresNames,
+                            actors_names: actorsNames,
+                            directors_names: directorsNames,
+                            min_rating: minRating,
+                            start_date: startDate,
+                            end_date: endDate,
+                            num_movies: numMovies
+                        }
+                    });
+                    console.log('Movies added successfully:', response.data);
+                }
+                catch (error) {
+                    console.error('Error adding movies:', error);
+                }
             }
         },
+
 
         updateRating(newRating) {
             this.rating = newRating;

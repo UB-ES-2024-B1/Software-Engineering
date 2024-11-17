@@ -67,7 +67,7 @@ def create_movies_by_features(
     min_rating: Optional[float] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    num_movies: int = Query(..., ge=1, le=100),
+    num_movies: int = Query(1, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
     """
