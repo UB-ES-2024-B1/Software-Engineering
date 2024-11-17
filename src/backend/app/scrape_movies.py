@@ -55,6 +55,25 @@ def fetch_director_id_by_name(director_name):
             return person['id']
     return None
 
+def fetch_all_genres():
+    """
+    Fetches all genres from the TMDb API.
+    
+    :return: List of genres as dictionaries with 'id' and 'name' keys.
+    """
+    genre_url = f'https://api.themoviedb.org/3/genre/movie/list?api_key={API_KEY}&language=en-US'
+    try:
+        response = requests.get(genre_url)
+        response.raise_for_status()
+        data = response.json()
+        return data['genres']
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error while fetching genres: {e}")
+        return []
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
 
 def fetch_movies_by_filters_with_names(
     db: Session,
@@ -85,7 +104,7 @@ def fetch_movies_by_filters_with_names(
     director_ids = fetch_director_id_by_name(directors_names) if directors_names else None
 
     # Base URL for filtering movies
-    url = "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
+    url = "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc"
 
     headers = {
         "accept": "application/json",

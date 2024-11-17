@@ -34,15 +34,16 @@
                                         </span>
                                     </div>
                                     <div class="input-group mt-2">
-                                        <input id="genre" v-model="newGenre" placeholder="Add genre"
-                                            class="form-control" @keyup.enter="addItem(newGenre, 'genres')"
-                                            @keyup="checkComma(newGenre, 'genres')" />
-                                        <button class="btn btn-primary" @click="addItem(newGenre, 'genres')"
-                                            id="btn-genre">
-                                            <i class='bx bx-plus-medical'></i>
-                                        </button>
+                                        <select id="genre" v-model="newGenre" class="form-select"
+                                            @change="addItem(newGenre, 'genres')">
+                                            <option value="" disabled selected>Select a genre</option>
+                                            <option v-for="genre in availableGenres" :key="genre" :value="genre">
+                                                {{ genre }}
+                                            </option>
+                                        </select>
                                     </div>
                                 </div>
+
 
                                 <div class="mb-3">
                                     <label for="cast" class="form-label">Cast</label>
@@ -63,16 +64,30 @@
                                             <i class='bx bx-plus-medical'></i>
                                         </button>
                                     </div>
+                                    <div v-if="actorError" class="text-danger mt-2">
+                                        {{ actorError }}
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
-
                                     <label for="director" class="form-label">Director</label>
-                                    <div class="input-group mt-2">
-                                        <input id="director" v-model="director" placeholder="Enter director's name"
-                                            class="form-control">
+                                    <div class="d-flex flex-wrap gap-2 mt-2" v-if="director">
+                                        <span class="badge text-sm d-flex align-items-center" id="tagDirector">
+                                            {{ director }}
+                                            <button class="btn-close btn-close-white ms-2"
+                                                @click="removeDirector"></button>
+                                        </span>
                                     </div>
-
+                                    <div class="input-group mt-2" v-if="!director">
+                                        <input id="director" v-model="directorInput" placeholder="Enter director's name"
+                                            class="form-control" />
+                                        <button class="btn btn-primary" @click="addDirector" id="btn-director">
+                                            <i class="bx bx-plus-medical"></i>
+                                        </button>
+                                    </div>
+                                    <div v-if="directorError" class="text-danger mt-2">
+                                        {{ directorError }}
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
@@ -140,6 +155,7 @@ export default {
             movieName: '',
             genres: [],
             cast: [],
+            directorInput: "",
             director: '',
             rating: 0,
             movieCount: 1,
@@ -147,17 +163,50 @@ export default {
             maxDate: '',
             newGenre: '',
             newCastMember: '',
+            availableGenres: [],
+            actorError: "",
+            directorError: "",
 
         };
     },
+    mounted() {
+        this.fetchGenres();
+    },
     methods: {
-        addItem(item, list) {
+        async addItem(item, list) {
             if (item && !this[list].includes(item)) {
-                this[list].push(item);
-                if (list === 'genres') this.newGenre = '';
-                if (list === 'cast') this.newCastMember = '';
+
+                if (list === 'genres') {
+                    this.newGenre = '';
+                    this.genres = [...this.genres, item];
+                }
+                else if (list === 'cast') {
+                    this.actorError = ""; // Clear previous error message
+
+                    if (!this.newCastMember.trim()) {
+                        this.actorError = "Actor name cannot be empty.";
+                        return;
+                    }
+
+                    const actorExists = await this.checkActor(this.newCastMember.trim());
+
+                    if (!actorExists) {
+                        this.actorError = `Actor "${this.newCastMember.trim()}" does not exist.`;
+                        return;
+                    }
+
+                    this.cast = [...this.cast, item];
+                    this.newCastMember = ""; // Clear the input field
+                }
             }
+            // Optionally, log after the update has been processed
+            this.$nextTick(() => {
+                console.log("Genres after add:", this.genres);
+                console.log("Actors after add:", this.cast);
+            });
         },
+
+
 
         checkComma(input, list) {
             // If the input contains a comma, add the item to the list
@@ -166,12 +215,9 @@ export default {
                 input.split(',').forEach(item => {
                     const trimmedItem = item.trim();
                     if (trimmedItem && !this[list].includes(trimmedItem)) {
-                        this[list].push(trimmedItem);
+                        this.addItem(trimmedItem, list);
                     }
                 });
-                // Reset input field
-                if (list === 'genres') this.newGenre = '';
-                if (list === 'cast') this.newCastMember = '';
             }
         },
         removeItem(index, list) {
@@ -194,31 +240,51 @@ export default {
                         }
                     });
                     console.log('Movie added successfully:', response.data);
+                    alert(`Movie ${movieTitle} added successfully.`);
                 }
                 catch (error) {
-                    console.error('Error adding movie:', error);
+                    if (error.response) {
+                        if (error.response.status === 400) {
+                            alert("Movie title already registered.");
+                        } else if (error.response.status === 404) {
+                            alert(`Movie ${this.this.movieName.trim()} not found`);
+                        } else {
+                            alert(`An error occurred: ${error.response.data.detail}`);
+                        }
+                    } else {
+                        console.error("Error:", error.message);
+                        alert(`Movie ${this.movieName.trim()} not found`);
+                    }
                 }
 
 
             } else if (this.formType === 'value-2') {
                 try {
-                    const genresNames = this.genres;
-                    const actorsNames = this.cast;
+
                     const directorsNames = this.director.trim();
                     const minRating = this.rating * 2;
                     const startDate = this.minDate;
                     const endDate = this.maxDate;
                     const numMovies = this.movieCount;
-                    const response = await axios.post(`${API_BASE_URL}/movies/byFeatures`, {}, {
+
+                    const data = {
+                        "genres_names": this.genres,
+                        "actors_names": this.cast,
+                    };
+
+                    const response = await axios.post(`${API_BASE_URL}/movies/byFeatures`, data, {
 
                         headers: {
                             'accept': 'application/json',
-                            'Authorization': `Bearer ${token}`
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
                         },
 
+
+
                         params: {
-                            genres_names: genresNames,
-                            actors_names: actorsNames,
+                            actors_names: this.cast,
+                            genres_names: this.genres,
                             directors_names: directorsNames,
                             min_rating: minRating,
                             start_date: startDate,
@@ -227,18 +293,111 @@ export default {
                         }
                     });
                     console.log('Movies added successfully:', response.data);
+                    alert(`Movies added successfully.`);
                 }
                 catch (error) {
-                    console.error('Error adding movies:', error);
+                    if (error.response) {
+                        if (error.response.status === 400 && error.response.data.detail === "No movies found based on the given features") {
+                            alert("No movies found based on the provided filters. Please adjust your search criteria.");
+                        } else if (error.response.status === 404 && error.response.data.detail === "No new movies were added. All movies already exist.") {
+                            alert("All selected movies already exist in the database. Try adding different movies.");
+                        } else {
+                            alert(`An error occurred: ${error.response.data.detail}`);
+                        }
+                    } else {
+                        console.error("Error:", error.message);
+                        alert("An unexpected error occurred. Please try again.");
+                    }
                 }
             }
         },
 
+        async fetchGenres() {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/genres/fromAPI`, {
+                    headers: {
+                        'accept': 'application/json'
+                    }
+                });
+
+                this.availableGenres = response.data;
+            }
+            catch (error) {
+                console.error('Error fetching genres:', error);
+            }
+        },
 
         updateRating(newRating) {
             this.rating = newRating;
-        }
+        },
+
+        async checkActor(actor) {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/movies/checkActor`, {
+                    headers: {
+                        'accept': 'application/json'
+                    },
+                    params: {
+                        actor_name: actor
+                    }
+                });
+
+                return response.data;
+            }
+            catch (error) {
+                console.error('Error fetching actor:', error);
+
+            }
+        },
+
+        async checkDirector(director) {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/movies/checkDirector`, {
+                    headers: {
+                        'accept': 'application/json'
+                    },
+                    params: {
+                        director_name: director
+                    }
+                });
+                return response.data;
+            }
+            catch (error) {
+                console.error('Error fetching director:', error);
+            }
+        },
+
+        async addDirector() {
+            this.directorError = ""; // Clear previous error message
+
+            if (!this.directorInput.trim()) {
+                this.directorError = "Director's name cannot be empty.";
+                return;
+            }
+
+            const directorExists = await this.checkDirector(this.directorInput.trim());
+            console.log(directorExists);
+            if (!directorExists) {
+                this.directorError = `Director "${this.directorInput.trim()}" does not exist.`;
+                return;
+            }
+
+            else if (this.director) {
+                this.directorError = "Only one director can be added.";
+                return;
+            }
+            else if (directorExists) {
+                this.director = this.directorInput.trim(); // Set the director
+                this.directorInput = ""; // Clear the input field
+            }
+        },
+        removeDirector() {
+            this.director = ""; // Clear the director
+        },
+
+
     },
+
 };
 </script>
 

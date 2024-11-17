@@ -10,8 +10,7 @@ from datetime import datetime
 from fastapi.responses import FileResponse
 from app.api.routes.user_routes import is_admin_user
 from app.api.dependencies import oauth2_scheme
-from app.scrape_movies import scrape_movie, scrape_movies_by_feats
-
+from app.scrape_movies import scrape_movie, scrape_movies_by_feats, fetch_actor_id_by_name, fetch_director_id_by_name
 
 # Create a router for movie-related endpoints
 router = APIRouter()
@@ -54,7 +53,7 @@ def create_movie_by_name(movie_title: str , db: Session = Depends(get_db)):
     
     movie = movie_crud.create_movie(db, movie_data)
     if movie is None:
-        raise HTTPException(status_code=404, detail= f"Movie '{movie_title}' not found")
+        raise HTTPException(status_code=404, detail= f"Movie not found")
     # Return the created movie details
     return movie
 
@@ -140,9 +139,34 @@ def create_movies_by_features(
 
     return added_movies
 
+@router.get("/checkActor")
+def check_actor(actor_name: str):
+    """
+    Checks if an actor exists.
 
-   
+    Parameters:
+    - actor_name: Name of the actor to check.
 
+    Returns:
+    - True if the actor exists, False otherwise.
+    """
+    actor_id = fetch_actor_id_by_name(actor_name)
+    return actor_id is not None
+
+@router.get("/checkDirector")
+def check_actor(director_name: str):
+    """
+    Checks if an actor exists.
+
+    Parameters:
+    - actor_name: Name of the actor to check.
+
+    Returns:
+    - True if the actor exists, False otherwise.
+    """
+    director_id = fetch_director_id_by_name(director_name)
+    return director_id is not None
+    
 
 # Endpoint to retrieve a list of movies
 @router.get("/", response_model=List[MovieOut])
