@@ -1,0 +1,56 @@
+name: CI/CD Pipeline for Sprint1
+
+on:
+  push:
+    branches:
+      - sprint1
+  pull_request:
+    branches:
+      - sprint1
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clonar el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 3. Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Ejecutar pruebas automatizadas
+      - name: Run tests
+        run: npm run test
+
+      # 5. Construir la aplicación
+      - name: Build project
+        run: npm run build
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 1. Añadir clave SSH para acceso al servidor
+      - name: Add SSH Key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # 2. Desplegar en el servidor
+      - name: Deploy to VPS
+        run: |
+          scp -r dist/* user@your-vps-ip:/path/to/deploy
+          ssh user@your-vps-ip "cd /path/to/deploy && sudo systemctl restart web-service"
