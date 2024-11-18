@@ -23,20 +23,20 @@ jobs:
 
       - name: Install backend dependencies
         run: |
-          cd backend
+          cd src/backend
           python -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
 
       - name: Run Alembic migrations
         run: |
-          cd backend
+          cd src/backend
           source venv/bin/activate
           alembic upgrade head
 
       - name: Run backend tests
         run: |
-          cd backend
+          cd src/backend
           source venv/bin/activate
           python -m pytest
 
@@ -54,10 +54,10 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd filmHub
+          cd src/filmHub
           npm install
 
       - name: Run frontend build
         run: |
-          cd filmHub
+          cd src/filmHub
           npm run build
