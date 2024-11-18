@@ -35,6 +35,7 @@ class MovieBase(SQLModel):
     rating_count: Optional[int] = Field(default=0) 
     likes: Optional[int] = Field(default=0) 
     image: Optional[List[str]] = Field(default=None, sa_column=Column(JSON))
+    trailer: Optional[str] = None
 
 # Model for post a movie
 class MovieIn(MovieBase):

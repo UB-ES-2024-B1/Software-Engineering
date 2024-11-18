@@ -42,6 +42,7 @@ def upgrade() -> None:
     sa.Column('likes', sa.Integer(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('image', JSON, nullable=True),
+    sa.Column('trailer', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_movie_title'), 'movie', ['title'], unique=True)

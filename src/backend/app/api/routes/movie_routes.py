@@ -116,6 +116,17 @@ def get_movies_sorted_by_likes(db: Session = Depends(get_db)):
     movies = movie_crud.get_movies_sorted_by_likes(db=db)
     return movies
 
+@router.get("/sorted/related_movies/{movie_title}", response_model=List[MovieOut])
+def get_movies_sorted_by_related_movies(movie_title: str, db: Session = Depends(get_db)):
+    """
+    Retrieves a list of movies sorted by release date.
+    
+    :param db: Session - Database session dependency
+    :return: List[MovieOut] - A sorted list of movies by release date
+    """
+    movies = movie_crud.get_movies_sorted_by_related(db=db, target_movie_title=movie_title)
+    return movies
+
 '''
 # Endpoint to update an existing movie by its ID
 @router.put("/{movie_id}", response_model=MovieOut)
