@@ -93,7 +93,7 @@
                                 <div class="mb-3">
                                     <label for="movieCount" class="form-label">Number of Movies</label>
                                     <input id="movieCount" v-model="movieCount" type="number" class="form-control"
-                                        placeholder="8" />
+                                        placeholder="1" />
                                 </div>
                             </div>
                             <div class="col-md-1" id="division">
