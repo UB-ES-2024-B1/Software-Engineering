@@ -1,12 +1,12 @@
-name: Sprint 1 Workflow
+name: Main 1 Workflow
 
 on:
   push:
     branches:
-      - sprint1  # Se ejecuta en la rama 'sprint1'
+      - main  # Se ejecuta en la rama 'main'
   pull_request:
     branches:
-      - sprint1
+      - main
 
 jobs:
   backend-setup-and-tests:
