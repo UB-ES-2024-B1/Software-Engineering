@@ -117,7 +117,7 @@ def fetch_movies_by_filters_with_names(
     if genre_ids:
         url += f"&with_genres={','.join(map(str, genre_ids))}"
     if director_ids:
-        url += f"&with_crew={','.join(map(str, director_ids))}"  # Crew includes directors
+        url += f"&with_crew={director_ids}"  # Crew includes directors
     if start_date:
         url += f"&primary_release_date.gte={start_date}"
     if end_date:
