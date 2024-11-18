@@ -225,7 +225,6 @@
   height: 100vh;
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
   background-image: url('@/assets/fondo_login.jpg');
   /* Aplicar la imagen de fondo */
   background-size: cover;

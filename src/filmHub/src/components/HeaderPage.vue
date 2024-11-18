@@ -17,13 +17,14 @@
         <button class="login">Login</button>
       </router-link>
 
+      <!-- Mostrar el botón "Profile" solo si el usuario está autenticado y no estamos en la página de perfil -->
+      <router-link v-if="isAuthenticated && $route.path !== '/profile' && $route.path !== '/edit'" to="/profile">
+        <img class="profile-image" :src="profileImage" alt="Profile" />
+      </router-link>
+
       <!-- Mostrar el botón "Logout" solo si el usuario está autenticado -->
       <button v-if="isAuthenticated" @click="logout" class="logout">Logout</button>
 
-      <!-- Mostrar el botón "Profile" solo si el usuario está autenticado y no estamos en la página de perfil -->
-      <router-link v-if="isAuthenticated && $route.path !== '/profile'" to="/profile">
-        <button class="profile">Profile</button>
-      </router-link>
     </div>
   </header>
 </template>
@@ -35,6 +36,7 @@ export default {
     return {
       scrolled: false, // Propiedad para controlar la opacidad
       isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
+      profileImage: require('@/assets/foto_perfil.png')
     };
   },
   computed: {
@@ -110,13 +112,18 @@ export default {
   cursor: pointer;
 }
 
-.profile {
-  padding: 10px 15px;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: white;
-  border: none;
-  border-radius: 5px;
+.profile-image {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%; /* Hace que la imagen sea circular */
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-right: 20px;
+}
+
+.profile-image:hover {
+  transform: scale(1.1); /* Aumenta el tamaño ligeramente al pasar el cursor */
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Añade un efecto de sombra */
 }
 
 .sign-up:hover,
