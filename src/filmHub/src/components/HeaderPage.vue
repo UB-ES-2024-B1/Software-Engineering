@@ -6,6 +6,15 @@
       </router-link>
     </div>
 
+    <!-- Mostrar el botón "All Movies" solo si no estamos en páginas de registro o login -->
+    <button v-if="!isAuthPage" class="all-movies">All Movies</button>
+
+    <!-- Mostrar la barra de búsqueda solo si no estamos en páginas de registro o login -->
+    <div v-if="!isAuthPage" class="search-bar">
+      <input type="text" ref="searchInput" placeholder="Search for movies..." />
+      <button @click="searchMovies">Go!</button>
+    </div>
+
     <div class="auth-buttons">
       <!-- Mostrar el botón "Sign Up" solo si el usuario NO está autenticado -->
       <router-link v-if="!isAuthenticated" to="/register">
