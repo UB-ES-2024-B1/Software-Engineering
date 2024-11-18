@@ -12,12 +12,21 @@
           <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
           <div class="movie-info">
             <h4>{{ bannerMovie.title }}</h4>
-            <h6>Director:</h6>
-            <p>{{ bannerMovie.director }}</p>
-            <h6>Country:</h6>
-            <p>{{ bannerMovie.country }}</p>
-            <h6>Date:</h6>
-            <p>{{ bannerMovie.release_date }}</p>
+            <div class="info-item">
+              <span class="info-title">Genres: </span> <span>{{ "Action, Adventure, Comedy"  }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-title">Date: </span> <span>{{ bannerMovie.release_date }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-title">Country: </span> <span>{{ bannerMovie.country }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-title">Director: </span> <span>{{ bannerMovie.director }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-title">Cast: </span> <span>{{ "Sam Worthington, Zoe Saldana" }}</span>
+            </div>
           </div>
         </div>
 
@@ -31,8 +40,76 @@
             <span>{{ bannerMovie.likes }}</span>
           </div>
         </div>
+
+        <!-- Aquí agregamos las estrellas de votación -->
+        <div class="star-rating-container">
+          <div class="radio">
+            <input value="1" name="rating" type="radio" id="rating-1" />
+            <label title="1 stars" for="rating-1">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path
+                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
+                ></path>
+              </svg>
+            </label>
+          
+            <input value="2" name="rating" type="radio" id="rating-2" />
+            <label title="2 stars" for="rating-2">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path
+                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
+                ></path>
+              </svg>
+            </label>
+          
+            <input value="3" name="rating" type="radio" id="rating-3" />
+            <label title="3 stars" for="rating-3">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path
+                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
+                ></path>
+              </svg>
+            </label>
+          
+            <input value="4" name="rating" type="radio" id="rating-4" />
+            <label title="4 stars" for="rating-4">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path
+                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
+                ></path>
+              </svg>
+            </label>
+          
+            <input value="5" name="rating" type="radio" id="rating-5" />
+            <label title="5 star" for="rating-5">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path
+                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"
+                ></path>
+              </svg>
+            </label>
+          </div>
+        </div>
+        <!-- Like --> 
+        <div class="like-container">
+          <label class="container">
+            <input checked="checked" type="checkbox" />
+            <div class="checkmark">
+              <svg viewBox="0 0 256 256">
+                <rect fill="none" height="256" width="256"></rect>
+                <path
+                  d="M224.6,51.9a59.5,59.5,0,0,0-43-19.9,60.5,60.5,0,0,0-44,17.6L128,59.1l-7.5-7.4C97.2,28.3,59.2,26.3,35.9,47.4a59.9,59.9,0,0,0-2.3,87l83.1,83.1a15.9,15.9,0,0,0,22.6,0l81-81C243.7,113.2,245.6,75.2,224.6,51.9Z"
+                  stroke-width="20px"
+                  stroke="#000"
+                  fill="none"
+                ></path>
+              </svg>
+            </div>
+          </label>
+        </div>
       </div>
     </section>
+
 
     <!-- Nueva zona de detalles de la película -->
     <section class="movie-details" v-if="bannerMovie">
@@ -153,6 +230,7 @@
       director: movieData.director,
       country: movieData.country,
       release_date: movieData.release_date,
+      genre_ids: movieData.genre_ids || [], // Agregamos los IDs de los géneros
     };
   }
   
@@ -164,15 +242,16 @@
       likes: movieData.likes,
     };
   }
-  
+
   export default {
     name: 'MovieDetails',
     components: { HeaderPage },
     data() {
       return {
-        bannerMovie: null, // Nueva propiedad para la película del banner
+        bannerMovie: null, // Película del banner
         movies: [], // Lista de películas ordenadas
         relatedMovies: [], // Lista de películas relacionadas
+        genresList: [], // Lista de géneros disponibles
       };
     },
     methods: {
@@ -184,12 +263,33 @@
           console.error('Error retrieving banner movie:', error);
         }
       },
+
+      // Método para obtener la lista de géneros disponibles
+      async fetchGenres() {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/genres`);
+          this.genresList = response.data; // Guardamos la lista de géneros
+        } catch (error) {
+          console.error('Error retrieving genres:', error);
+        }
+      },
+
+      // Método para obtener los géneros de una película a partir de sus genre_ids
+      getMovieGenres() {
+        if (!this.bannerMovie || !this.genresList) return [];
+        
+        return this.bannerMovie.genre_ids.map(id => {
+          const genre = this.genresList.find(g => g.id === id);
+          return genre ? genre.name : 'Unknown Genre'; // Si no se encuentra el género, mostramos 'Unknown Genre'
+        });
+      },
+      
       async fetchMovies(start, end, movies_section) {
         try {
           const url =
             movies_section === 1
               ? `${API_BASE_URL}/movies/sorted/likes/`
-              : `${API_BASE_URL}/movies/sorted/rating/`;
+              : `${API_BASE_URL}/movies/sorted/likes/`;
           const movieObjects = [];
           const response = await axios.get(url);
           const movies = response.data.slice(start, end);
@@ -212,10 +312,18 @@
     created() {
       const movieId = this.$route.params.id; // ID de la película desde la URL
       this.fetchBannerMovie(movieId); // Carga la película para el banner
+      this.fetchGenres(); // Carga la lista de géneros
       this.fetchMovies(0, 50, 2); // Carga las películas mejor valoradas
     },
+    computed: {
+      // Computed para obtener los géneros de la película
+      movieGenres() {
+        return this.getMovieGenres().join(', '); // Unimos los géneros con coma
+      },
+    },
   };
-  </script>
+</script>
+
   
 
 <style scoped>
@@ -326,7 +434,7 @@ body {
 .small-cover {
   position: absolute;
   /* Posiciona de forma absoluta */
-  bottom: 50px;
+  bottom: 20px;
   /* Distancia desde el fondo */
   left: 200px;
   /* Distancia desde el lado izquierdo */
@@ -341,42 +449,37 @@ body {
 .small-cover-image {
   width: 350px !important;
   /* Cambia el tamaño aquí si lo deseas */
-  height: 450px !important;
+  height: 500px !important;
   /* Mantiene la proporción */
   border-radius: 15px;
   /* Bordes redondeados */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   /* Sombra para un mejor contraste */
-  margin-right: 100px;
+  margin-right: 150px;
   /* Espacio entre la imagen pequeña y la caja de texto */
 }
 
+/* Estilo para la caja contenedora de la información */
 .movie-info {
-  background-color: rgba(0, 0, 0, 0.6);
-  /* Fondo oscuro y más opaco */
-  color: white;
-  /* Color del texto */
-  padding: 20px;
-  /* Espaciado interno */
-  border-radius: 10px;
-  /* Bordes redondeados */
-  width: 350px;
-  /* Ancho mínimo de la caja */
-  height: 450px;
-  /* Altura mínima para la caja */
-  display: flex;
-  /* Usar flexbox para alinear el contenido */
-  flex-direction: column;
-  /* Organiza los elementos en columna */
-  justify-content: flex-start;
-  /* Alinea el contenido al inicio verticalmente */
-  align-items: flex-start;
-  /* Alinea el contenido a la izquierda horizontalmente */
-  overflow: hidden;
-  /* Asegura que el contenido no se desborde */
-  text-align: left;
-  /* Alinea el texto a la izquierda */
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro y más opaco */
+  color: white; /* Color del texto */
+  padding: 20px; /* Espaciado interno */
+  border-radius: 10px; /* Bordes redondeados */
+  width: 350px; /* Ancho mínimo de la caja */
+  height: 500px; /* Altura mínima para la caja */
+  display: flex; /* Usar flexbox para alinear el contenido */
+  flex-direction: column; /* Organiza los elementos en columna */
+  justify-content: flex-start; /* Alinea el contenido al inicio verticalmente */
+  align-items: flex-start; /* Alinea el contenido a la izquierda horizontalmente */
+  overflow: hidden; /* Asegura que el contenido no se desborde */
+  text-align: left; /* Alinea el texto a la izquierda */
+}
 
+/* Alineación en una sola línea */
+.info-item {
+  display: flex; /* Usamos flexbox para alinear los elementos en la misma línea */
+  margin-bottom: 30px; /* Espaciado entre los items */
+  flex-wrap: wrap; /* Si es necesario, los elementos pueden romperse en la siguiente línea */
 }
 
 /* Estilo para el título */
@@ -386,26 +489,25 @@ body {
   font-weight: bold; /* Hacer que el título sea más destacable */
 }
 
-/* Estilo para los subtítulos (h6) */
-.movie-info h6 {
-  margin-bottom: 7px; /* Espacio entre cada subtítulo y el contenido */
-  font-size: 1.1em; /* Tamaño de fuente para los subtítulos */
-  font-weight: normal; /* Hacer que el subtítulo sea más ligero */
-  color: #f0f0f0; /* Color más suave para los subtítulos */
+.info-title {
+  font-size: 1.1em; /* Tamaño de fuente para los títulos */
+  color: #828282; /* Color para diferenciar los títulos */
+  margin-right: 5px; /* Espacio entre el título y el valor */
 }
 
-/* Estilo para los párrafos (p) */
-.movie-info p {
-  margin-bottom: 35px; /* Espacio entre los párrafos */
-  font-size: 1em; /* Tamaño de fuente para los párrafos */
-  color: #d1d1d1; /* Color más suave para el texto */
+/* El contenido del valor puede tener otro estilo */
+.info-item span:last-child {
+  font-size: 1em; /* Tamaño de fuente más pequeño para el valor */
+  font-weight: bold; /* Destacar los títulos */
+  color: #d1d1d1; /* Color para el valor */
 }
+
 
 .rating-likes-banner {
   position: absolute;
-  bottom: 60px;
-  right: 530px;
-  background-color: rgba(0, 0, 0, 0.6);
+  bottom: 35px;
+  right: 485px;
+  background-color: rgba(255, 255, 255, 0);
   /* Fondo oscuro semi-transparente */
   color: white;
   padding: 10px;
@@ -481,7 +583,6 @@ body {
 
 */
 
-
 .rating-likes-cover {
   position: absolute;
   bottom: 290px;
@@ -537,5 +638,220 @@ body {
   border-radius: 20px;
   /* Bordes redondeados */
 }
+
+
+
+
+
+
+
+.star-rating-container {
+  position: absolute;
+  bottom: 25px;
+  right: 150px;
+  z-index: 10; 
+}
+
+.radio {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: row-reverse;
+}
+
+.radio > input {
+  position: absolute;
+  appearance: none;
+}
+
+.radio > label {
+  cursor: pointer;
+  font-size: 30px;
+  position: relative;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.radio > label > svg {
+  fill: #666;
+  transition: fill 0.3s ease;
+}
+
+
+.radio > label::before {
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+}
+
+.radio > label::after {
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+}
+
+.radio > label:hover::before,
+.radio > label:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1.5);
+}
+
+.radio > label:hover {
+  transform: scale(1.2);
+  animation: pulse 0.6s infinite alternate;
+}
+
+.radio > label:hover > svg,
+.radio > label:hover ~ label > svg {
+  fill: #ff9e0b;
+  filter: drop-shadow(0 0 15px rgba(255, 158, 11, 0.9));
+  animation: shimmer 1s ease infinite alternate;
+}
+
+.radio > input:checked + label > svg,
+.radio > input:checked + label ~ label > svg {
+  fill: #ff9e0b;
+  filter: drop-shadow(0 0 15px rgba(255, 158, 11, 0.9));
+  animation: pulse 0.8s infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes particle-explosion {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(255, 158, 11, 0.5));
+  }
+  100% {
+    filter: drop-shadow(0 0 20px rgba(255, 158, 11, 1));
+  }
+}
+
+.radio > input:checked + label:hover > svg,
+.radio > input:checked + label:hover ~ label > svg {
+  fill: #e58e09;
+}
+
+.radio > label:hover > svg,
+.radio > label:hover ~ label > svg {
+  fill: #ff9e0b;
+}
+
+.radio input:checked ~ label svg {
+  fill: #ffa723;
+}
+
+
+
+
+
+
+
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.container {
+  display: block;
+  position: absolute;
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+  transition: 100ms;
+  z-index: 10;
+  bottom: 23px;
+  left: 1400px;
+}
+
+.checkmark {
+  top: 0;
+  left: 0;
+  height: 2em;
+  width: 2em;
+  transition: 100ms;
+  animation: dislike_effect 400ms ease;
+  position: relative;
+  z-index: 2; /* Se asegura de que el corazón esté sobre otros elementos */
+}
+
+.checkmark path {
+  fill: #666; /* Color gris por defecto */
+  stroke: none;
+  transition: fill 200ms ease; /* Añadir transición suave al cambio de color */
+}
+
+/* Efecto hover: cuando pasas el cursor por encima, el corazón se pone rojo */
+.container:hover .checkmark path {
+  fill: #f52121; /* Rojo cuando el cursor está encima */
+}
+
+/* El color cambia cuando está seleccionado */
+.container input:checked ~ .checkmark path {
+  fill: #f52121; /* Color rojo cuando está seleccionado */
+  stroke-width: 0;
+}
+
+.container input:checked ~ .checkmark {
+  animation: like_effect 400ms ease;
+}
+
+
+/* Animaciones para el efecto de like/dislike */
+@keyframes like_effect {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes dislike_effect {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+
+
+
+
+
+
 
 </style>
