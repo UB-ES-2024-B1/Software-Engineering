@@ -89,6 +89,14 @@
                         url = `${API_BASE_URL}/movies/sorted/release_date/`; //Endpoint para ordenar por Year
                     } else if (criteria === "popularity") {
                         url = `${API_BASE_URL}/movies/sorted/likes/`; // Endpoint para ordenar por Popularity
+                    } else if (criteria === "search"){
+                        const searchQuery = this.$route.query.search; // Obtén el término de búsqueda de la URL
+                        console.log("Search query detected(searchQuery):", searchQuery);
+                        if (!searchQuery) {
+                            console.error("No search query provided!");
+                            return;
+                        }url = `${API_BASE_URL}/movies/search/name/${searchQuery}`; //Endpoint de búsqueda
+                        console.log("Search query detected(url):", url);
                     }
 
                     // Realizar la solicitud a la API
@@ -96,6 +104,7 @@
 
                     //Obtener películas ordenadas
                     const movies = response.data;
+                    console.log("Resposne form search endpoint(respoonse.data):", response.data);
 
                     // Procesar las películas para construir objetos compatibles
                     const processedMovies = await Promise.all(
@@ -125,10 +134,31 @@
             },
 
         },
-        created() {
-            //Depèn del botó: fetch de unes movies o altres
-            
+        mounted() {
+            // Detecta si hay un término de búsqueda al cargar la página
+            const searchQuery = this.$route.query.search;
+            if (searchQuery) {
+                this.applySorting("search");
+            }
         },
+        //Mounted solo se ejecuta cuandoe l componente se monta por primera vez
+        //Mejor usar watcher o beforeRouterUpdate, para reaccionar a los cambios de la url y ejecutar el codigo de búsqueda cada vez que el parámetro search cambia
+        beforeRouteUpdate(to, from, next) {
+            const searchQuery = to.query.search;
+            if (searchQuery) {
+                this.applySorting("search");
+            }
+            next(); //llamar a next() para que la navegación continúe
+        },
+        watch: {
+            // Observar los cambios en el parámetro 'search' en la URL
+            "$route.query.search": function (newSearchQuery, oldSearchQuery) {
+                if (newSearchQuery !== oldSearchQuery) {
+                    this.applySorting("search"); // Ejecutar la búsqueda cada vez que cambie el parámetro 'search'
+                }
+            },
+        },
+
     };
 </script>
 
