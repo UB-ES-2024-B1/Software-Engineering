@@ -129,6 +129,9 @@
           <div class="carousel-item active">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in relatedMovies.slice(0, 5)" :key="movie.id">
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
@@ -143,6 +146,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in relatedMovies.slice(5, 10)" :key="movie.id">
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
@@ -157,6 +163,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in relatedMovies.slice(10, 15)" :key="movie.id">
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
@@ -171,7 +180,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in relatedMovies.slice(15, 20)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
