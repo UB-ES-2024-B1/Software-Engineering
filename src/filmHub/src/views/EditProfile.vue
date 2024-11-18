@@ -48,7 +48,9 @@
 
           <div class="form-actions">
             <button type="submit" class="save-btn">Save Changes</button>
-            <router-link to="/profile" class="cancel-btn">Cancel</router-link>
+            <router-link to="/profile">
+              <button class="cancel-btn">Cancel</button>
+            </router-link>
           </div>
         </form>
       </div>
@@ -123,7 +125,7 @@ export default {
   height: 100vh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  background-image: url('@/assets/fondo_login.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -184,11 +186,13 @@ export default {
 .form-group input {
   width: 100%;
   padding: 8px;
+  margin-bottom: 0px;
+  border: 1px solid gray;
   border-radius: 5px;
-  border: 1px solid #444;
-  background-color: #3e3e3e;
+  transition: border-color 0.3s ease;
+  background: #1f1f1f;
+  opacity: 0.7;
   color: white;
-  font-size: 16px;
 }
 
 .form-group input:focus {
@@ -203,34 +207,41 @@ export default {
 }
 
 .save-btn {
-  background-color: #ffcc00;
+  width: 75;
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(0, 255, 0, 0.3);
   color: white;
-  padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
   cursor: pointer;
-  flex: 1;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  z-index: 5;
 }
 
 .save-btn:hover {
-  background-color: #e6b800;
+  background: rgba(0, 255, 0, 0.4);
+
 }
 
 .cancel-btn {
-  text-align: center;
-  background-color: #ccc;
-  color: black;
-  padding: 10px 20px;
+  width: 75;
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255, 0, 0, 0.3);
+  color: white;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
-  text-decoration: none;
-  flex: 1;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  z-index: 5;
 }
 
 .cancel-btn:hover {
-  background-color: #b3b3b3;
+  background: rgba(255, 0, 0, 0.4);
+
 }
 
 /* Footer básico */

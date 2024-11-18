@@ -13,7 +13,7 @@
         <div v-else-if="userData" class="profile-content">
           <!-- Imagen de perfil -->
           <div class="profile-image">
-            <img :src="profileImage" alt="Profile Picture" />
+            <img :src="require('@/assets/foto_perfil.png')" alt="Profile Picture" />
           </div>
 
           <div class="profile-info">
@@ -97,7 +97,7 @@ export default {
   height: 100vh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #1e3c72, #2a5298); /* Degradado azul */
+  background-image: url('@/assets/fondo_login.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -145,7 +145,7 @@ export default {
   font-size: 28px;
   font-weight: bold;
   color: white;
-  padding-right: 485px;
+  padding-right: 395px;
   z-index: 20;
 }
 
@@ -171,13 +171,14 @@ export default {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  border: 3px solid white;
+  border: 0px solid white;
   object-fit: cover;
+
 }
 
 /* Estilo de la información del perfil */
 .profile-info {
-  flex: 2;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -214,19 +215,21 @@ export default {
 }
 
 .modify-btn {
-  background-color: #ffcc00;
+  width: 100%;
+  margin-top: 225px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
   border: none;
-  padding: 10px 20px;
   border-radius: 5px;
-  font-size: 16px;
   cursor: pointer;
-  margin-top: 225px;
-  align-self: flex-end;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  z-index: 5;
 }
 
 .modify-btn:hover {
-  background-color: #e6b800;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 </style>

@@ -77,7 +77,7 @@
           this.loginError = false;
   
           // Redirigir al usuario a la página de perfil
-          this.$router.push('/profile');
+          this.$router.push('/');
         } catch (error) {
           console.error('Error al iniciar sesión:', error);
           this.loginError = true; // Mostrar mensaje de error
