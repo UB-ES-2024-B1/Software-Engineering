@@ -83,16 +83,8 @@ export default {
     border: 2px solid transparent;
 }
 
-.radio-input label:hover::before {
-    transition: all 0.2s ease;
-    background-color: #2a2e3c;
-}
 
-.radio-input .label:has(input:checked)::before {
-    background-color: #2d3750;
-    border-color: #435dd8;
-    height: 50px;
-}
+
 
 .radio-input .label .text {
     color: #fff;

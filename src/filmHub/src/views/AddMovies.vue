@@ -92,9 +92,12 @@
 
                                 <div class="mb-3">
                                     <label for="movieCount" class="form-label">Number of Movies</label>
-                                    <input id="movieCount" v-model="movieCount" type="number" class="form-control"
-                                        placeholder="1" />
+                                    <input id="movieCount" v-model.number="movieCount" type="number"
+                                        class="form-control" placeholder="1" min="1" max="10"
+                                        @input="validateMovieCount" />
+                                    <p v-if="numMoviesError" class="error">{{ errorMessage }}</p>
                                 </div>
+
                             </div>
                             <div class="col-md-1" id="division">
                                 <div class="vertical-line"></div>
@@ -166,6 +169,7 @@ export default {
             availableGenres: [],
             actorError: "",
             directorError: "",
+            numMoviesError: "",
 
         };
     },
@@ -293,7 +297,7 @@ export default {
                         }
                     });
                     console.log('Movies added successfully:', response.data);
-                    alert(`Movies added successfully.`);
+                    alert(`${numMovies} were successfully movies added.`);
                 }
                 catch (error) {
                     if (error.response) {
@@ -395,6 +399,18 @@ export default {
             this.director = ""; // Clear the director
         },
 
+        validateMovieCount() {
+            if (this.movieCount < 1) {
+                this.movieCount = 1;
+                this.numMoviesError = 'Number of movies cannot be less than 1.';
+            } else if (this.movieCount > 10) {
+                this.movieCount = 10;
+                this.numMoviesError = 'Number of movies cannot be more than 10.';
+            } else {
+                this.numMoviesError = '';
+            }
+        },
+
 
     },
 
@@ -409,7 +425,48 @@ export default {
 }
 
 #addMoviesPage {
-    background: black;
+    background-image: url("../assets/add-movies-background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+    z-index: 0; /* Ensure the background is behind other elements */
+}
+
+#addMoviesPage::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("../assets/film-grain.jpg"), linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.9));
+    opacity: 0.5;
+    background-size: cover, cover;
+    background-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 2; /* Keep above the main background */
+}
+
+#addMoviesPage::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("../assets/bokeh-effect.jpg");
+    background-size: cover;
+    background-blend-mode: overlay;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 1; /* Place below the '::before' but above the main background */
+}
+
+.container {
+    position: relative;
+    z-index: 3; /* Ensure the form is above the background effects */
 }
 
 #genreListTag,
@@ -428,13 +485,15 @@ export default {
 }
 
 .main-form {
-    background-color: rgb(17, 17, 17);
+    background-color: rgba(17, 17, 17, 0.9);
+    backdrop-filter: blur(10px); /* Add blur effect */
     width: 100%;
     /* Default full width */
 }
 
 .main-form.small-form {
-    background-color: rgb(17, 17, 17);
+    background-color: rgb(17, 17, 17, 0.9);
+    backdrop-filter: blur(10px); /* Add blur effect */
     width: 100%;
     /* Full width */
     max-width: 600px;
@@ -455,6 +514,7 @@ export default {
 .radio {
     margin-left: -10%;
     margin-top: 10%;
+    z-index: -1; /* Ensure the radio form is above the background */
 
 }
 
