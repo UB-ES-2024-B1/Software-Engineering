@@ -41,7 +41,8 @@ def fetch_movie_data(movie_id):
             "image": [
                 f"https://image.tmdb.org/t/p/w500/{data['poster_path']}" if data.get('poster_path') else None,
                 f"https://image.tmdb.org/t/p/w500/{data['backdrop_path']}" if data.get('backdrop_path') else None
-            ]
+            ],
+            "trailer": ""
         }
 
         return movie
@@ -70,7 +71,8 @@ def is_valid_movie(movie):
             movie.get('release_date') is not None and
             movie.get('rating') is not None and
             movie.get('rating_count') is not None and
-            all(img is not None for img in movie.get('image', [])))
+            all(img is not None for img in movie.get('image', [])) is not None and
+            movie.get('trailer') is not None) 
 
 def scrape_movies(num_movies=100):
     filename = 'src/backend/data_movies.json'
