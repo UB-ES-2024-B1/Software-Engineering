@@ -11,11 +11,11 @@
                 </div>
                 <main :class="['main-form', 'rounded-3', 'shadow-lg', 'p-4', { 'small-form': formType === 'value-1' }]"
                     id="formBox">
-                    <h2 class="fs-4 fw-bolder mb-4">Add Movie</h2>
+                    <h2 class="fs-4 fw-bolder mb-4"><i class='bx bxs-camera-movie'></i> Add Movie</h2>
 
                     <div v-if="formType === 'value-1'" class="mb-3">
                         <!-- Display single movie name input field if 'Add Movie by Name' is selected -->
-                        <label for="movieName" class="form-label">Movie Name</label>
+                        <label for="movieName" class="form-label"><i class='bx bx-pencil' ></i> Movie Name</label>
                         <input id="movieName" v-model="movieName" placeholder="Enter movie name" class="form-control" />
                     </div>
 
@@ -24,7 +24,7 @@
                         <div class="row g-4">
                             <div class="col-md-5">
                                 <div class="mb-3">
-                                    <label for="genre" class="form-label">Genre</label>
+                                    <label for="genre" class="form-label"><i class='bx bx-film' ></i> Genre</label>
                                     <div class="d-flex flex-wrap gap-2 mt-2" id="genreListTag">
                                         <span v-for="(genre, index) in genres" :key="index"
                                             class="badge text-sm d-flex align-items-center" id="tagGenre">
@@ -46,7 +46,7 @@
 
 
                                 <div class="mb-3">
-                                    <label for="cast" class="form-label">Cast</label>
+                                    <label for="cast" class="form-label"><i class='bx bx-group'></i> Cast</label>
                                     <div class="d-flex flex-wrap gap-2 mt-2" id="castListTag">
                                         <span v-for="(member, index) in cast" :key="index"
                                             class="badge text-sm d-flex align-items-center" id="tagMember">
@@ -70,7 +70,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="director" class="form-label">Director</label>
+                                    <label for="director" class="form-label"><i class='bx bx-user' ></i> Director</label>
                                     <div class="d-flex flex-wrap gap-2 mt-2" v-if="director">
                                         <span class="badge text-sm d-flex align-items-center" id="tagDirector">
                                             {{ director }}
@@ -91,7 +91,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="movieCount" class="form-label">Number of Movies</label>
+                                    <label for="movieCount" class="form-label"><i class='bx bx-hash'></i> Number of Movies</label>
                                     <input id="movieCount" v-model.number="movieCount" type="number"
                                         class="form-control" placeholder="1" min="1" max="10"
                                         @input="validateMovieCount" />
@@ -104,7 +104,7 @@
                             </div>
                             <div class="col-md-5">
                                 <div class="mb-3">
-                                    <label class="form-label">Movie Rating</label>
+                                    <label class="form-label"><i class='bx bxs-star' ></i> Movie Rating</label>
                                     <input type="range" v-model.number="rating" min="0" max="5" step="0.1"
                                         class="form-range" id="slidingBar" />
                                     <div class="d-flex justify-content-between mt-2">
@@ -117,12 +117,12 @@
                                 </div>
 
                                 <div class="mb-2">
-                                    <label for="minDate" class="form-label">Min Release Date</label>
+                                    <label for="minDate" class="form-label"><i class='bx bxs-calendar-alt' ></i> Min Release Date</label>
                                     <input id="minDate" v-model="minDate" type="date" class="form-control" />
                                 </div>
 
                                 <div class="mb-2">
-                                    <label for="maxDate" class="form-label">Max Release Date</label>
+                                    <label for="maxDate" class="form-label"><i class='bx bxs-calendar-alt' ></i> Max Release Date</label>
                                     <input id="maxDate" v-model="maxDate" type="date" class="form-control" />
                                 </div>
                             </div>
