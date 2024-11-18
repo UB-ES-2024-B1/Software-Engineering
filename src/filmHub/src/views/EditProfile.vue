@@ -1,7 +1,7 @@
 <template>
   <div class="profile-page">
     <HeaderPage />
-
+    
     <div class="overlay"></div>
 
     <div class="main-content">
@@ -13,15 +13,11 @@
 
         <!-- Formulario de edición -->
         <form v-else class="profile-edit-form" @submit.prevent="submitChanges">
+          <!-- Mostrar el correo como texto en vez de un formulario -->
           <div class="form-group">
             <label for="email">Email Address:</label>
-            <input
-              id="email"
-              type="email"
-              v-model="formData.email"
-              required
-              placeholder="Enter your email"
-            />
+            <!-- Solo mostrar el correo sin permitir editar -->
+            <p>{{ formData.email }}</p>
           </div>
 
           <div class="form-group">
@@ -35,14 +31,14 @@
             />
           </div>
 
+          <!-- Mostrar la contraseña -->
           <div class="form-group">
             <label for="password">Password:</label>
             <input
               id="password"
               type="password"
               v-model="formData.password"
-              required
-              placeholder="Enter your password"
+              :placeholder="formData.password ? 'Enter your new password' : 'Enter your current password or new password'"
             />
           </div>
 
@@ -63,61 +59,70 @@
 </template>
 
 <script>
-import HeaderPage from '@/components/HeaderPage.vue';
-import axios from 'axios';
-import { API_BASE_URL } from '@/config.js';
-
-export default {
-  name: 'EditProfile',
-  components: {
-    HeaderPage,
-  },
-  data() {
-    return {
-      formData: {
-        email: '',
-        full_name: '',
-        password: '',
-      },
-      error: null,
-    };
-  },
-  created() {
-    const userEmail = localStorage.getItem('userEmail');
-    if (!userEmail) {
-      this.$router.push('/login');
-      return;
-    }
-
-    // Carga inicial de los datos del usuario
-    axios
-      .get(`${API_BASE_URL}/users/email/${userEmail}`)
-      .then((response) => {
-        const { email, full_name } = response.data;
-        this.formData.email = email;
-        this.formData.full_name = full_name;
-      })
-      .catch((error) => {
-        console.error('Error al obtener los datos del usuario:', error);
-        this.error = 'Error fetching user data. Please try again.';
-      });
-  },
-  methods: {
-    submitChanges() {
-      // Actualizar datos del usuario en el backend
+  import HeaderPage from '@/components/HeaderPage.vue';
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config.js';
+  
+  export default {
+    name: 'EditProfile',
+    components: {
+      HeaderPage,
+    },
+    data() {
+      return {
+        formData: {
+          email: '',
+          full_name: '',
+          password: '', // Inicializamos la contraseña vacía
+        },
+        error: null,
+      };
+    },
+    created() {
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) {
+        this.$router.push('/login');
+        return;
+      }
+  
+      // Carga inicial de los datos del usuario
       axios
-        .put(`${API_BASE_URL}/users/email/${this.formData.email}`, this.formData)
-        .then(() => {
-          this.$router.push('/profile');
+        .get(`${API_BASE_URL}/users/email/${userEmail}`)
+        .then((response) => {
+          const { email, full_name } = response.data;
+          this.formData.email = email;
+          this.formData.full_name = full_name;
         })
         .catch((error) => {
-          console.error('Error al actualizar los datos del usuario:', error);
-          this.error = 'Error updating user data. Please try again.';
+          console.error('Error al obtener los datos del usuario:', error);
+          this.error = 'Error fetching user data. Please try again.';
         });
     },
-  },
-};
+    methods: {
+      submitChanges() {
+        // Si la contraseña está vacía, no la enviamos
+        if (!this.formData.password) {
+          delete this.formData.password; // Elimina la contraseña si no se cambió
+        }
+
+        // Enviar los datos actualizados al backend
+        axios
+          .put(`${API_BASE_URL}/users/email/${this.formData.email}`, this.formData)
+          .then(() => {
+            // Redirigir al perfil después de actualizar
+            this.$router.push('/profile');
+          })
+          .catch((error) => {
+            console.error('Error al actualizar los datos del usuario:', error);
+            this.error = 'Error updating user data. Please try again.';
+          });
+      },
+    },
+  };
 </script>
+
+  
+  
 
 <style scoped>
 /* Estilos generales iguales a los de profile */
@@ -176,6 +181,8 @@ export default {
   flex-direction: column;
   gap: 20px;
 }
+
+
 
 .form-group label {
   font-weight: bold;

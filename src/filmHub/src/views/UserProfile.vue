@@ -25,6 +25,7 @@
               <strong>Name:</strong><br />
               <span>{{ userData.full_name }}</span>
             </p>
+            <!-- Mostrar la contraseña oculta -->
             <p>
               <strong>Password:</strong><br />
               <span>********</span>
@@ -50,45 +51,46 @@
 </template>
 
 <script>
-import HeaderPage from '@/components/HeaderPage.vue';
-import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
-
-export default {
-  name: 'UserProfile',
-  components: {
-    HeaderPage,
-  },
-  data() {
-    return {
-      userData: null,
-      error: null,
-      profileImage: '@/assets/default_profile.jpg',
-    };
-  },
-  created() {
-    const userEmail = localStorage.getItem('userEmail');
-    if (!userEmail) {
-      this.$router.push('/login');
-      return;
-    }
-
-    // Solicitar datos del usuario
-    axios
-      .get(`${API_BASE_URL}/users/email/${userEmail}`)
-      .then((response) => {
-        this.userData = response.data;
-      })
-      .catch((error) => {
-        console.error('Error al obtener los datos del usuario:', error);
-        this.error = 'Error fetching user data. Please try again.';
-      });
-  },
-  methods: {
-    // Redirigir a la página de edición
-  },
-};
-</script>
+  import HeaderPage from '@/components/HeaderPage.vue';
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
+  
+  export default {
+    name: 'UserProfile',
+    components: {
+      HeaderPage,
+    },
+    data() {
+      return {
+        userData: null,
+        error: null,
+        profileImage: '@/assets/default_profile.jpg',
+      };
+    },
+    created() {
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) {
+        this.$router.push('/login');
+        return;
+      }
+  
+      // Solicitar datos del usuario
+      axios
+        .get(`${API_BASE_URL}/users/email/${userEmail}`)
+        .then((response) => {
+          this.userData = response.data;
+        })
+        .catch((error) => {
+          console.error('Error al obtener los datos del usuario:', error);
+          this.error = 'Error fetching user data. Please try again.';
+        });
+    },
+    methods: {
+      // Redirigir a la página de edición
+    },
+  };
+  </script>
+  
 
   
 <style scoped>
