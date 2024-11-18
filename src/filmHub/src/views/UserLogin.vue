@@ -35,53 +35,58 @@
 </template>
 
 <script>
-import HeaderPage from '@/components/HeaderPage.vue'; 
-import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
-
-export default {
-  name: 'UserLogin',
-  components: {
-    HeaderPage,
-  },
-  data() {
-    return {
-      email: '',
-      password: '',
-      loginError: false, // Estado para mostrar o esconder el mensaje de error
-    };
-  },
-  methods: {
-    async handleLogin() {
-      try {
-        // Usar FormData para enviar los datos en el formato adecuado
-        const formData = new FormData();
-        formData.append('username', this.email); // OAuth2PasswordRequestForm espera 'username'
-        formData.append('password', this.password); // Y también espera 'password'
-
-        // Realizar la solicitud POST al backend para el login
-        const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        });
-        // Si la solicitud tiene éxito, almacenar el token en localStorage
-        localStorage.setItem('token', response.data.access_token);
-        // Redirigir al usuario a la página principal
-        this.$router.push('/');
-
-        // Asegúrate de que los componentes parent puedan actualizar el estado
-        window.dispatchEvent(new Event('storage')); // Para informar a otros componentes del cambio
-        this.loginError = false; // Reiniciar el error en caso de éxito
-      } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-        this.loginError = true; // Muestra el mensaje de error
-      }
+  import HeaderPage from '@/components/HeaderPage.vue'; 
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
+  
+  export default {
+    name: 'UserLogin',
+    components: {
+      HeaderPage,
     },
-
-  },
-};
-</script>
+    data() {
+      return {
+        email: '', // Correo del usuario
+        password: '', // Contraseña del usuario
+        loginError: false, // Estado para mostrar o esconder el mensaje de error
+      };
+    },
+    methods: {
+      async handleLogin() {
+        try {
+          // Usar FormData para enviar los datos en el formato adecuado
+          const formData = new FormData();
+          formData.append('username', this.email); // OAuth2PasswordRequestForm espera 'username'
+          formData.append('password', this.password); // Y también espera 'password'
+  
+          // Realizar la solicitud POST al backend para el login
+          const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          });
+  
+          // Guardar el token en localStorage
+          localStorage.setItem('token', response.data.access_token);
+  
+          // Guardar el email para futuras solicitudes
+          localStorage.setItem('userEmail', this.email);
+  
+          // Notificar éxito
+          window.dispatchEvent(new Event('storage')); // Informa a otros componentes sobre el cambio
+          this.loginError = false;
+  
+          // Redirigir al usuario a la página de perfil
+          this.$router.push('/profile');
+        } catch (error) {
+          console.error('Error al iniciar sesión:', error);
+          this.loginError = true; // Mostrar mensaje de error
+        }
+      },
+    },
+  };
+  </script>
+  
 
 <style scoped>
 /* Estilos específicos para el componente de login (idénticos a los de registro) */

@@ -19,6 +19,11 @@
 
       <!-- Mostrar el botón "Logout" solo si el usuario está autenticado -->
       <button v-if="isAuthenticated" @click="logout" class="logout">Logout</button>
+
+      <!-- Mostrar el botón "Profile" solo si el usuario está autenticado -->
+      <router-link v-if="isAuthenticated" to="/profile">
+        <button v-if="isAuthenticated" @click="logout" class="profile">Profile</button>
+      </router-link>
     </div>
   </header>
 </template>
@@ -146,6 +151,15 @@ export default {
 .sign-up,
 .login,
 .logout {
+  padding: 10px 15px;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.profile {
   padding: 10px 15px;
   background-color: rgba(255, 255, 255, 0.3);
   color: white;
