@@ -66,7 +66,7 @@ export default {
     height: 50px;
     position: relative;
     border-radius: 10px;
-    transition: background-color 0.3s, border-color 0.3s;
+    transition: background-color 0.1s, border-color 0.1s;
 }
 
 .radio-input label::before {
@@ -103,8 +103,8 @@ export default {
 
 .radio-input .label input[type="radio"]:checked {
     background-color: #435dd8;
-    -webkit-animation: puls 0.7s forwards;
-    animation: pulse-radio 0.7s forwards;
+    -webkit-animation: puls 0.2s forwards;
+    animation: pulse-radio 0.2s forwards;
 }
 
 .radio-input .label:has(input:checked) {

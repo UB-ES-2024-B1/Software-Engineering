@@ -419,10 +419,7 @@ export default {
 
 
 <style>
-.movie-popup {
 
-    z-index: 1000;
-}
 
 #addMoviesPage {
     background-image: url("../assets/add-movies-background.jpg");
@@ -432,36 +429,6 @@ export default {
     position: relative;
     overflow: hidden;
     z-index: 0; /* Ensure the background is behind other elements */
-}
-
-#addMoviesPage::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url("../assets/film-grain.jpg"), linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.9));
-    opacity: 0.5;
-    background-size: cover, cover;
-    background-blend-mode: overlay;
-    pointer-events: none;
-    z-index: 2; /* Keep above the main background */
-}
-
-#addMoviesPage::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url("../assets/bokeh-effect.jpg");
-    background-size: cover;
-    background-blend-mode: overlay;
-    opacity: 0.3;
-    pointer-events: none;
-    z-index: 1; /* Place below the '::before' but above the main background */
 }
 
 .container {
