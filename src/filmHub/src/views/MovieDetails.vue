@@ -13,7 +13,7 @@
           <div class="movie-info">
             <h4>{{ bannerMovie.title }}</h4>
             <div class="info-item">
-              <span class="info-title">Genres: </span> <span>{{ "Action, Adventure, Comedy"  }}</span>
+              <span class="info-title">Genres: </span> <span>{{ bannerMovie.genres.join(", ")  }}</span>
             </div>
             <div class="info-item">
               <span class="info-title">Date: </span> <span>{{ bannerMovie.release_date }}</span>
@@ -25,7 +25,7 @@
               <span class="info-title">Director: </span> <span>{{ bannerMovie.director }}</span>
             </div>
             <div class="info-item">
-              <span class="info-title">Cast: </span> <span>{{ "Sam Worthington, Zoe Saldana" }}</span>
+              <span class="info-title">Cast: </span> <span>{{ bannerMovie.cast.join(", ")  }}</span>
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                window.location.reload();
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -149,7 +149,6 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -166,7 +165,6 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -241,7 +239,8 @@
       director: movieData.director,
       country: movieData.country,
       release_date: movieData.release_date,
-      genre_ids: movieData.genre_ids || [], // Agregamos los IDs de los géneros
+      genres: movieData.genres.map((genre)=>genre.type),
+      cast: movieData.cast_members.map((cast)=>cast.name),
     };
   }
   
@@ -266,32 +265,24 @@
       };
     },
     methods: {
-      async fetchBannerMovie(id) {
+
+      async fetchTitle(title) {
         try {
-          const response = await axios.get(`${API_BASE_URL}/movies/${id}`);
+          const response = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
           this.bannerMovie = await generateMovieObject(response.data);
+          console.log("hefhof", bannerMovie)
         } catch (error) {
           console.error('Error retrieving banner movie:', error);
         }
       },
-
-      // Método para obtener la lista de géneros disponibles
-      async fetchGenres() {
+      async fetchBannerMovie(id) {
         try {
-          const response = await axios.get(`${API_BASE_URL}/genres`);
-          this.genresList = response.data; // Guardamos la lista de géneros
+          const response = await axios.get(`${API_BASE_URL}/movies/${id}`);
+          this.bannerMovie = await generateMovieObject(response.data);
+          console.log("hefhof", bannerMovie)
         } catch (error) {
-          console.error('Error retrieving genres:', error);
+          console.error('Error retrieving banner movie:', error);
         }
-      },
-
-      // Método para obtener los géneros de una película a partir de sus genre_ids
-      getMovieGenres() {
-        if (!this.bannerMovie || !this.genresList) return [];
-        return this.bannerMovie.genre_ids.map(id => {
-          const genre = this.genresList.find(g => g.id === id);
-          return genre ? genre.name : 'Unknown Genre'; // Si no se encuentra el género, mostramos 'Unknown Genre'
-        });
       },
 
       async fetchMovies(start, end, movies_section, movieTitle) {
@@ -341,20 +332,16 @@
           if (this.bannerMovie) {
             const movieTitle = this.bannerMovie.title; // Obtén el título de la película
             console.log('Movie title to fetch related movies:', movieTitle); // Verifica el título
+            this.fetchTitle(movieTitle);    
             this.fetchMovies(0, 50, 2, movieTitle); // Pasa el título de la película a fetchMovies
           }
         })
         .catch(error => {
           console.error('Error fetching banner movie:', error);
         });
-      this.fetchGenres(); // Carga la lista de géneros
     },
-    computed: {
-      // Computed para obtener los géneros de la película
-      movieGenres() {
-        return this.getMovieGenres().join(', '); // Unimos los géneros con coma
-      },
-    },
+
+
   };
 </script>
 
