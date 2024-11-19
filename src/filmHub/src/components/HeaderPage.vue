@@ -6,22 +6,6 @@
       </router-link>
     </div>
 
-    <!-- Mostrar el botón "All Movies" solo si no estamos en páginas de registro o login -->
-    <router-link v-if="!isAuthPage" to="/movies">
-      <button class="all-movies">All Movies</button>
-    </router-link>
-
-    <!-- Mostrar la barra de búsqueda solo si no estamos en páginas de registro o login -->
-    <div v-if="!isAuthPage" class="search-bar">
-      <!-- Conectar el input al modelo de datos -->
-      <input type="text" v-model="searchInput" placeholder="Search for movies..." />
-      <!-- Enviar el término como parámetro de consulta -->
-      <router-link v-if="!isAuthPage" :to="{ path: '/movies', query: { search: searchInput } }">
-        <button>Go!</button>
-      </router-link>
-    </div>
-
-
     <div class="auth-buttons">
       <!-- Mostrar el botón "Sign Up" solo si el usuario NO está autenticado -->
       <router-link v-if="!isAuthenticated" to="/register">
@@ -44,7 +28,6 @@ export default {
   name: 'HeaderPage',
   data() {
     return {
-      searchInput: "",
       scrolled: false, // Propiedad para controlar la opacidad
       isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
     };
@@ -56,6 +39,10 @@ export default {
     },
   },
   methods: {
+    searchMovies() {
+      const query = this.$refs.searchInput.value;
+      console.log('Searching for:', query);
+    },
     handleScroll() {
       // Cambia la propiedad "scrolled" dependiendo de si el scroll es mayor a 60px
       this.scrolled = window.scrollY > 60;
