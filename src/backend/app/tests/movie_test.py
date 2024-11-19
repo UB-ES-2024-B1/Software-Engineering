@@ -45,6 +45,34 @@ def test_create_movie():
 
     assert "id" in response_data
 
+# Test to create a movie
+def test_create_movie_2():
+    new_movie = {
+        "title": "The Lost City",
+        "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
+        "director": "Sarah Connors",
+        "country": "United States",
+        "release_date": "2024-10-26",
+        "rating": 4.2,
+        "rating_count": 12500,
+        "likes": 5200,
+        "genres": [
+            "Adventure",
+            "Thriller"
+        ],
+        "cast_members": [
+            "John Doe",
+            "Jane Smith",
+            "Mike Johnson"
+        ]
+    }
+
+    response = client.post("/movies/", json=new_movie)
+
+    # Assert that the response status 
+    assert response.status_code == 400
+
+
 # Test to get list of movies
 def test_get_movies():
     response = client.get("/movies/")
@@ -59,6 +87,16 @@ def test_get_movie_by_title():
 
     response_data = response.json()
     assert response_data["title"] == "The Lost City"
+
+# Test to get movie by id
+def test_get_movie_by_id():
+    response = client.get("/movies/1")
+    assert response.status_code == 200
+
+# Test to get movie by id
+def test_get_movie_by_id_2():
+    response = client.get("/movies/-3")
+    assert response.status_code == 404
 
 # Test to get movies sorted by date
 def test_get_movies_sorted_by_release_date():
@@ -139,10 +177,72 @@ def test_add_movie_like():
     # Assuming likes were initially set to 5300
     assert response_data["likes"] == 5301
 
+
+
+# Test get movies by year
+def test_get_movies_by_year():
+    response = client.get("/movies/release/2010")
+    assert response.status_code == 200
+    movies = response.json()
+    assert isinstance(movies, list)
+    # Check if the movies in the list have all the year correct
+    for movie in movies:
+        assert "2010" in movie["release_date"]
+
+# Test not get movies by year
+def test_get_movies_by_year_2():
+    response = client.get("/movies/release/2100")
+    assert response.status_code == 200
+
+    movies = response.json()
+    assert isinstance(movies, list)
+    assert len(movies) == 0
+
+
+# Test get movies with genre
+def test_get_movies_by_genre():
+    response = client.get("/movies/genre/Adventure")
+    assert response.status_code == 200
+    movies = response.json()
+    assert isinstance(movies, list)
+    # Check if the movies in the list have all the genre
+    for movie in movies:
+        
+        assert "genres" in movie
+        assert isinstance(movie["genres"], list)
+        
+        assert any(genre["type"] == "Adventure" for genre in movie["genres"])
+
+
+# Test get movies with genre
+def test_get_movies_by_genre_2():
+    response = client.get("/movies/genre/Fun")
+    assert response.status_code == 404
+
+# Test get movies with multiple genre
+def test_get_movies_by_genre_list():
+    response = client.get("/movies/genre/list/Adventure,Thriller")
+    assert response.status_code == 200
+    movies = response.json()
+    assert isinstance(movies, list)
+    # Check if the movies in the list have all the genre
+    for movie in movies:        
+        assert "genres" in movie
+        assert isinstance(movie["genres"], list)
+        assert any(genre["type"] == "Thriller" for genre in movie["genres"])
+        assert any(genre["type"] == "Adventure" for genre in movie["genres"])
+
+
+# Test get movies with multiplegenre
+def test_get_movies_by_genre_list_2():
+    response = client.get("/movies/genre/list/Adventure,Science Fiction,Fun")
+    assert response.status_code == 404
+
 # Test delete movie 
 def test_delete_movie():
     response = client.delete("/movies/title/The Lost City")
     assert response.status_code == 200
+
 
 # Test to get related movies by title
 def test_get_related_movies_by_title():
@@ -178,3 +278,22 @@ def test_get_related_movies_by_title():
 
         # At least one attribute should match to be considered related
         assert len(shared_genres) > 0 or len(shared_cast) > 0 or director_match
+
+# Test to get movie by title
+def test_get_movie_by_title_2():
+    response = client.get("/movies/title/The Lost City")
+    assert response.status_code == 404
+
+# Test to search movies by name (valid search)
+def test_search_movies_by_name():
+    response = client.get("/movies/search/name/barb")
+    assert response.status_code == 200
+    response_data = response.json()
+
+    # Check if we have movies returned that match the search query
+    assert isinstance(response_data, list)
+
+    # Check if movie titles contain 'barb'
+    for movie in response_data:
+        assert "barb" in movie["title"].lower()
+

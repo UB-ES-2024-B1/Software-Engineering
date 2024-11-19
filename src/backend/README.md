@@ -42,6 +42,7 @@
    pip install passlib
    pip install bcrypt
    pip install python-jose
+   pip install requests
    ```
 
    For Mac:
@@ -56,6 +57,7 @@
    pip install passlib
    pip install bcrypt
    pip install python-jose
+   pip install requests
    ```
 5. **Sep up for Alembic (databases)**:
 

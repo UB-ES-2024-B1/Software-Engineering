@@ -1,0 +1,50 @@
+[
+    {
+        "email": "user1@example.com",
+        "is_active": 1,
+        "is_admin": 1,
+        "full_name": "User1",
+        "id": 1,
+        "hashed_password": "$2b$12$zPmvNugC.1ieA7brbfU9..asjEdLNJY.vrPTm57qMo5a72y0DnQRG"
+    },
+    {
+        "email": "user2@example.com",
+        "is_active": 1,
+        "is_admin": 1,
+        "full_name": "User2",
+        "id": 2,
+        "hashed_password": "$2b$12$WuOEfuGBbdnwYrB9l/jOheoM36cF1eJCGF7ATZEUuIxM05ykMU1Om"
+    },
+    {
+        "email": "user3@example.com",
+        "is_active": 1,
+        "is_admin": 1,
+        "full_name": "User3",
+        "id": 3,
+        "hashed_password": "$2b$12$YoTxrK.OGa9apVKMh6DDYefOSLo6qaZLnqZESKkK6RixHaYyZJpSu"
+    },
+    {
+        "email": "user4@example.com",
+        "is_active": 1,
+        "is_admin": 1,
+        "full_name": "User4",
+        "id": 4,
+        "hashed_password": "$2b$12$5HVRlxlRl2c4.dKawQ8Jm.HZA1BcyOlUMQePjzhK6SvByNrwWiu6S"
+    },
+    {
+        "email": "user5@example.com",
+        "is_active": 1,
+        "is_admin": 1,
+        "full_name": "User5",
+        "id": 5,
+        "hashed_password": "$2b$12$vhbRD7ZQ1XtsK6at343oA.yzGuUOhTtuprC.gaiaJuW947bSzwwLG"
+    },
+    {
+        "email": "user6@example.com",
+        "is_active": 1,
+        "is_admin": 1,
+        "full_name": "User6",
+        "id": 6,
+        "hashed_password": "$2b$12$L3/1tsMvQ3E23uSQzi7m6OnFR2VC9KJhTvHkFvq9zVWfb5CpPNwRi"
+    }
+]

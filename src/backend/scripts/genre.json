@@ -1,0 +1,86 @@
+[
+    {
+        "id": 1,
+        "type": "Action"
+    },
+    {
+        "id": 2,
+        "type": "Adventure"
+    },
+    {
+        "id": 3,
+        "type": "Comedy"
+    },
+    {
+        "id": 4,
+        "type": "Drama"
+    },
+    {
+        "id": 5,
+        "type": "Fantasy"
+    },
+    {
+        "id": 6,
+        "type": "Historical"
+    },
+    {
+        "id": 7,
+        "type": "Horror"
+    },
+    {
+        "id": 8,
+        "type": "Mystery"
+    },
+    {
+        "id": 9,
+        "type": "Romance"
+    },
+    {
+        "id": 10,
+        "type": "Science Fiction"
+    },
+    {
+        "id": 11,
+        "type": "Thriller"
+    },
+    {
+        "id": 12,
+        "type": "Western"
+    },
+    {
+        "id": 13,
+        "type": "Documentary"
+    },
+    {
+        "id": 14,
+        "type": "Musical"
+    },
+    {
+        "id": 15,
+        "type": "Animation"
+    },
+    {
+        "id": 16,
+        "type": "Sci-Fi"
+    },
+    {
+        "id": 17,
+        "type": "Crime"
+    },
+    {
+        "id": 18,
+        "type": "Biography"
+    },
+    {
+        "id": 19,
+        "type": "History"
+    },
+    {
+        "id": 20,
+        "type": "Family"
+    },
+    {
+        "id": 21,
+        "type": "Music"
+    }
+]

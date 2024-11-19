@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pytest
+httpx
+sqlalchemy
+databases[sqlite]
+fastapi[all]
+sqlmodel
+alembic
+passlib
+bcrypt
+python-jose
