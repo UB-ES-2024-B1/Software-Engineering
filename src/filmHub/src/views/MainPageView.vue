@@ -19,7 +19,9 @@
             <div class="shadow-overlay"></div>
 
             <div class="small-cover">
-              <img :src="movie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
+              <router-link :to="`/movie/${movie.id}`">
+                <img :src="movie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
+              </router-link>
               <div class="movie-info">
                 <h5>{{ movie.title }}</h5>
                 <p>{{ movie.description }}</p>
@@ -59,7 +61,9 @@
           <div class="carousel-item active">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(0, 5)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -72,7 +76,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(5, 10)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -85,7 +91,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(10, 15)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -98,7 +106,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(15, 20)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -128,7 +138,9 @@
           <div class="carousel-item active">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(0, 5)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -141,7 +153,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(5, 10)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -154,7 +168,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(10, 15)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -167,7 +183,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(15, 20)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
