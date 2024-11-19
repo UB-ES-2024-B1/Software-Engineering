@@ -33,13 +33,8 @@
 
           <!-- Mostrar la contraseña -->
           <div class="form-group">
-            <label for="password">Password:</label>
-            <input
-              id="password"
-              type="password"
-              v-model="formData.password"
-              :placeholder="formData.password ? 'Enter your new password' : 'Enter your current password or new password'"
-            />
+            <label for="password">Password:</label><br />
+            <span>********</span>
           </div>
 
           <div class="form-actions">
