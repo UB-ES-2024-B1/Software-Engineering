@@ -1,10 +1,26 @@
 <template>
-  <header :class="['header', { scrolled }]">
+  <header :class="['header', { scrolled, opaque: isOpaque }]">
     <div class="logo">
       <router-link to="/">
         <img :src="require('@/assets/logo.png')" alt="Logo" />
       </router-link>
     </div>
+
+    <!-- Mostrar el botón "All Movies" solo si no estamos en páginas de registro o login -->
+    <router-link v-if="!isAuthPage" to="/movies">
+      <button class="all-movies">All Movies</button>
+    </router-link>
+
+    <!-- Mostrar la barra de búsqueda solo si no estamos en páginas de registro o login -->
+    <div v-if="!isAuthPage" class="search-bar">
+      <!-- Conectar el input al modelo de datos -->
+      <input type="text" v-model="searchInput" placeholder="Search for movies..." />
+      <!-- Enviar el término como parámetro de consulta -->
+      <router-link v-if="!isAuthPage" :to="{ path: '/movies', query: { search: searchInput } }">
+        <button>Go!</button>
+      </router-link>
+    </div>
+
 
     <div class="auth-buttons">
       <!-- Mostrar el botón "Sign Up" solo si el usuario NO está autenticado -->
@@ -26,8 +42,15 @@
 <script>
 export default {
   name: 'HeaderPage',
+  props: {
+    isOpaque: {
+      type: Boolean,
+      default: false, // Por defecto, el header será transparente
+    },
+  },
   data() {
     return {
+      searchInput: "",
       scrolled: false, // Propiedad para controlar la opacidad
       isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
     };
@@ -39,10 +62,6 @@ export default {
     },
   },
   methods: {
-    searchMovies() {
-      const query = this.$refs.searchInput.value;
-      console.log('Searching for:', query);
-    },
     handleScroll() {
       // Cambia la propiedad "scrolled" dependiendo de si el scroll es mayor a 60px
       this.scrolled = window.scrollY > 60;
@@ -94,6 +113,9 @@ export default {
 .header.scrolled {
   background-color: rgba(18, 18, 18, 0.9);
   /* Fondo completamente opaco cuando se desplaza */
+}
+.header.opaque {
+  background-color: rgba(18, 18, 18, 1); /* Completamente opaco */
 }
 
 .logo img {
@@ -156,7 +178,8 @@ export default {
 
 .sign-up:hover,
 .login:hover,
-.logout:hover {
+.logout:hover,
+.all-movies:hover {
   background-color: rgba(255, 255, 255, 0.4);
 }
 
