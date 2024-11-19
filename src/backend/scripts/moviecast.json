@@ -1,0 +1,234 @@
+[
+    {
+        "movie_id": 1,
+        "cast_member_id": 2
+    },
+    {
+        "movie_id": 1,
+        "cast_member_id": 1
+    },
+    {
+        "movie_id": 2,
+        "cast_member_id": 3
+    },
+    {
+        "movie_id": 2,
+        "cast_member_id": 4
+    },
+    {
+        "movie_id": 3,
+        "cast_member_id": 4
+    },
+    {
+        "movie_id": 3,
+        "cast_member_id": 5
+    },
+    {
+        "movie_id": 4,
+        "cast_member_id": 7
+    },
+    {
+        "movie_id": 4,
+        "cast_member_id": 6
+    },
+    {
+        "movie_id": 5,
+        "cast_member_id": 8
+    },
+    {
+        "movie_id": 5,
+        "cast_member_id": 9
+    },
+    {
+        "movie_id": 6,
+        "cast_member_id": 11
+    },
+    {
+        "movie_id": 6,
+        "cast_member_id": 10
+    },
+    {
+        "movie_id": 7,
+        "cast_member_id": 12
+    },
+    {
+        "movie_id": 7,
+        "cast_member_id": 13
+    },
+    {
+        "movie_id": 8,
+        "cast_member_id": 15
+    },
+    {
+        "movie_id": 8,
+        "cast_member_id": 14
+    },
+    {
+        "movie_id": 9,
+        "cast_member_id": 17
+    },
+    {
+        "movie_id": 9,
+        "cast_member_id": 16
+    },
+    {
+        "movie_id": 10,
+        "cast_member_id": 19
+    },
+    {
+        "movie_id": 10,
+        "cast_member_id": 18
+    },
+    {
+        "movie_id": 11,
+        "cast_member_id": 21
+    },
+    {
+        "movie_id": 11,
+        "cast_member_id": 20
+    },
+    {
+        "movie_id": 12,
+        "cast_member_id": 22
+    },
+    {
+        "movie_id": 12,
+        "cast_member_id": 23
+    },
+    {
+        "movie_id": 13,
+        "cast_member_id": 25
+    },
+    {
+        "movie_id": 13,
+        "cast_member_id": 24
+    },
+    {
+        "movie_id": 14,
+        "cast_member_id": 7
+    },
+    {
+        "movie_id": 14,
+        "cast_member_id": 26
+    },
+    {
+        "movie_id": 15,
+        "cast_member_id": 27
+    },
+    {
+        "movie_id": 15,
+        "cast_member_id": 28
+    },
+    {
+        "movie_id": 16,
+        "cast_member_id": 5
+    },
+    {
+        "movie_id": 16,
+        "cast_member_id": 29
+    },
+    {
+        "movie_id": 17,
+        "cast_member_id": 30
+    },
+    {
+        "movie_id": 17,
+        "cast_member_id": 31
+    },
+    {
+        "movie_id": 18,
+        "cast_member_id": 33
+    },
+    {
+        "movie_id": 18,
+        "cast_member_id": 32
+    },
+    {
+        "movie_id": 19,
+        "cast_member_id": 34
+    },
+    {
+        "movie_id": 19,
+        "cast_member_id": 35
+    },
+    {
+        "movie_id": 20,
+        "cast_member_id": 36
+    },
+    {
+        "movie_id": 20,
+        "cast_member_id": 37
+    },
+    {
+        "movie_id": 21,
+        "cast_member_id": 38
+    },
+    {
+        "movie_id": 21,
+        "cast_member_id": 26
+    },
+    {
+        "movie_id": 22,
+        "cast_member_id": 40
+    },
+    {
+        "movie_id": 22,
+        "cast_member_id": 39
+    },
+    {
+        "movie_id": 23,
+        "cast_member_id": 41
+    },
+    {
+        "movie_id": 23,
+        "cast_member_id": 42
+    },
+    {
+        "movie_id": 24,
+        "cast_member_id": 44
+    },
+    {
+        "movie_id": 24,
+        "cast_member_id": 43
+    },
+    {
+        "movie_id": 25,
+        "cast_member_id": 45
+    },
+    {
+        "movie_id": 25,
+        "cast_member_id": 46
+    },
+    {
+        "movie_id": 26,
+        "cast_member_id": 48
+    },
+    {
+        "movie_id": 26,
+        "cast_member_id": 47
+    },
+    {
+        "movie_id": 27,
+        "cast_member_id": 49
+    },
+    {
+        "movie_id": 27,
+        "cast_member_id": 50
+    },
+    {
+        "movie_id": 28,
+        "cast_member_id": 52
+    },
+    {
+        "movie_id": 28,
+        "cast_member_id": 51
+    },
+    {
+        "movie_id": 29,
+        "cast_member_id": 54
+    },
+    {
+        "movie_id": 29,
+        "cast_member_id": 53
+    }
+]

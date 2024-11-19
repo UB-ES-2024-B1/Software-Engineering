@@ -41,7 +41,8 @@ def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> 
     db.commit()  # Commit the transaction
     db.refresh(db_movie)  # Refresh to get the updated data
 
-    return MovieOut.from_orm(db_movie)  # Use model_validate instead of from_orm
+    return MovieOut.model_validate(db_movie)  # Use model_validate instead of from_orm
+
 
 # Function to get a list of movies with pagination
 def get_movies(db: Session, skip: int = 0, limit: int = 100) -> List[MovieOut]:
