@@ -431,7 +431,7 @@ button:hover {
 /* Estilo para las filas de películas */
 .inner-container {
   display: flex;
-  justify-content: space-between; /* Distribuir las películas uniformemente en una fila */
+  justify-content: flex-start; /* Distribuir las películas uniformemente en una fila */
   gap: 10px; /* Espacio entre cada película */
   flex-wrap: wrap; /* Ajustar las películas en múltiples filas si es necesario */
   width: 100%; /* Asegura que las filas ocupen todo el ancho disponible */
@@ -449,11 +449,12 @@ button:hover {
 
 /* Estilo para las imágenes de las películas */
 .movie-poster {
-  width: 100%; /* La imagen ocupa el 100% del espacio disponible */
+  width:calc(20% - 10px); /* 5 elementos por fila con espacio entre ellos */ /* La imagen ocupa el 100% del espacio disponible */
   height: auto; /* Mantener la proporción de la imagen */
   border-radius: 8px; /* Bordes redondeados para las imágenes */
   object-fit: cover; /* Hace que la imagen se recorte bien si es necesario */
   transition: transform 0.3s ease; /* Efecto de transición al pasar el mouse */
+  box-sizing: border-box;
 }
 
 /* Efecto de hover sobre las imágenes */
