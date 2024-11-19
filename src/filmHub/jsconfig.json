@@ -15,5 +15,11 @@
       "dom.iterable",
       "scripthost"
     ]
-  }
+  },
+  "exclude": [
+    "src/components/RatingSlider.vue",
+    "src/components/DatePicker.vue",
+    "src/components/MovieViewPopup.vue",
+    "src/components/MoviePopup.vue",
+  ]
 }

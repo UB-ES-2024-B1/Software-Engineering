@@ -53,7 +53,9 @@
 
     <!-- Sección de películas recientes -->
     <section class="recent-movies">
-      <h2 class="section-title">Películas Más Recientes</h2>
+      <router-link :to="{ path: '/movies', query: { sortByYear: 'year' } }" class="section-title-link">
+        <h2 class="section-title">Películas Más Recientes</h2>
+      </router-link>
       <div id="recentMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item active">
@@ -122,7 +124,9 @@
     </section>
     <!-- Sección de películas mejor valoradas -->
     <section class="top-rated-movies">
-      <h2 class="section-title">Películas Mejor Valoradas</h2>
+      <router-link :to="{ path: '/movies', query: { sortByRate: 'rating' } }" class="section-title-link">
+        <h2 class="section-title">Películas Mejor Valoradas</h2>
+      </router-link>
       <div id="topRatedMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item active">
@@ -307,8 +311,8 @@ export default {
   },
   created() {
     this.fetchMovies(0, 9, 1);
-    this.fetchMovies(0, 50, 2);
-    this.fetchMovies(0, 50, 3);
+    this.fetchMovies(0, 10, 2);
+    this.fetchMovies(0, 10, 3);
   },
 };
 </script>
