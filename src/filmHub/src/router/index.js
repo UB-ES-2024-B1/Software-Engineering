@@ -1,11 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainPageView from '../views/MainPageView.vue';
 import UserRegister from '../views/UserRegister.vue';
+import UserLogin from '../views/UserLogin.vue';
+import MovieDetails from '../views/MovieDetails.vue';  
+
 import UserProfile from '../views/UserProfile.vue';  
 import EditProfile from '../views/EditProfile.vue'; 
-import UserLogin from '../views/UserLogin.vue'; // Importa el componente de login
+
 import AllMovies from '../views/AllMovies.vue';
 import AddMovies from '../views/AddMovies.vue'; // Importa el componente 
+
 
 
 const routes = [
@@ -25,6 +29,12 @@ const routes = [
     component: UserLogin,
   },
   {
+
+    path: '/movie/:id', 
+    name: 'MovieDetails',
+    component: MovieDetails,
+  },
+
 
     path: '/profile', 
     name: 'UserProfile',
@@ -47,6 +57,7 @@ const routes = [
     component: AddMovies,
   },
 
+>
 ];
 
 const router = createRouter({
