@@ -97,6 +97,8 @@
                             return;
                         }url = `${API_BASE_URL}/movies/search/name/${searchQuery}`; //Endpoint de búsqueda
                         console.log("Search query detected(url):", url);
+                    }else{
+                        url = `${API_BASE_URL}/movies/`;// Endpoint para mostrar peliculas
                     }
 
                     // Realizar la solicitud a la API
@@ -135,10 +137,12 @@
 
         },
         mounted() {
-            // Detecta si hay un término de búsqueda al cargar la página
+            // Detecta si hay un término de búsqueda al cargar la página sino muestra odas las pelis sin ningun orden especifico
             const searchQuery = this.$route.query.search;
             if (searchQuery) {
                 this.applySorting("search");
+            }else{
+                this.applySorting("");
             }
         },
         //Mounted solo se ejecuta cuandoe l componente se monta por primera vez
@@ -147,6 +151,8 @@
             const searchQuery = to.query.search;
             if (searchQuery) {
                 this.applySorting("search");
+            }else{
+                this.applySorting("");//Si se aprieta el boton allMove se recarga la pagina con la informacion inicial
             }
             next(); //llamar a next() para que la navegación continúe
         },
