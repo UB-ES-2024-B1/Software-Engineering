@@ -176,59 +176,47 @@
 
             // Método para aplicar el filtro según el criterio de ordenacion
             async applySorting(criteria) {
-                try{
-                    // Reiniciar la lista filtrada a las películas iniciales
-                    
+                try {
                     let url;
 
-                    // Aplicar el filtro basado en el criterio
                     if (criteria === "rating") {
-                        url = `${API_BASE_URL}/movies/sorted/rating/`;// Endpoint para ordenar por Rating
+                        url = `${API_BASE_URL}/movies/sorted/rating/`;
                     } else if (criteria === "year") {
-                        url = `${API_BASE_URL}/movies/sorted/release_date/`; //Endpoint para ordenar por Year
+                        if (this.selectedYear) {
+                            url = `${API_BASE_URL}/movies/release/${this.selectedYear}`;
+                        } else {
+                            url = `${API_BASE_URL}/movies/sorted/release_date/`;
+                        }
                     } else if (criteria === "popularity") {
-                        url = `${API_BASE_URL}/movies/sorted/likes/`; // Endpoint para ordenar por Popularity
-                    } else if (criteria === "search"){
-                        const searchQuery = this.$route.query.search; // Obtén el término de búsqueda de la URL
-                        console.log("Search query detected(searchQuery):", searchQuery);
+                        url = `${API_BASE_URL}/movies/sorted/likes/`;
+                    } else if (criteria === "search") {
+                        const searchQuery = this.$route.query.search;
                         if (!searchQuery) {
                             console.error("No search query provided!");
                             return;
-                        }url = `${API_BASE_URL}/movies/search/name/${searchQuery}`; //Endpoint de búsqueda
-                        console.log("Search query detected(url):", url);
+                        }
+                        url = `${API_BASE_URL}/movies/search/name/${searchQuery}`;
                     } else if (criteria === "genre" && this.selectedGenre) {
-                        // Si el criterio es "genre" y se ha seleccionado un género
-                        url = `${API_BASE_URL}/movies/genre/${this.selectedGenre}`; // Endpoint para obtener películas por género
-                    } else if (criteria === "year" && this.selectedYear) {
-                        // Si el criterio es "year" y se ha seleccionado un año
-                        url = `${API_BASE_URL}/movies/release/${this.selectedYear}`; // Endpoint para obtener películas por año
-                    }else{
-                        url = `${API_BASE_URL}/movies/`;// Endpoint para mostrar peliculas
+                        url = `${API_BASE_URL}/movies/genre/${this.selectedGenre}`;
+                    } else {
+                        url = `${API_BASE_URL}/movies/`;
                     }
 
-                    // Realizar la solicitud a la API
                     const response = await axios.get(url);
-
-                    //Obtener películas ordenadas
                     const movies = response.data;
-                    console.log("Resposne form search endpoint(respoonse.data):", response.data);
 
-                    // Procesar las películas para construir objetos compatibles
                     const processedMovies = await Promise.all(
                         movies.map(async (movieData) => {
-                            return await generateMovieObject(movieData); // Reutiliza tu función para procesar películas
+                            return await generateMovieObject(movieData);
                         })
                     );
 
-                     // Dividir las películas en filas de 5
-                    this.sortedMovies = this.chunkMovies(processedMovies, 5); // Llamada a la función que divide las películas en filas de 5
+                    this.sortedMovies = this.chunkMovies(processedMovies, 5);
 
                     console.log(`Movies filtered by ${criteria}:`, this.sortedMovies);
-                
-                }catch (error) {
+                } catch (error) {
                     console.error("Error retrieving movies:", error);
                 }
-                
             },
 
             // Función auxiliar para dividir el array en filas de 5
