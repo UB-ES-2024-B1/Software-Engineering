@@ -23,18 +23,24 @@
 
 
     <div class="auth-buttons">
-      <!-- Mostrar el botón "Sign Up" solo si el usuario NO está autenticado -->
-      <router-link v-if="!isAuthenticated" to="/register">
+      <!-- Mostrar el botón "Sign Up" solo si el usuario NO está autenticado y no estamos en la página de registro -->
+      <router-link v-if="!isAuthenticated && $route.path !== '/register'" to="/register">
         <button class="sign-up">Sign Up</button>
       </router-link>
 
-      <!-- Mostrar el botón "Login" solo si el usuario NO está autenticado -->
-      <router-link v-if="!isAuthenticated" to="/login">
+      <!-- Mostrar el botón "Login" solo si el usuario NO está autenticado y no estamos en la página de login -->
+      <router-link v-if="!isAuthenticated && $route.path !== '/login'" to="/login">
         <button class="login">Login</button>
+      </router-link>
+
+      <!-- Mostrar el botón "Profile" solo si el usuario está autenticado y no estamos en la página de perfil -->
+      <router-link v-if="isAuthenticated && $route.path !== '/profile' && $route.path !== '/edit'" to="/profile">
+        <img class="profile-image" :src="profileImage" alt="Profile" />
       </router-link>
 
       <!-- Mostrar el botón "Logout" solo si el usuario está autenticado -->
       <button v-if="isAuthenticated" @click="logout" class="logout">Logout</button>
+
     </div>
   </header>
 </template>
@@ -53,51 +59,42 @@ export default {
       searchInput: "",
       scrolled: false, // Propiedad para controlar la opacidad
       isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
+      profileImage: require('@/assets/foto_perfil.png')
     };
   },
   computed: {
-    // Computada para verificar si estamos en las páginas de login o registro
     isAuthPage() {
       return this.$route.path === '/login' || this.$route.path === '/register';
     },
   },
   methods: {
     handleScroll() {
-      // Cambia la propiedad "scrolled" dependiendo de si el scroll es mayor a 60px
       this.scrolled = window.scrollY > 60;
     },
     logout() {
-      // Método para cerrar sesión
-      localStorage.removeItem('token'); // Elimina el token del almacenamiento local
+      // Elimina el token del almacenamiento local
+      localStorage.removeItem('token');
       this.isAuthenticated = false; // Actualiza el estado de autenticación
-      this.$router.push('/'); // Redirigir a la página de inicio
+      // Redirige al inicio para forzar una actualización de la vista
+      this.$router.push('/');
     },
   },
   mounted() {
-    // Agrega el evento de scroll cuando el componente se monta
     window.addEventListener('scroll', this.handleScroll);
-
-    // Verificar el estado de autenticación al montar el componente
     this.isAuthenticated = !!localStorage.getItem('token');
   },
   beforeUnmount() {
-    // Elimina el evento de scroll cuando el componente se desmonta
     window.removeEventListener('scroll', this.handleScroll);
   },
 };
 </script>
 
-
-
 <style scoped>
 .header {
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
-  /* Degradado de arriba abajo */
   transition: background-color 0.3s ease;
-  /* Transición suave */
   color: white;
   padding: 20px;
-  /* Aumenta el padding para hacer el encabezado más alto */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -107,12 +104,10 @@ export default {
   right: 0;
   z-index: 1000;
   height: 70px;
-  /* Establece una altura fija si es necesario */
 }
 
 .header.scrolled {
   background-color: rgba(18, 18, 18, 0.9);
-  /* Fondo completamente opaco cuando se desplaza */
 }
 .header.opaque {
   background-color: rgba(18, 18, 18, 1); /* Completamente opaco */
@@ -123,46 +118,9 @@ export default {
   width: auto;
 }
 
-.search-bar {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-  justify-content: center;
-  margin: 0 20px;
-
-}
-
-.search-bar input {
-  background-color: rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  width: 300px;
-}
-
-.search-bar input::placeholder {
-  color: white;
-  /* Cambia este color al que desees para el placeholder */
-  opacity: 0.7;
-  /* Opcional: Cambia la opacidad del placeholder */
-}
-
-.search-bar button {
-  padding: 10px 15px;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  margin-left: 5px;
-  cursor: pointer;
-  margin-right: 240px;
-}
-
 .auth-buttons {
   display: flex;
   gap: 10px;
-  /* Añade espacio entre los botones */
 }
 
 .sign-up,
@@ -176,21 +134,24 @@ export default {
   cursor: pointer;
 }
 
+.profile-image {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%; /* Hace que la imagen sea circular */
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-right: 20px;
+}
+
+.profile-image:hover {
+  transform: scale(1.1); /* Aumenta el tamaño ligeramente al pasar el cursor */
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Añade un efecto de sombra */
+}
+
 .sign-up:hover,
 .login:hover,
 .logout:hover,
 .all-movies:hover {
   background-color: rgba(255, 255, 255, 0.4);
-}
-
-.all-movies {
-  padding: 10px 15px;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: 150px;
-  /* Añadir margen solo al botón */
 }
 </style>
