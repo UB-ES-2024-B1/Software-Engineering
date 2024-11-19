@@ -51,14 +51,26 @@
                 </div>
             </section>
             
-            
             <div class="main-container">
                 <!-- Itera sobre las filas de películas (5 por fila) -->
                 <div v-for="(row, index) in sortedMovies" :key="index" class="inner-container">
                     <!-- Mostrar cada película en una fila -->
                     <div v-for="movie in row" :key="movie.id" class="movie-item">
                         <!-- Imagen de la película -->
-                        <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                        <div class="movie-poster-wrapper">
+                            <!-- Contenedor para el rating y los likes -->
+                            <div class="rating-likes-inline">
+                                <div class="rating">
+                                    <img src="@/assets/star.png" alt="Rating star" class="icon" />
+                                    <span>{{ movie.rating }}</span>
+                                </div>
+                                <div class="likes">
+                                    <img src="@/assets/like.png" alt="Like icon" class="icon" />
+                                    <span>{{ movie.likes }}</span>
+                                </div>
+                            </div>
+                            <img :src="movie.smallImage" :alt="movie.title" class="movie-poster" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -73,6 +85,8 @@
         </footer>
     </div>
 </template>
+
+
 
 <script>
     import HeaderPage from '@/components/HeaderPage.vue'; // Importa el componente HeaderPage
@@ -272,7 +286,7 @@
     width: calc(100% - 200px); /* Ancho total menos la barra vertical */
     height: 115px;
     z-index: 999; /* Asegura que esté sobre el contenido, pero debajo del header */
-    background-color: rgba(255, 0, 0, 0.5);
+    background-color: #121212;
     color: #fff;
     padding: 10px 20px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
@@ -284,17 +298,18 @@
 }
 
 .dropdown-button {
-    background-color: #444;
+    background-color: rgba(255, 255, 255, 0.1);
+    width: 100%;
     color: white;
     border: none;
     border-radius: 4px;
     padding: 8px 12px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 16px;    
     transition: background-color 0.3s ease;
 }
 .dropdown-button:hover {
-    background-color: #555;
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .dropdown-menu {
@@ -375,15 +390,16 @@ button {
     padding: 10px;
     margin-bottom: 10px;
     font-size: 16px;
-    background-color: #007bff;
+    background-color: rgba(255, 255, 255, 0.1);
     color: white;
     border: none;
     cursor: pointer;
     text-align: center;
+    border-radius: 5px;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: rgba(255, 255, 255, 0.2);
 }
 /* Contenedor principal que organiza las filas */
 .main-container {
@@ -394,10 +410,10 @@ button:hover {
     flex: 1;
     overflow-y: auto;
     box-sizing: border-box;
-    margin-left: 220px; /* Deja espacio para la barra vertical de 200px más el padding */
+    margin-left: 200px; /* Deja espacio para la barra vertical de 200px más el padding */
     margin-top: 185px;  /* Deja espacio para el header */
     width: 100%;  /* Ajusta el ancho disponible después de la barra vertical */
-    background-color: rgb(0,255,0,0.5);
+    background-color: #121212;
 }
 
 /* Estilo para las filas de películas */
@@ -408,7 +424,6 @@ button:hover {
   flex-wrap: wrap;  /* Ajustar las películas en múltiples filas si es necesario */
   width: 100%;  /* Asegura que las filas ocupen todo el ancho disponible */
   height: 300px;
-  background-color: rgb(255,0,0,0.5);
 }
 
 /* Estilo para cada película dentro de la fila */
@@ -420,21 +435,21 @@ button:hover {
   justify-content: center;
   align-items: center;
   border-radius: 20px;  /* Bordes redondeados de cada película */
+  transition: transform 0.3s ease;
   background-color: rgb(0,0,255,0.5);
 }
 
 /* Estilo para las imágenes de las películas */
 .movie-poster {
   width: 100%;  /* La imagen ocupa el 100% del espacio disponible */
-  height: auto;  /* Mantener la proporción de la imagen */
-  border-radius: 8px;  /* Bordes redondeados para las imágenes */
+  height: 300px;  /* Mantener la proporción de la imagen */
+  border-radius: 20px;
   object-fit: cover;  /* Hace que la imagen se recorte bien si es necesario */
-  transition: transform 0.3s ease; /* Efecto de transición al pasar el mouse */
-  opacity: 0;
+  opacity: 1;
 }
 
 /* Efecto de hover sobre las imágenes */
-.movie-item:hover .movie-poster {
+.movie-item:hover {
   transform: scale(1.05); /* Aumenta ligeramente el tamaño de la imagen cuando se pasa el ratón por encima */
 }
 
@@ -452,7 +467,7 @@ button:hover {
 .container-wrapper {
   display: flex;
   flex: 1; /* Ocupa el resto del espacio después del header */
-  background-color: rgb(255,255,0, 0.5);
+  background-color: #161616;
 }
 
 .footer {
@@ -462,6 +477,46 @@ button:hover {
   padding: 20px;
   z-index: 5;
 }
+
+
+/* Contenedor de cada película */
+.movie-poster-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Contenedor de rating y likes en una línea */
+.rating-likes-inline {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 10px;
+  display: flex; /* Cambiado para alinear en línea */
+  gap: 10px; /* Espacio entre el rating y los likes */
+  align-items: center; /* Asegura que estén alineados verticalmente */
+  z-index: 10; /* Asegura que esté sobre la imagen */
+}
+
+/* Estilo para el rating y los likes */
+.rating-likes-inline .rating,
+.rating-likes-inline .likes {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Espacio entre el ícono y el texto */
+}
+
+/* Iconos dentro de rating y likes */
+.rating-likes-inline .icon {
+  width: 16px; /* Tamaño del icono */
+  height: 16px;
+  object-fit: contain;
+}
+
+
 
 </style>
 

@@ -169,7 +169,8 @@ export default {
 
 .sign-up:hover,
 .login:hover,
-.logout:hover {
+.logout:hover,
+.all-movies:hover {
   background-color: rgba(255, 255, 255, 0.4);
 }
 
