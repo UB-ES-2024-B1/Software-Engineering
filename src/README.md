@@ -183,4 +183,4 @@ For Windows:
     sudo npm run serve
     ```
 
-Now, you should have both the backend running at http://localhost:8000 and the frontend running at http://localhost:8080 on your local machine.
+Now, you should have both the backend running at http://localhost:8000 and the frontend running at http://localhost:8080 on your local machine...
