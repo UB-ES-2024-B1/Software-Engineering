@@ -1,4 +1,4 @@
-name: Main 1 Workflow
+name: Main Workflow
 
 on:
   push:
@@ -40,8 +40,8 @@ jobs:
           source venv/bin/activate
           python -m pytest
 
-  frontend-setup:
-    name: Frontend Setup and Build
+  frontend-setup-and-deploy:
+    name: Frontend Setup, Build, and Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -61,3 +61,9 @@ jobs:
         run: |
           cd src/filmHub
           npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: src/filmHub/dist
