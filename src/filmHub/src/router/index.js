@@ -4,6 +4,8 @@ import UserRegister from '../views/UserRegister.vue';
 import UserLogin from '../views/UserLogin.vue'; // Importa el componente de login
 import AllMovies from '@/views/AllMovies.vue';
 
+import AddMovies from '../views/AddMovies.vue'; // Importa el componente de login
+
 const routes = [
   {
     path: '/',
@@ -21,9 +23,14 @@ const routes = [
     component: UserLogin,
   },
   {
+
     path: '/movies', 
     name: 'AllMovies',
     component: AllMovies,
+    path: '/addMovies', // Nueva ruta para el login
+    name: 'AddMovies',
+    component: AddMovies,
+
   },
 ];
 

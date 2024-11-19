@@ -47,6 +47,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install passlib
     pip install bcrypt
     pip install python-jose
+    pip install requests
     ```
 
     For Mac:
@@ -60,6 +61,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install passlib
     pip install bcrypt
     pip install python-jose
+    pip install requests
     ```
 
 5. **Sep up for Alembic (databases)**:
@@ -121,12 +123,14 @@ This project consists of two main parts: the **backend** developed with **FastAP
     ```bash
     npm install
     npm install axios
+    npm install flatpickr
     ```
 
     For Mac:
     ```bash
     sudo npm install
     sudo npm install axios
+    sudo npm install flatpickr
     ```
 
 4. **Run the frontend server**:
@@ -183,4 +187,4 @@ For Windows:
     sudo npm run serve
     ```
 
-Now, you should have both the backend running at http://localhost:8000 and the frontend running at http://localhost:8080 on your local machine.
+Now, you should have both the backend running at http://localhost:8000 and the frontend running at http://localhost:8080 on your local machine...
