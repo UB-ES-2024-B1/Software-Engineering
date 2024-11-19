@@ -8,7 +8,7 @@
                 <h3>Order by:</h3>
                 <!-- Botones para ordenar por Rating, Year y Popularity -->
                 <button @click="applySorting('rating')">Rating</button>
-                <button @click="applySorting('year')">Year</button>
+                <button @click="applySorting('year', true)">Year</button>
                 <button @click="applySorting('popularity')">Popularity</button>
             </section>
 
@@ -189,9 +189,13 @@
             },
 
             // Método para aplicar el filtro según el criterio de ordenacion
-            async applySorting(criteria) {
+            async applySorting(criteria, resetSelectedYear = false) {
                 try {
                     let url;
+
+                    if (resetSelectedYear) {
+                        this.selectedYear = ""; // Reinicia el año seleccionado
+                    }
 
                     if (criteria === "rating") {
                         url = `${API_BASE_URL}/movies/sorted/rating/`;
