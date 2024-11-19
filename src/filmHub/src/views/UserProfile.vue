@@ -33,9 +33,16 @@
           </div>
 
           <!-- Botón de modificar -->
-          <router-link to="/edit">
-            <button class="modify-btn">Modify</button>
-          </router-link>
+          <div class="button-group">
+            <router-link to="/edit">
+              <button class="modify-btn">Modify</button>
+            </router-link>
+            <span class="button-spacing"></span>
+            <router-link to="/addMovies">
+              <button class="add-movies-btn">Add Movies</button>
+            </router-link>
+          </div>
+
         </div>
 
         <div v-else class="loading-message">
@@ -51,48 +58,48 @@
 </template>
 
 <script>
-  import HeaderPage from '@/components/HeaderPage.vue';
-  import axios from 'axios';
-  import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
-  
-  export default {
-    name: 'UserProfile',
-    components: {
-      HeaderPage,
-    },
-    data() {
-      return {
-        userData: null,
-        error: null,
-        profileImage: '@/assets/default_profile.jpg',
-      };
-    },
-    created() {
-      const userEmail = localStorage.getItem('userEmail');
-      if (!userEmail) {
-        this.$router.push('/login');
-        return;
-      }
-  
-      // Solicitar datos del usuario
-      axios
-        .get(`${API_BASE_URL}/users/email/${userEmail}`)
-        .then((response) => {
-          this.userData = response.data;
-        })
-        .catch((error) => {
-          console.error('Error al obtener los datos del usuario:', error);
-          this.error = 'Error fetching user data. Please try again.';
-        });
-    },
-    methods: {
-      // Redirigir a la página de edición
-    },
-  };
-  </script>
-  
+import HeaderPage from '@/components/HeaderPage.vue';
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
-  
+export default {
+  name: 'UserProfile',
+  components: {
+    HeaderPage,
+  },
+  data() {
+    return {
+      userData: null,
+      error: null,
+      profileImage: '@/assets/default_profile.jpg',
+    };
+  },
+  created() {
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) {
+      this.$router.push('/login');
+      return;
+    }
+
+    // Solicitar datos del usuario
+    axios
+      .get(`${API_BASE_URL}/users/email/${userEmail}`)
+      .then((response) => {
+        this.userData = response.data;
+      })
+      .catch((error) => {
+        console.error('Error al obtener los datos del usuario:', error);
+        this.error = 'Error fetching user data. Please try again.';
+      });
+  },
+  methods: {
+    // Redirigir a la página de edición
+  },
+};
+</script>
+
+
+
 <style scoped>
 /* Estilo general de la página */
 .profile-page {
@@ -187,7 +194,8 @@
 }
 
 .profile-info p {
-  margin-bottom: 60px; /* Espaciado entre cada línea */
+  margin-bottom: 60px;
+  /* Espaciado entre cada línea */
   font-size: 18px;
   line-height: 1.5;
 }
@@ -198,16 +206,19 @@
 }
 
 .profile-info span {
-  display: block; /* Fuerza a que el contenido esté en una nueva línea */
-  color: #dcdcdc; /* Ajusta el color si es necesario */
-  font-size: 16px; /* Asegúrate de que tenga un buen tamaño */
+  display: block;
+  /* Fuerza a que el contenido esté en una nueva línea */
+  color: #dcdcdc;
+  /* Ajusta el color si es necesario */
+  font-size: 16px;
+  /* Asegúrate de que tenga un buen tamaño */
 }
 
 
 /* Footer básico */
 .footer {
   background-color: #121212;
-  color: #fff;  
+  color: #fff;
   padding: 10px;
   text-align: center;
   position: absolute;
@@ -233,5 +244,6 @@
 .modify-btn:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
 
 </style>
