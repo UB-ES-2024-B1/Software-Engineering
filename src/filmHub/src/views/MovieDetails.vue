@@ -270,7 +270,7 @@
         try {
           const response = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
           this.bannerMovie = await generateMovieObject(response.data);
-          console.log("hefhof", bannerMovie)
+          console.log("hefhof", this.bannerMovie)
         } catch (error) {
           console.error('Error retrieving banner movie:', error);
         }
@@ -279,7 +279,7 @@
         try {
           const response = await axios.get(`${API_BASE_URL}/movies/${id}`);
           this.bannerMovie = await generateMovieObject(response.data);
-          console.log("hefhof", bannerMovie)
+          console.log("hefhof", this.bannerMovie)
         } catch (error) {
           console.error('Error retrieving banner movie:', error);
         }
