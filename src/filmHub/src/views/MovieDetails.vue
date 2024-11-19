@@ -228,7 +228,7 @@
       return require(`@/assets/${image}`);
     }
   }
-  
+
   async function generateMovieObject(movieData) {
     return {
       id: movieData.id,
@@ -288,43 +288,66 @@
       // Método para obtener los géneros de una película a partir de sus genre_ids
       getMovieGenres() {
         if (!this.bannerMovie || !this.genresList) return [];
-        
         return this.bannerMovie.genre_ids.map(id => {
           const genre = this.genresList.find(g => g.id === id);
           return genre ? genre.name : 'Unknown Genre'; // Si no se encuentra el género, mostramos 'Unknown Genre'
         });
       },
-      
-      async fetchMovies(start, end, movies_section) {
+
+      async fetchMovies(start, end, movies_section, movieTitle) {
         try {
-          const url =
-            movies_section === 1
-              ? `${API_BASE_URL}/movies/sorted/likes/`
-              : `${API_BASE_URL}/movies/sorted/likes/`;
+          // Asegúrate de que movieTitle esté correctamente codificado para la URL
+          const encodedTitle = encodeURIComponent(movieTitle);
+          const url = `${API_BASE_URL}/movies/sorted/related_movies/${encodedTitle}`;
+          console.log(`Fetching related movies for title: ${encodedTitle}`); // Depuración
+
           const movieObjects = [];
           const response = await axios.get(url);
+
+          // Verifica que haya películas en la respuesta
+          if (!response.data || response.data.length === 0) {
+            console.log('No related movies found.');
+            return;
+          }
+
+          // Cortamos los resultados según el rango start-end
           const movies = response.data.slice(start, end);
+
+          // Procesamos las películas obtenidas
           for (const movieData of movies) {
             const movieObject = movies_section === 1
               ? await generateMovieObject(movieData)
               : await generateRecentMovieObject(movieData);
             movieObjects.push(movieObject);
           }
+
+          // Asignamos las películas procesadas a la lista correspondiente
           if (movies_section === 1) {
             this.movies = movieObjects;
           } else {
             this.relatedMovies = movieObjects;
           }
+
         } catch (error) {
-          console.error('Error retrieving movies:', error);
+          console.error('Error retrieving related movies:', error);
         }
       },
     },
     created() {
       const movieId = this.$route.params.id; // ID de la película desde la URL
-      this.fetchBannerMovie(movieId); // Carga la película para el banner
+      this.fetchBannerMovie(movieId)  // Carga la película para el banner
+        .then(() => {
+          // Asegúrate de que bannerMovie se haya cargado correctamente antes de hacer la siguiente llamada
+          if (this.bannerMovie) {
+            const movieTitle = this.bannerMovie.title; // Obtén el título de la película
+            console.log('Movie title to fetch related movies:', movieTitle); // Verifica el título
+            this.fetchMovies(0, 50, 2, movieTitle); // Pasa el título de la película a fetchMovies
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching banner movie:', error);
+        });
       this.fetchGenres(); // Carga la lista de géneros
-      this.fetchMovies(0, 50, 2); // Carga las películas mejor valoradas
     },
     computed: {
       // Computed para obtener los géneros de la película
@@ -661,6 +684,7 @@ body {
   bottom: 25px;
   right: 150px;
   z-index: 10; 
+  opacity: 0;
 }
 
 .radio {
@@ -797,6 +821,7 @@ body {
   z-index: 10;
   bottom: 23px;
   left: 1400px;
+  opacity: 0;
 }
 
 .checkmark {
