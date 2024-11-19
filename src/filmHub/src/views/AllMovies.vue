@@ -11,6 +11,45 @@
                 <button @click="applySorting('year')">Year</button>
                 <button @click="applySorting('popularity')">Popularity</button>
             </section>
+
+            <section class="horizontal-bar">
+                <!-- Botón desplegable para "Genre" -->
+                <div class="dropdown">
+                    <button class="dropdown-button" @click="toggleDropdown('genre')">Genre</button>
+                    <ul v-show="dropdowns.genre" class="dropdown-menu">
+                        <li
+                        v-for="genre in paginatedGenres"
+                        :key="genre.id"
+                        @click="selectGenre(genre.type)"
+                        class="dropdown-item"
+                        >
+                        {{ genre.type }}
+                        </li>
+                        <li v-if="canShowMoreGenres" @click="nextGenrePage()" class="dropdown-more">
+                        Show more...
+                        </li>
+                        <li v-if="canShowLessGenres" @click="previousGenrePage()" class="dropdown-more">
+                        Show previous...
+                        </li>
+                    </ul>
+                </div>
+
+
+                <!-- Botón desplegable para "Year Release" -->
+                <div class="dropdown">
+                <button class="dropdown-button" @click="toggleDropdown('year')">Year Release</button>
+                <ul v-show="dropdowns.year" class="dropdown-menu">
+                    <li
+                    v-for="year in years"
+                    :key="year"
+                    @click="selectYear(year)"
+                    class="dropdown-item"
+                    >
+                    {{ year }}
+                    </li>
+                </ul>
+                </div>
+            </section>
             
             
             <div class="main-container">
@@ -44,10 +83,18 @@
         // Comprobar si la imagen es una URL
         if (image && image.startsWith('http')) {
             return image; // Retorna la URL tal cual
-        } else {
+        } else if(image){
             // Retorna la ruta de la imagen en assets
-            return require(`@/assets/${image}`);
-        }
+            try {
+                return require(`@/assets/${image}`);
+            } catch (error) {
+                console.error(`Error loading local image: ${image}`, error);
+                return ''; // Retorna una cadena vacía en caso de error
+            }
+        }else {
+            console.warn('No image provided');
+            return ''; // Retorna una cadena vacía si no hay imagen
+    }
     }
 
     async function generateMovieObject(movieData) {
@@ -72,56 +119,104 @@
         data() {
             return{
                 sortedMovies: [],
+                dropdowns: {genre: false,year: false,},
+                genres: [], // Géneros obtenidos del backend
+                currentGenrePage: 0,
+                genresPerPage: 5,
+                years: Array.from({ length: 2024 - 2007 + 1 }, (_, i) => 2007 + i),
+                selectedGenre: '', // Almacena el género seleccionado
+                selectedYear: '', // Almacena el año seleccionado
             }
+        },computed: {
+            paginatedGenres() {
+                const start = this.currentGenrePage * this.genresPerPage;
+                const end = start + this.genresPerPage;
+                return this.genres.slice(start, end);
+            },
+            canShowMoreGenres() {
+                return (this.currentGenrePage + 1) * this.genresPerPage < this.genres.length;
+            },
+            canShowLessGenres() {
+                return this.currentGenrePage > 0;
+            },
         },
+
         methods:{
+            async fetchGenres(){
+                try {
+                    const url = `${API_BASE_URL}/genres/`; // Endpoint del backend para obtener géneros
+                    const response = await axios.get(url);
+                    this.genres = response.data; // El backend retorna un array de géneros
+                    console.log("Fetched genres:", this.genres);
+                } catch (error) {
+                    console.error("Error fetching genres:", error);
+                }
+            },
+            toggleDropdown(type) {
+                this.dropdowns[type] = !this.dropdowns[type];
+            },
+            selectGenre(genre) {
+                console.log(`Selected genre: ${genre}`);
+                this.selectedGenre = genre; // Guarda el género seleccionado
+                this.dropdowns.genre = false; // Cierra el desplegable
+                this.applySorting('genre'); // Aplica el filtro por género
+            },
+            selectYear(year) {
+                console.log(`Selected year: ${year}`);
+                this.selectedYear = year; // Guarda el año seleccionado
+                this.dropdowns.year = false; // Cierra el desplegable
+                this.applySorting('year'); // Aplica el filtro por año
+            },
+            nextGenrePage() {
+                if (this.canShowMoreGenres) this.currentGenrePage++;
+            },
+            previousGenrePage() {
+                if (this.canShowLessGenres) this.currentGenrePage--;
+            },
+
             // Método para aplicar el filtro según el criterio de ordenacion
             async applySorting(criteria) {
-                try{
-                    // Reiniciar la lista filtrada a las películas iniciales
-                    
+                try {
                     let url;
 
-                    // Aplicar el filtro basado en el criterio
                     if (criteria === "rating") {
-                        url = `${API_BASE_URL}/movies/sorted/rating/`;// Endpoint para ordenar por Rating
+                        url = `${API_BASE_URL}/movies/sorted/rating/`;
                     } else if (criteria === "year") {
-                        url = `${API_BASE_URL}/movies/sorted/release_date/`; //Endpoint para ordenar por Year
+                        if (this.selectedYear) {
+                            url = `${API_BASE_URL}/movies/release/${this.selectedYear}`;
+                        } else {
+                            url = `${API_BASE_URL}/movies/sorted/release_date/`;
+                        }
                     } else if (criteria === "popularity") {
-                        url = `${API_BASE_URL}/movies/sorted/likes/`; // Endpoint para ordenar por Popularity
-                    } else if (criteria === "search"){
-                        const searchQuery = this.$route.query.search; // Obtén el término de búsqueda de la URL
-                        console.log("Search query detected(searchQuery):", searchQuery);
+                        url = `${API_BASE_URL}/movies/sorted/likes/`;
+                    } else if (criteria === "search") {
+                        const searchQuery = this.$route.query.search;
                         if (!searchQuery) {
                             console.error("No search query provided!");
                             return;
-                        }url = `${API_BASE_URL}/movies/search/name/${searchQuery}`; //Endpoint de búsqueda
-                        console.log("Search query detected(url):", url);
+                        }
+                        url = `${API_BASE_URL}/movies/search/name/${searchQuery}`;
+                    } else if (criteria === "genre" && this.selectedGenre) {
+                        url = `${API_BASE_URL}/movies/genre/${this.selectedGenre}`;
+                    } else {
+                        url = `${API_BASE_URL}/movies/`;
                     }
 
-                    // Realizar la solicitud a la API
                     const response = await axios.get(url);
-
-                    //Obtener películas ordenadas
                     const movies = response.data;
-                    console.log("Resposne form search endpoint(respoonse.data):", response.data);
 
-                    // Procesar las películas para construir objetos compatibles
                     const processedMovies = await Promise.all(
                         movies.map(async (movieData) => {
-                            return await generateMovieObject(movieData); // Reutiliza tu función para procesar películas
+                            return await generateMovieObject(movieData);
                         })
                     );
 
-                     // Dividir las películas en filas de 5
-                    this.sortedMovies = this.chunkMovies(processedMovies, 5); // Llamada a la función que divide las películas en filas de 5
+                    this.sortedMovies = this.chunkMovies(processedMovies, 5);
 
                     console.log(`Movies filtered by ${criteria}:`, this.sortedMovies);
-                
-                }catch (error) {
+                } catch (error) {
                     console.error("Error retrieving movies:", error);
                 }
-                
             },
 
             // Función auxiliar para dividir el array en filas de 5
@@ -134,12 +229,15 @@
             },
 
         },
-        mounted() {
-            // Detecta si hay un término de búsqueda al cargar la página
+        async mounted() {
+            // Detecta si hay un término de búsqueda al cargar la página sino muestra odas las pelis sin ningun orden especifico
             const searchQuery = this.$route.query.search;
             if (searchQuery) {
                 this.applySorting("search");
+            }else{
+                this.applySorting("");
             }
+            await this.fetchGenres(); // Cargar géneros al montar el componente
         },
         //Mounted solo se ejecuta cuandoe l componente se monta por primera vez
         //Mejor usar watcher o beforeRouterUpdate, para reaccionar a los cambios de la url y ejecutar el codigo de búsqueda cada vez que el parámetro search cambia
@@ -147,6 +245,8 @@
             const searchQuery = to.query.search;
             if (searchQuery) {
                 this.applySorting("search");
+            }else{
+                this.applySorting("");//Si se aprieta el boton allMove se recarga la pagina con la informacion inicial
             }
             next(); //llamar a next() para que la navegación continúe
         },
@@ -164,6 +264,84 @@
 
 
 <style scoped>
+
+.horizontal-bar {
+    position: fixed;
+    top: 70px; /* Justo debajo del header */
+    left: 200px; /* Ajuste después de la barra vertical */
+    width: calc(100% - 200px); /* Ancho total menos la barra vertical */
+    z-index: 999; /* Asegura que esté sobre el contenido, pero debajo del header */
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown {
+    position: relative; /* Para posicionar el menú desplegable */
+    margin: 0 10px;
+}
+
+.dropdown-button {
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+.dropdown-button:hover {
+    background-color: #555;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%; /* Muestra el menú debajo del botón */
+    left: 0;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    margin-top: 5px;
+    z-index: 1000;
+    list-style: none;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column; /* Alinea los elementos verticalmente */
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-more {
+    text-align: center;
+    font-style: italic;
+    color: #888;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .horizontal-bar {
+        flex-direction: column; /* Acomoda los elementos en una columna en pantallas pequeñas */
+        align-items: flex-start;
+    }
+
+    .dropdown {
+        margin-bottom: 10px; /* Espaciado entre los botones desplegables */
+    }
+}
+
 
 .movie-list-container {
   display: flex;
@@ -248,19 +426,20 @@ button:hover {
 }
 /* Contenedor principal que organiza las filas */
 .main-container {
-    display: flex;
-    flex-direction: column; /* Apilar las filas de manera vertical */
-    gap: 20px;  /* Espacio entre las filas */
+    margin-top: 200px; /* 70px del header + 50px de la barra horizontal */
+    margin-left: 220px; /* 200px de la barra vertical + 20px extra */
     padding: 20px;
-    flex: 1;
+    width: calc(100% - 220px); /* Ancho restante después de la barra vertical */
+    height: calc(100vh - 120px); /* Altura restante después del header y la barra horizontal */
     overflow-y: auto;
+
     box-sizing: border-box;
     margin-left: 220px; /* Deja espacio para la barra vertical de 200px más el padding */
     margin-top: 70px;  /* Deja espacio para el header */
     width: 100%;  /* Ajusta el ancho disponible después de la barra vertical */
     background-color: rgb(0,255,0,0.5);
-}
 
+}
 /* Estilo para las filas de películas */
 .inner-container {
   display: flex; 
@@ -270,13 +449,14 @@ button:hover {
   width: 100%;  /* Asegura que las filas ocupen todo el ancho disponible */
   height: 300px;
   background-color: rgb(255,0,0,0.5);
+
 }
 
 /* Estilo para cada película dentro de la fila */
 .movie-item {
   width: 200px;  /* Cada película ocupa el 18% del ancho del contenedor (5 películas por fila) */
   box-sizing: border-box;
-  position: relative;  /* Permite ajustar el contenido de la película */
+  position: relative; /* Permite ajustar el contenido de la película */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -286,10 +466,10 @@ button:hover {
 
 /* Estilo para las imágenes de las películas */
 .movie-poster {
-  width: 100%;  /* La imagen ocupa el 100% del espacio disponible */
-  height: auto;  /* Mantener la proporción de la imagen */
-  border-radius: 8px;  /* Bordes redondeados para las imágenes */
-  object-fit: cover;  /* Hace que la imagen se recorte bien si es necesario */
+  width:calc(20% - 10px); /* 5 elementos por fila con espacio entre ellos */ /* La imagen ocupa el 100% del espacio disponible */
+  height: auto; /* Mantener la proporción de la imagen */
+  border-radius: 8px; /* Bordes redondeados para las imágenes */
+  object-fit: cover; /* Hace que la imagen se recorte bien si es necesario */
   transition: transform 0.3s ease; /* Efecto de transición al pasar el mouse */
   opacity: 0;
 }
@@ -308,7 +488,6 @@ button:hover {
   flex-direction: column; /* El header se coloca en la parte superior, el contenido debajo */
   
 }
-
 
 .container-wrapper {
   display: flex;
