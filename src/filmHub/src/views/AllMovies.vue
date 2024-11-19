@@ -169,6 +169,7 @@
   display: flex;
   justify-content: flex-start;
   margin-top: 20px;
+  background-color: #161616;
 }
 
 .movie-list {
@@ -181,11 +182,13 @@
   display: flex;
   justify-content: flex-start;
   gap: 20px;
+  
 }
 
 .movie-item {
   width: 18%;
   text-align: center;
+  
 }
 
 .movie-item img {
@@ -193,6 +196,7 @@
   height: auto;
   border-radius: 5px;
   cursor: pointer;
+  
 }
 
 .movie-item img:hover {
@@ -207,7 +211,7 @@
   top: 70px; /* Altura del header */
   left: 0;
   width: 200px;
-  height: calc(100vh - 70px); /* Altura total menos el header */
+  height: 100vh; /* Altura total menos el header */
   background-color: #f8f9fa; /* Fondo claro */
   padding: 20px;
   border-right: 1px solid #ccc; /* Línea vertical separadora */
@@ -216,12 +220,13 @@
   flex-direction: column;
   gap: 20px; /* Espaciado entre elementos */
   transition: width 0.3s ease;
+  background-color: #121212;
 }
 
 .vertical-bar h3 {
   margin: 0;
   font-size: 18px;
-  color: #333;
+  color: white;
   border-bottom: 1px solid #ccc;
   padding-bottom: 10px;
 }
@@ -251,9 +256,9 @@ button:hover {
     overflow-y: auto;
     box-sizing: border-box;
     margin-left: 220px; /* Deja espacio para la barra vertical de 200px más el padding */
-    margin-top: 90px;  /* Deja espacio para el header */
-    width: calc(100% - 220px);  /* Ajusta el ancho disponible después de la barra vertical */
-    height: calc
+    margin-top: 70px;  /* Deja espacio para el header */
+    width: 100%;  /* Ajusta el ancho disponible después de la barra vertical */
+    background-color: rgb(0,255,0,0.5);
 }
 
 /* Estilo para las filas de películas */
@@ -263,16 +268,20 @@ button:hover {
   gap: 10px;  /* Espacio entre cada película */
   flex-wrap: wrap;  /* Ajustar las películas en múltiples filas si es necesario */
   width: 100%;  /* Asegura que las filas ocupen todo el ancho disponible */
+  height: 300px;
+  background-color: rgb(255,0,0,0.5);
 }
 
 /* Estilo para cada película dentro de la fila */
 .movie-item {
-  width: 18%;  /* Cada película ocupa el 18% del ancho del contenedor (5 películas por fila) */
+  width: 200px;  /* Cada película ocupa el 18% del ancho del contenedor (5 películas por fila) */
   box-sizing: border-box;
   position: relative;  /* Permite ajustar el contenido de la película */
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 20px;  /* Bordes redondeados de cada película */
+  background-color: rgb(0,0,255,0.5);
 }
 
 /* Estilo para las imágenes de las películas */
@@ -282,18 +291,12 @@ button:hover {
   border-radius: 8px;  /* Bordes redondeados para las imágenes */
   object-fit: cover;  /* Hace que la imagen se recorte bien si es necesario */
   transition: transform 0.3s ease; /* Efecto de transición al pasar el mouse */
+  opacity: 0;
 }
 
 /* Efecto de hover sobre las imágenes */
 .movie-item:hover .movie-poster {
   transform: scale(1.05); /* Aumenta ligeramente el tamaño de la imagen cuando se pasa el ratón por encima */
-}
-
-/* Añadir un borde sutil a las imágenes de las películas */
-.movie-item {
-  border-radius: 10px;  /* Bordes redondeados de cada película */
-  overflow: hidden;  /* Asegura que el contenido de la película no se desborde */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave alrededor de cada película */
 }
 
 
@@ -303,11 +306,14 @@ button:hover {
   height: 100vh;
   display: flex;
   flex-direction: column; /* El header se coloca en la parte superior, el contenido debajo */
+  
 }
+
+
 .container-wrapper {
   display: flex;
   flex: 1; /* Ocupa el resto del espacio después del header */
-  
+  background-color: rgb(255,255,0, 0.5);
 }
 
 .footer {
@@ -315,6 +321,7 @@ button:hover {
   color: white;
   text-align: center;
   padding: 20px;
+  z-index: 5;
 }
 
 
