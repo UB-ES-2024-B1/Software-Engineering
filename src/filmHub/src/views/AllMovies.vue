@@ -7,9 +7,11 @@
             <section class="vertical-bar">
                 <h3>Order by:</h3>
                 <!-- Botones para ordenar por Rating, Year y Popularity -->
+
                 <button @click="applySorting('rating')">Rating</button>
                 <button @click="applySorting('year', true)">Year</button>
                 <button @click="applySorting('popularity')">Popularity</button>
+
             </section>
 
             <section class="horizontal-bar">
@@ -250,8 +252,14 @@
         async mounted() {
             // Detecta si hay un término de búsqueda al cargar la página sino muestra todas las pelis sin ningun orden especifico
             const searchQuery = this.$route.query.search;
+            const sortByYear = this.$route.query.sortByYear;
+            const sortByRate = this.$route.query.sortByRate;
             if (searchQuery) {
                 this.applySorting("search");
+            }else if(sortByYear){
+                this.applySorting("year");
+            }else if(sortByRate){
+                this.applySorting("rating");
             }else{
                 this.applySorting("");
             }
@@ -261,8 +269,14 @@
         //Mejor usar watcher o beforeRouterUpdate, para reaccionar a los cambios de la url y ejecutar el codigo de búsqueda cada vez que el parámetro search cambia
         beforeRouteUpdate(to, from, next) {
             const searchQuery = to.query.search;
+            const sortByYear = this.$route.query.sortByYear;
+            const sortByRate = this.$route.query.sortByRate;
             if (searchQuery) {
                 this.applySorting("search");
+            }else if(sortByYear){
+                this.applySorting("year");
+            }else if(sortByRate){
+                this.applySorting("rating");
             }else{
                 this.applySorting("");//Si se aprieta el boton allMove se recarga la pagina con la informacion inicial
             }
@@ -275,6 +289,18 @@
                     this.applySorting("search"); // Ejecutar la búsqueda cada vez que cambie el parámetro 'search'
                 }
             },
+            '$route.query.sortByYear'(newSortByYear) {
+                if (newSortByYear) {
+                    this.applySorting("year");
+                }
+            },
+            '$route.query.sortByRate'(newSortByRate) {
+                if (newSortByRate) {
+                    this.applySorting("rating");
+                }
+            },
+
+
         },
 
     };
