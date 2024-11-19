@@ -78,7 +78,70 @@ def get_movie_by_title(movie_title: str, db: Session = Depends(get_db)):
     if movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")
     return movie
-    # return FileResponse(movie.image)
+
+# Endpoint to retrieve movies by release year
+@router.get("/release/{movie_year}", response_model=List[MovieOut])
+def get_movie_by_title(movie_year: int, db: Session = Depends(get_db)):
+    """
+    Retrieves a list of movies by release year.
+    
+    :param movie_release: int - The release year of the movies to retrive
+    :param db: Session - Database session dependency
+    return: List[MovieOut] - A list of movies with release year
+    """
+    movie = movie_crud.get_movie_by_year(db=db, movie_year=movie_year)
+    return movie
+
+# Endpoint to retrieve movies with one genre
+@router.get("/genre/{movie_genre}", response_model=List[MovieOut])
+def get_movie_by_title(movie_genre: str, db: Session = Depends(get_db)):
+    """
+    Retrieves a list of movies taht have one specific genre
+    
+    :param movie_genre: str - Genre that we want in the movies to retrive
+    :param db: Session - Database session dependency
+    return: List[MovieOut] - A list of movies with release year
+    """
+    if not movie_crud.is_valid_genre(db, movie_genre):
+        raise HTTPException(status_code=404, detail="Genre not found")
+
+    movie = movie_crud.get_movie_by_genre(db=db, movie_genre=movie_genre)
+    return movie
+
+# Endpoint to retrieve movies with multiple genre
+@router.get("/genre/list/{movie_genre_list}", response_model=List[MovieOut])
+def get_movie_by_title(movie_genre_list: str, db: Session = Depends(get_db)):
+    """
+    Retrieves a list of movies taht have more than one specific genre
+    
+    :param movie_genre: str - Genres that we want in the movies to retrive (split by ',')   
+                       Example: Action,Adventure,Science Fiction \n
+    :param db: Session - Database session dependency \n
+    return: List[MovieOut] - A list of movies with release year
+    """
+    genre_list = [genre.strip() for genre in movie_genre_list.split(",") if genre.strip()]
+
+    for genre in genre_list:
+        if not movie_crud.is_valid_genre(db, genre):
+            raise HTTPException(status_code=404, detail="Genre not found")
+
+    movie = movie_crud.get_movie_by_genre_list(db=db, genre_list=genre_list)
+    return movie
+
+# Endpoint to retrieve movies by a string of movie name given
+@router.get("/search/name/{input}", response_model=List[MovieOut])
+def get_movies_by_search(input: str, db: Session = Depends(get_db)):
+    """
+    Retrieves a list of movies that includes the input string in the movie name
+    
+    :param movie_name_string: str - input that users introduce to find out a list of movies with the same pattern 
+                       Example: barb, panda, etc \n
+    :param db: Session - Database session dependency \n
+    return: List[MovieOut] - A list of movies with that pattern included
+    """
+    # Use the function defined above to search by name pattern
+    return movie_crud.get_movies_by_input(db=db, input=input)
+
 
 # Endpoint to retrieve movies sorted by release date
 @router.get("/sorted/release_date", response_model=List[MovieOut])
