@@ -1,5 +1,5 @@
 <template>
-  <header :class="['header', { scrolled }]">
+  <header :class="['header', { scrolled, opaque: isOpaque }]">
     <div class="logo">
       <router-link to="/">
         <img :src="require('@/assets/logo.png')" alt="Logo" />
@@ -42,6 +42,12 @@
 <script>
 export default {
   name: 'HeaderPage',
+  props: {
+    isOpaque: {
+      type: Boolean,
+      default: false, // Por defecto, el header será transparente
+    },
+  },
   data() {
     return {
       searchInput: "",
@@ -107,6 +113,9 @@ export default {
 .header.scrolled {
   background-color: rgba(18, 18, 18, 0.9);
   /* Fondo completamente opaco cuando se desplaza */
+}
+.header.opaque {
+  background-color: rgba(18, 18, 18, 1); /* Completamente opaco */
 }
 
 .logo img {

@@ -1,6 +1,6 @@
 <template>
     <div class="home-page">
-        <HeaderPage /> <!-- Aquí importas y usas el componente HeaderPage -->
+        <HeaderPage :isOpaque="true" /> <!-- Aquí importas y usas el componente HeaderPage -->
         
         <div class="container-wrapper">
             <!-- Barra vertical -->
