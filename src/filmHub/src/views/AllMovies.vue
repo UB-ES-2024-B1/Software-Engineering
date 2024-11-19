@@ -248,7 +248,7 @@
 
         },
         async mounted() {
-            // Detecta si hay un término de búsqueda al cargar la página sino muestra odas las pelis sin ningun orden especifico
+            // Detecta si hay un término de búsqueda al cargar la página sino muestra todas las pelis sin ningun orden especifico
             const searchQuery = this.$route.query.search;
             if (searchQuery) {
                 this.applySorting("search");
@@ -440,7 +440,6 @@ button:hover {
   align-items: center;
   border-radius: 20px;  /* Bordes redondeados de cada película */
   transition: transform 0.3s ease;
-  background-color: rgb(0,0,255,0.5);
 }
 
 /* Estilo para las imágenes de las películas */
