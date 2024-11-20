@@ -215,7 +215,7 @@ def get_movie_by_title(movie_title: str, db: Session = Depends(get_db)):
     if movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")
     return movie
-
+    # return FileResponse(movie.image)
 # Endpoint to retrieve movies by release year
 @router.get("/release/{movie_year}", response_model=List[MovieOut])
 def get_movie_by_title(movie_year: int, db: Session = Depends(get_db)):
@@ -278,7 +278,6 @@ def get_movies_by_search(input: str, db: Session = Depends(get_db)):
     """
     # Use the function defined above to search by name pattern
     return movie_crud.get_movies_by_input(db=db, input=input)
-
 
 # Endpoint to retrieve movies sorted by release date
 @router.get("/sorted/release_date", response_model=List[MovieOut])

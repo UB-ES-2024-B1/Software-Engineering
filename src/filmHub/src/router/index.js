@@ -12,6 +12,7 @@ import AddMovies from '../views/AddMovies.vue'; // Importa el componente
 
 
 
+
 const routes = [
   {
     path: '/',

@@ -20,8 +20,6 @@
         <button>Go!</button>
       </router-link>
     </div>
-
-
     <div class="auth-buttons">
       <!-- Mostrar el botón "Sign Up" solo si el usuario NO está autenticado y no estamos en la página de registro -->
       <router-link v-if="!isAuthenticated && $route.path !== '/register'" to="/register">
@@ -67,7 +65,7 @@ export default {
       return this.$route.path === '/login' || this.$route.path === '/register';
     },
   },
-  methods: {
+  methods: {  
     handleScroll() {
       this.scrolled = window.scrollY > 60;
     },

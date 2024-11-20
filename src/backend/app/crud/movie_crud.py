@@ -3,8 +3,8 @@ from sqlmodel import Session, select
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast) 
 from typing import List
 from fastapi import File, UploadFile
-
 from sqlalchemy.sql import func, case, extract
+
 
 
 # Function to create a new movie
@@ -45,7 +45,7 @@ def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> 
     db.commit()  # Commit the transaction
     db.refresh(db_movie)  # Refresh to get the updated data
 
-    return MovieOut.model_validate(db_movie)  # Use model_validate instead of from_orm
+    return MovieOut.from_orm(db_movie)  # Use model_validate instead of from_orm
 
 # Function to get a list of movies with pagination
 def get_movies(db: Session, skip: int = 0, limit: int = 100) -> List[MovieOut]:
@@ -142,7 +142,7 @@ def update_movie(db: Session, movie_title: str, movie_data: MovieUpdate) -> Movi
     statement = select(Movie).where(Movie.title == movie_title)
     movie = db.execute(statement).scalars().first()
     if movie:
-        for key, value in movie_data.model_dump(exclude_unset=True).items():
+        for key, value in movie_data.dict(exclude_unset=True).items():
             if key not in ["genres", "cast_members"]:
                 setattr(movie, key, value)
         # Handle genres
@@ -165,7 +165,7 @@ def update_movie(db: Session, movie_title: str, movie_data: MovieUpdate) -> Movi
         db.add(movie)
         db.commit()
         db.refresh(movie)  # Refresh to get updated data
-        return MovieOut.model_validate(movie)  # Use model_validate
+        return MovieOut.from_orm(movie)  # Use model_validate
     return None  # If movie not found
 
 def update_movie_rating_by_title(db: Session, movie_title: str, new_rating: float):
@@ -227,7 +227,6 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
         return True  # Deletion successful
     return False  # Movie not found
 
-
 # Function get movie by data release
 def get_movie_by_year(db: Session, movie_year: int)-> List[MovieOut]:
     statement = select(Movie).where(extract('year', Movie.release_date) == movie_year)
@@ -263,3 +262,4 @@ def get_movies_by_input(db: Session, input: str)-> List[MovieOut]:
     # Use ILIKE for case-insensitive search for partial matches
     statement = select(Movie).where(Movie.title.ilike(f"%{input}%"))
     return db.execute(statement).scalars().all()
+

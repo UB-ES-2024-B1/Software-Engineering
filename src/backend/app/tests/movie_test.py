@@ -44,7 +44,6 @@ def test_create_movie():
     assert response_data["trailer"] == new_movie["trailer"]
 
     assert "id" in response_data
-
 # Test to create a movie
 def test_create_movie_2():
     new_movie = {
@@ -71,8 +70,6 @@ def test_create_movie_2():
 
     # Assert that the response status 
     assert response.status_code == 400
-
-
 # Test to get list of movies
 def test_get_movies():
     response = client.get("/movies/")
@@ -87,7 +84,6 @@ def test_get_movie_by_title():
 
     response_data = response.json()
     assert response_data["title"] == "The Lost City"
-
 # Test to get movie by id
 def test_get_movie_by_id():
     response = client.get("/movies/1")
@@ -97,7 +93,6 @@ def test_get_movie_by_id():
 def test_get_movie_by_id_2():
     response = client.get("/movies/-3")
     assert response.status_code == 404
-
 # Test to get movies sorted by date
 def test_get_movies_sorted_by_release_date():
     response = client.get("/movies/sorted/release_date")
@@ -176,7 +171,6 @@ def test_add_movie_like():
     response_data = response.json()    
     # Assuming likes were initially set to 5300
     assert response_data["likes"] == 5301
-
 
 
 # Test get movies by year

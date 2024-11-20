@@ -1,4 +1,4 @@
-<template>
+<template> 
     <div class="home-page">
         <HeaderPage :isOpaque="true" /> <!-- Aquí importas y usas el componente HeaderPage -->
 

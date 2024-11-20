@@ -9,4 +9,5 @@ module.exports = {
     proxy: 'http://127.0.0.1:8000', // redirige las solicitudes al backend
   },
   publicPath: process.env.NODE_ENV === 'production' ? '/Software-Engineering/' : '/',
+
 };
