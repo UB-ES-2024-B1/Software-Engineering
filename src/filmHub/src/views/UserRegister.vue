@@ -13,7 +13,7 @@
         <p v-if="passwordError" class="error-message">
           Passwords do not match. Try again.
         </p>
-        
+
         <!-- Mensaje de error de email ya registrado -->
         <p v-if="emailError" class="error-message">
           Email already registered. Try again.
@@ -40,9 +40,7 @@
       </div>
     </div>
 
-    <footer class="footer">
-      <p>&copy; 2024 Web Name. All rights reserved.</p>
-    </footer>
+    <FooterComponent />
   </div>
 </template>
 
@@ -50,11 +48,13 @@
 import HeaderPage from '@/components/HeaderPage.vue';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js';
+import FooterComponent from '@/components/FooterComponent.vue';
 
 export default {
   name: 'UserRegister',
   components: {
     HeaderPage,
+    FooterComponent,
   },
   data() {
     return {
@@ -99,7 +99,7 @@ export default {
   },
 };
 </script>
-  
+
 
 <style scoped>
 /* Estilo del formulario de registro */
@@ -112,23 +112,28 @@ export default {
   text-align: center;
   transform: translateY(30px);
   z-index: 10;
-  transition: height 0.3s ease; /* Transición para cambio de altura */
+  transition: height 0.3s ease;
+  /* Transición para cambio de altura */
 }
 
 /* Expande el formulario cuando hay un error */
 .register-form.expanded {
-  height: 600px; /* Aumenta la altura solo cuando hay un error */
+  height: 600px;
+  /* Aumenta la altura solo cuando hay un error */
 }
 
 /* Estilo del mensaje de error */
 .error-message {
   background-color: rgba(255, 0, 0, 0.5);
-  width: 100%; /* Ancho completo para alinearlo al centro */
-  max-width: 80%; /* Ajusta el ancho máximo dentro del formulario */
+  width: 100%;
+  /* Ancho completo para alinearlo al centro */
+  max-width: 80%;
+  /* Ajusta el ancho máximo dentro del formulario */
   color: white;
   padding: 8px;
   border-radius: 5px;
-  margin: 0 auto 20px; /* Centra horizontalmente y añade margen inferior */
+  margin: 0 auto 20px;
+  /* Centra horizontalmente y añade margen inferior */
   text-align: center;
   z-index: 30;
 }
@@ -201,23 +206,11 @@ export default {
   text-decoration: underline;
 }
 
-.footer {
-  background-color: #121212;
-  color: #fff;
-  padding: 10px;
-  text-align: center;
-  position: absolute;
-  bottom: 20;
-  width: 100%;
-  height: 200px;
-  z-index: 5;
-}
-
 .overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0; 
+  right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1;

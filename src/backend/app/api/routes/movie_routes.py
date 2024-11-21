@@ -10,7 +10,7 @@ from datetime import datetime
 from fastapi.responses import FileResponse
 from app.api.routes.user_routes import is_admin_user
 from app.api.dependencies import oauth2_scheme
-from app.scrape_movies import scrape_movie, scrape_movies_by_feats, fetch_actor_id_by_name, fetch_director_id_by_name
+from app.scrape_movies import scrape_movie, scrape_movies_by_feats, fetch_actor_id_by_name, fetch_director_id_by_name, get_actor_role
 
 # Create a router for movie-related endpoints
 router = APIRouter()
@@ -154,7 +154,7 @@ def check_actor(actor_name: str):
     return actor_id is not None
 
 @router.get("/checkDirector")
-def check_actor(director_name: str):
+def check_director(director_name: str):
     """
     Checks if an actor exists.
 
@@ -166,7 +166,20 @@ def check_actor(director_name: str):
     """
     director_id = fetch_director_id_by_name(director_name)
     return director_id is not None
-    
+
+'''@router.get("/{movie_title}/{actor_name}")
+def get_actor_role_and_image(actor_name: str, movie_title: str):
+    """
+    Gets the roles of an actor.
+
+    Parameters:
+    - actor_name: Name of the actor to check.
+
+    Returns:
+    - List of roles of the actor.
+    """
+    role = get_actor_role(actor_name, movie_title)
+    return role'''
 
 # Endpoint to retrieve a list of movies
 @router.get("/", response_model=List[MovieOut])

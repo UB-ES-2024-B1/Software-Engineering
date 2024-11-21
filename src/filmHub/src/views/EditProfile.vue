@@ -1,7 +1,7 @@
 <template>
   <div class="profile-page">
     <HeaderPage />
-    
+
     <div class="overlay"></div>
 
     <div class="main-content">
@@ -22,13 +22,7 @@
 
           <div class="form-group">
             <label for="full_name">Name:</label>
-            <input
-              id="full_name"
-              type="text"
-              v-model="formData.full_name"
-              required
-              placeholder="Enter your name"
-            />
+            <input id="full_name" type="text" v-model="formData.full_name" required placeholder="Enter your name" />
           </div>
 
           <!-- Mostrar la contraseña -->
@@ -46,83 +40,81 @@
         </form>
       </div>
     </div>
-
-    <footer class="footer">
-      <p>&copy; 2024 Web Name. All rights reserved.</p>
-    </footer>
+    <FooterComponent />
   </div>
 </template>
 
 <script>
-  import HeaderPage from '@/components/HeaderPage.vue';
-  import axios from 'axios';
-  import { API_BASE_URL } from '@/config.js';
-  
-  export default {
-    name: 'EditProfile',
-    components: {
-      HeaderPage,
-    },
-    data() {
-      return {
-        formData: {
-          email: '',
-          full_name: '',
-          password: '', // Inicializamos la contraseña vacía
-        },
-        error: null,
-      };
-    },
-    created() {
-      const userEmail = localStorage.getItem('userEmail');
-      if (!userEmail) {
-        this.$router.push('/login');
-        return;
+import HeaderPage from '@/components/HeaderPage.vue';
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js';
+import FooterComponent from '@/components/FooterComponent.vue';
+
+export default {
+  name: 'EditProfile',
+  components: {
+    HeaderPage,
+    FooterComponent,
+  },
+  data() {
+    return {
+      formData: {
+        email: '',
+        full_name: '',
+        password: '', // Inicializamos la contraseña vacía
+      },
+      error: null,
+    };
+  },
+  created() {
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) {
+      this.$router.push('/login');
+      return;
+    }
+
+    // Carga inicial de los datos del usuario
+    axios
+      .get(`${API_BASE_URL}/users/email/${userEmail}`)
+      .then((response) => {
+        const { email, full_name } = response.data;
+        this.formData.email = email;
+        this.formData.full_name = full_name;
+      })
+      .catch((error) => {
+        console.error('Error al obtener los datos del usuario:', error);
+        this.error = 'Error fetching user data. Please try again.';
+      });
+  },
+  methods: {
+    submitChanges() {
+      // Si la contraseña está vacía, no la enviamos
+      if (!this.formData.password) {
+        delete this.formData.password; // Elimina la contraseña si no se cambió
       }
-  
-      // Carga inicial de los datos del usuario
+
+      // Enviar los datos actualizados al backend
       axios
-        .get(`${API_BASE_URL}/users/email/${userEmail}`)
-        .then((response) => {
-          const { email, full_name } = response.data;
-          this.formData.email = email;
-          this.formData.full_name = full_name;
+        .put(`${API_BASE_URL}/users/email/${this.formData.email}`, this.formData)
+        .then(() => {
+          // Redirigir al perfil después de actualizar
+          this.$router.push('/profile');
         })
         .catch((error) => {
-          console.error('Error al obtener los datos del usuario:', error);
-          this.error = 'Error fetching user data. Please try again.';
+          console.error('Error al actualizar los datos del usuario:', error);
+          this.error = 'Error updating user data. Please try again.';
         });
     },
-    methods: {
-      submitChanges() {
-        // Si la contraseña está vacía, no la enviamos
-        if (!this.formData.password) {
-          delete this.formData.password; // Elimina la contraseña si no se cambió
-        }
-
-        // Enviar los datos actualizados al backend
-        axios
-          .put(`${API_BASE_URL}/users/email/${this.formData.email}`, this.formData)
-          .then(() => {
-            // Redirigir al perfil después de actualizar
-            this.$router.push('/profile');
-          })
-          .catch((error) => {
-            console.error('Error al actualizar los datos del usuario:', error);
-            this.error = 'Error updating user data. Please try again.';
-          });
-      },
-    },
-  };
+  },
+};
 </script>
 
-  
-  
+
+
 
 <style scoped>
 /* Estilos generales iguales a los de profile */
 .profile-page {
-  height: 100vh;
   margin: 0;
   padding: 0;
   background-image: url('@/assets/fondo_login.jpg');
@@ -146,7 +138,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80vh;
+  height: 100vh;
   padding: 20px;
   z-index: 10;
 }
@@ -154,7 +146,7 @@
 .profile-box {
   display: flex;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.9);
   padding: 40px;
   border-radius: 10px;
   width: 750px;
@@ -245,17 +237,4 @@
   background: rgba(255, 0, 0, 0.4);
 
 }
-
-/* Footer básico */
-.footer {
-  background-color: #121212;
-  color: #fff;  
-  padding: 10px;
-  text-align: center;
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  z-index: 5;
-}
-
 </style>

@@ -55,6 +55,20 @@ def fetch_director_id_by_name(director_name):
             return person['id']
     return None
 
+def get_actor_role(actor_name, movie_title):
+    actor_id = fetch_actor_id_by_name(actor_name)
+    movie_id = search_movies_by_title(movie_title)[0]['id']
+    actor_url = f'https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={API_KEY}&language=en-US'
+    response = requests.get(actor_url)
+    response.raise_for_status()
+    data = response.json()
+
+    # Busca el rol del actor en la película
+    for actor in data['cast']:
+        if actor['id'] == actor_id:
+            return actor['character'], actor['profile_path']
+    return None
+
 def fetch_all_genres():
     """
     Fetches all genres from the TMDb API.

@@ -28,65 +28,65 @@
       </div>
     </div>
 
-    <footer class="footer">
-      <p>&copy; 2024 Web Name. All rights reserved.</p>
-    </footer>
+    <FooterComponent />
   </div>
 </template>
 
 <script>
-  import HeaderPage from '@/components/HeaderPage.vue'; 
-  import axios from 'axios';
-  import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
-  
-  export default {
-    name: 'UserLogin',
-    components: {
-      HeaderPage,
+import HeaderPage from '@/components/HeaderPage.vue';
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
+import FooterComponent from '@/components/FooterComponent.vue';
+
+export default {
+  name: 'UserLogin',
+  components: {
+    HeaderPage,
+    FooterComponent,
+  },
+  data() {
+    return {
+      email: '', // Correo del usuario
+      password: '', // Contraseña del usuario
+      loginError: false, // Estado para mostrar o esconder el mensaje de error
+    };
+  },
+  methods: {
+    async handleLogin() {
+      try {
+        // Usar FormData para enviar los datos en el formato adecuado
+        const formData = new FormData();
+        formData.append('username', this.email); // OAuth2PasswordRequestForm espera 'username'
+        formData.append('password', this.password); // Y también espera 'password'
+
+        // Realizar la solicitud POST al backend para el login
+        const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+        // Guardar el token en localStorage
+        localStorage.setItem('token', response.data.access_token);
+
+        // Guardar el email para futuras solicitudes
+        localStorage.setItem('userEmail', this.email);
+
+        // Notificar éxito
+        window.dispatchEvent(new Event('storage')); // Informa a otros componentes sobre el cambio
+        this.loginError = false;
+
+        // Redirigir al usuario a la página de perfil
+        this.$router.push('/');
+      } catch (error) {
+        console.error('Error al iniciar sesión:', error);
+        this.loginError = true; // Mostrar mensaje de error
+      }
     },
-    data() {
-      return {
-        email: '', // Correo del usuario
-        password: '', // Contraseña del usuario
-        loginError: false, // Estado para mostrar o esconder el mensaje de error
-      };
-    },
-    methods: {
-      async handleLogin() {
-        try {
-          // Usar FormData para enviar los datos en el formato adecuado
-          const formData = new FormData();
-          formData.append('username', this.email); // OAuth2PasswordRequestForm espera 'username'
-          formData.append('password', this.password); // Y también espera 'password'
-  
-          // Realizar la solicitud POST al backend para el login
-          const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-          });
-  
-          // Guardar el token en localStorage
-          localStorage.setItem('token', response.data.access_token);
-  
-          // Guardar el email para futuras solicitudes
-          localStorage.setItem('userEmail', this.email);
-  
-          // Notificar éxito
-          window.dispatchEvent(new Event('storage')); // Informa a otros componentes sobre el cambio
-          this.loginError = false;
-  
-          // Redirigir al usuario a la página de perfil
-          this.$router.push('/');
-        } catch (error) {
-          console.error('Error al iniciar sesión:', error);
-          this.loginError = true; // Mostrar mensaje de error
-        }
-      },
-    },
-  };
-  </script>
-  
+  },
+};
+</script>
+
 
 <style scoped>
 /* Estilos específicos para el componente de login (idénticos a los de registro) */
@@ -116,23 +116,28 @@
   text-align: center;
   transform: translateY(20px);
   z-index: 10;
-  transition: height 0.3s ease; /* Transición para cambio de altura */
+  transition: height 0.3s ease;
+  /* Transición para cambio de altura */
 }
 
 /* Expande el formulario cuando hay un error */
 .login-form.expanded {
-  height: 450px; /* Aumenta la altura solo cuando hay un error */
+  height: 450px;
+  /* Aumenta la altura solo cuando hay un error */
 }
 
 /* Estilo del mensaje de error */
 .error-message {
   background-color: rgba(255, 0, 0, 0.5);
-  width: 100%; /* Ancho completo para alinearlo al centro */
-  max-width: 80%; /* Ajusta el ancho máximo dentro del formulario */
+  width: 100%;
+  /* Ancho completo para alinearlo al centro */
+  max-width: 80%;
+  /* Ajusta el ancho máximo dentro del formulario */
   color: white;
   padding: 8px;
   border-radius: 5px;
-  margin: 0 auto 20px; /* Centra horizontalmente y añade margen inferior */
+  margin: 0 auto 20px;
+  /* Centra horizontalmente y añade margen inferior */
   text-align: center;
   z-index: 30;
 }
@@ -194,19 +199,6 @@
 .login-form a:hover {
   color: white;
   text-decoration: underline;
-}
-
-/* Footer básico */
-.footer {
-  background-color: #121212;
-  color: #fff;
-  padding: 10px;
-  text-align: center;
-  position: absolute;
-  bottom: 20;
-  width: 100%;
-  height: 200px;
-  z-index: 5;
 }
 
 /* Capa negra con opacidad */

@@ -163,7 +163,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
@@ -178,7 +178,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
@@ -193,7 +193,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
@@ -214,13 +214,7 @@
       </div>
     </section>
 
-    <!-- Pie de Página -->
-    <footer class="footer">
-      <p>&copy; 2024 FilmHub Enterpise. All rights reserved.</p>
-      <div class="socials">
-        <a href="#">FilmHub Enterpise</a>
-      </div>
-    </footer>
+    <FooterComponent />
   </div>
 </template>
 
@@ -228,6 +222,7 @@
 import HeaderPage from '@/components/HeaderPage.vue'; // Importa el componente HeaderPage
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
+import FooterComponent from '@/components/FooterComponent.vue';
 
 function getImagePath(image) {
   // Comprobar si la imagen es una URL
@@ -267,7 +262,8 @@ async function generateRecentMovieObject(movieData) {
 export default {
   name: 'MainPageView',
   components: {
-    HeaderPage, // Registra el componente
+    HeaderPage,
+    FooterComponent,
   },
   data() {
     return {
@@ -281,7 +277,7 @@ export default {
   },
   methods: {
 
-    
+
     async fetchMovies(start, end, movies_section) {
       try {
         let url;
@@ -293,7 +289,6 @@ export default {
         const movieObjects = [];
         const response = await axios.get(url);
         const movies = response.data; // Suponiendo que la respuesta es un arreglo de películas
-        if (movies_section === 2){movies.reverse();}
         // Limitar a las primeras películas
         const topMovies = movies.slice(start, end);
 
@@ -486,12 +481,6 @@ body {
   width: 20%;
 }
 
-.footer {
-  background-color: #161616;
-  color: white;
-  text-align: center;
-  padding: 20px;
-}
 
 /* Estilo para la imagen pequeña */
 .small-cover {

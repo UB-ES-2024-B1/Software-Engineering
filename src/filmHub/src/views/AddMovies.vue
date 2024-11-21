@@ -15,7 +15,7 @@
 
                     <div v-if="formType === 'value-1'" class="mb-3">
                         <!-- Display single movie name input field if 'Add Movie by Name' is selected -->
-                        <label for="movieName" class="form-label"><i class='bx bx-pencil' ></i> Movie Name</label>
+                        <label for="movieName" class="form-label"><i class='bx bx-pencil'></i> Movie Name</label>
                         <input id="movieName" v-model="movieName" placeholder="Enter movie name" class="form-control" />
                     </div>
 
@@ -24,7 +24,7 @@
                         <div class="row g-4">
                             <div class="col-md-5">
                                 <div class="mb-3">
-                                    <label for="genre" class="form-label"><i class='bx bx-film' ></i> Genre</label>
+                                    <label for="genre" class="form-label"><i class='bx bx-film'></i> Genre</label>
                                     <div class="d-flex flex-wrap gap-2 mt-2" id="genreListTag">
                                         <span v-for="(genre, index) in genres" :key="index"
                                             class="badge text-sm d-flex align-items-center" id="tagGenre">
@@ -70,7 +70,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="director" class="form-label"><i class='bx bx-user' ></i> Director</label>
+                                    <label for="director" class="form-label"><i class='bx bx-user'></i> Director</label>
                                     <div class="d-flex flex-wrap gap-2 mt-2" v-if="director">
                                         <span class="badge text-sm d-flex align-items-center" id="tagDirector">
                                             {{ director }}
@@ -91,7 +91,8 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="movieCount" class="form-label"><i class='bx bx-hash'></i> Number of Movies</label>
+                                    <label for="movieCount" class="form-label"><i class='bx bx-hash'></i> Number of
+                                        Movies</label>
                                     <input id="movieCount" v-model.number="movieCount" type="number"
                                         class="form-control" placeholder="1" min="1" max="10"
                                         @input="validateMovieCount" />
@@ -104,7 +105,7 @@
                             </div>
                             <div class="col-md-5">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class='bx bxs-star' ></i> Movie Rating</label>
+                                    <label class="form-label"><i class='bx bxs-star'></i> Movie Rating</label>
                                     <input type="range" v-model.number="rating" min="0" max="5" step="0.1"
                                         class="form-range" id="slidingBar" />
                                     <div class="d-flex justify-content-between mt-2">
@@ -117,12 +118,14 @@
                                 </div>
 
                                 <div class="mb-2">
-                                    <label for="minDate" class="form-label"><i class='bx bxs-calendar-alt' ></i> Min Release Date</label>
+                                    <label for="minDate" class="form-label"><i class='bx bxs-calendar-alt'></i> Min
+                                        Release Date</label>
                                     <input id="minDate" v-model="minDate" type="date" class="form-control" />
                                 </div>
 
                                 <div class="mb-2">
-                                    <label for="maxDate" class="form-label"><i class='bx bxs-calendar-alt' ></i> Max Release Date</label>
+                                    <label for="maxDate" class="form-label"><i class='bx bxs-calendar-alt'></i> Max
+                                        Release Date</label>
                                     <input id="maxDate" v-model="maxDate" type="date" class="form-control" />
                                 </div>
                             </div>
@@ -133,7 +136,9 @@
                     </div>
                 </main>
             </div>
+            
         </div>
+
     </div>
 </template>
 
@@ -143,6 +148,7 @@ import RadioForm from '@/components/RadioForm.vue';
 import StarRating from '@/components/StarRating.vue';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js';
+
 
 export default {
     name: 'AddMovies',
@@ -418,23 +424,19 @@ export default {
 </script>
 
 
-<style>
-
-
+<style scooped>
 #addMoviesPage {
+
+    display: flex;
+    flex-direction: column; /* Ensure proper stacking */
+    justify-content: space-between; /* Space out header, content, and footer */
     background-image: url("../assets/add-movies-background.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
-    overflow: hidden;
-    z-index: 0; /* Ensure the background is behind other elements */
 }
 
-.container {
-    position: relative;
-    z-index: 3; /* Ensure the form is above the background effects */
-}
 
 #genreListTag,
 #castListTag,
@@ -447,20 +449,21 @@ export default {
     position: relative;
     /* Establishes a reference point for absolute positioning */
     height: 100vh;
-    /* Full height of the viewport */
 
 }
 
 .main-form {
     background-color: rgba(17, 17, 17, 0.9);
-    backdrop-filter: blur(10px); /* Add blur effect */
+    backdrop-filter: blur(10px);
+    /* Add blur effect */
     width: 100%;
     /* Default full width */
 }
 
 .main-form.small-form {
     background-color: rgb(17, 17, 17, 0.9);
-    backdrop-filter: blur(10px); /* Add blur effect */
+    backdrop-filter: blur(10px);
+    /* Add blur effect */
     width: 100%;
     /* Full width */
     max-width: 600px;
@@ -481,7 +484,8 @@ export default {
 .radio {
     margin-left: -10%;
     margin-top: 10%;
-    z-index: -1; /* Ensure the radio form is above the background */
+    z-index: -1;
+    /* Ensure the radio form is above the background */
 
 }
 
