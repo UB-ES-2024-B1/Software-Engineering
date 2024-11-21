@@ -1,10 +1,17 @@
 from fastapi.testclient import TestClient
 from app.main import app  # Ensure the import is correct
+from app.api.routes.user_routes import is_admin_user
+
+# Simulate an admin user being authenticated
+def mock_is_admin_user():
+        return True  
+app.dependency_overrides[is_admin_user] = mock_is_admin_user
+
 
 client = TestClient(app)
 
 # Test to create a movie
-def test_create_movie():
+def test_create_movie():    
     new_movie = {
         "title": "The Lost City",
         "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
@@ -44,6 +51,7 @@ def test_create_movie():
     assert response_data["trailer"] == new_movie["trailer"]
 
     assert "id" in response_data
+
 # Test to create a movie
 def test_create_movie_2():
     new_movie = {
