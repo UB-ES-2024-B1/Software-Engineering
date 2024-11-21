@@ -48,6 +48,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install bcrypt
     pip install python-jose
     pip install requests
+    pip install firebase-admin
     ```
 
     For Mac:
@@ -62,6 +63,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     pip install bcrypt
     pip install python-jose
     pip install requests
+    pip install firebase-admin
     ```
 
 5. **Sep up for Alembic (databases)**:
@@ -123,14 +125,16 @@ This project consists of two main parts: the **backend** developed with **FastAP
     ```bash
     npm install
     npm install axios
-    npm install flatpickr
+    npm install firebase
+    npm install -g firebase
     ```
 
     For Mac:
     ```bash
     sudo npm install
     sudo npm install axios
-    sudo npm install flatpickr
+    sudo npm install firebase
+    sudo npm install -g firebase
     ```
 
 4. **Run the frontend server**:
