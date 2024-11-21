@@ -137,7 +137,8 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
   padding: 40px;
   border-radius: 10px;
   width: 750px;

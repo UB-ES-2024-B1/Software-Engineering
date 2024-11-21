@@ -14,6 +14,5 @@
     color: white;
     text-align: center;
     padding: 20px;
-    z-index: 999;
 }
 </style>

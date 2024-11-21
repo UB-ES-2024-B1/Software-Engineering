@@ -742,12 +742,12 @@ body {
   /* Cambia el color de fondo */
   border-radius: 20px;
   /* Bordes redondeados para que coincidan con el poster */
-
+  transition: transform ease 0.3s; 
   position: relative;
   /* Asegura que los elementos dentro se posicionen relativos a este */
 }
 
-.movie-poster:hover {
+.movie-item:hover {
   transform: scale(1.03);
   z-index: 10;
   /* Efecto de escala al pasar el cursor por encima */
@@ -975,6 +975,7 @@ body {
     transform: scale(1);
   }
 }
+
 
 .detail-item {
   margin: 10px;
