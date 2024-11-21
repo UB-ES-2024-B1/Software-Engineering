@@ -227,20 +227,22 @@ def get_movie_video_link(movie_id):
         
         # Verificar si hay videos en los resultados
         if "results" in data and len(data["results"]) > 0:
-            # Tomar el primer video disponible
-            video_key = data["results"][0]["key"]
-            video_link = None
-            if data["results"][0]["site"] == "YouTube":
-            
-            
-                video_link = f"https://www.youtube.com/watch?v={video_key}"
+            # Buscar el primer video que sea de tipo "Trailer"
+            for video in data["results"]:
+                if video["type"].lower() == "trailer" and video["site"] == "YouTube":
+                    video_key = video["key"]
+                    video_link = f"https://www.youtube.com/watch?v={video_key}"
+                    return video_link
 
-            return video_link
+            # Si no se encuentra un trailer en los resultados
+            return "No trailer found"
         else:
-            return ''
+            return "No videos available"
     except requests.exceptions.RequestException as e:
         # Manejar errores de solicitud
         return f"Error al conectar con la API de TMDb: {e}"
+    
+    
 def load_existing_data(filename):
     if os.path.exists(filename):
         with open(filename, 'r') as f:
