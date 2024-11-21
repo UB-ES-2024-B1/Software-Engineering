@@ -15,7 +15,7 @@ from app.scrape_movies import scrape_movie, scrape_movies_by_feats, fetch_actor_
 # Create a router for movie-related endpoints
 router = APIRouter()
 
-'''# Endpoint to create a new movie
+# Endpoint to create a new movie
 @router.post("/", response_model=MovieOut, dependencies=[Depends(is_admin_user)])
 def create_movie(movie: MovieIn, db: Session = Depends(get_db)):
     """
@@ -33,7 +33,7 @@ def create_movie(movie: MovieIn, db: Session = Depends(get_db)):
     
     movie = movie_crud.create_movie(db, movie)
     # Return the created movie details
-    return movie'''
+    return movie
 
 @router.post("/byName", response_model=MovieOut, dependencies=[Depends(is_admin_user)])
 def create_movie_by_name(movie_title: str , db: Session = Depends(get_db)):
