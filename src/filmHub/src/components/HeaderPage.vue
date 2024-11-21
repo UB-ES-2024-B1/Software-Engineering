@@ -67,6 +67,10 @@ export default {
     },
   },
   methods: {
+    searchMovies() {
+      const query = this.$refs.searchInput.value;
+      console.log('Searching for:', query);
+    },
     handleScroll() {
       // Cambia la propiedad "scrolled" dependiendo de si el scroll es mayor a 60px
       this.scrolled = window.scrollY > 60;
@@ -202,14 +206,17 @@ export default {
 }
 
 .profile-image:hover {
-  transform: scale(1.1); /* Aumenta el tamaño ligeramente al pasar el cursor */
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Añade un efecto de sombra */
+  transform: scale(1.1);
+  /* Aumenta el tamaño ligeramente al pasar el cursor */
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  /* Añade un efecto de sombra */
 }
 
 .profile-image {
   width: 45px;
   height: 45px;
-  border-radius: 50%; /* Hace que la imagen sea circular */
+  border-radius: 50%;
+  /* Hace que la imagen sea circular */
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   margin-right: 20px;
