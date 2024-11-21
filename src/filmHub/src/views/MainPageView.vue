@@ -19,7 +19,9 @@
             <div class="shadow-overlay"></div>
 
             <div class="small-cover">
-              <img :src="movie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
+              <router-link :to="`/movie/${movie.id}`">
+                <img :src="movie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
+              </router-link>
               <div class="movie-info">
                 <h5>{{ movie.title }}</h5>
                 <p>{{ movie.description }}</p>
@@ -53,13 +55,17 @@
 
     <!-- Sección de películas recientes -->
     <section class="recent-movies">
-      <h2 class="section-title">Películas Más Recientes</h2>
+      <router-link :to="{ path: '/movies', query: { sortByYear: 'year' } }" class="section-title-link">
+        <h2 class="section-title">Películas Más Recientes</h2>
+      </router-link>
       <div id="recentMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item active">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(0, 5)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -72,7 +78,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(5, 10)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -85,7 +93,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(10, 15)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -98,7 +108,9 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(15, 20)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -122,13 +134,17 @@
     </section>
     <!-- Sección de películas mejor valoradas -->
     <section class="top-rated-movies">
-      <h2 class="section-title">Películas Mejor Valoradas</h2>
+      <router-link :to="{ path: '/movies', query: { sortByRate: 'rating' } }" class="section-title-link">
+        <h2 class="section-title">Películas Mejor Valoradas</h2>
+      </router-link>
       <div id="topRatedMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item active">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(0, 5)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -141,11 +157,13 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(5, 10)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
@@ -154,11 +172,13 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(10, 15)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
@@ -167,11 +187,13 @@
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(15, 20)" :key="movie.id">
-                <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                <router-link :to="`/movie/${movie.id}`">
+                  <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+                </router-link>
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>   
+                    <span>{{ movie.rating }}</span>
                   </div>
                 </div>
               </div>
@@ -192,13 +214,7 @@
       </div>
     </section>
 
-    <!-- Pie de Página -->
-    <footer class="footer">
-      <p>&copy; 2024 FilmHub Enterpise. All rights reserved.</p>
-      <div class="socials">
-        <a href="#">FilmHub Enterpise</a>
-      </div>
-    </footer>
+    <FooterComponent />
   </div>
 </template>
 
@@ -206,6 +222,7 @@
 import HeaderPage from '@/components/HeaderPage.vue'; // Importa el componente HeaderPage
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
+import FooterComponent from '@/components/FooterComponent.vue';
 
 function getImagePath(image) {
   // Comprobar si la imagen es una URL
@@ -245,7 +262,8 @@ async function generateRecentMovieObject(movieData) {
 export default {
   name: 'MainPageView',
   components: {
-    HeaderPage, // Registra el componente
+    HeaderPage,
+    FooterComponent,
   },
   data() {
     return {
@@ -259,7 +277,7 @@ export default {
   },
   methods: {
 
-    
+
     async fetchMovies(start, end, movies_section) {
       try {
         let url;
@@ -271,7 +289,6 @@ export default {
         const movieObjects = [];
         const response = await axios.get(url);
         const movies = response.data; // Suponiendo que la respuesta es un arreglo de películas
-        if (movies_section === 2){movies.reverse();}
         // Limitar a las primeras películas
         const topMovies = movies.slice(start, end);
 
@@ -307,8 +324,8 @@ export default {
   },
   created() {
     this.fetchMovies(0, 9, 1);
-    this.fetchMovies(0, 50, 2);
-    this.fetchMovies(0, 50, 3);
+    this.fetchMovies(0, 10, 2);
+    this.fetchMovies(0, 10, 3);
   },
 };
 </script>
@@ -464,12 +481,6 @@ body {
   width: 20%;
 }
 
-.footer {
-  background-color: #161616;
-  color: white;
-  text-align: center;
-  padding: 20px;
-}
 
 /* Estilo para la imagen pequeña */
 .small-cover {

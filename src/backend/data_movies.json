@@ -20,7 +20,8 @@
         "image": [
             "avatarTheWayOfWater_cover.jpg",
             "avatarTheWayOfWater_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Dune: Part Two",
@@ -43,7 +44,8 @@
         "image": [
             "dunePartTwo_cover.jpg",
             "dunePartTwo_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Spider-Man: No Way Home",
@@ -66,7 +68,8 @@
         "image": [
             "spider-manNoWayHome_cover.jpg",
             "spider-manNoWayHome_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Barbie",
@@ -89,7 +92,8 @@
         "image": [
             "barbie_cover.jpg",
             "barbie_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "War for the Planet of the Apes",
@@ -112,7 +116,8 @@
         "image": [
             "warForThePlanetOfTheApes_cover.jpg",
             "warForThePlanetOfTheApes_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Deadpool & Wolverine",
@@ -135,7 +140,8 @@
         "image": [
             "deadpool&Wolverine_cover.jpg",
             "deadpool&Wolverine_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "The Batman",
@@ -158,7 +164,8 @@
         "image": [
             "theBatman_cover.jpg",
             "theBatman_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Kung Fu Panda 4",
@@ -181,7 +188,8 @@
         "image": [
             "kungFuPanda4_cover.jpg",
             "kungFuPanda4_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "The Nun",
@@ -204,7 +212,8 @@
         "image": [
             "theNun_cover.jpg",
             "theNun_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Up",
@@ -227,7 +236,8 @@
         "image": [
             "up_cover.jpg",
             "up_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "The Meg",
@@ -250,7 +260,8 @@
         "image": [
             "theMeg_cover.jpg",
             "theMeg_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Inception",
@@ -273,7 +284,8 @@
         "image": [
             "inception_cover.jpg",
             "inception_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Furiosa: A Mad Max Saga",
@@ -296,7 +308,8 @@
         "image": [
             "furiosaAMadMaxSaga_cover.jpg",
             "furiosaAMadMaxSaga_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "The Fall Guy",
@@ -318,7 +331,8 @@
         "image": [
             "theFallGuy_cover.jpg",
             "theFallGuy_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Napoleon",
@@ -341,7 +355,8 @@
         "image": [
             "napoleon_cover.jpg",
             "napoleon_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Uncharted",
@@ -363,7 +378,8 @@
         "image": [
             "uncharted_cover.jpg",
             "uncharted_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Bullet Train",
@@ -386,7 +402,8 @@
         "image": [
             "bulletTrain_cover.jpg",
             "bulletTrain_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Ratatouille",
@@ -409,7 +426,8 @@
         "image": [
             "ratatouille_cover.jpg",
             "ratatouille_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Toy Story 4",
@@ -432,7 +450,8 @@
         "image": [
             "toyStory4_cover.jpg",
             "toyStory4_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Dunkirk",
@@ -455,7 +474,8 @@
         "image": [
             "dunkirk_cover.jpg",
             "dunkirk_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Oppenheimer",
@@ -478,7 +498,8 @@
         "image": [
             "oppenheimer_cover.jpg",
             "oppenheimer_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Jumanji: The Next Level",
@@ -501,7 +522,8 @@
         "image": [
             "jumanjiTheNextLevel_cover.jpg",
             "jumanjiTheNextLevel_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Bohemian Rhapsody",
@@ -524,7 +546,8 @@
         "image": [
             "bohemianRhapsody_cover.jpg",
             "bohemianRhapsody_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "The Hunger Games: The Ballad of Songbirds and Snakes",
@@ -547,7 +570,8 @@
         "image": [
             "theHungerGamesTheBalladOfSongbirdsAndSnakes_cover.jpg",
             "theHungerGamesTheBalladOfSongbirdsAndSnakes_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Coco",
@@ -570,7 +594,8 @@
         "image": [
             "coco_cover.jpg",
             "coco_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Incredibles 2",
@@ -593,7 +618,8 @@
         "image": [
             "incredibles2_cover.jpg",
             "incredibles2_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Jurassic World: Fallen Kingdom",
@@ -616,7 +642,8 @@
         "image": [
             "jurassicWorldFallenKingdom_cover.jpg",
             "jurassicWorldFallenKingdom_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Cars 3",
@@ -639,7 +666,8 @@
         "image": [
             "cars3_cover.jpg",
             "cars3_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     },
     {
         "title": "Bad Boys: Ride or Die",
@@ -662,6 +690,7 @@
         "image": [
             "badBoysRideOrDie_cover.jpg",
             "badBoysRideOrDie_banner.jpg"
-        ]
+        ],
+        "trailer": ""
     }
 ]

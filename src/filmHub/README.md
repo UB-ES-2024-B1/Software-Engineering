@@ -20,12 +20,14 @@
     ```bash
     npm install
     npm install axios
+    npm install flatpickr
     ```
 
     For Mac:
     ```bash
     sudo npm install
     sudo npm install axios
+    sudo npm install flatpickr
     ```
 
 4. **Run the frontend server**:

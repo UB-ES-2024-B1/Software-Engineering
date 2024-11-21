@@ -3,6 +3,9 @@ from sqlmodel import Session, select
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast) 
 from typing import List
 from fastapi import File, UploadFile
+from sqlalchemy.sql import func, case, extract
+
+
 
 # Function to create a new movie
 def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> MovieOut:
@@ -17,7 +20,8 @@ def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> 
         rating=movie.rating,
         rating_count=movie.rating_count,
         likes=movie.likes,
-        image=movie.image
+        image=movie.image,
+        trailer=movie.trailer
     )
 
     # Handle genres
@@ -73,6 +77,51 @@ def get_movies_sorted_by_rating(db: Session) -> List[MovieOut]:
 def get_movies_sorted_by_likes(db: Session) -> List[MovieOut]:
     statement = select(Movie).order_by(Movie.likes.desc())  # Assuming more likes is better
     return db.execute(statement).scalars().all()
+
+# The idea is to return the five top relaetd movies given a movie name, by genre, cast and director
+def get_movies_sorted_by_related(db: Session, target_movie_title: str, limit: int = 60) -> List[MovieOut]:
+    # Step 1: Get the target movie by title
+    target_movie = db.execute(select(Movie).where(Movie.title == target_movie_title)).scalars().first()
+    
+    if not target_movie:
+        return []  # Return empty list if movie is not found
+    
+    # Step 2: Extract target movie's related data
+    target_genres = [genre.type for genre in target_movie.genres]
+    target_cast_members = [cast.name for cast in target_movie.cast_members]
+    target_director = target_movie.director
+
+    # Step 3: Build the query for matching movies, excluding the target movie itself
+    statement = select(Movie).where(Movie.id != target_movie.id)
+    
+    # Step 4: Calculate a score for each movie based on how many attributes match
+    movies_with_scores = []
+    for movie in db.execute(statement).scalars().all():
+        score = 0
+
+        # Check genre match
+        movie_genres = [genre.type for genre in movie.genres]
+        score += len(set(target_genres).intersection(set(movie_genres)))  # Count matching genres
+        
+        # Check cast member match
+        movie_cast_members = [cast.name for cast in movie.cast_members]
+        score += len(set(target_cast_members).intersection(set(movie_cast_members)))  # Count matching cast members
+        
+        # Check director match
+        if movie.director == target_director:
+            score += 1  # Count if director matches
+
+        # Add movie and its score to the list
+        movies_with_scores.append((movie, score))
+
+    # Step 5: Sort movies by score in descending order (highest score first)
+    sorted_movies = sorted(movies_with_scores, key=lambda x: x[1], reverse=True)
+    
+    # Step 6: Limit the results and return
+    top_movies = [movie for movie, score in sorted_movies[:limit]]
+    
+    return [MovieOut.model_validate(movie) for movie in top_movies]
+    
 '''
 # Function to update a movie by ID
 def update_movie(db: Session, movie_id: int, movie_data: MovieUpdate) -> MovieOut:
@@ -93,6 +142,7 @@ def update_movie(db: Session, movie_title: str, movie_data: MovieUpdate) -> Movi
     statement = select(Movie).where(Movie.title == movie_title)
     movie = db.execute(statement).scalars().first()
     if movie:
+        for key, value in movie_data.dict(exclude_unset=True).items():
         for key, value in movie_data.dict(exclude_unset=True).items():
             if key not in ["genres", "cast_members"]:
                 setattr(movie, key, value)
@@ -116,6 +166,7 @@ def update_movie(db: Session, movie_title: str, movie_data: MovieUpdate) -> Movi
         db.add(movie)
         db.commit()
         db.refresh(movie)  # Refresh to get updated data
+        return MovieOut.from_orm(movie)  # Use model_validate
         return MovieOut.from_orm(movie)  # Use model_validate
     return None  # If movie not found
 
@@ -177,4 +228,40 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
         db.commit()
         return True  # Deletion successful
     return False  # Movie not found
+
+# Function get movie by data release
+def get_movie_by_year(db: Session, movie_year: int)-> List[MovieOut]:
+    statement = select(Movie).where(extract('year', Movie.release_date) == movie_year)
+    return db.execute(statement).scalars().all()
+
+# Check if genre exist
+def is_valid_genre(db: Session, movie_genre: str) -> bool:
+    genre = db.execute(select(Genre).where(Genre.type == movie_genre)).scalars().first()
+    return genre is not None
+
+# Function get movies with one genre
+def get_movie_by_genre(db: Session, movie_genre: str)-> List[MovieOut]:
+    statement = (
+        select(Movie)
+        .join(Movie.genres)  # Join the genres relationship
+        .where(Genre.type == movie_genre)  # Filter by the genre type
+    )
+    return db.execute(statement).scalars().all()
+
+# Function get movies with multiple genre
+def get_movie_by_genre_list(db: Session, genre_list: List[str])-> List[MovieOut]:
+    statement = (
+        select(Movie)
+        .join(Movie.genres)
+        .where(Genre.type.in_(genre_list))  # Filter by all specified genres
+        .group_by(Movie.id)
+        .having(func.count(Genre.id) == len(genre_list))  # Ensure all genres match
+    )
+    return db.execute(statement).scalars().all()
+
+# Function that return the list with the movies included the pattern of searching
+def get_movies_by_input(db: Session, input: str)-> List[MovieOut]:
+    # Use ILIKE for case-insensitive search for partial matches
+    statement = select(Movie).where(Movie.title.ilike(f"%{input}%"))
+    return db.execute(statement).scalars().all()
 
