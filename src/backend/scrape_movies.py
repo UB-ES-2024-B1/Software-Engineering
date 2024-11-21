@@ -175,12 +175,8 @@ def fetch_movie_data(movie_id):
 
                 f"https://image.tmdb.org/t/p/w500/{data['backdrop_path']}" if data.get('backdrop_path') else None
             ],
-            "trailer": ""
-
-                f"https://image.tmdb.org/t/p/original/{data['backdrop_path']}" if data.get('backdrop_path') else None
-            ]
-
-        }
+            "trailer": get_movie_video_link(movie_id)
+            }
 
         return movie
 
@@ -189,6 +185,41 @@ def fetch_movie_data(movie_id):
     except Exception as e:
         print(f"Ocurrió un error: {e}")
 
+def get_movie_video_link(movie_id):
+    """
+    Obtiene el enlace del video para una película específica usando TMDb API.
+    
+    Args:
+        movie_id (int): ID de la película en TMDb.
+    
+    Returns:
+        str: Enlace del video para reproducir en TMDb o un mensaje indicando que no hay videos.
+    """
+    # Construir la URL para el endpoint de videos
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key={API_KEY}"
+    
+    try:
+        # Realizar la solicitud GET a la API
+        response = requests.get(url)
+        response.raise_for_status()  # Lanza una excepción si ocurre un error HTTP
+        
+        # Parsear la respuesta JSON
+        data = response.json()
+        
+        # Verificar si hay videos en los resultados
+        if "results" in data and len(data["results"]) > 0:
+            # Tomar el primer video disponible
+            video_key = data["results"][0]["key"]
+            
+            # Construir el enlace para reproducir el video
+            video_link = f"https://www.themoviedb.org/video/play?key={video_key}"
+            return video_link
+        else:
+            return None
+    except requests.exceptions.RequestException as e:
+        # Manejar errores de solicitud
+        return f"Error al conectar con la API de TMDb: {e}"
+    
 def load_existing_data(filename):
     if os.path.exists(filename):
         with open(filename, 'r') as f:

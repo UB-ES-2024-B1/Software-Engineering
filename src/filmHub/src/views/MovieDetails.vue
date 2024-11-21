@@ -113,31 +113,54 @@
     </section>
 
     <section class="cast-section" v-if="bannerMovie">
+
       <div class="details-grid">
-        <!-- Card for Director (Always visible as the first item) -->
-        <div class="detail-card">
-          <h4>Director</h4>
-          <p>{{ bannerMovie.director }}</p>
-        </div>
 
-        <!-- Cards for Cast, excluding the director -->
-        <div v-for="(actor, index) in bannerMovie.cast" :key="actor" class="detail-card" v-show="index < visibleCount">
-          <h4>Actor</h4>
-          <p>{{ actor }}</p>
-        </div>
+        <h4 class="section-title">Cast & Crew</h4>
+        <div class="cards-container">
+          <!-- Card for Director (Always visible as the first item) -->
+          <div class="detail-card">
+            <h4>Director</h4>
+            <p>{{ bannerMovie.director }}</p>
+          </div>
 
+          <!-- Cards for Cast, excluding the director -->
+          <div v-for="(actor, index) in bannerMovie.cast" :key="actor" class="detail-card"
+            v-show="index < visibleCount">
+            <h4>Actor</h4>
+            <p>{{ actor }}</p>
+          </div>
+        </div>
         <!-- See More Button -->
         <div class="see-more-btn" v-if="bannerMovie.cast.length > 10">
-          <button @click="toggleSeeMore">{{ showAll ? 'See Less' : 'See More' }}</button>
+          <button @click="toggleSeeMore">
+            {{ showAll ? 'See Less' : 'See More' }}
+            <i :class="showAll ? 'bx bx-chevron-up' : 'bx bx-chevron-down'"></i>
+          </button>
+
+
+        </div>
+      </div>
+    </section>
+    <div class="trailer-title">
+      <h4 class="section-title">Trailer</h4>
+    </div>
+    <!-- Reproductor de video -->
+    <section class="video-section">
+
+      <div v-if="bannerMovie" class="banner-video">
+
+        <!-- Video or Image -->
+        <div class="media-container">
+          <VideoPlayer v-if="bannerMovie.trailer" :videoUrl="bannerMovie.trailer" />
+          <img v-else :src="bannerMovie.image" :alt="bannerMovie.title" class="banner-image" />
         </div>
       </div>
     </section>
 
-
-
     <!-- Sección de películas relacionadas -->
     <section class="top-rated-movies">
-      <h2 class="section-title">Related Movies</h2>
+      <h4 class="section-title" id="related-movies">Related Movies</h4>
       <div id="topRatedMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <!-- Primer bloque: películas 0-4 -->
@@ -230,12 +253,14 @@ import HeaderPage from '@/components/HeaderPage.vue';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js';
 import FooterComponent from '@/components/FooterComponent.vue';
+import VideoPlayer from "@/components/VideoPlayer.vue";
 
 export default {
   name: 'MovieDetails',
   components: {
     HeaderPage,
     FooterComponent,
+    VideoPlayer,
   },
   data() {
     return {
@@ -245,6 +270,7 @@ export default {
       genresList: [], // Lista de géneros disponibles
       visibleCount: 9, // Initially show up to 10 items (5 items x 2 rows)
       showAll: false, // To toggle between showing all items or not
+
     };
   },
   computed: {
@@ -363,6 +389,7 @@ async function generateMovieObject(movieData) {
     release_date: movieData.release_date,
     genres: movieData.genres.map((genre) => genre.type),
     cast: movieData.cast_members.map((cast) => cast.name),
+    trailer: movieData.trailer,
   };
 }
 
@@ -409,6 +436,16 @@ body {
   /* Oculta el desbordamiento de las imágenes */
   margin-top: 0px;
   /* Mantén esto si es necesario para tu diseño */
+}
+
+.banner-video {
+  display: flex;
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
+  height: 450px;
+  /* Or any height that fits your layout */
 }
 
 .shadow-overlay {
@@ -638,16 +675,23 @@ body {
 .section-title {
   color: white;
   /* Cambia el color del texto */
-  font-size: 20px;
+  font-size: 1.5em;
+  font-weight: bold;
   /* Cambia el tamaño de la fuente */
   text-align: left;
   /* Cambia la alineación (izquierda, centro, derecha) */
-  margin-left: 0px;
-  /* Agrega margen a la izquierda si es necesario */
-  margin-bottom: 20px;
-  /* Agrega margen abajo para separarlo de la cuadrícula */
-  font-weight: bold;
+  margin-left: 2.4rem;
+  margin-top: 1rem;
+  display: inline-block;
+  width: 100%;
 }
+
+.trailer-title {
+  padding-bottom: 2rem;
+  padding-top: 2rem;
+}
+
+
 
 /* 
 .movie-item:hover {
@@ -681,7 +725,7 @@ body {
   /* Alinear a la izquierda (o cambiar a center si prefieres) */
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
-  
+
 }
 
 /* Estilo para cada película dentro del carrusel */
@@ -698,7 +742,7 @@ body {
   /* Cambia el color de fondo */
   border-radius: 20px;
   /* Bordes redondeados para que coincidan con el poster */
-  
+
   position: relative;
   /* Asegura que los elementos dentro se posicionen relativos a este */
 }
@@ -708,6 +752,7 @@ body {
   z-index: 10;
   /* Efecto de escala al pasar el cursor por encima */
 }
+
 /* Estilo para la imagen de la película */
 .movie-poster {
   transition: transform 0.3s ease;
@@ -962,7 +1007,7 @@ body {
   margin: 0;
 }
 
-.cast-section .details-grid {
+.cast-section .details-grid .cards-container {
   background-color: #121212;
   padding: 30px;
   color: white;
@@ -984,17 +1029,17 @@ body {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  transition:0.2s;
+  transition: 0.2s;
 }
 
-.detail-card:hover{
+.detail-card:hover {
   transform: scale(1.05);
 }
 
 .see-more-btn {
   grid-column: span 5;
-  text-align: left;
-  
+  text-align: right;
+  margin-right: 1.5rem;
 }
 
 .see-more-btn button {
@@ -1010,5 +1055,37 @@ body {
 
 .see-more-btn button:hover {
   color: #949494;
+}
+
+.media-container {
+  display: flex;
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
+  width: 100%;
+  height: 100%;
+}
+
+.video-section {
+  text-align: center;
+  padding-top: 18rem;
+  padding-bottom: 18rem;
+}
+
+.banner-video iframe {
+  max-width: 100%;
+  /* Ensure the video/image doesn't overflow */
+  max-height: 100%;
+  /* Ensure the video/image doesn't overflow */
+}
+
+.banner-image{
+  width: 112rem;
+  height: 63rem;
+}
+
+#related-movies {
+  margin-left: -0.2rem;
 }
 </style>
