@@ -72,3 +72,11 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### **About docker**
+Start service:
+    cd src/filmHub
+    docker-compose up -d
+
+Stop service:
+    docker-compose down
