@@ -1,6 +1,6 @@
 # backend/app/crud/movie_crud.py
 from sqlmodel import Session, select
-from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast) 
+from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, Genre, CastMember, MovieGenre, MovieCast, MovieUser) 
 from typing import List
 from fastapi import File, UploadFile
 from sqlalchemy.sql import func, case, extract
@@ -264,4 +264,48 @@ def get_movies_by_input(db: Session, input: str)-> List[MovieOut]:
     # Use ILIKE for case-insensitive search for partial matches
     statement = select(Movie).where(Movie.title.ilike(f"%{input}%"))
     return db.execute(statement).scalars().all()
+
+# Function to rate a specific movie by a user
+def rate_movie(db: Session, user_id: int, movie_id: int, rating: float):
+    if rating < 0 or rating > 5:
+        raise ValueError("Rating must be between 0 and 5.")
+    
+    # Check if a relationship already exists
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    if not movie_user:
+        # Create a new relationship with the rating
+        movie_user = MovieUser(movie_id=movie_id, user_id=user_id, rating=rating)
+        db.add(movie_user)
+    else:
+        # Update the existing rating
+        movie_user.rating = rating
+    
+    db.commit()
+    db.refresh(movie_user)
+    return movie_user
+
+# Function to give a like to a specific movie by a user
+def like_movie(db: Session, user_id: int, movie_id: int):
+    # Check if a relationship already exists
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    if not movie_user:
+        # Create a new relationship with the like
+        movie_user = MovieUser(movie_id=movie_id, user_id=user_id, liked=True)
+        db.add(movie_user)
+    else:
+        # Toggle the like status
+        movie_user.liked = not movie_user.liked
+    
+    db.commit()
+    db.refresh(movie_user)
+    return movie_user
+
+# Functions for get the list of movies that the user have rated by stars and by given like
+def get_user_rated_movies(db: Session, user_id: int):
+    return db.query(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.rating.isnot(None)).all()
+
+def get_user_liked_movies(db: Session, user_id: int):
+    return db.query(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.liked == True).all()
 
