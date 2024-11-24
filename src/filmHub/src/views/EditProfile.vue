@@ -115,6 +115,7 @@ export default {
 <style scoped>
 /* Estilos generales iguales a los de profile */
 .profile-page {
+  height: 100vh;
   margin: 0;
   padding: 0;
   background-image: url('@/assets/fondo_login.jpg');
