@@ -379,7 +379,7 @@ def update_movie(movie_title: str, movie_data: MovieIn, db: Session = Depends(ge
         raise HTTPException(status_code=404, detail="Movie not found")
     return updated_movie
 
-# Endpoint to update only the rating of an existing movie by its title
+'''# Endpoint to update only the rating of an existing movie by its title
 @router.put("/{movie_title}/rating", response_model=MovieOut)
 def update_movie_rating_by_title(movie_title: str, rating_data: MovieUpdateRating, db: Session = Depends(get_db)):
     """
@@ -418,7 +418,7 @@ def add_movie_like(movie_title: str, db: Session = Depends(get_db)):
     if updated_movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")
     
-    return updated_movie
+    return updated_movie'''
 
 # Endpoint to delete an existing movie by its ID
 @router.delete("/id/{movie_id}", response_model=dict)
