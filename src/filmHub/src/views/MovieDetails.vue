@@ -679,14 +679,13 @@ body {
   /* Cambia el tamaño de la fuente */
   text-align: left;
   /* Cambia la alineación (izquierda, centro, derecha) */
-  margin-left: 0px;
+  margin-left: 2.4rem;
   /* Agrega margen a la izquierda si es necesario */
   margin-bottom: 0px;
   /* Agrega margen abajo para separarlo de la cuadrícula */
   font-weight: bold;
   
 }
-
 .trailer-title {
   padding-bottom: 2rem;
   padding-top: 2rem;
