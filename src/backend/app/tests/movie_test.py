@@ -78,6 +78,7 @@ def test_create_movie_2():
 
     # Assert that the response status 
     assert response.status_code == 400
+
 # Test to get list of movies
 def test_get_movies():
     response = client.get("/movies/")
@@ -164,22 +165,6 @@ def test_update_movie():
     assert response_data["rating"] == update_data["rating"]
     assert response_data["rating_count"] == update_data["rating_count"]
     assert response_data["likes"] == update_data["likes"]
-
-# Test update rating of movie
-def test_update_movie_rating_by_title():
-    update_data = {"rating": 4.9}
-    response = client.put("/movies/The Lost City/rating", json=update_data)
-    assert response.status_code == 200
-
-# Test update likes of movie
-def test_add_movie_like():
-    response = client.put("/movies/The Lost City/like")
-    assert response.status_code == 200
-
-    response_data = response.json()    
-    # Assuming likes were initially set to 5300
-    assert response_data["likes"] == 5301
-
 
 # Test get movies by year
 def test_get_movies_by_year():
@@ -298,4 +283,3 @@ def test_search_movies_by_name():
     # Check if movie titles contain 'barb'
     for movie in response_data:
         assert "barb" in movie["title"].lower()
-

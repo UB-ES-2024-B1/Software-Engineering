@@ -379,6 +379,28 @@ def update_movie(movie_title: str, movie_data: MovieIn, db: Session = Depends(ge
         raise HTTPException(status_code=404, detail="Movie not found")
     return updated_movie
 
+# Endpoint to update only the rating of an existing movie by its title
+@router.post("/rate/{movie_id}/{user_id}/{rating}")
+def rate_movie_endpoint(movie_id: int, user_id: int, rating: float, db: Session = Depends(get_db)):
+    # Check if the movie exists
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
+    # If the movie exists, proceed with the rating logic
+    return movie_crud.rate_movie(db, user_id, movie_id, rating)
+
+# Endpoint to increment the likes of a movie by its title
+@router.post("/like/{movie_id}/{user_id}")
+def like_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_db)):
+    # Check if the movie exists
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
+    # If the movie exists, proceed with the like logic
+    return movie_crud.like_movie(db, user_id, movie_id)
+
 '''# Endpoint to update only the rating of an existing movie by its title
 @router.put("/{movie_title}/rating", response_model=MovieOut)
 def update_movie_rating_by_title(movie_title: str, rating_data: MovieUpdateRating, db: Session = Depends(get_db)):

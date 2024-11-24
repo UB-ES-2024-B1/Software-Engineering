@@ -2,7 +2,7 @@
 from sqlmodel import Session, select
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, Genre, CastMember, MovieGenre, MovieCast, MovieUser) 
 from typing import List
-from fastapi import File, UploadFile
+from fastapi import File, UploadFile, HTTPException
 from sqlalchemy.sql import func, case, extract
 
 
@@ -45,7 +45,7 @@ def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> 
     db.commit()  # Commit the transaction
     db.refresh(db_movie)  # Refresh to get the updated data
 
-    return MovieOut.from_orm(db_movie)  # Use model_validate instead of from_orm
+    return MovieOut.model_validate(db_movie)  # Use model_validate instead of from_orm
 
 # Function to get a list of movies with pagination
 def get_movies(db: Session, skip: int = 0, limit: int = 100) -> List[MovieOut]:
@@ -142,7 +142,7 @@ def update_movie(db: Session, movie_title: str, movie_data: MovieUpdate) -> Movi
     statement = select(Movie).where(Movie.title == movie_title)
     movie = db.execute(statement).scalars().first()
     if movie:
-        for key, value in movie_data.dict(exclude_unset=True).items():
+        for key, value in movie_data.model_dump(exclude_unset=True).items():
         
             if key not in ["genres", "cast_members"]:
                 setattr(movie, key, value)
@@ -166,11 +166,11 @@ def update_movie(db: Session, movie_title: str, movie_data: MovieUpdate) -> Movi
         db.add(movie)
         db.commit()
         db.refresh(movie)  # Refresh to get updated data
-        return MovieOut.from_orm(movie)  # Use model_validate
+        return MovieOut.model_validate(movie)  # Use model_validate
 
     return None  # If movie not found
 
-def update_movie_rating_by_title(db: Session, movie_title: str, new_rating: float):
+'''def update_movie_rating_by_title(db: Session, movie_title: str, new_rating: float):
     # Query the movie by title
     movie = db.query(Movie).filter(Movie.title == movie_title).first()
     
@@ -188,24 +188,7 @@ def update_movie_rating_by_title(db: Session, movie_title: str, new_rating: floa
     db.commit()
     db.refresh(movie)
     
-    return movie
-
-def add_movie_like(db: Session, movie_title: str):
-    # Query the movie by title
-    movie = db.query(Movie).filter(Movie.title == movie_title).first()
-    
-    # If the movie doesn't exist, return None
-    if not movie:
-        return None
-    
-    # Increment the likes count by 1
-    movie.likes += 1
-    
-    # Commit the transaction and refresh the instance
-    db.commit()
-    db.refresh(movie)
-    
-    return movie
+    return movie'''
 
 # Function to delete a movie by ID
 def delete_movie(db: Session, movie_id: int) -> bool:
@@ -265,10 +248,34 @@ def get_movies_by_input(db: Session, input: str)-> List[MovieOut]:
     statement = select(Movie).where(Movie.title.ilike(f"%{input}%"))
     return db.execute(statement).scalars().all()
 
+# Intern function for update in database the movie rating
+def update_movie_rating_by_id(db: Session, movie_id: int, new_rating: float):
+    # Query the movie by title
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    
+    # If the movie doesn't exist, return None
+    if not movie:
+        return None
+    
+    # Calculate the new average rating
+    total_rating_sum = movie.rating * movie.rating_count  # Total of all previous ratings
+    total_rating_sum += new_rating  # Add the new rating to the total
+    movie.rating_count += 1         # Increase the count by 1
+    movie.rating = total_rating_sum / movie.rating_count  # Calculate the new average
+    
+    # Commit the transaction and refresh the instance
+    db.commit()
+    db.refresh(movie)
+    
+    return movie
+
 # Function to rate a specific movie by a user
 def rate_movie(db: Session, user_id: int, movie_id: int, rating: float):
     if rating < 0 or rating > 5:
-        raise ValueError("Rating must be between 0 and 5.")
+        raise HTTPException(
+            status_code=400,  # Bad Request
+            detail="Rating must be between 0 and 5."
+        )
     
     # Check if a relationship already exists
     movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
@@ -276,15 +283,35 @@ def rate_movie(db: Session, user_id: int, movie_id: int, rating: float):
     if not movie_user:
         # Create a new relationship with the rating
         movie_user = MovieUser(movie_id=movie_id, user_id=user_id, rating=rating)
+        update_movie_rating_by_id(db, user_id, rating)
         db.add(movie_user)
     else:
         # Update the existing rating
         movie_user.rating = rating
+        update_movie_rating_by_id(db, user_id, rating)
     
     db.commit()
     db.refresh(movie_user)
     return movie_user
 
+# Intern function to add a like by the user
+def add_movie_like(db: Session, movie_id: int):
+    # Query the movie by title
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    
+    # If the movie doesn't exist, return None
+    if not movie:
+        return None
+    
+    # Increment the likes count by 1
+    movie.likes += 1
+    
+    # Commit the transaction and refresh the instance
+    db.commit()
+    db.refresh(movie)
+    
+    return movie
+ 
 # Function to give a like to a specific movie by a user
 def like_movie(db: Session, user_id: int, movie_id: int):
     # Check if a relationship already exists
@@ -293,10 +320,12 @@ def like_movie(db: Session, user_id: int, movie_id: int):
     if not movie_user:
         # Create a new relationship with the like
         movie_user = MovieUser(movie_id=movie_id, user_id=user_id, liked=True)
+        add_movie_like(db,movie_id)
         db.add(movie_user)
     else:
         # Toggle the like status
-        movie_user.liked = not movie_user.liked
+        movie_user.liked = True
+        add_movie_like(db,movie_id)
     
     db.commit()
     db.refresh(movie_user)
