@@ -166,7 +166,7 @@
           <!-- Primer bloque: películas 0-4 -->
           <div class="carousel-item active">
             <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in relatedMovies.slice(0, 6)" :key="movie.id">
+              <div class="movie-item" v-for="movie in relatedMovies.slice(0, 5)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
@@ -183,7 +183,7 @@
           <!-- Segundo bloque: películas 5-9 -->
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in relatedMovies.slice(6, 12)" :key="movie.id">
+              <div class="movie-item" v-for="movie in relatedMovies.slice(5, 10)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
@@ -199,7 +199,7 @@
           <!-- Tercer bloque: películas 10-14 -->
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in relatedMovies.slice(12, 18)" :key="movie.id">
+              <div class="movie-item" v-for="movie in relatedMovies.slice(10, 15)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
@@ -215,7 +215,7 @@
           <!-- Cuarto bloque: películas 15-19 -->
           <div class="carousel-item">
             <div class="movie-grid responsive-carousel">
-              <div class="movie-item" v-for="movie in relatedMovies.slice(18, 24)" :key="movie.id">
+              <div class="movie-item" v-for="movie in relatedMovies.slice(15, 20)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
@@ -471,6 +471,8 @@ body {
   z-index: 20;
   /* Aumenta el z-index para que estén encima de la imagen de portada */
   width: 50px;
+  top: 24px;
+  height: 375px;
   opacity: 0;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
@@ -482,7 +484,9 @@ body {
 .carousel-control-prev {
   z-index: 20;
   /* Aumenta el z-index para que estén encima de la imagen de portada */
+  top: 24px;
   width: 50px;
+  height: 375px;
   opacity: 0;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
@@ -499,11 +503,7 @@ body {
 }
 
 
-.carousel-indicators {
-  position: absolute;
-  z-index: 15;
-  /* Asegúrate de que los indicadores estén por encima de otros elementos */
-}
+
 
 .features {
   padding: 40px 20px;
@@ -664,7 +664,7 @@ body {
 
 .movie-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   /* Grid responsivo */
   gap: 50px;
   /* Espacio entre elementos */
@@ -675,17 +675,17 @@ body {
 .section-title {
   color: white;
   /* Cambia el color del texto */
-  font-size: 1.5em;
-  font-weight: bold;
+  font-size: 20px;
   /* Cambia el tamaño de la fuente */
   text-align: left;
   /* Cambia la alineación (izquierda, centro, derecha) */
   margin-left: 2.4rem;
-  margin-top: 1rem;
-  display: inline-block;
-  width: 100%;
+  /* Agrega margen a la izquierda si es necesario */
+  margin-bottom: 0px;
+  /* Agrega margen abajo para separarlo de la cuadrícula */
+  font-weight: bold;
+  
 }
-
 .trailer-title {
   padding-bottom: 2rem;
   padding-top: 2rem;
@@ -693,17 +693,10 @@ body {
 
 
 
-/* 
-.movie-item:hover {
-  transform: scale(1.05); 
-}
-
-*/
-
 .rating-likes-cover {
   position: absolute;
-  bottom: 22rem;
-  left: 1rem;
+  bottom: 315px;
+  left: 15px;
   background-color: rgba(0, 0, 0, 0.6);
   /* Fondo oscuro semi-transparente */
   color: white;
@@ -719,6 +712,7 @@ body {
 
 
 
+
 /* Estilo para el carrusel */
 .carousel-item {
   justify-content: center;
@@ -730,9 +724,9 @@ body {
 
 /* Estilo para cada película dentro del carrusel */
 .movie-item {
-  width: 15.5rem;
+  width: 250px;
   /* Ajusta al tamaño deseado */
-  height: 26rem;
+  height: 375px;
   /* Mantiene la proporción de la imagen */
   flex-direction: column;
   /* Apila el contenido verticalmente */
@@ -742,7 +736,8 @@ body {
   /* Cambia el color de fondo */
   border-radius: 20px;
   /* Bordes redondeados para que coincidan con el poster */
-  transition: transform ease 0.3s; 
+
+  transition: transform 0.3s;
   position: relative;
   /* Asegura que los elementos dentro se posicionen relativos a este */
 }
@@ -755,10 +750,9 @@ body {
 
 /* Estilo para la imagen de la película */
 .movie-poster {
-  transition: transform 0.3s ease;
   width: 100%;
   /* Asegúrate de que ocupen todo el ancho del contenedor */
-  height: 27rem !important;
+  height: 375px !important;
   /* Mantiene la proporción de la imagen */
   border-radius: 20px;
   /* Bordes redondeados */
