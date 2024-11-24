@@ -95,7 +95,6 @@ def test_get_movie_by_title():
 
     response_data = response.json()
     assert response_data["title"] == "The Lost City"
-
 # Test to get movie by id
 def test_get_movie_by_id():
     response = client.get("/movies/1")
@@ -505,11 +504,44 @@ def test_remove_like_movie_invalid_user_id():
     
     assert response.status_code == 404  # Expecting Not Found error (User not found)
 
-# Test to rate and like a non existing user
-def test_rate_non_existing_movie():
+# Test to like a non existing user
+def test_like_non_existing_user():
     response = client.delete("/users/email/testusermovie@example.com")
     assert response.status_code == 200
 
+    movie_id = 1
+    user_id = -1
+    
+    # Simulate the movie like request
+    response3 = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response3.status_code == 404  # Expecting Not Found error
+
+# Test to rate a non existing user
+def test_rate_like_non_existing_user():
+    movie_id = 1
+    user_id = -1
+    rating = 5.0
+    
+    # Simulate the movie rating request 
+    response2 = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
+    # Assert the response status code
+    assert response2.status_code == 404
+
+
+# Test to like a non existing movie
+def test_like_non_existing_movie():
+    response = client.delete("/movies/title/Test film")
+    assert response.status_code == 200
+
+    movie_id = -1
+    user_id = 1
+    
+    # Simulate the movie like request
+    response3 = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response3.status_code == 404  # Expecting Not Found error
+
+ # Test to rating a non existing movie
+def test_like_non_existing_movie():
     movie_id = -1
     user_id = 1
     rating = 5.0
@@ -518,18 +550,3 @@ def test_rate_non_existing_movie():
     response2 = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
     # Assert the response status code
     assert response2.status_code == 404
-    
-# Test to like a non existing movie
-def test_like_non_existing_movie():
-    response = client.delete("/movies/title/Kung Fu Panda 4")
-    assert response.status_code == 200
-
-    movie_id = -1
-    user_id = 1
-    rating = 5.0
-    
-    # Simulate the movie like equest
-    response3 = client.post(f"/movies/like/{movie_id}/{user_id}")
-    assert response3.status_code == 404  # Expecting Not Found error
-
- 
