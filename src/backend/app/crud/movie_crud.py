@@ -338,3 +338,102 @@ def get_user_rated_movies(db: Session, user_id: int):
 def get_user_liked_movies(db: Session, user_id: int):
     return db.query(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.liked == True).all()
 
+### THE SAME BUT FOR REMOVING RATING
+# Intern function for remove in database the movie rating
+def remove_movie_rating_by_id(db: Session, movie_id: int, user_id: int):
+    # Query the movie by ID
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    
+    # If the movie doesn't exist, return None
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
+    # Get the user's rating for this movie
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    # If the user hasn't rated the movie, return an error
+    if not movie_user or movie_user.rating is None:
+        raise HTTPException(status_code=400, detail="No rating to remove")
+
+    # Get the current rating
+    old_rating = movie_user.rating
+
+    # Subtract the user's rating from the total rating sum
+    total_rating_sum = movie.rating * movie.rating_count
+    total_rating_sum -= old_rating  # Remove the user's rating
+    movie.rating_count -= 1  # Decrease the rating count by 1
+
+    # Recalculate the average rating
+    if movie.rating_count > 0:
+        movie.rating = total_rating_sum / movie.rating_count  # Calculate the new average rating
+    else:
+        movie.rating = 0  # If there are no ratings left, set the rating to 0
+
+    # Update the rating in the movie_user table to None (i.e., no rating)
+    movie_user.rating = None
+
+    # Commit the changes to the database
+    db.commit()
+    db.refresh(movie)
+    
+    return movie
+
+# Function to remove the rate a specific movie by a user
+def remove_rate_movie(db: Session, user_id: int, movie_id: int):
+    # Check if a relationship already exists
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    if movie_user:
+        # Remove the existing rating
+        movie_user.rating = 0
+        remove_movie_rating_by_id(db, movie_id, user_id)
+    else:
+        raise HTTPException(status_code=400, detail="No rating to remove")
+
+    db.commit()
+    db.refresh(movie_user)
+    return movie_user
+
+# Intern function to remode a like by the user
+def remove_movie_like(db: Session, movie_id: int, user_id: int):
+    # Query the movie by ID
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    
+    # If the movie doesn't exist, return None
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
+    # Query to check if the user has already liked the movie (assuming a MovieUser or similar table exists)
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    # If the user hasn't liked the movie, return an error
+    if not movie_user or not movie_user.liked:
+        raise HTTPException(status_code=400, detail="User hasn't liked the movie")
+    
+    # Decrement the likes count
+    movie.likes -= 1
+    
+    # Mark that the user no longer likes the movie
+    movie_user.liked = False
+    
+    # Commit the transaction and refresh the instance
+    db.commit()
+    db.refresh(movie)
+    
+    return movie
+ 
+# Function to remove a like to a specific movie by a user
+def remove_like_movie(db: Session, user_id: int, movie_id: int):
+    # Check if a relationship already exists
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    if movie_user:
+        # Toggle the like status
+        movie_user.liked = False
+        remove_movie_like(db,movie_id)
+    else:
+        raise HTTPException(status_code=400, detail="No like to remove")
+    
+    db.commit()
+    db.refresh(movie_user)
+    return movie_user
