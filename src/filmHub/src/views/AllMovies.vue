@@ -38,7 +38,7 @@
             </section>
 
             <div class="main-container">
-                <!-- Itera sobre las filas de películas (6 por fila) -->
+                <!-- Itera sobre las filas de películas (5 por fila) -->
                 <div v-for="(row, index) in sortedMovies" :key="index" class="inner-container">
                     <!-- Mostrar cada película en una fila -->
                     <div v-for="movie in row" :key="movie.id" class="movie-card">
@@ -49,20 +49,20 @@
                                 <img :src="movie.smallImage" :alt="movie.title" class="movie-poster" />
                             </div>
 
+                            <div class="rating-likes-inline">
+                                <div class="rating">
+                                    <img src="@/assets/star.png" alt="Rating star" class="icon" />
+                                    <span>{{ movie.rating }}</span>
+                                </div>
+                                <div class="likes">
+                                    <img src="@/assets/like.png" alt="Like icon" class="icon" />
+                                    <span>{{ movie.likes }}</span>
+                                </div>
+                            </div>
+
                             <!-- Contenedor blanco con la información -->
                             <div class="movie-info">
                                 <p class="movie-title">{{ movie.title }}</p>
-
-                                <div class="rating-likes-inline">
-                                    <div class="rating">
-                                        <img src="@/assets/star.png" alt="Rating star" class="icon" />
-                                        <span>{{ movie.rating }}</span>
-                                    </div>
-                                    <div class="likes">
-                                        <img src="@/assets/like.png" alt="Like icon" class="icon" />
-                                        <span>{{ movie.likes }}</span>
-                                    </div>
-                                </div>
 
                                 <!-- Nueva fila para mostrar el género -->
                                 <p class="genre">{{ movie.genre }}</p>
@@ -218,22 +218,22 @@ export default {
 
                 // Determine the API endpoint based on the criteria
                 if (criteria === "rating") {
-                    url = `${API_BASE_URL}/movies/sorted/rating/`;
+                    url = `${API_BASE_URL}/movies/sorted/rating`;
                 } else if (criteria === "year") {
                     if (this.selectedYear) {
                         url = `${API_BASE_URL}/movies/release/${this.selectedYear}`;
                     } else {
-                        url = `${API_BASE_URL}/movies/sorted/release_date/`;
+                        url = `${API_BASE_URL}/movies/sorted/release_date`;
                     }
                 } else if (criteria === "popularity") {
-                    url = `${API_BASE_URL}/movies/sorted/likes/`;
+                    url = `${API_BASE_URL}/movies/sorted/likes`;
                 } else if (criteria === "search") {
                     const searchQuery = this.$route.query.search;
                     url = `${API_BASE_URL}/movies/search/name/${searchQuery}`;
                 } else if (criteria === "genre" && this.selectedGenre) {
                     url = `${API_BASE_URL}/movies/genre/${this.selectedGenre}`;
                 } else {
-                    url = `${API_BASE_URL}/movies/`;
+                    url = `${API_BASE_URL}/movies`;
                 }
 
                 // Make the API call with the cancel token
@@ -249,7 +249,7 @@ export default {
                     })
                 );
 
-                this.sortedMovies = this.chunkMovies(processedMovies, 6);
+                this.sortedMovies = this.chunkMovies(processedMovies, 5);
 
                 console.log(`Movies filtered by ${criteria}:`, this.sortedMovies);
             } catch (error) {
@@ -452,6 +452,7 @@ export default {
     gap: 20px;
     /* Espaciado entre elementos */
     transition: width 0.3s ease;
+    background-color: #121212;
 
 }
 
@@ -487,20 +488,21 @@ button:hover {
     /* Apilar las filas de manera vertical */
     gap: 20px;
     /* Espacio entre las filas */
-    padding: 20px;
+    padding: 40px;
     flex: 1;
     overflow-y: auto;
     box-sizing: border-box;
     margin-left: 200px;
     /* Deja espacio para la barra vertical de 200px más el padding */
     margin-top: 185px;
-    max-width: 80%;
+    max-width: 100%;
     flex-wrap: wrap;
+    background-color: #121212;
 }
 
 /* Estilo para cada película dentro de la fila */
 .movie-item {
-    width: 200px;
+    width: 2    00px;
     /* Cada película ocupa el 18% del ancho del contenedor (5 películas por fila) */
     position: relative;
     /* Permite ajustar el contenido de la película */
@@ -566,7 +568,6 @@ button:hover {
 
 }
 
-
 .container-wrapper {
     justify-content: center;
     display: flex;
@@ -575,7 +576,19 @@ button:hover {
     background-color: #161616;
 }
 
-
+.rating-likes-inline {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 10px;
+    object-fit: contain;
+    width: fit-content;
+    height: fit-content;
+    
+}
 
 .rating-likes-inline {
     display: flex;
@@ -597,25 +610,23 @@ button:hover {
     font-weight: bold;
 }
 
-
-
 .inner-container {
 
     display: flex;
     justify-content: flex-start;
-    gap: 0.6rem;
+    gap: 20px;
     /* Centrar contenido en filas incompletas */
     flex-wrap: wrap;
     /* Permitir que los elementos se ajusten */
     display: flex;
-    width: 96%;
+    width: 100%;
 }
 
 .movie-card {
-    width: 14rem;
+    width: 230px;
     /* Reducir el ancho de las cartas */
     background-color: #000000;
-    border-radius: 10px;
+    border-radius: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.3s ease;
@@ -634,18 +645,6 @@ button:hover {
     position: relative;
 }
 
-.rating-likes-inline {
-    background-color: rgba(0, 0, 0, 0.5);
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    color: white;
-    padding: 0.5rem;
-    border-radius: 10px;
-    object-fit: contain;
-    width: fit-content;
-    height: fit-content;
-}
 
 .icon {
     width: 18px;
@@ -671,4 +670,9 @@ button:hover {
     text-decoration: none;
     color: inherit;
 }
+
+.footer {
+  z-index: 9999; /* El valor más alto para asegurarse de que esté por encima de otros elementos */
+}
+
 </style>
