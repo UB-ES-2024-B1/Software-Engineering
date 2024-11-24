@@ -23,8 +23,6 @@ FROM nginx:stable-alpine AS production-stage
 # Copiar los archivos generados en la etapa de construcción al directorio que Nginx sirve
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
-# Exponer el puerto 80 para el servidor Nginx
 EXPOSE 80
 
 # Comando para iniciar Nginx
