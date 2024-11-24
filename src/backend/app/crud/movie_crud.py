@@ -283,12 +283,12 @@ def rate_movie(db: Session, user_id: int, movie_id: int, rating: float):
     if not movie_user:
         # Create a new relationship with the rating
         movie_user = MovieUser(movie_id=movie_id, user_id=user_id, rating=rating)
-        update_movie_rating_by_id(db, user_id, rating)
+        update_movie_rating_by_id(db, movie_id, rating)
         db.add(movie_user)
     else:
         # Update the existing rating
         remove_movie_rating_by_id(db, movie_id, user_id)
-        update_movie_rating_by_id(db, user_id, rating)
+        update_movie_rating_by_id(db, movie_id, rating)
         movie_user.rating = rating
     
     db.commit()

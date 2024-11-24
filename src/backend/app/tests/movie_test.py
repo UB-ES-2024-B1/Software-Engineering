@@ -233,7 +233,7 @@ def test_delete_movie():
     assert response.status_code == 200
 
 # Test to get movie by title
-def test_get_movie_by_title_2():
+def test_get_non_existent_movie_by_title():
     response = client.get("/movies/title/The Lost City")
     assert response.status_code == 404
 
@@ -540,7 +540,7 @@ def test_like_non_existing_user():
     assert response3.status_code == 404  # Expecting Not Found error
 
 # Test to rate a non existing user
-def test_rate_like_non_existing_user():
+def test_rate_non_existing_user():
     movie_id = 1
     user_id = -1
     rating = 5.0
