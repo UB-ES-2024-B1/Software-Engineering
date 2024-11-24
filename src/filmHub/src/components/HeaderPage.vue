@@ -14,10 +14,15 @@
     <!-- Mostrar la barra de búsqueda solo si no estamos en páginas de registro o login -->
     <div v-if="!isAuthPage" class="search-bar">
       <!-- Conectar el input al modelo de datos -->
-      <input type="text" v-model="searchInput" placeholder="Search for movies..." />
+      <input 
+        type="text" 
+        v-model="searchInput" 
+        placeholder="Search for movies..." 
+        @keyup.enter="searchMovies"  
+      />
       <!-- Enviar el término como parámetro de consulta -->
       <router-link v-if="!isAuthPage" :to="{ path: '/movies', query: { search: searchInput } }">
-        <button>Go!</button>
+        <button @click="searchMovies">Go!</button> <!-- Método de búsqueda al hacer click -->
       </router-link>
     </div>
 
@@ -68,8 +73,10 @@ export default {
   },
   methods: {
     searchMovies() {
-      const query = this.$refs.searchInput.value;
-      console.log('Searching for:', query);
+      if (this.searchInput) {
+        this.$router.push({ path: '/movies', query: { search: this.searchInput } });
+        console.log('Searching for:', this.searchInput);
+      }
     },
     handleScroll() {
       // Cambia la propiedad "scrolled" dependiendo de si el scroll es mayor a 60px
@@ -95,8 +102,6 @@ export default {
   },
 };
 </script>
-
-
 
 <style scoped>
 .header {
@@ -140,7 +145,6 @@ export default {
   flex-grow: 1;
   justify-content: center;
   margin: 0 20px;
-
 }
 
 .search-bar input {
