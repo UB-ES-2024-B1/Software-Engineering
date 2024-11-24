@@ -165,7 +165,7 @@
         methods: {
             async fetchGenres() {
                 try {
-                    const url = `${API_BASE_URL}/genres`;
+                    const url = `${API_BASE_URL}/genres/`;
                     const response = await axios.get(url);
                     this.genres = response.data;
                     console.log("Fetched genres:", this.genres);
@@ -269,7 +269,7 @@
                     } else if (criteria === 'genre' && this.selectedGenre) {
                         url = `${API_BASE_URL}/movies/genre/${this.selectedGenre}`;
                     } else {
-                        url = `${API_BASE_URL}/movies`;
+                        url = `${API_BASE_URL}/movies/`;
                     }
 
                     const response = await axios.get(url, {
