@@ -55,7 +55,7 @@ def test_create_movie():
     assert "id" in response_data
 
 # Test to create a movie
-def test_create_movie_2():
+def test_create_movie_invalid():
     new_movie = {
         "title": "The Lost City",
         "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
@@ -95,6 +95,7 @@ def test_get_movie_by_title():
 
     response_data = response.json()
     assert response_data["title"] == "The Lost City"
+
 # Test to get movie by id
 def test_get_movie_by_id():
     response = client.get("/movies/1")
@@ -233,7 +234,7 @@ def test_delete_movie():
     assert response.status_code == 200
 
 # Test to get movie by title
-def test_get_movie_by_title_2():
+def test_get_non_existent_movie_by_title():
     response = client.get("/movies/title/The Lost City")
     assert response.status_code == 404
 
@@ -508,7 +509,7 @@ def test_remove_like_movie_invalid_user_id():
 def test_like_non_existing_user():
     response = client.delete("/users/email/testusermovie@example.com")
     assert response.status_code == 200
-
+    
     movie_id = 1
     user_id = -1
     
@@ -517,7 +518,7 @@ def test_like_non_existing_user():
     assert response3.status_code == 404  # Expecting Not Found error
 
 # Test to rate a non existing user
-def test_rate_like_non_existing_user():
+def test_rate_non_existing_user():
     movie_id = 1
     user_id = -1
     rating = 5.0
@@ -526,7 +527,6 @@ def test_rate_like_non_existing_user():
     response2 = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
     # Assert the response status code
     assert response2.status_code == 404
-
 
 # Test to like a non existing movie
 def test_like_non_existing_movie():
@@ -540,8 +540,8 @@ def test_like_non_existing_movie():
     response3 = client.post(f"/movies/like/{movie_id}/{user_id}")
     assert response3.status_code == 404  # Expecting Not Found error
 
- # Test to rating a non existing movie
-def test_like_non_existing_movie():
+# Test to rating a non existing movie
+def test_rate_non_existing_movie():
     movie_id = -1
     user_id = 1
     rating = 5.0
