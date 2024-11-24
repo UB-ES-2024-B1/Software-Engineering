@@ -287,8 +287,9 @@ def rate_movie(db: Session, user_id: int, movie_id: int, rating: float):
         db.add(movie_user)
     else:
         # Update the existing rating
-        movie_user.rating = rating
+        remove_movie_rating_by_id(db, movie_id, user_id)
         update_movie_rating_by_id(db, user_id, rating)
+        movie_user.rating = rating
     
     db.commit()
     db.refresh(movie_user)
@@ -370,7 +371,7 @@ def remove_movie_rating_by_id(db: Session, movie_id: int, user_id: int):
         movie.rating = 0  # If there are no ratings left, set the rating to 0
 
     # Update the rating in the movie_user table to None (i.e., no rating)
-    movie_user.rating = None
+    movie_user.rating = 0
 
     # Commit the changes to the database
     db.commit()
@@ -429,8 +430,8 @@ def remove_like_movie(db: Session, user_id: int, movie_id: int):
     
     if movie_user:
         # Toggle the like status
+        remove_movie_like(db,movie_id,user_id)
         movie_user.liked = False
-        remove_movie_like(db,movie_id)
     else:
         raise HTTPException(status_code=400, detail="No like to remove")
     

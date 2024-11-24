@@ -283,3 +283,252 @@ def test_search_movies_by_name():
     # Check if movie titles contain 'barb'
     for movie in response_data:
         assert "barb" in movie["title"].lower()
+
+# Test rating a movie
+def test_rate_movie():
+    # Test data for movie rating
+    # New user data
+    new_user = {
+        "email": "testusermovie@example.com",
+        "is_active": True,
+        "is_admin" : False,
+        "full_name": "testusermovie",
+        "password": "password123"
+    }
+    new_movie2 = {
+        "title": "Kung Fu Panda 4",
+        "description": "Po and his new ally face a sorceress who wants to take their Staff of Wisdom from them.",
+        "director": "TBA",
+        "country": "USA",
+        "release_date": "2024-03-08",
+        "rating": 4.0,
+        "rating_count": 30000,
+        "likes": 90000,
+        "genres": [
+            "Animation",
+            "Action",
+            "Adventure"
+        ],
+        "cast_members": [
+            "Jack Black",
+            "Dustin Hoffman"
+        ],
+        "image": [
+        ],
+        "trailer": ""
+    }
+    # Create the initial data
+    response1 = client.post("/users/", json=new_user)
+    response2 = client.post("/movies/", json=new_movie2)
+    assert response1.status_code == 201
+    assert response2.status_code == 200
+
+    movie_id = 1
+    user_id = 1
+    rating = 4.0
+    
+    # Simulate the movie rating request
+    response = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
+
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the rating is correctly reflected in the response
+    response_data = response.json()
+    assert "rating" in response_data  # Ensure 'rating' key is returned
+    assert response_data["rating"] == rating
+
+# Test rating a movie with invalid rating
+def test_rate_movie_invalid_rating():
+    movie_id = 1
+    user_id = 1 
+    invalid_rating = 6.0  # Invalid rating value, out of the range [0, 5]
+    
+    response = client.post(f"/movies/rate/{movie_id}/{user_id}/{invalid_rating}")
+    
+    assert response.status_code == 400  # Expect a Bad Request status code
+
+# Test liking a movie
+def test_like_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # Simulate the like movie request
+    response = client.post(f"/movies/like/{movie_id}/{user_id}")
+    
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the likes are updated
+    response_data = response.json()
+    assert response_data["liked"] == True  # Ensure that likes have increased
+
+# Test liking a movie with toggling
+def test_toggle_like_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # First, simulate liking the movie
+    response = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response.status_code == 200
+    
+    # Store initial likes
+    initial_likes = response.json()["liked"]
+    
+    # Simulate unliking the movie 
+    response2 = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response2.status_code == 200
+    
+    # Ensure the likes are still the same for the same user
+    assert response2.json()["liked"] == initial_likes
+
+# Test updating movie rating (re-rating)
+def test_update_movie_rating():
+    movie_id = 1
+    user_id = 1
+    new_rating = 3.0
+    
+    # First, simulate rating the movie
+    response = client.post(f"/movies/rate/{movie_id}/{user_id}/{new_rating}")
+    assert response.status_code == 200
+    
+    # Check the new rating is updated correctly
+    response_data = response.json()
+    assert response_data["rating"] == new_rating
+
+# Test to rate a movie with invalid movie ID
+def test_rate_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    rating = 4.0
+    
+    response = client.post(f"/movies/rate/{invalid_movie_id}/{user_id}/{rating}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to like a non-existent movie
+def test_like_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    
+    response = client.post(f"/movies/like/{invalid_movie_id}/{user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to like a movie with an invalid user ID
+def test_like_movie_invalid_user_id():
+    movie_id = 1
+    invalid_user_id = 99999  # An invalid user ID
+    
+    response = client.post(f"/movies/like/{movie_id}/{invalid_user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error (User not found)
+
+# Test to remove rating to a movie
+def test_remove_rate_movie():
+    # Test data for movie rating
+    movie_id = 1
+    user_id = 1
+    
+    # Simulate the remove movie rating request
+    response = client.post(f"/movies/unrate/{movie_id}/{user_id}")
+
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the rating is correctly reflected in the response
+    response_data = response.json()
+    assert response_data["rating"] == 0
+
+# Test disliking a movie
+def test_remove_like_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # Simulate the like movie request
+    response = client.post(f"/movies/dislike/{movie_id}/{user_id}")
+    
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the likes are updated
+    response_data = response.json()
+    assert response_data["liked"] == False  # Ensure that likes have increased
+
+# Test updating movie rating (re-rating)
+def test_update_movie_rating_after_remove():
+    movie_id = 1
+    user_id = 1
+    new_rating = 3.0
+    
+    # First, simulate rating the movie
+    response = client.post(f"/movies/rate/{movie_id}/{user_id}/{new_rating}")
+    assert response.status_code == 200
+    
+    # Check the new rating is updated correctly
+    response_data = response.json()
+    assert response_data["rating"] == new_rating
+
+# Test to remove a rate a movie with invalid movie ID
+def test_remove_rate_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    rating = 4.0
+    
+    response = client.post(f"/movies/unrate/{invalid_movie_id}/{user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to remove like a non-existent movie
+def test_remove_like_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    
+    response = client.post(f"/movies/dislike/{invalid_movie_id}/{user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to like a movie with an invalid user ID
+def test_remove_like_movie_invalid_user_id():
+    movie_id = 1
+    invalid_user_id = 99999  # An invalid user ID
+    
+    response = client.post(f"/movies/dislike/{movie_id}/{invalid_user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error (User not found)
+
+# Test to rate and like a non existing user
+def test_rate_like_non_existing_movie():
+    response = client.delete("/users/email/testusermovie@example.com")
+    assert response.status_code == 200
+
+    movie_id = 1
+    user_id = 1
+    rating = 5.0
+    
+    # Simulate the movie rating request and like
+    response2 = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
+    # Assert the response status code
+    assert response2.status_code == 404
+
+    response3 = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response3.status_code == 404  # Expecting Not Found error
+    
+# Test to like a non existing movie
+def test_like_non_existing_movie():
+    response = client.delete("/movies/title/Kung Fu Panda 4")
+    assert response.status_code == 200
+
+    movie_id = 1
+    user_id = 1
+    rating = 5.0
+    
+    # Simulate the movie rating request and like
+    response2 = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
+    # Assert the response status code
+    assert response2.status_code == 404
+
+    response3 = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response3.status_code == 404  # Expecting Not Found error
+
+ 

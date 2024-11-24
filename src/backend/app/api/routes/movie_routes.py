@@ -410,7 +410,7 @@ def like_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_d
     return movie_crud.like_movie(db, user_id, movie_id)
 
 # Endpoint to remove the rating of an existing movie by a user
-@router.post("/unrate/{movie_id}/{user_id}/")
+@router.post("/unrate/{movie_id}/{user_id}")
 def unrate_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_db)):
     # Check if the movie exists
     movie = db.query(Movie).filter(Movie.id == movie_id).first()
