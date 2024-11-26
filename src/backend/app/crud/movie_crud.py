@@ -4,6 +4,7 @@ from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating
 from typing import List
 from fastapi import File, UploadFile
 from sqlalchemy.sql import func, case, extract
+from app.api.routes.comments_routes import create_thread, delete_thread
 
 
 
@@ -40,11 +41,14 @@ def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> 
             db.add(cast_member)  # Add new cast member to the session
         db_movie.cast_members.append(cast_member)  # Associate cast member with the movie
 
+
     # Add movie to the session and commit
     db.add(db_movie)
     db.commit()  # Commit the transaction
     db.refresh(db_movie)  # Refresh to get the updated data
 
+    # Create a thread for the movie
+    create_thread(db, db_movie.id)
     return MovieOut.from_orm(db_movie)  # Use model_validate instead of from_orm
 
 # Function to get a list of movies with pagination
@@ -213,6 +217,7 @@ def delete_movie(db: Session, movie_id: int) -> bool:
     result = db.execute(statement).first()
     movie = result[0] if result else None
     if movie:
+        delete_thread(db, movie_id)
         db.delete(movie)
         db.commit()
         return True  # Deletion successful
@@ -224,6 +229,7 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
     result = db.execute(statement).first()
     movie = result[0] if result else None
     if movie:
+        delete_thread(db, movie.id)
         db.delete(movie)
         db.commit()
         return True  # Deletion successful
