@@ -1,6 +1,7 @@
 # backend/app/models/user_models.py
-from sqlmodel import Field, SQLModel
-from typing import Union
+from sqlmodel import Field, SQLModel,Relationship
+from typing import Union, List
+from app.models.comments_model import Comment
 
 # Shared properties
 class UserBase(SQLModel):
@@ -13,6 +14,7 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     id: Union[int, None] = Field(default=None, primary_key=True)  # Use Union for compatibility
     hashed_password: str
+    comments: List["Comment"] = Relationship(back_populates="user")
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):

@@ -3,6 +3,8 @@ from datetime import date
 from typing import Optional, List, Union
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSON
+from app.models.comments_model import Thread
+
 # Association table for the many-to-many relationship
 class MovieGenre(SQLModel, table=True):
     movie_id: Optional[int] = Field(default=None, foreign_key="movie.id", primary_key=True)
@@ -48,6 +50,7 @@ class Movie(MovieBase, table=True):
     # Establishing the many-to-many relationship
     genres: List["Genre"] = Relationship(back_populates="movies", link_model=MovieGenre)
     cast_members: List["CastMember"] = Relationship(back_populates='movies', link_model=MovieCast)
+    threads: List[Thread] = Relationship()  # Relationship to comments
 
 # Model for response from the API
 class MovieOut(MovieBase):
