@@ -84,7 +84,7 @@ export default {
         full_name: '',
         password: '', // Inicializamos la contraseña vacía
         //Modificar cuando el backend esté acabado
-        profile_picture: '@/assets/blank-profile-picture.jpg', // URL de la foto de perfil actual
+        profile_picture: '@/assets/coco_banner.jpg', // URL de la foto de perfil actual
       },
       defaultProfilePicture: '@/assets/foto_perfil.jpg', // Ruta a la imagen predeterminada
       error: null,
@@ -105,7 +105,7 @@ export default {
         this.formData.email = email;
         this.formData.full_name = full_name;
         //Modificar cuando el backend esté acabado
-        this.formData.profile_picture = '@/assets/blank-profile-picture.jpg'; // Usar predeterminada si no hay foto
+        this.formData.profile_picture = '@/assets/coco_banner.jpg'; // Usar predeterminada si no hay foto
 
       })
       .catch((error) => {
@@ -193,7 +193,7 @@ export default {
   padding: 40px;
   border-radius: 10px;
   width: 750px;
-  height: 450px;
+  height: 650px;
   color: white;
   z-index: 20;
 }
