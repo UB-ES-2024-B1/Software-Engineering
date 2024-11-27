@@ -13,6 +13,27 @@
 
         <!-- Formulario de edición -->
         <form v-else class="profile-edit-form" @submit.prevent="submitChanges">
+          <!-- Campo de imagen de perfil -->
+          <div class="form-group profile-picture-group">
+            <label for="profile-picture">Profile Picture:</label>
+            <div class="profile-picture-wrapper">
+              <img
+                :src="formData.profile_picture || defaultProfilePicture"
+                class="profile-picture"
+                @click="handleProfilePictureClick"
+              />
+              <input
+                id="profile-picture"
+                type="file"
+                ref="profilePictureInput"
+                accept="image/*"
+                style="display: none"
+                @change="handleProfilePictureChange"
+              />
+            </div>
+          </div>
+          
+          
           <!-- Mostrar el correo como texto en vez de un formulario -->
           <div class="form-group">
             <label for="email">Email Address:</label>
@@ -62,7 +83,10 @@ export default {
         email: '',
         full_name: '',
         password: '', // Inicializamos la contraseña vacía
+        //Modificar cuando el backend esté acabado
+        profile_picture: '@/assets/blank-profile-picture.jpg', // URL de la foto de perfil actual
       },
+      defaultProfilePicture: '@/assets/foto_perfil.jpg', // Ruta a la imagen predeterminada
       error: null,
     };
   },
@@ -80,6 +104,9 @@ export default {
         const { email, full_name } = response.data;
         this.formData.email = email;
         this.formData.full_name = full_name;
+        //Modificar cuando el backend esté acabado
+        this.formData.profile_picture = '@/assets/blank-profile-picture.jpg'; // Usar predeterminada si no hay foto
+
       })
       .catch((error) => {
         console.error('Error al obtener los datos del usuario:', error);
@@ -87,6 +114,21 @@ export default {
       });
   },
   methods: {
+    handleProfilePictureClick() {
+      // Dispara el clic en el input de archivo
+      this.$refs.profilePictureInput.click();
+    },
+    handleProfilePictureChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.formData.profile_picture = e.target.result; // Actualiza la imagen en la vista
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+
     submitChanges() {
       // Si la contraseña está vacía, no la enviamos
       if (!this.formData.password) {
@@ -162,6 +204,38 @@ export default {
   font-weight: bold;
   text-align: center;
 }
+
+/* Campo de foto de perfil */
+.profile-picture-group {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  margin-bottom: 20px;
+}
+
+.profile-picture-wrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+
+.profile-picture {
+  width: 120px; /* Ajusta el tamaño según lo necesario */
+  height: 120px; /* Asegúrate de que sea cuadrado */
+  border-radius: 50%; /* Esto hace que la imagen sea circular */
+  object-fit: cover; /* Asegura que la imagen se ajuste sin distorsión */
+  border: 2px solid white; /* Opcional: borde blanco */
+  transition: transform 0.3s; /* Animación al pasar el cursor */
+}
+
+.profile-picture:hover {
+  transform: scale(1.1);
+}
+
+
+
 
 /* Estilo de formulario */
 .profile-edit-form {
