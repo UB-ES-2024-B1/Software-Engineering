@@ -70,7 +70,7 @@
                             <div class="rating-likes-inline">
                                 <div class="rating">
                                     <img src="@/assets/star.png" alt="Rating star" class="icon" />
-                                    <span>{{ movie.rating }}</span>
+                                    <span>{{ movie.rating.toFixed(1) }}</span>
                                 </div>
                                 <div class="likes">
                                     <img src="@/assets/like.png" alt="Like icon" class="icon" />

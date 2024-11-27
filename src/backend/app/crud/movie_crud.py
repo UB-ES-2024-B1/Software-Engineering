@@ -353,25 +353,27 @@ def remove_movie_rating_by_id(db: Session, movie_id: int, user_id: int):
     movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
     
     # If the user hasn't rated the movie, return an error
-    if not movie_user or movie_user.rating is None:
+    if not movie_user:
         raise HTTPException(status_code=400, detail="No rating to remove")
 
-    # Get the current rating
-    old_rating = movie_user.rating
-
-    # Subtract the user's rating from the total rating sum
-    total_rating_sum = movie.rating * movie.rating_count
-    total_rating_sum -= old_rating  # Remove the user's rating
-    movie.rating_count -= 1  # Decrease the rating count by 1
-
-    # Recalculate the average rating
-    if movie.rating_count > 0:
-        movie.rating = total_rating_sum / movie.rating_count  # Calculate the new average rating
+    if movie_user.rating is None:
+        pass
     else:
-        movie.rating = 0  # If there are no ratings left, set the rating to 0
+        # Get the current rating
+        old_rating = movie_user.rating
+        # Subtract the user's rating from the total rating sum
+        total_rating_sum = movie.rating * movie.rating_count
+        total_rating_sum -= old_rating  # Remove the user's rating
+        movie.rating_count -= 1  # Decrease the rating count by 1
+
+        # Recalculate the average rating
+        if movie.rating_count > 0:
+            movie.rating = total_rating_sum / movie.rating_count  # Calculate the new average rating
+        else:
+            movie.rating = 0  # If there are no ratings left, set the rating to 0
 
     # Update the rating in the movie_user table to None (i.e., no rating)
-    movie_user.rating = 0
+    movie_user.rating = None
 
     # Commit the changes to the database
     db.commit()
@@ -385,9 +387,9 @@ def remove_rate_movie(db: Session, user_id: int, movie_id: int):
     movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
     
     if movie_user:
-        # Remove the existing rating
-        movie_user.rating = 0
+        # Remove the existing rating      
         remove_movie_rating_by_id(db, movie_id, user_id)
+        movie_user.rating = None
     else:
         raise HTTPException(status_code=400, detail="No rating to remove")
 
