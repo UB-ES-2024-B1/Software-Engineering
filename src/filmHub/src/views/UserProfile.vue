@@ -39,7 +39,6 @@
             <router-link to="/edit">
               <button class="modify-btn">Modify</button>
             </router-link>
-
           </div>
         </div>
 
@@ -49,51 +48,154 @@
       </div>
     </div>
 
+    <!-- Sección de películas (liked o rated) -->
+    <div class="movies-section">
+      <div class="movies-header">
+        <button :class="{ active: showRatedMovies }" @click="toggleMovies('rated')">
+          Rated Movies
+        </button>
+        <button :class="{ active: !showRatedMovies }" @click="toggleMovies('liked')">
+          Liked Movies
+        </button>
+      </div>
+
+      <div class="movies-list">
+        <!-- Lista de películas -->
+        <div class="movie-item" v-for="movie in displayedMovies" :key="movie.title">
+          <router-link :to="`/movie/${movie.title}`">
+            <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+          </router-link>
+          <div class="rating-likes-cover">
+            <!-- Likes -->
+            <div class="likes">
+              <img src="@/assets/like.png" alt="Like" class="icon" />
+              <span>{{ movie.likes }}</span>
+            </div>
+            <!-- Rating -->
+            <div class="rating">
+              <img src="@/assets/star.png" alt="Rating" class="icon" />
+              <span>{{ movie.rating }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <FooterComponent />
   </div>
 </template>
 
+
+
+
 <script>
-import HeaderPage from '@/components/HeaderPage.vue';
-import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
-import FooterComponent from '@/components/FooterComponent.vue';
+  import HeaderPage from '@/components/HeaderPage.vue';
+  import FooterComponent from '@/components/FooterComponent.vue';
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
-export default {
-  name: 'UserProfile',
-  components: {
-    HeaderPage,
-    FooterComponent,
-  },
-  data() {
-    return {
-      userData: null,
-      error: null,
-      profileImage: '@/assets/default_profile.jpg',
-    };
-  },
-  created() {
-    const userEmail = localStorage.getItem('userEmail');
-    if (!userEmail) {
-      this.$router.push('/login');
-      return;
+  function getImagePath(image) {
+    // Comprobar si la imagen es una URL
+    if (image && image.startsWith('http')) {
+      return image; // Retorna la URL tal cual
+    } else {
+      // Retorna la ruta de la imagen en assets
+      return require(`@/assets/${image}`);
     }
+  }
 
-    // Solicitar datos del usuario
-    axios
-      .get(`${API_BASE_URL}/users/email/${userEmail}`)
-      .then((response) => {
-        this.userData = response.data;
-      })
-      .catch((error) => {
-        console.error('Error al obtener los datos del usuario:', error);
-        this.error = 'Error fetching user data. Please try again.';
-      });
-  },
-  methods: {
-    // Redirigir a la página de edición
-  },
-};
+  async function generateMovieObject(movieData) {
+    // Verificamos si movieData.image es un arreglo y tiene al menos dos elementos
+    const imagePath = Array.isArray(movieData.image) && movieData.image.length > 1
+      ? getImagePath(movieData.image[1])  // Usamos la segunda imagen (image[1])
+      : getImagePath('blank-profile-picture.jpg'); // Usamos una imagen predeterminada si no existe o el arreglo está vacío
+    
+    const movieObject = {
+      id: movieData.id,
+      image: imagePath,
+      title: movieData.title,
+      rating: movieData.rating,
+      likes: movieData.likes,
+    };
+
+    return movieObject;
+}
+
+
+  export default {
+    name: 'UserProfile',
+    components: {
+      HeaderPage,
+      FooterComponent,
+    },
+    data() {
+      return {
+        userData: null,
+        error: null,
+        showRatedMovies: true, // Controla si se muestran las valoradas o las con like
+        ratedMovies: [], // Películas valoradas
+        likedMovies: [], // Películas con like
+        displayedMovies: [], // Películas que se muestran actualmente
+      };
+    },
+    created() {
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) {
+        this.$router.push('/login');
+        return;
+      }
+
+      // Solicitar datos del usuario
+      axios
+        .get(`${API_BASE_URL}/users/email/${userEmail}`)
+        .then((response) => {
+          this.userData = response.data;
+
+          // Cargar las películas valoradas y con like desde un solo endpoint
+          this.loadMovies();
+        })
+        .catch((error) => {
+          console.error('Error al obtener los datos del usuario:', error);
+          this.error = 'Error fetching user data. Please try again.';
+        });
+    },
+    methods: {
+      loadMovies() {
+        // Obtener la lista de películas liked y rated desde un solo endpoint
+        axios
+          .get(`${API_BASE_URL}/movies/liked_and_rated_list/${this.userData.id}`)
+          .then((response) => {
+            // Guardamos las películas liked y rated procesadas
+            this.likedMovies = response.data.liked_movies.map(movie => generateMovieObject(movie));
+            this.ratedMovies = response.data.rated_movies.map(movie => generateMovieObject(movie));
+
+            // Determinar cuál lista mostrar por defecto
+            this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+          })
+          .catch((error) => {
+            console.error('Error al obtener las películas liked y rated:', error);
+          });
+      },
+
+      toggleMovies(type) {
+        // Cambiar entre mostrar las películas "rated" o "liked"
+        if (type === 'rated') {
+          this.showRatedMovies = true;
+        } else {
+          this.showRatedMovies = false;
+        }
+
+        // Actualizar la lista mostrada
+        this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+      },
+    },
+    watch: {
+      // Cuando cambie el estado de las películas, actualizamos la lista mostrada
+      showRatedMovies(newVal) {
+        this.displayedMovies = newVal ? this.ratedMovies : this.likedMovies;
+      },
+    },
+  };
 </script>
 
 
@@ -258,4 +360,149 @@ export default {
 .password-div {
   margin-bottom: 20px;
 }
+
+
+/* Nueva sección de películas */
+.movies-section {
+  margin-top: 120px;
+  padding-top: 20px;
+  border-top: 2px solid #fff;
+  background-color: rgb(255,0,0,0.5);
+  width: 100%; /* Hacemos que ocupe el 100% del ancho */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header para los botones de Rated y Liked */
+.movies-header {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Espacio entre los botones */
+  margin-bottom: 20px;
+}
+
+.movies-header button {
+  padding: 12px 25px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  border-radius: 5px; /* Bordes redondeados */
+}
+
+.movies-header button.active {
+  background-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Sombra para resaltar el botón activo */
+}
+
+/* Contenedor de la lista de películas */
+.movies-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Mínimo 200px por columna, ajustándose automáticamente */
+  gap: 55px; /* Espacio entre las películas */
+  width: 100%;
+  max-width: 1200px; /* Máximo tamaño de contenedor */
+  padding: 15px;
+  box-sizing: border-box;
+  background-color: rgb(0, 255, 0, 0.5);
+}
+
+/* Estilo para cada película */
+.movies-list li {
+  padding: 10px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.movies-list li:hover {
+  transform: scale(1.05); /* Efecto hover */
+}
+
+/* Si las películas tienen imagenes, por ejemplo, les damos estilo */
+.movies-list img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  object-fit: cover; /* Para mantener la proporción de la imagen */
+}
+
+
+/* Estilo para cada película dentro de la lista */
+.movie-item {
+  width: 250px;
+  /* Ajusta al tamaño deseado */
+  height: 375px;
+  /* Mantiene la proporción de la imagen */
+  display: flex;
+  flex-direction: column;
+  /* Apila el contenido verticalmente */
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  /* Fondo oscuro semi-transparente */
+  border-radius: 20px;
+  transition: transform 0.3s ease-in-out;
+  position: relative;
+  /* Asegura que los elementos dentro se posicionen relativos a este */
+}
+
+.movie-item:hover {
+  transform: scale(1.05);
+  /* Aumenta ligeramente el tamaño al pasar el ratón */
+}
+
+/* Estilo para la imagen de la película */
+.movie-poster {
+  width: 100%;
+  /* Asegúrate de que ocupen todo el ancho del contenedor */
+  height: 375px !important;
+  /* Mantiene la proporción de la imagen */
+  border-radius: 20px;
+  /* Bordes redondeados */
+}
+
+
+.rating {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+.likes {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+.icon {
+  width: 20px !important;
+  /* Ajusta el tamaño según tus necesidades */
+  height: 20px !important;
+  margin-right: 5px;
+  /* Espacio entre la imagen y el número */
+}
+
+
+.rating-likes-cover {
+  position: absolute;
+  bottom: 315px;
+  left: 15px;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Fondo oscuro semi-transparente */
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  gap: 2px;
+  /* Espacio entre los elementos */
+  align-items: center;
+  z-index: 5;
+  /* Asegura que se muestre sobre otros elementos */
+}
+
 </style>

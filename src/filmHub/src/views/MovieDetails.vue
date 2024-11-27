@@ -24,7 +24,7 @@
             <div class="rating-likes-banner">
               <div class="rating">
                 <img src="@/assets/star.png" alt="Star" class="icon" />
-                <span>{{ bannerMovie.rating }}</span>
+                <span>{{ bannerMovie.rating.toFixed(1) }}</span>
               </div>
               <div class="likes">
                 <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -208,7 +208,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -224,7 +224,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -240,7 +240,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -256,7 +256,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -400,28 +400,50 @@
             this.$router.push('/login');
             return; // Salir del método
           }
-          const endpoint = `${API_BASE_URL}/movies/rate/${this.bannerMovie.id}/${this.userId}/${rating}`;
-          const response = await axios.post(endpoint);
-          if (response.status === 200) {
-            console.log('Rating saved successfully.');
-            this.rating = rating; // Actualizamos el estado local de la valoración
 
-            // Actualizar el estado de las películas valoradas
-            if (!this.userRatedMovies) {
-              this.userRatedMovies = {}; // Asegurarse de que exista el objeto
+          if (this.rating === rating) {
+            // Si la calificación seleccionada es la misma que la actual, deshacer la calificación
+            const unrateEndpoint = `${API_BASE_URL}/movies/unrate/${this.bannerMovie.id}/${this.userId}`;
+            const response = await axios.post(unrateEndpoint);
+            if (response.status === 200) {
+              console.log('Rating removed successfully.');
+              this.rating = null; // Reiniciar el estado local de la valoración
+
+              // Actualizar el estado de las películas valoradas
+              if (this.userRatedMovies && this.bannerMovie.title in this.userRatedMovies) {
+                delete this.userRatedMovies[this.bannerMovie.title];
+              }
             }
-            this.userRatedMovies[this.bannerMovie.title] = rating; // Actualizamos localmente
+          } else {
+            // Si es una nueva calificación o diferente, guardar la calificación
+            const rateEndpoint = `${API_BASE_URL}/movies/rate/${this.bannerMovie.id}/${this.userId}/${rating}`;
+            const response = await axios.post(rateEndpoint);
+            if (response.status === 200) {
+              console.log('Rating saved successfully.');
+              this.rating = rating; // Actualizamos el estado local de la valoración
+
+              // Actualizar el estado de las películas valoradas
+              if (!this.userRatedMovies) {
+                this.userRatedMovies = {}; // Asegurarse de que exista el objeto
+              }
+              this.userRatedMovies[this.bannerMovie.title] = rating; // Actualizamos localmente
+            }
           }
+
+          this.loadMovieData(this.$route.params.id);
+
         } catch (error) {
-          console.error('Error saving rating:', error);
+          console.error('Error saving or removing rating:', error);
         }
       },
 
+
       async toggleLike(movieId) {
         try {
-          if (!this.userId) {
-            console.error('User ID not found.');
-            return;
+          if (!this.userId) { // Verifica si el userId está disponible
+            alert('Debes iniciar sesión para puntuar una película.'); // Muestra advertencia
+            this.$router.push('/login');
+            return; // Salir del método
           }
 
           // Verificar si la película ya está en likedMovies
@@ -443,15 +465,10 @@
             } else {
               this.likedMovies.push(this.bannerMovie.title);
             }
-
-            // Añadir un pequeño retraso antes de guardar la puntuación
-            // Esto asegura que el like se haya procesado antes de puntuar
-            setTimeout(() => {
-              if (this.rating > 0) {
-                this.saveRating(this.rating); // Guardar rating solo si existe uno
-              }
-            }, 500); // Retraso de 500ms (ajustar si es necesario)
           }
+
+          this.loadMovieData(this.$route.params.id);
+
         } catch (error) {
           console.error('Error toggling like:', error.response?.data || error.message);
         }
@@ -548,6 +565,8 @@
     };
   }
 </script>
+
+
 
 
 

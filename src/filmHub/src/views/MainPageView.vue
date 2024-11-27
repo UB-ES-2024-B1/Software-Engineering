@@ -31,7 +31,7 @@
             <div class="rating-likes-banner">
               <div class="rating">
                 <img src="@/assets/star.png" alt="Star" class="icon" />
-                <span>{{ movie.rating }}</span>
+                <span>{{ movie.rating.toFixed(1) }}</span>
               </div>
               <div class="likes">
                 <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -148,7 +148,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -163,7 +163,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -178,7 +178,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -193,7 +193,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
