@@ -106,21 +106,32 @@
           </div>
         </div>
 
-
         <!-- Like -->
         <div class="like-container">
           <label class="container">
-            <input checked="checked" type="checkbox" />
+            <!-- Checkbox para manejar el like -->
+            <input 
+              type="checkbox" 
+              id="like-toggle" 
+              :checked="likedMovies.includes(bannerMovie.title)"  
+              @change="toggleLike(bannerMovie.id, !$event.target.checked)" 
+            />
             <div class="checkmark">
               <svg viewBox="0 0 256 256">
                 <rect fill="none" height="256" width="256"></rect>
-                <path
-                  d="M224.6,51.9a59.5,59.5,0,0,0-43-19.9,60.5,60.5,0,0,0-44,17.6L128,59.1l-7.5-7.4C97.2,28.3,59.2,26.3,35.9,47.4a59.9,59.9,0,0,0-2.3,87l83.1,83.1a15.9,15.9,0,0,0,22.6,0l81-81C243.7,113.2,245.6,75.2,224.6,51.9Z"
-                  stroke-width="20px" stroke="#000" fill="none"></path>
+                <path 
+                  id="heart-path" 
+                  :stroke="likedMovies.includes(bannerMovie.title) ? 'red' : '#000'"  
+                  d="M224.6,51.9a59.5,59.5,0,0,0-43-19.9,60.5,60.5,0,0,0-44,17.6L128,59.1l-7.5-7.4C97.2,28.3,59.2,26.3,35.9,47.4a59.9,59.9,0,0,0-2.3,87l83.1,83.1a15.9,15.9,0,0,0,22.6,0l81-81C243.7,113.2,245.6,75.2,224.6,51.9Z" 
+                  stroke-width="20px" 
+                  fill="none">
+                </path>
               </svg>
             </div>
           </label>
         </div>
+
+
       </div>
     </section>
 
@@ -291,12 +302,12 @@
         movies: [], // Lista de películas ordenadas
         relatedMovies: [], // Lista de películas relacionadas
         genresList: [], // Lista de géneros disponibles
-        visibleCount: 9, // Initially show up to 10 items (5 items x 2 rows)
-        showAll: false, // To toggle between showing all items or not
+        visibleCount: 9, // Inicialmente mostrar hasta 9 elementos
+        showAll: false, // Para alternar entre mostrar todos los elementos o no
         userId: localStorage.getItem('user_id'), // ID del usuario
         rating: 0, // Valoración inicial
         userRatedMovies: {}, // Almacenará las películas valoradas por el usuario
-
+        likedMovies: [] // Almacena las películas que el usuario ha marcado como "like"
       };
     },
     computed: {
@@ -307,9 +318,9 @@
     methods: {
       toggleSeeMore() {
         if (this.showAll) {
-          this.visibleCount = 9; // Hide items and show 10-1 (2 rows) - director
+          this.visibleCount = 9; // Mostrar solo 9 (director + 2 filas de actores)
         } else {
-          this.visibleCount = this.combinedCast.length; // Show all items (director + cast)
+          this.visibleCount = this.combinedCast.length; // Mostrar todos los elementos
         }
         this.showAll = !this.showAll;
       },
@@ -367,7 +378,7 @@
             console.log('Movie title to fetch related movies:', movieTitle);
             await this.fetchMovies(0, 50, 2, movieTitle); // Cargar películas relacionadas
 
-            // Si la película actual está valorada, actualiza `this.rating`.
+            // Si la película actual está valorada, actualiza `this.rating`..
             if (this.userRatedMovies && this.userRatedMovies[this.bannerMovie.title]) {
               this.rating = this.userRatedMovies[this.bannerMovie.title];
             } else {
@@ -406,24 +417,46 @@
         }
       },
 
-
-      async toggleLike(movieId, liked) {
+      async toggleLike(movieId) {
         try {
           if (!this.userId) {
             console.error('User ID not found.');
             return;
           }
-          const endpoint = liked
-            ? `${API_BASE_URL}/movies/like/${movieId}/${this.userId}`
-            : `${API_BASE_URL}/movies/dislike/${movieId}/${this.userId}`;
+
+          // Verificar si la película ya está en likedMovies
+          const isLiked = this.likedMovies.includes(this.bannerMovie.title);
+
+          // Elegir el endpoint basado en el estado actual
+          const endpoint = isLiked
+            ? `${API_BASE_URL}/movies/dislike/${movieId}/${this.userId}`
+            : `${API_BASE_URL}/movies/like/${movieId}/${this.userId}`;
+
           const response = await axios.post(endpoint);
+
           if (response.status === 200) {
-            console.log(liked ? 'Movie liked successfully.' : 'Movie dislike saved.');
+            console.log(isLiked ? 'Movie disliked successfully.' : 'Movie liked successfully.');
+
+            // Actualizar el estado local de likedMovies
+            if (isLiked) {
+              this.likedMovies = this.likedMovies.filter(title => title !== this.bannerMovie.title);
+            } else {
+              this.likedMovies.push(this.bannerMovie.title);
+            }
+
+            // Añadir un pequeño retraso antes de guardar la puntuación
+            // Esto asegura que el like se haya procesado antes de puntuar
+            setTimeout(() => {
+              if (this.rating > 0) {
+                this.saveRating(this.rating); // Guardar rating solo si existe uno
+              }
+            }, 500); // Retraso de 500ms (ajustar si es necesario)
           }
         } catch (error) {
-          console.error('Error toggling like:', error);
+          console.error('Error toggling like:', error.response?.data || error.message);
         }
       },
+
       async loadUserPreferences() {
         try {
           if (!this.userId) {
@@ -432,27 +465,25 @@
           }
           const endpoint = `${API_BASE_URL}/movies/liked_and_rated_list/${this.userId}`;
           const response = await axios.get(endpoint);
+
           const data = response.data;
 
-          // Almacenar las películas valoradas en un objeto con el título como clave
+          // Procesar películas valoradas
           const ratedMovies = {};
           if (data.rated_movies) {
             data.rated_movies.forEach((movie) => {
               ratedMovies[movie.title] = movie.rating;
             });
           }
-
-          // Guardar el estado de las películas valoradas
           this.userRatedMovies = ratedMovies;
 
-          // Si hay una película del banner cargada, actualiza su puntuación
-          if (this.bannerMovie && this.userRatedMovies[this.bannerMovie.title]) {
-            this.rating = this.userRatedMovies[this.bannerMovie.title];
-          }
+          // Procesar películas con like
+          this.likedMovies = data.liked_movies || [];
         } catch (error) {
-          console.error('Error loading user preferences:', error);
+          console.error('Error loading user preferences:', error.response?.data || error.message);
         }
       },
+
       scrollToTop() {
         window.scrollTo({
           top: 0,
@@ -518,8 +549,6 @@
   }
 </script>
 
-
-  
 
 
 
@@ -1014,6 +1043,8 @@ body {
   z-index: 10;
   top: 90%;
   left: 92%;
+  width: 2em;
+  height: 2em;
 }
 
 .checkmark {
@@ -1023,9 +1054,10 @@ body {
   width: 2em;
   transition: 100ms;
   animation: dislike_effect 400ms ease;
-  position: relative;
+  position: absolute;
   z-index: 2;
   /* Se asegura de que el corazón esté sobre otros elementos */
+  overflow: visible; /* Esto es importante */
 }
 
 .checkmark path {
@@ -1039,14 +1071,15 @@ body {
 /* Efecto hover: cuando pasas el cursor por encima, el corazón se pone rojo */
 .container:hover .checkmark path {
   fill: #f52121;
-  /* Rojo cuando el cursor está encima */
+  filter: drop-shadow(0 0 15px rgba(96, 13, 13, 0.9)); /* Sombra dinámica */
+  animation: shimmerHeart  1s ease infinite alternate; /* Animación shimmer */
 }
 
 /* El color cambia cuando está seleccionado */
-.container input:checked~.checkmark path {
+.container input:checked ~ .checkmark path {
   fill: #f52121;
-  /* Color rojo cuando está seleccionado */
-  stroke-width: 0;
+  filter: drop-shadow(0 0 15px rgba(96, 13, 13, 0.9)); /* Sombra dinámica */
+  animation: shimmerHeart  1s ease infinite alternate; /* Animación shimmer */
 }
 
 .container input:checked~.checkmark {
@@ -1083,7 +1116,16 @@ body {
   }
 }
 
+/* Animación para el efecto de brillo (shimmer) con sombra roja para el corazón */
+@keyframes shimmerHeart {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(255, 13, 13, 0.5)); /* Sombra roja suave */
+  }
 
+  100% {
+    filter: drop-shadow(0 0 20px rgba(255, 13, 13, 1)); /* Sombra roja más intensa */
+  }
+}
 
 
 
