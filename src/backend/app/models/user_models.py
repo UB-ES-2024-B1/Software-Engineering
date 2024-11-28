@@ -8,6 +8,8 @@ class UserBase(SQLModel):
     is_active: bool = True
     is_admin: bool = False
     full_name: Union[str, None] = None  # Optional full name using Union
+    img_url: Union[str, None] = None  # Optional SRT link
+    img_public_id: Union[str, None] = None  # Optional public ID
 
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
@@ -27,6 +29,8 @@ class UserUpdate(SQLModel):
     full_name: Union[str, None] = None
     is_active: Union[bool, None] = None
     is_admin: Union[bool, None] = None
+    img_url: Union[str, None] = None  # Optional update for SRT link
+    img_public_id: Union[str, None] = None  # Optional update for public ID
 
 class TokenRequest(SQLModel):
     token: str
