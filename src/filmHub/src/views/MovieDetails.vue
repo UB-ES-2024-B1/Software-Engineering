@@ -164,11 +164,14 @@
       <div v-if="bannerMovie">
         <h4 class="section-title">Comments</h4>
         <div class="comments-container">
-          <!-- Lista de comentarios -->
-          <div v-for="(comment, index) in comments" :key="index" class="comment-item">
-            <p>
-              <strong>{{ comment.user }}:</strong> {{ comment.text }}
-            </p>
+          <!-- Contenedor con barra de desplazamiento -->
+          <div class="scrollable-comments">
+            <!-- Lista de comentarios -->
+            <div v-for="(comment, index) in comments" :key="index" class="comment-item">
+              <p>
+                <strong>{{ comment.user }}:</strong> {{ comment.text }}
+              </p>
+            </div>
           </div>
 
           <!-- Botón "New Comment" -->
@@ -456,7 +459,6 @@ async function generateRecentMovieObject(movieData) {
 
 <style scoped>
 /* Estilo para comentarios */
-/* Sección de comentarios */
 .comments-section {
   margin-top: 30px;
   padding: 20px;
@@ -478,18 +480,49 @@ async function generateRecentMovieObject(movieData) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 1rem;
+  
 }
+
+.scrollable-comments {
+  max-height: 400px; /* Limita la altura visible a unos 6 comentarios (ajusta según el diseño). */
+  overflow-y: auto; /* Habilita el desplazamiento vertical. */
+  padding-right: 10px; /* Espacio para evitar superposición con la barra de desplazamiento. */
+  border: 1px solid #ddd; /* Opcional: borde para resaltar el área. */
+  width: 80%;
+  padding: 10px; /* Añade espacio interno alrededor del contenido. */
+  border-radius: 5px; /* Bordes redondeados. */
+  background-color: #f9f9f931; /* Fondo claro para destacar los comentarios. */
+  box-sizing: border-box; /* Asegura que `padding` no afecte al ancho/altura total. */
+}
+.scrollable-comments::-webkit-scrollbar {
+  width: 8px; /* Ancho de la barra de desplazamiento. */
+}
+.scrollable-comments::-webkit-scrollbar-thumb {
+  background: #ccc; /* Color de la barra de desplazamiento. */
+  border-radius: 4px;
+}
+
+.scrollable-comments::-webkit-scrollbar-thumb:hover {
+  background: #aaa; /* Color al pasar el cursor por la barra. */
+}
+
 
 /* Estilo para los comentarios individuales */
 .comment-item {
-  width: 100%;
-  max-width: 600px;
+  width: 100%; /* Asegura que el comentario ocupe todo el ancho disponible */
+  box-sizing: border-box; /* Asegura que padding y borde no afecten el tamaño */
+  padding: 10px; /* Espacio interno para que el contenido no toque los bordes */
+  border-bottom: 1px solid #eee; /* Línea divisoria entre comentarios */
   background-color: #2a2a2a;
-  padding: 10px 15px;
+  
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   font-size: 1rem;
+}
+
+.comment-item:last-child {
+  border-bottom: none;
 }
 
 /* Botón "New Comment" */
