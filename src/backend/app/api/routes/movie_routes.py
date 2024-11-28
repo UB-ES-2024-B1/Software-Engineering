@@ -442,20 +442,24 @@ def dislike_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(ge
 # Endpoint to get the list of a user of ratings
 @router.get("/liked_and_rated_list/{user_id}")
 def get_liked_and_rated_movies(user_id: int, db: Session = Depends(get_db)):
-    # Query to get all movies liked by the user
-    liked_movies = db.query(Movie).join(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.liked == True).all()
-
-    # Query to get all movies rated by the user (excluding None values for rating)
-    rated_movies = db.query(Movie).join(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.rating != None).all()
-
     # Format the result to return both liked and rated movies
-    liked_movie_titles = [movie.title for movie in liked_movies]
-    rated_movie_details = [
-        {"title": movie.title, "rating": db.query(MovieUser.rating).filter(MovieUser.movie_id == movie.id, MovieUser.user_id == user_id).first()[0]}
-        for movie in rated_movies
-    ]
+    liked_movie_titles = movie_crud.get_user_rated_movies(db, user_id=user_id)
+    rated_movie_details = movie_crud.get_user_liked_movies(db, user_id)
 
     return {"liked_movies": liked_movie_titles, "rated_movies": rated_movie_details}
+
+# Endpoint to get the list of a user of ratings
+@router.get("/rated_list/{user_id}")
+def get_rated_movies(user_id: int, db: Session = Depends(get_db)):
+    # Query to get all movies rated by the user (excluding None values for rating)
+    rated_movie_details = movie_crud.get_user_rated_movies(db, user_id=user_id)
+
+    return rated_movie_details
+
+# Endpoint to get the list of a user of ratings
+@router.get("/liked_list/{user_id}")
+def get_liked_movies(user_id: int, db: Session = Depends(get_db)):
+    return movie_crud.get_user_liked_movies(db, user_id)
 
 '''# Endpoint to update only the rating of an existing movie by its title
 @router.put("/{movie_title}/rating", response_model=MovieOut)
