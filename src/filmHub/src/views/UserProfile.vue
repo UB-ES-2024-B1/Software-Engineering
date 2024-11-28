@@ -62,23 +62,32 @@
       <div class="movies-list">
         <!-- Lista de películas -->
         <div class="movie-item" v-for="movie in displayedMovies" :key="movie.title">
-          <router-link :to="`/movie/${movie.title}`">
-            <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+          <router-link :to="`/movie/${movie.id}`">
+            <img :src="movie.smallImage" :alt="movie.title" class="movie-poster" />
           </router-link>
+      
           <div class="rating-likes-cover">
+            <!-- Rating -->
+            <div class="rating">
+              <img src="@/assets/star.png" alt="Rating" class="icon" />
+              <span>{{ movie.rating.toFixed(1) }}</span>
+            </div>
+      
             <!-- Likes -->
             <div class="likes">
               <img src="@/assets/like.png" alt="Like" class="icon" />
               <span>{{ movie.likes }}</span>
             </div>
-            <!-- Rating -->
-            <div class="rating">
-              <img src="@/assets/star.png" alt="Rating" class="icon" />
-              <span>{{ movie.rating }}</span>
-            </div>
+          </div>
+
+          <!-- User Rating (Nuevo contenedor) -->
+          <div class="user-rating">
+            <img src="@/assets/star.png" alt="Rating" class="icon" />
+            <span>{{ movie.userRating }}</span>
           </div>
         </div>
-      </div>
+      </div>      
+
     </div>
 
     <FooterComponent />
@@ -95,32 +104,37 @@
   import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
   function getImagePath(image) {
-    // Comprobar si la imagen es una URL
     if (image && image.startsWith('http')) {
-      return image; // Retorna la URL tal cual
+      return image;
+    } else if (image) {
+      try {
+        return require(`@/assets/${image}`);
+      } catch (error) {
+        console.error(`Error loading local image: ${image}`, error);
+        return '';
+      }
     } else {
-      // Retorna la ruta de la imagen en assets
-      return require(`@/assets/${image}`);
+      console.warn('No image provided');
+      return '';
     }
   }
 
-  async function generateMovieObject(movieData) {
-    // Verificamos si movieData.image es un arreglo y tiene al menos dos elementos
-    const imagePath = Array.isArray(movieData.image) && movieData.image.length > 1
-      ? getImagePath(movieData.image[1])  // Usamos la segunda imagen (image[1])
-      : getImagePath('blank-profile-picture.jpg'); // Usamos una imagen predeterminada si no existe o el arreglo está vacío
-    
+  async function generateMovieObject(movieData, userRating = null) {
     const movieObject = {
       id: movieData.id,
-      image: imagePath,
+      image: getImagePath(movieData.image[1]),
+      smallImage: getImagePath(movieData.image[0]),
       title: movieData.title,
+      description: movieData.description,
       rating: movieData.rating,
       likes: movieData.likes,
+      genre: movieData.genres.map((genre) => genre.type).join(', '),
+      releaseDate: movieData.release_date.substring(0, 4),
+      userRating: userRating, // Agregamos el rating del usuario, si existe
     };
 
     return movieObject;
-}
-
+  }
 
   export default {
     name: 'UserProfile',
@@ -160,17 +174,52 @@
         });
     },
     methods: {
+      // Nueva función para obtener los detalles completos de una película usando el título
+      async fetchMovieDetails(title) {
+        try {
+          const movieResponse = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
+          return movieResponse.data; // Devuelve los detalles completos de la película
+        } catch (error) {
+          console.error(`Error al obtener detalles de la película "${title}":`, error);
+          return null; // Retorna null si hay un error
+        }
+      },
+
       loadMovies() {
         // Obtener la lista de películas liked y rated desde un solo endpoint
         axios
           .get(`${API_BASE_URL}/movies/liked_and_rated_list/${this.userData.id}`)
           .then((response) => {
-            // Guardamos las películas liked y rated procesadas
-            this.likedMovies = response.data.liked_movies.map(movie => generateMovieObject(movie));
-            this.ratedMovies = response.data.rated_movies.map(movie => generateMovieObject(movie));
+            const likedMoviesTitles = response.data.liked_movies;
+            const ratedMoviesList = response.data.rated_movies;
 
-            // Determinar cuál lista mostrar por defecto
-            this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+            // Obtener los detalles completos de las películas liked
+            const likedMoviesDetails = likedMoviesTitles.map(async (movieTitle) => {
+              const movieData = await this.fetchMovieDetails(movieTitle);
+              return movieData ? generateMovieObject(movieData) : null;
+            });
+
+            // Obtener los detalles completos de las películas rated, incluyendo el userRating
+            const ratedMoviesDetails = ratedMoviesList.map(async (movie) => {
+              const movieData = await this.fetchMovieDetails(movie.title);
+              return movieData
+                ? generateMovieObject(movieData, movie.rating) // Pasamos el userRating
+                : null;
+            });
+
+            // Esperamos que todas las promesas se resuelvan y almacenamos los resultados
+            Promise.all([...likedMoviesDetails, ...ratedMoviesDetails]).then((allMovies) => {
+              const allMovieDetails = allMovies.filter((movie) => movie !== null); // Filtramos los nulls (errores)
+              this.likedMovies = allMovieDetails.filter((movie) =>
+                likedMoviesTitles.includes(movie.title)
+              );
+              this.ratedMovies = allMovieDetails.filter((movie) =>
+                ratedMoviesList.some((r) => r.title === movie.title)
+              );
+
+              // Determinamos cuál lista mostrar
+              this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+            });
           })
           .catch((error) => {
             console.error('Error al obtener las películas liked y rated:', error);
@@ -197,6 +246,7 @@
     },
   };
 </script>
+
 
 
 
@@ -364,10 +414,10 @@
 
 /* Nueva sección de películas */
 .movies-section {
-  margin-top: 120px;
+  margin-top: 0px;
   padding-top: 20px;
   border-top: 2px solid #fff;
-  background-color: rgb(255,0,0,0.5);
+  background-color: #121212;
   width: 100%; /* Hacemos que ocupe el 100% del ancho */
   display: flex;
   flex-direction: column;
@@ -405,9 +455,10 @@
   gap: 55px; /* Espacio entre las películas */
   width: 100%;
   max-width: 1200px; /* Máximo tamaño de contenedor */
+  min-height: 375px; /* Máximo tamaño de contenedor */
   padding: 15px;
   box-sizing: border-box;
-  background-color: rgb(0, 255, 0, 0.5);
+  background-color: rgb(0, 255, 255, 0.5);
 }
 
 /* Estilo para cada película */
@@ -462,8 +513,9 @@
   /* Asegúrate de que ocupen todo el ancho del contenedor */
   height: 375px !important;
   /* Mantiene la proporción de la imagen */
-  border-radius: 20px;
+  border-radius: 20px !important;
   /* Bordes redondeados */
+  opacity: 1;
 }
 
 
@@ -471,12 +523,14 @@
   display: flex;
   align-items: center;
   font-weight: bold;
+  gap: 1px;
 }
 
 .likes {
   display: flex;
   align-items: center;
   font-weight: bold;
+  gap: 1px;
 }
 
 .icon {
@@ -490,19 +544,42 @@
 
 .rating-likes-cover {
   position: absolute;
-  bottom: 315px;
+  top: 315px;
   left: 15px;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
   /* Fondo oscuro semi-transparente */
   color: white;
   padding: 10px;
   border-radius: 10px;
   display: flex;
-  gap: 2px;
+  gap: 10px;
+  /* Espacio entre los elementos */
+  align-items: center;
+  z-index: 5;
+}
+
+.user-rating {
+  position: absolute;
+  bottom: 315px;
+  right: 15px;
+  background-color: rgba(0, 255, 0, 0.3); /* Fondo verde claro */
+  border: 1px solid green;
+  border-radius: 4px;
+  backdrop-filter: blur(5px);
+  /* Fondo oscuro semi-transparente */
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  gap: 1px;
   /* Espacio entre los elementos */
   align-items: center;
   z-index: 5;
   /* Asegura que se muestre sobre otros elementos */
+  font-weight: bold;
 }
+
+
 
 </style>
