@@ -334,10 +334,27 @@ def like_movie(db: Session, user_id: int, movie_id: int):
 
 # Functions for get the list of movies that the user have rated by stars and by given like
 def get_user_rated_movies(db: Session, user_id: int):
-    return db.query(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.rating.isnot(None)).all()
+     # Query the Movie and MovieUser tables together to fetch ratings and titles
+    movies_rated = (
+        db.query(Movie.title, MovieUser.rating)
+        .join(Movie, Movie.id == MovieUser.movie_id)
+        .filter(MovieUser.user_id == user_id, MovieUser.rating != None)
+        .all()
+    )
+    # Transform the results into the desired format
+    return [{"title": title, "rating": rating} for title, rating in movies_rated]
 
 def get_user_liked_movies(db: Session, user_id: int):
-    return db.query(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.liked == True).all()
+    # Query the Movie and MovieUser tables together to fetch liked movies
+    movies_liked = (
+        db.query(Movie.title)
+        .select_from(MovieUser)  # Explicitly start from MovieUser
+        .join(Movie, Movie.id == MovieUser.movie_id)
+        .filter(MovieUser.user_id == user_id, MovieUser.liked == True)
+        .all()
+    )
+    # Transform the results into a list of titles
+    return [title for title, in movies_liked]
 
 ### THE SAME BUT FOR REMOVING RATING
 # Intern function for remove in database the movie rating
