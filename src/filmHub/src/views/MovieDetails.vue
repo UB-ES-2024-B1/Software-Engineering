@@ -158,6 +158,35 @@
       </div>
     </section>
 
+
+    <!-- Sección del foro de comentarios -->
+    <section class="comments-section">
+      <div v-if="bannerMovie">
+        <h4 class="section-title">Comments</h4>
+        <div class="comments-container">
+          <!-- Lista de comentarios -->
+          <div v-for="(comment, index) in comments" :key="index" class="comment-item">
+            <p>
+              <strong>{{ comment.user }}:</strong> {{ comment.text }}
+            </p>
+          </div>
+
+          <!-- Botón "New Comment" -->
+          <button v-if="!isAddingComment" class="new-comment-btn" @click="toggleAddingComment">New Comment</button>
+
+          <!-- Formulario para añadir un comentario -->
+          <div v-else class="comment-form">
+            <textarea v-model="newCommentText" placeholder="Write your comment here..." class="comment-textarea"></textarea>
+            <div class="comment-buttons">
+              <button @click="addComment" class="post-comment-btn">Post Comment</button>
+              <button @click="toggleAddingComment" class="cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
     <!-- Sección de películas relacionadas -->
     <section class="top-rated-movies">
       <h4 class="section-title" id="related-movies">Related Movies</h4>
@@ -270,6 +299,12 @@ export default {
       genresList: [], // Lista de géneros disponibles
       visibleCount: 9, // Initially show up to 10 items (5 items x 2 rows)
       showAll: false, // To toggle between showing all items or not
+      comments: [
+        { user: "Alice", text: "Great movie!" },
+        { user: "Bob", text: "I really enjoyed it." },
+      ],
+      isAddingComment: false,
+      newCommentText: "",
 
     };
   },
@@ -280,6 +315,16 @@ export default {
     }
   },
   methods: {
+    toggleAddingComment() { //Muestra el formulario en funcion del boolean
+      this.isAddingComment = !this.isAddingComment;
+      if (!this.isAddingComment) this.newCommentText = "";
+    },
+    addComment() {
+      if (this.newCommentText.trim()) {
+        this.comments.push({ user: "You", text: this.newCommentText });
+        this.toggleAddingComment();
+      }
+    },
     toggleSeeMore() {
       if (this.showAll) {
         this.visibleCount = 9; // Hide items and show 10-1 (2 rows) - director
@@ -410,6 +455,118 @@ async function generateRecentMovieObject(movieData) {
 
 
 <style scoped>
+/* Estilo para comentarios */
+/* Sección de comentarios */
+.comments-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #1c1c1c;
+  border-radius: 8px;
+  color: #ffffff;
+}
+
+/* Título de la sección */
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  text-align: center;
+  color: #f5f5f5;
+}
+
+/* Contenedor de comentarios */
+.comments-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Estilo para los comentarios individuales */
+.comment-item {
+  width: 100%;
+  max-width: 600px;
+  background-color: #2a2a2a;
+  padding: 10px 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  font-size: 1rem;
+}
+
+/* Botón "New Comment" */
+.new-comment-btn {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.new-comment-btn:hover {
+  background-color: #0055aa;
+}
+
+/* Formulario para añadir comentario */
+.comment-form {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Textarea de comentarios */
+.comment-textarea {
+  width: 100%;
+  height: 80px;
+  resize: none;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1rem;
+  color: #000;
+}
+
+/* Botones del formulario */
+.comment-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.post-comment-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.post-comment-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333;
+}
+
+
 body {
   background-color: #121212;
   /* Color oscuro para el fondo */
