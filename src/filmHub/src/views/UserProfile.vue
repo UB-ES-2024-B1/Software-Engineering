@@ -4,9 +4,11 @@
 
     <div class="overlay"></div>
 
+
+
     <div class="main-content">
+      <div class="shadow-overlay"></div>
       <div class="profile-box">
-        <h2 class="profile-title">Profile</h2>
 
         <p v-if="error" class="error-message">{{ error }}</p>
 
@@ -50,36 +52,51 @@
 
     <!-- Sección de películas (liked o rated) -->
     <div class="movies-section">
+      <!-- Nueva capa de overlay -->
+      <div class="movies-overlay"></div>
+    
       <div class="movies-header">
         <button :class="{ active: showRatedMovies }" @click="toggleMovies('rated')">
           Rated Movies
         </button>
-        <button :class="{ active: !showRatedMovies }" @click="toggleMovies('liked')">
-          Liked Movies
+<!--
+        <button :class="{ active: showRatedMovies }" @click="toggleMovies('liked')">
+          Favourite Movies
         </button>
+        
+-->        
       </div>
-
+    
       <div class="movies-list">
         <!-- Lista de películas -->
         <div class="movie-item" v-for="movie in displayedMovies" :key="movie.title">
-          <router-link :to="`/movie/${movie.title}`">
-            <img :src="movie.image" :alt="movie.title" class="movie-poster" />
+          <router-link :to="`/movie/${movie.id}`">
+            <img :src="movie.smallImage" :alt="movie.title" class="movie-poster" />
           </router-link>
+        
           <div class="rating-likes-cover">
+            <!-- Rating -->
+            <div class="rating">
+              <img src="@/assets/star.png" alt="Rating" class="icon" />
+              <span>{{ movie.rating.toFixed(1) }}</span>
+            </div>
+        
             <!-- Likes -->
             <div class="likes">
               <img src="@/assets/like.png" alt="Like" class="icon" />
               <span>{{ movie.likes }}</span>
             </div>
-            <!-- Rating -->
-            <div class="rating">
-              <img src="@/assets/star.png" alt="Rating" class="icon" />
-              <span>{{ movie.rating }}</span>
-            </div>
+          </div>
+    
+          <!-- User Rating -->
+          <div class="user-rating">
+            <img src="@/assets/star.png" alt="Rating" class="icon" />
+            <span>{{ movie.userRating }}</span>
           </div>
         </div>
-      </div>
+      </div>      
     </div>
+    
 
     <FooterComponent />
   </div>
@@ -95,32 +112,37 @@
   import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
   function getImagePath(image) {
-    // Comprobar si la imagen es una URL
     if (image && image.startsWith('http')) {
-      return image; // Retorna la URL tal cual
+      return image;
+    } else if (image) {
+      try {
+        return require(`@/assets/${image}`);
+      } catch (error) {
+        console.error(`Error loading local image: ${image}`, error);
+        return '';
+      }
     } else {
-      // Retorna la ruta de la imagen en assets
-      return require(`@/assets/${image}`);
+      console.warn('No image provided');
+      return '';
     }
   }
 
-  async function generateMovieObject(movieData) {
-    // Verificamos si movieData.image es un arreglo y tiene al menos dos elementos
-    const imagePath = Array.isArray(movieData.image) && movieData.image.length > 1
-      ? getImagePath(movieData.image[1])  // Usamos la segunda imagen (image[1])
-      : getImagePath('blank-profile-picture.jpg'); // Usamos una imagen predeterminada si no existe o el arreglo está vacío
-    
+  async function generateMovieObject(movieData, userRating = null) {
     const movieObject = {
       id: movieData.id,
-      image: imagePath,
+      image: getImagePath(movieData.image[1]),
+      smallImage: getImagePath(movieData.image[0]),
       title: movieData.title,
+      description: movieData.description,
       rating: movieData.rating,
       likes: movieData.likes,
+      genre: movieData.genres.map((genre) => genre.type).join(', '),
+      releaseDate: movieData.release_date.substring(0, 4),
+      userRating: userRating, // Agregamos el rating del usuario, si existe
     };
 
     return movieObject;
-}
-
+  }
 
   export default {
     name: 'UserProfile',
@@ -160,22 +182,69 @@
         });
     },
     methods: {
+      // Nueva función para obtener los detalles completos de una película usando el título
+      async fetchMovieDetails(title) {
+        try {
+          const movieResponse = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
+          return movieResponse.data; // Devuelve los detalles completos de la película
+        } catch (error) {
+          console.error(`Error al obtener detalles de la película "${title}":`, error);
+          return null; // Retorna null si hay un error
+        }
+      },
+
       loadMovies() {
-        // Obtener la lista de películas liked y rated desde un solo endpoint
         axios
           .get(`${API_BASE_URL}/movies/liked_and_rated_list/${this.userData.id}`)
           .then((response) => {
-            // Guardamos las películas liked y rated procesadas
-            this.likedMovies = response.data.liked_movies.map(movie => generateMovieObject(movie));
-            this.ratedMovies = response.data.rated_movies.map(movie => generateMovieObject(movie));
+            const likedMoviesTitles = response.data.liked_movies; // Títulos de las películas con like
+            const ratedMoviesList = response.data.rated_movies; // Lista con {title, rating}
 
-            // Determinar cuál lista mostrar por defecto
-            this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+            // Obtener detalles completos de películas liked
+            const likedMoviesDetails = Promise.all(
+              likedMoviesTitles.map(async (movieTitle) => {
+                const movieData = await this.fetchMovieDetails(movieTitle);
+                return movieData ? generateMovieObject(movieData) : null;
+              })
+            );
+
+            // Obtener detalles completos de películas rated
+            const ratedMoviesDetails = Promise.all(
+              ratedMoviesList.map(async (movie) => {
+                const movieData = await this.fetchMovieDetails(movie.title);
+                return movieData
+                  ? generateMovieObject(movieData, movie.rating) // Incluimos el userRating
+                  : null;
+              })
+            );
+
+            // Esperamos a que ambas promesas terminen
+            Promise.all([likedMoviesDetails, ratedMoviesDetails])
+              .then(([likedMovies, ratedMovies]) => {
+                // Filtramos nulls (errores) y asignamos a las listas respectivas
+                this.likedMovies = likedMovies.filter((movie) => movie !== null);
+                this.ratedMovies = ratedMovies.filter((movie) => movie !== null);
+
+                // Aseguramos que una película valorada pueda estar también en la lista de liked
+                const likedTitlesSet = new Set(this.likedMovies.map((movie) => movie.title));
+                this.ratedMovies.forEach((movie) => {
+                  if (likedTitlesSet.has(movie.title)) {
+                    movie.isLiked = true; // Marcamos la película como liked
+                  }
+                });
+
+                // Actualizamos la lista mostrada
+                this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+              })
+              .catch((error) => {
+                console.error('Error al procesar las películas liked y rated:', error);
+              });
           })
           .catch((error) => {
             console.error('Error al obtener las películas liked y rated:', error);
           });
       },
+
 
       toggleMovies(type) {
         // Cambiar entre mostrar las películas "rated" o "liked"
@@ -200,309 +269,328 @@
 
 
 
+
 <style scoped>
-/* Estilo general de la página */
-.profile-page {
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  background-image: url('@/assets/fondo_login.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: -1;
-}
+  /* Estilo general de la página */
+  .profile-page {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-image: url('@/assets/fondo_login.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+  }
+  
+  /* Capa negra con opacidad */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+  
+  
+  /* Contenedor principal */
+  .main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    padding: 20px;
+    z-index: 10;
+  }
+  
+  /* Caja del perfil */
+  .profile-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    padding: 40px;
+    border-radius: 10px;
+    width: 750px;
+    height: 350px;
+    color: white;
+    z-index: 20;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Mejora visual */
+    border: 2px solid rgba(255, 255, 255, 0.1); /* Sutileza */
+  }
+  
+  /* Contenido del perfil (imagen + info) */
+  .profile-content {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* Estilo de la imagen de perfil */
+  .profile-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-right: 50px;
+    padding-bottom: 0px;
+  }
+  
+  .profile-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 0px solid white;
+    object-fit: cover;
+  }
+  
+  /* Estilo de la información del perfil */
+  .profile-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 20px;
+  }
+  
+  .profile-info p {
+    margin-bottom: 60px;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  
+  .profile-info strong {
+    font-weight: bold;
+    color: #ffffff;
+  }
+  
+  .profile-info span {
+    display: block;
+    color: #dcdcdc;
+    font-size: 16px;
+  }
+  
+  /* Botones de acción */
+  .modify-btn,
+  .add-btn {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    z-index: 5;
+  }
+  
+  .btns-div {
+    position: absolute;
+    display: flex;
+    bottom: 2rem;
+    right: 2rem;
+    gap: 1rem;
+  }
+  
+  .modify-btn:hover,
+  .add-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Nueva sección de películas */
+  .movies-section {
+    margin-top: 0px;
+    padding-top: 20px;
+    background-color: #121212;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+  }
+  
+  .movies-header {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    z-index: 5;
+  }
+  
+  .movies-header button {
+    padding: 12px 25px;
+    border: none;
+    background:  rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 5px;
+  }
+  
+  .movies-header button.active {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4));
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Contenedor de la lista de películas */
+  .movies-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 55px;
+    width: 100%;
+    max-width: 1200px;
+    min-height: 375px;
+    padding: 15px;
+    box-sizing: border-box;
+    background:rgba(255, 255, 255, 0.2);
+    border-top-right-radius: 30px;
+    border-top-left-radius: 30px;
+    z-index: 5;
+  }
+  
+  .movie-item {
+    width: 250px;
+    height: 375px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 20px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .movie-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  }
+  
+  .movie-poster {
+    width: 100%;
+    height: 375px !important;
+    border-radius: 20px !important;
+    opacity: 1;
+  }
+  
+  .rating-likes-cover {
+    position: absolute;
+    top: 315px;
+    left: 15px;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 5;
+  }
+  
+  .user-rating {
+    position: absolute;
+    bottom: 315px;
+    right: 15px;
+    background-color: rgba(0, 255, 0, 0.3);
+    border: 1px solid green;
+    backdrop-filter: blur(5px);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    gap: 1px;
+    align-items: center;
+    z-index: 5;
+    font-weight: bold;
+  }
 
-/* Capa negra con opacidad */
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1;
-}
-
-/* Contenedor principal */
-.main-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  padding: 20px;
-  z-index: 10;
-}
-
-/* Caja del perfil */
-.profile-box {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
-  padding: 40px;
-  border-radius: 10px;
-  width: 750px;
-  height: 450px;
-  align-items: center;
-  color: white;
-  z-index: 20;
-}
-
-/* Título del perfil */
-.profile-title {
-  margin-bottom: 40px;
-  font-size: 28px;
-  font-weight: bold;
-  color: white;
-  padding-right: 395px;
-  z-index: 20;
-}
-
-/* Contenido del perfil (imagen + info) */
-.profile-content {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* Estilo de la imagen de perfil */
-.profile-image {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-right: 50px;
-  padding-bottom: 60px;
-}
-
-.profile-image img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 0px solid white;
-  object-fit: cover;
-
-}
-
-/* Estilo de la información del perfil */
-.profile-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-}
-
-.profile-info p {
-  margin-bottom: 60px;
-  /* Espaciado entre cada línea */
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-.profile-info strong {
-  font-weight: bold;
-  color: #ffffff;
-}
-
-.profile-info span {
-  display: block;
-  /* Fuerza a que el contenido esté en una nueva línea */
-  color: #dcdcdc;
-  /* Ajusta el color si es necesario */
-  font-size: 16px;
-  /* Asegúrate de que tenga un buen tamaño */
-}
-
-
-.modify-btn {
-  width: 100%;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s ease;
-  z-index: 5;
-}
-
-.add-btn {
-  width: 100%;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s ease;
-  z-index: 5;
-}
-
-.btns-div{
-  position: absolute;
-  display: flex;
-  bottom: 2rem;
-  right: 2rem;
-  gap:1rem;
-}
-
-.modify-btn:hover, .add-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.email-div,
-.username-div,
-.password-div {
-  margin-bottom: 20px;
-}
-
-
-/* Nueva sección de películas */
-.movies-section {
-  margin-top: 120px;
-  padding-top: 20px;
-  border-top: 2px solid #fff;
-  background-color: rgb(255,0,0,0.5);
-  width: 100%; /* Hacemos que ocupe el 100% del ancho */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Header para los botones de Rated y Liked */
-.movies-header {
-  display: flex;
-  justify-content: center;
-  gap: 20px; /* Espacio entre los botones */
-  margin-bottom: 20px;
-}
-
-.movies-header button {
-  padding: 12px 25px;
-  border: none;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s ease;
-  border-radius: 5px; /* Bordes redondeados */
-}
-
-.movies-header button.active {
-  background-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Sombra para resaltar el botón activo */
-}
-
-/* Contenedor de la lista de películas */
-.movies-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Mínimo 200px por columna, ajustándose automáticamente */
-  gap: 55px; /* Espacio entre las películas */
-  width: 100%;
-  max-width: 1200px; /* Máximo tamaño de contenedor */
-  padding: 15px;
-  box-sizing: border-box;
-  background-color: rgb(0, 255, 0, 0.5);
-}
-
-/* Estilo para cada película */
-.movies-list li {
-  padding: 10px;
-  color: white;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 10px;
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.movies-list li:hover {
-  transform: scale(1.05); /* Efecto hover */
-}
-
-/* Si las películas tienen imagenes, por ejemplo, les damos estilo */
-.movies-list img {
-  width: 100%;
-  height: auto;
-  border-radius: 5px;
-  object-fit: cover; /* Para mantener la proporción de la imagen */
-}
-
-
-/* Estilo para cada película dentro de la lista */
-.movie-item {
-  width: 250px;
-  /* Ajusta al tamaño deseado */
-  height: 375px;
-  /* Mantiene la proporción de la imagen */
-  display: flex;
-  flex-direction: column;
-  /* Apila el contenido verticalmente */
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.2);
-  /* Fondo oscuro semi-transparente */
-  border-radius: 20px;
-  transition: transform 0.3s ease-in-out;
-  position: relative;
-  /* Asegura que los elementos dentro se posicionen relativos a este */
-}
-
-.movie-item:hover {
-  transform: scale(1.05);
-  /* Aumenta ligeramente el tamaño al pasar el ratón */
-}
-
-/* Estilo para la imagen de la película */
-.movie-poster {
-  width: 100%;
-  /* Asegúrate de que ocupen todo el ancho del contenedor */
-  height: 375px !important;
-  /* Mantiene la proporción de la imagen */
-  border-radius: 20px;
-  /* Bordes redondeados */
-}
-
-
-.rating {
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-}
-
-.likes {
-  display: flex;
-  align-items: center;
-  font-weight: bold;
-}
-
-.icon {
-  width: 20px !important;
-  /* Ajusta el tamaño según tus necesidades */
-  height: 20px !important;
-  margin-right: 5px;
-  /* Espacio entre la imagen y el número */
-}
-
-
-.rating-likes-cover {
-  position: absolute;
-  bottom: 315px;
-  left: 15px;
-  background-color: rgba(0, 0, 0, 0.6);
-  /* Fondo oscuro semi-transparente */
-  color: white;
-  padding: 10px;
-  border-radius: 10px;
-  display: flex;
-  gap: 2px;
-  /* Espacio entre los elementos */
-  align-items: center;
-  z-index: 5;
-  /* Asegura que se muestre sobre otros elementos */
-}
-
-</style>
+  .icon {
+    width: 20px !important;
+    /* Ajusta el tamaño según tus necesidades */
+    height: 20px !important;
+    margin-right: 5px;
+    /* Espacio entre la imagen y el número */
+  }
+  
+  /* Media Queries */
+  @media (max-width: 768px) {
+    .profile-box {
+      width: 90%;
+      height: auto;
+      padding: 20px;
+    }
+  
+    .profile-content {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  
+    .profile-image img {
+      width: 120px;
+      height: 120px;
+    }
+  
+    .btns-div {
+      flex-direction: column;
+      gap: 10px;
+      bottom: 1rem;
+    }
+  
+    .movies-list {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+    }
+  
+    .movie-item {
+      width: 150px;
+      height: 225px;
+    }
+  
+    .movie-poster {
+      height: 225px !important;
+    }
+  
+    .rating-likes-cover {
+      top: 180px;
+      padding: 5px;
+      font-size: 12px;
+    }
+  
+    .user-rating {
+      bottom: 180px;
+      padding: 5px;
+      font-size: 12px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .profile-box {
+      padding: 10px;
+    }
+  
+    .movies-header button {
+      padding: 8px 15px;
+      font-size: 12px;
+    }
+  
+    .movie-item {
+      width: 120px;
+      height: 180px;
+    }
+  
+    .movie-poster {
+      height: 180px !important;
+    }
+  }
+  </style>
+  
