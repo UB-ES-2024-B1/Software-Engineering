@@ -17,23 +17,14 @@
           <div class="form-group profile-picture-group">
             <label for="profile-picture">Profile Picture:</label>
             <div class="profile-picture-wrapper">
-              <img
-                :src="formData.profile_picture || defaultProfilePicture"
-                class="profile-picture"
-                @click="handleProfilePictureClick"
-              />
-              <input
-                id="profile-picture"
-                type="file"
-                ref="profilePictureInput"
-                accept="image/*"
-                style="display: none"
-                @change="handleProfilePictureChange"
-              />
+              <img :src="formData.profile_picture || require('@/assets/foto_perfil.png')" class="profile-picture"
+                @click="handleProfilePictureClick" />
+              <input id="profile-picture" type="file" ref="profilePictureInput" accept="image/*" style="display: none"
+                @change="handleProfilePictureChange" />
             </div>
           </div>
-          
-          
+
+
           <!-- Mostrar el correo como texto en vez de un formulario -->
           <div class="form-group">
             <label for="email">Email Address:</label>
@@ -82,11 +73,11 @@ export default {
       formData: {
         email: '',
         full_name: '',
-        password: '', // Inicializamos la contraseña vacía
+
         //Modificar cuando el backend esté acabado
-        profile_picture: '@/assets/coco_banner.jpg', // URL de la foto de perfil actual
+        profile_picture: '', // URL de la foto de perfil actual
       },
-      defaultProfilePicture: '@/assets/foto_perfil.jpg', // Ruta a la imagen predeterminada
+      
       error: null,
     };
   },
@@ -101,18 +92,21 @@ export default {
     axios
       .get(`${API_BASE_URL}/users/email/${userEmail}`)
       .then((response) => {
-        const { email, full_name } = response.data;
+        const { email, full_name, img_url } = response.data;
+
+        // Asignar los valores al formulario
         this.formData.email = email;
         this.formData.full_name = full_name;
-        //Modificar cuando el backend esté acabado
-        this.formData.profile_picture = '@/assets/coco_banner.jpg'; // Usar predeterminada si no hay foto
 
+        // Usar la imagen proporcionada por el backend o una predeterminada si no existe
+        this.formData.profile_picture = img_url;
       })
       .catch((error) => {
         console.error('Error al obtener los datos del usuario:', error);
         this.error = 'Error fetching user data. Please try again.';
       });
   },
+
   methods: {
     handleProfilePictureClick() {
       // Dispara el clic en el input de archivo
@@ -130,14 +124,26 @@ export default {
     },
 
     submitChanges() {
-      // Si la contraseña está vacía, no la enviamos
-      if (!this.formData.password) {
-        delete this.formData.password; // Elimina la contraseña si no se cambió
+      // Crear un FormData para enviar los datos
+      const formData = new FormData();
+
+      // Agregar los campos opcionales si existen
+      if (this.formData.full_name) {
+        formData.append('full_name', this.formData.full_name);
+      }
+      if (this.formData.profile_picture && this.$refs.profilePictureInput.files[0]) {
+        formData.append('img', this.$refs.profilePictureInput.files[0]);
       }
 
-      // Enviar los datos actualizados al backend
+      // Puedes agregar más campos opcionales aquí si es necesario (is_admin, is_active, etc.)
+
+      // Enviar los datos actualizados al backend usando Axios
       axios
-        .put(`${API_BASE_URL}/users/email/${this.formData.email}`, this.formData)
+        .put(`${API_BASE_URL}/users/email/${this.formData.email}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
         .then(() => {
           // Redirigir al perfil después de actualizar
           this.$router.push('/profile');
@@ -146,7 +152,10 @@ export default {
           console.error('Error al actualizar los datos del usuario:', error);
           this.error = 'Error updating user data. Please try again.';
         });
+      localStorage.setItem('userName', this.formData.full_name);
+      localStorage.setItem('userImg', this.formData.profile_picture); 
     },
+
   },
 };
 </script>
@@ -222,12 +231,18 @@ export default {
 }
 
 .profile-picture {
-  width: 120px; /* Ajusta el tamaño según lo necesario */
-  height: 120px; /* Asegúrate de que sea cuadrado */
-  border-radius: 50%; /* Esto hace que la imagen sea circular */
-  object-fit: cover; /* Asegura que la imagen se ajuste sin distorsión */
-  border: 2px solid white; /* Opcional: borde blanco */
-  transition: transform 0.3s; /* Animación al pasar el cursor */
+  width: 120px;
+  /* Ajusta el tamaño según lo necesario */
+  height: 120px;
+  /* Asegúrate de que sea cuadrado */
+  border-radius: 50%;
+  /* Esto hace que la imagen sea circular */
+  object-fit: cover;
+  /* Asegura que la imagen se ajuste sin distorsión */
+  border: 2px solid white;
+  /* Opcional: borde blanco */
+  transition: transform 0.3s;
+  /* Animación al pasar el cursor */
 }
 
 .profile-picture:hover {

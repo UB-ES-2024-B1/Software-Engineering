@@ -16,32 +16,6 @@ router = APIRouter()
 from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def init_db():
-    # Consumir el generador para obtener la sesión
-    db: Session = next(get_db())  # Obtener una sesión válida
-
-    # Verificar si ya existen usuarios
-    if len(user_crud.get_users(db)) == 0:
-        # Crear 6 usuarios
-        initial_users = [
-            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1"},
-            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2"},
-            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3"},
-            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4"},
-            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5"},
-            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6"},
-        ]
-        # Insertar usuarios en la base de datos
-        for user_data in initial_users:
-            user_crud.create_user(
-                db=db,
-                full_name=user_data.get("full_name"),
-                email=user_data.get("email"),
-                hashed_password=pwd_context.hash(user_data.get("password")),
-                is_admin=user_data.get("is_admin")
-            )
-    db.close()  # Close session
-
 
 def init_db():
     # Consumir el generador para obtener la sesión
@@ -228,24 +202,63 @@ def update_user_by_id(
     
     return updated_user
 
-# Endpoint to update an existing user by email
 @router.put("/email/{user_email}", response_model=UserOut)
 def update_user_by_email(
-    user_email: str,  # The user's email to identify the user
-    user_data: UserUpdate,  # Model with the data to update
+    user_email: str,
+    email: Optional[str] = Form(None),
+    full_name: Optional[str] = Form(None),
+    is_active: Optional[bool] = Form(None),
+    is_admin: Optional[bool] = Form(None),
+    img: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
     """
     Update an existing user by email.
     :param user_email: The email of the user to update
-    :param user_data: The data to update the user
+    :param email: The new email, if provided
+    :param full_name: The new full name, if provided
+    :param is_active: Whether the user is active, if provided
+    :param is_admin: Whether the user is an admin, if provided
+    :param img: The uploaded image, if provided
     :param db: The database session
     :return: The updated user
     """
-    # Use the CRUD function to update the user by email
-    updated_user = user_crud.update_user_by_email(db, user_email, user_data.model_dump(exclude_unset=True))
+    # Get the current user from the database
+    existing_user = user_crud.get_user_by_email(db, user_email)
+    
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Prepare the data for updating
+    update_data = {}
+    if email is not None:
+        update_data["email"] = email
+    if full_name is not None:
+        update_data["full_name"] = full_name
+    if is_active is not None:
+        update_data["is_active"] = is_active
+    if is_admin is not None:
+        update_data["is_admin"] = is_admin
 
-    # If the user doesn't exist, return error 404
+    # If an image is uploaded, process it
+    if img:
+        try:
+            if existing_user.img_public_id and existing_user.img_public_id != "imagenes-perfil/profile-circle":
+                # If there is an existing image, delete it from Cloudinary
+                eliminar_imagen(existing_user.img_public_id)
+
+            # Upload the new image and update the fields
+            image_data = img.file.read()  # Read the image bytes
+            upload_result = subir_imagen_desde_archivo(image_data)  # Call the upload function
+            
+            update_data["img_url"] = upload_result["url"]
+            update_data["img_public_id"] = upload_result["public_id"]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error uploading image: {str(e)}")
+    
+    # Update the user with the new data
+    updated_user = user_crud.update_user(db, existing_user.id, update_data)
+
     if not updated_user:
         raise HTTPException(status_code=404, detail="User not found")
     

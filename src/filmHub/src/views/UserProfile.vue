@@ -13,7 +13,7 @@
         <div v-else-if="userData" class="profile-content">
           <!-- Imagen de perfil -->
           <div class="profile-image">
-            <img :src="require('@/assets/foto_perfil.png')" alt="Profile Picture" />
+            <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Profile Picture" />
           </div>
 
           <div class="profile-info">
@@ -69,7 +69,7 @@ export default {
     return {
       userData: null,
       error: null,
-      profileImage: '@/assets/default_profile.jpg',
+      profileImage: '',
     };
   },
   created() {

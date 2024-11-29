@@ -49,40 +49,52 @@ export default {
       email: '', // Correo del usuario
       password: '', // Contraseña del usuario
       loginError: false, // Estado para mostrar o esconder el mensaje de error
+      userImg: '',
+      userName: '',
     };
   },
   methods: {
     async handleLogin() {
       try {
-        // Usar FormData para enviar los datos en el formato adecuado
+        // Crear el formulario de datos
         const formData = new FormData();
-        formData.append('username', this.email); // OAuth2PasswordRequestForm espera 'username'
-        formData.append('password', this.password); // Y también espera 'password'
+        formData.append('username', this.email);
+        formData.append('password', this.password);
 
-        // Realizar la solicitud POST al backend para el login
+        // Realizar el login y obtener el token
         const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         });
 
-        // Guardar el token en localStorage
+        // Guardar el token y el email en localStorage
         localStorage.setItem('token', response.data.access_token);
-
-        // Guardar el email para futuras solicitudes
         localStorage.setItem('userEmail', this.email);
 
+        // Obtener datos del usuario
+        const userResponse = await axios.get(`${API_BASE_URL}/users/email/${this.email}`);
+        const userData = userResponse.data;
+
+        // Guardar los datos del usuario en localStorage
+        localStorage.setItem('userName', userData.full_name);
+        localStorage.setItem('userImg', userData.img_url);
+
+        // Actualizar datos en el componente
+        this.userData = userData;
+
         // Notificar éxito
-        window.dispatchEvent(new Event('storage')); // Informa a otros componentes sobre el cambio
+        window.dispatchEvent(new Event('storage')); // Informar a otros componentes
         this.loginError = false;
 
-        // Redirigir al usuario a la página de perfil
+        // Redirigir al usuario
         this.$router.push('/');
       } catch (error) {
         console.error('Error al iniciar sesión:', error);
         this.loginError = true; // Mostrar mensaje de error
       }
     },
+
   },
 };
 </script>
