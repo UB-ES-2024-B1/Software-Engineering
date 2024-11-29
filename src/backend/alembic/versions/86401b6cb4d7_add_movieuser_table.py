@@ -25,6 +25,7 @@ def upgrade() -> None:
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('rating', sa.Float(), nullable=True),
     sa.Column('liked', sa.Boolean(), nullable=True),
+    sa.Column('wished', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['movie_id'], ['movie.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('movie_id', 'user_id')
