@@ -470,13 +470,14 @@ def nowish_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get
     return movie_crud.remove_wish_movie(db, user_id, movie_id)
 
 # Endpoint to get the list of a user of ratings
-@router.get("/liked_and_rated_list/{user_id}")
+@router.get("/liked_rated_and_wished_list/{user_id}")
 def get_liked_and_rated_movies(user_id: int, db: Session = Depends(get_db)):
     # Format the result to return both liked and rated movies
     liked_movie_titles = movie_crud.get_user_liked_movies(db, user_id=user_id)
     rated_movie_details = movie_crud.get_user_rated_movies(db, user_id)
+    wished_movie_details = movie_crud.get_user_wished_movies(db, user_id)
 
-    return {"liked_movies": liked_movie_titles, "rated_movies": rated_movie_details}
+    return {"liked_movies": liked_movie_titles, "rated_movies": rated_movie_details, "wished_movies": wished_movie_details}
 
 # Endpoint to get the list of a user of ratings
 @router.get("/rated_list/{user_id}")
