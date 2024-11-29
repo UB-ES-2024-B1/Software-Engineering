@@ -15,7 +15,7 @@
         <div v-else-if="userData" class="profile-content">
           <!-- Imagen de perfil -->
           <div class="profile-image">
-            <img :src="require('@/assets/foto_perfil.png')" alt="Profile Picture" />
+            <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Profile Picture" />
           </div>
 
           <div class="profile-info">
@@ -106,6 +106,7 @@
 
 
 <script>
+
   import HeaderPage from '@/components/HeaderPage.vue';
   import FooterComponent from '@/components/FooterComponent.vue';
   import axios from 'axios';
@@ -124,6 +125,7 @@
     } else {
       console.warn('No image provided');
       return '';
+
     }
   }
 
@@ -154,6 +156,7 @@
       return {
         userData: null,
         error: null,
+        profile_image: '',
         showRatedMovies: true, // Controla si se muestran las valoradas o las con like
         ratedMovies: [], // Películas valoradas
         likedMovies: [], // Películas con like

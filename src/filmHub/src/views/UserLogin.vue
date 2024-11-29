@@ -33,6 +33,7 @@
 </template>
 
 <script>
+
   import HeaderPage from '@/components/HeaderPage.vue';
   import axios from 'axios';
   import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
@@ -76,8 +77,11 @@
           const userEmail = this.email;
           const userResponse = await axios.get(`${API_BASE_URL}/users/email/${encodeURIComponent(userEmail)}`);
           
-          // Guardar el user_id en localStorage
+          // Guardar datos en localStorage
           localStorage.setItem('user_id', userResponse.data.id);
+                 
+          localStorage.setItem('userName', userResponse.full_name);
+          localStorage.setItem('userImg', userResponse.img_url);
   
           // Notificar éxito
           window.dispatchEvent(new Event('storage')); // Informa a otros componentes sobre el cambio

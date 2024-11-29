@@ -14,12 +14,7 @@
     <!-- Mostrar la barra de búsqueda solo si no estamos en páginas de registro o login -->
     <div v-if="!isAuthPage" class="search-bar">
       <!-- Conectar el input al modelo de datos -->
-      <input 
-        type="text" 
-        v-model="searchInput" 
-        placeholder="Search for movies..." 
-        @keyup.enter="searchMovies"  
-      />
+      <input type="text" v-model="searchInput" placeholder="Search for movies..." @keyup.enter="searchMovies" />
       <!-- Enviar el término como parámetro de consulta -->
       <router-link v-if="!isAuthPage" :to="{ path: '/movies', query: { search: searchInput } }">
         <button @click="searchMovies">Go!</button> <!-- Método de búsqueda al hacer click -->
@@ -62,7 +57,6 @@ export default {
       searchInput: "",
       scrolled: false, // Propiedad para controlar la opacidad
       isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
-      profileImage: require('@/assets/foto_perfil.png')
     };
   },
   computed: {
@@ -70,6 +64,14 @@ export default {
     isAuthPage() {
       return this.$route.path === '/login' || this.$route.path === '/register';
     },
+    profileImage() {
+      const storedImage = localStorage.getItem('userImg');
+      if (storedImage === 'null' || storedImage === 'undefined') {
+        return require('@/assets/foto_perfil.png');
+      }
+      return storedImage;
+    },
+
   },
   methods: {
     searchMovies() {
@@ -83,10 +85,14 @@ export default {
       this.scrolled = window.scrollY > 60;
     },
     logout() {
-      // Elimina todos los datos relacionados con la sesión
-      localStorage.removeItem('token');
-      localStorage.removeItem('userEmail');
+
+      // Método para cerrar sesión
+      localStorage.removeItem('token'); // Elimina el token del almacenamiento local
+      localStorage.removeItem('userEmail'); // Elimina el correo del usuario
+      localStorage.removeItem('userImg'); // Elimina el ID del usuario
+      localStorage.removeItem('userName'); // Elimina el nombre del usuario
       localStorage.removeItem('user_id'); // Asegúrate de eliminar el user_id también
+
       this.isAuthenticated = false; // Actualiza el estado de autenticación
       window.dispatchEvent(new Event('storage')); // Notifica a otros componentes del cambio
 
@@ -105,6 +111,7 @@ export default {
     // Elimina el evento de scroll cuando el componente se desmonta
     window.removeEventListener('scroll', this.handleScroll);
   },
+
 };
 </script>
 

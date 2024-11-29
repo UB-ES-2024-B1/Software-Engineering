@@ -11,8 +11,6 @@ import AllMovies from '../views/AllMovies.vue';
 import AddMovies from '../views/AddMovies.vue'; // Importa el componente 
 
 
-
-
 const routes = [
   {
     path: '/',
@@ -64,5 +62,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
 
 export default router;
