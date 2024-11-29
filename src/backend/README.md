@@ -43,6 +43,7 @@
    pip install bcrypt
    pip install python-jose
    pip install requests
+   pip install cloudinary
    ```
 
    For Mac:
@@ -58,6 +59,7 @@
    pip install bcrypt
    pip install python-jose
    pip install requests
+   pip install cloudinary
    ```
 5. **Sep up for Alembic (databases)**:
 
