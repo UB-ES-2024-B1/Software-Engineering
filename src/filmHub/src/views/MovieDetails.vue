@@ -214,7 +214,13 @@
         <p>{{ alertMessage }}</p>
         <button @click="closeAlert" class="alert-close-btn">OK</button>
       </div>
-      
+
+      <!-- Mensaje de alerta conforme se ha publicado el comentario-->
+      <div v-if="showAlert" class="alert-box">
+        {{ alertMessage }}
+        <button @click="closeAlert" class="close-alert-btn">x</button>
+      </div>
+
     </section>
 
 
@@ -379,6 +385,7 @@ export default {
       if (this.newCommentText.trim()) {
         this.comments.push({ user: username , text: this.newCommentText });
         this.toggleAddingComment();
+        this.showAlertMessage("Your comment has been successfully posted");
       }
     },
     confirmDelete(index) {
