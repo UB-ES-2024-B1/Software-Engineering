@@ -59,12 +59,12 @@
         <button :class="{ active: showRatedMovies }" @click="toggleMovies('rated')">
           Rated Movies
         </button>
-<!--
-        <button :class="{ active: showRatedMovies }" @click="toggleMovies('liked')">
+
+        <button :class="{ active: !showRatedMovies }" @click="toggleMovies('liked')">
           Favourite Movies
         </button>
         
--->        
+        
       </div>
     
       <div class="movies-list">
@@ -89,10 +89,18 @@
           </div>
     
           <!-- User Rating -->
-          <div class="user-rating">
+          <div v-if="showRatedMovies" class="user-rating">
             <img src="@/assets/star.png" alt="Rating" class="icon" />
             <span>{{ movie.userRating }}</span>
-          </div>
+          </div> 
+          
+            <!-- Botón para eliminar película  -->
+          <button class="delete-button" @click="removeMovie(movie.id)">
+            <svg class="delete-svgIcon" viewBox="0 0 448 512">
+              <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path>
+            </svg>
+          </button>
+
         </div>
       </div>      
     </div>
@@ -198,12 +206,11 @@
 
       loadMovies() {
         axios
-          .get(`${API_BASE_URL}/movies/liked_and_rated_list/${this.userData.id}`)
+          .get(`${API_BASE_URL}/movies/liked_list/${this.userData.id}`)
           .then((response) => {
-            const likedMoviesTitles = response.data.liked_movies; // Títulos de las películas con like
-            const ratedMoviesList = response.data.rated_movies; // Lista con {title, rating}
+            const likedMoviesTitles = response.data; // Listado de películas con like
 
-            // Obtener detalles completos de películas liked
+            // Obtener detalles completos de las películas liked
             const likedMoviesDetails = Promise.all(
               likedMoviesTitles.map(async (movieTitle) => {
                 const movieData = await this.fetchMovieDetails(movieTitle);
@@ -211,42 +218,53 @@
               })
             );
 
-            // Obtener detalles completos de películas rated
-            const ratedMoviesDetails = Promise.all(
-              ratedMoviesList.map(async (movie) => {
-                const movieData = await this.fetchMovieDetails(movie.title);
-                return movieData
-                  ? generateMovieObject(movieData, movie.rating) // Incluimos el userRating
-                  : null;
-              })
-            );
+            // Después, hacemos la llamada para obtener las películas valoradas
+            axios
+              .get(`${API_BASE_URL}/movies/rated_list/${this.userData.id}`)
+              .then((response) => {
+                const ratedMoviesList = response.data; // Lista de películas valoradas
 
-            // Esperamos a que ambas promesas terminen
-            Promise.all([likedMoviesDetails, ratedMoviesDetails])
-              .then(([likedMovies, ratedMovies]) => {
-                // Filtramos nulls (errores) y asignamos a las listas respectivas
-                this.likedMovies = likedMovies.filter((movie) => movie !== null);
-                this.ratedMovies = ratedMovies.filter((movie) => movie !== null);
+                // Obtener detalles completos de las películas rated
+                const ratedMoviesDetails = Promise.all(
+                  ratedMoviesList.map(async (movie) => {
+                    const movieData = await this.fetchMovieDetails(movie.title);
+                    return movieData
+                      ? generateMovieObject(movieData, movie.rating) // Incluimos el userRating
+                      : null;
+                  })
+                );
 
-                // Aseguramos que una película valorada pueda estar también en la lista de liked
-                const likedTitlesSet = new Set(this.likedMovies.map((movie) => movie.title));
-                this.ratedMovies.forEach((movie) => {
-                  if (likedTitlesSet.has(movie.title)) {
-                    movie.isLiked = true; // Marcamos la película como liked
-                  }
-                });
+                // Esperamos a que ambas promesas terminen
+                Promise.all([likedMoviesDetails, ratedMoviesDetails])
+                  .then(([likedMovies, ratedMovies]) => {
+                    // Filtramos nulls (errores) y asignamos a las listas respectivas
+                    this.likedMovies = likedMovies.filter((movie) => movie !== null);
+                    this.ratedMovies = ratedMovies.filter((movie) => movie !== null);
 
-                // Actualizamos la lista mostrada
-                this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+                    // Aseguramos que una película valorada pueda estar también en la lista de liked
+                    const likedTitlesSet = new Set(this.likedMovies.map((movie) => movie.title));
+                    this.ratedMovies.forEach((movie) => {
+                      if (likedTitlesSet.has(movie.title)) {
+                        movie.isLiked = true; // Marcamos la película como liked
+                      }
+                    });
+
+                    // Actualizamos la lista mostrada
+                    this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+                  })
+                  .catch((error) => {
+                    console.error('Error al procesar las películas rated:', error);
+                  });
               })
               .catch((error) => {
-                console.error('Error al procesar las películas liked y rated:', error);
+                console.error('Error al obtener las películas rated:', error);
               });
           })
           .catch((error) => {
-            console.error('Error al obtener las películas liked y rated:', error);
+            console.error('Error al obtener las películas liked:', error);
           });
       },
+
 
 
       toggleMovies(type) {
@@ -260,6 +278,48 @@
         // Actualizar la lista mostrada
         this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
       },
+
+      removeMovie(movieId) {
+        if (this.showRatedMovies) {
+          // Si estamos en la lista de rated, hacer un "unrate" de la película
+          this.unrateMovie(movieId);
+        } else {
+          // Si estamos en la lista de favoritos, hacer un "dislike"
+          this.dislikeMovie(movieId);
+        }
+      },
+      // Función para hacer "unrate"
+      async unrateMovie(movieId) {
+        try {
+          // Enviar solicitud para "unrate" la película
+          await axios.post(`${API_BASE_URL}/movies/unrate/${movieId}/${this.userData.id}`);
+          
+          // Actualizar la lista de películas valoradas (eliminando la película)
+          this.ratedMovies = this.ratedMovies.filter(movie => movie.id !== movieId);
+          this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies; // Actualizar la lista mostrada
+
+          console.log('Película descalificada correctamente');
+        } catch (error) {
+          console.error('Error al descalificar la película:', error);
+        }
+      },
+
+      // Función para hacer "dislike"
+      async dislikeMovie(movieId) {
+        try {
+          // Enviar solicitud para "dislike" la película
+          await axios.post(`${API_BASE_URL}/movies/dislike/${movieId}/${this.userData.id}`);
+          
+          // Actualizar la lista de películas favoritas (eliminando la película)
+          this.likedMovies = this.likedMovies.filter(movie => movie.id !== movieId);
+          this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies; // Actualizar la lista mostrada
+
+          console.log('Película marcada como dislike correctamente');
+        } catch (error) {
+          console.error('Error al marcar la película como dislike:', error);
+        }
+      },
+
     },
     watch: {
       // Cuando cambie el estado de las películas, actualizamos la lista mostrada
@@ -419,30 +479,45 @@
   }
   
   .movies-header {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
-    margin-top: 20px;
-    z-index: 5;
-  }
-  
-  .movies-header button {
-    padding: 12px 25px;
-    border: none;
-    background:  rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 5px;
-  }
-  
-  .movies-header button.active {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4));
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  position: relative;
+  margin-top: 20px;
+  z-index: 5;
+}
+
+.movies-header button {
+  padding: 10px 20px;
+  background: #d9d9d9; /* Color gris claro */
+  color: #000; /* Texto negro */
+  border: none;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin-right: 2px; /* Separación entre pestañas */
+}
+
+.movies-header button:last-child {
+  margin-right: 0;
+}
+
+.movies-header button.active {
+  background: #4ea5d9; /* Azul claro */
+  color: white;
+  border-bottom: none;
+  position: relative;
+  z-index: 10;
+}
+
+.movies-header button:hover {
+  background: #8fc3e8; /* Azul más claro al pasar el ratón */
+}
+
   
   /* Contenedor de la lista de películas */
   .movies-list {
@@ -461,8 +536,9 @@
   }
   
   .movie-item {
+    position: relative; 
     width: 250px;
-    height: 375px;
+    height: 350px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -478,16 +554,16 @@
   }
   
   .movie-poster {
-    width: 100%;
-    height: 375px !important;
+    width: 250px !important;
+    height: 350px !important;
     border-radius: 20px !important;
     opacity: 1;
   }
   
   .rating-likes-cover {
     position: absolute;
-    top: 315px;
-    left: 15px;
+    top: 295px;
+    left: 10px;
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(10px);
     color: white;
@@ -501,8 +577,8 @@
   
   .user-rating {
     position: absolute;
-    bottom: 315px;
-    right: 15px;
+    bottom: 295px;
+    left: 10px;
     background-color: rgba(0, 255, 0, 0.3);
     border: 1px solid green;
     backdrop-filter: blur(5px);
@@ -595,5 +671,75 @@
       height: 180px !important;
     }
   }
-  </style>
-  
+
+
+
+.delete-button {
+  position: absolute;
+  bottom: 290px;
+  right: 15px;
+  min-width: 40px;
+  min-height: 40px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  background-color: rgb(20, 20, 20, 0.8);
+  backdrop-filter: blur(10px);
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+  cursor: pointer;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+.delete-svgIcon {
+  width: 15px;
+  transition-duration: 0.3s;
+}
+
+.delete-svgIcon path {
+  fill: white;
+}
+
+.delete-button:hover {
+  width: 90px;
+  border-radius: 50px;
+  transition-duration: 0.3s;
+  background-color: rgb(255, 69, 69);
+  align-items: center;
+}
+
+.delete-button:hover .delete-svgIcon {
+  width: 20px;
+  transition-duration: 0.3s;
+  transform: translateY(60%);
+  -webkit-transform: rotate(360deg);
+  -moz-transform: rotate(360deg);
+  -o-transform: rotate(360deg);
+  -ms-transform: rotate(360deg);
+  transform: rotate(360deg);
+}
+
+.delete-button::before {
+  display: none;
+  content: "Delete";
+  color: white;
+  transition-duration: 0.3s;
+  font-size: 2px;
+}
+
+.delete-button:hover::before {
+  display: block;
+  padding-right: 10px;
+  font-size: 13px;
+  opacity: 1;
+  transform: translateY(0px);
+  transition-duration: 0.3s;
+}
+
+</style>
