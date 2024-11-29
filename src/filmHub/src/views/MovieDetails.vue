@@ -171,9 +171,10 @@
               <p>
                 <strong>{{ comment.user }}:</strong> {{ comment.text }}
               </p>
+
               <!-- Botón de eliminar comentario para el usuario logueado -->
               <button 
-                v-if="comment.user === loggedInUser" 
+                v-if="comment.user === loggedUserName" 
                 class="delete-comment-btn" 
                 @click="handleDelete(index)">
                 🗑️
@@ -329,6 +330,8 @@ export default {
       genresList: [], // Lista de géneros disponibles
       visibleCount: 9, // Initially show up to 10 items (5 items x 2 rows)
       showAll: false, // To toggle between showing all items or not
+
+      //cuando se junte con el backend modificar para coger metodo que da los commentarios asociados a una mvoie
       comments: [
         { user: "Alice", text: "Great movie!" },
         { user: "Bob", text: "I really enjoyed it." },
@@ -336,7 +339,7 @@ export default {
       ],
       isAddingComment: false,
       newCommentText: "",
-
+      loggedUserName: localStorage.getItem('userName'),
       loggedInUser: !!localStorage.getItem('token'), // Usuario logueado
       showDeleteConfirm: false, // Controla si la confirmación de eliminación de comomment está visible
       commentToDeleteIndex: null, // Índice del comentario a eliminar
@@ -371,11 +374,10 @@ export default {
       this.isAddingComment = !this.isAddingComment;
       if (!this.isAddingComment) this.newCommentText = "";
     },
-    addComment() {
+    async addComment() {
+      const username = localStorage.getItem('userName')
       if (this.newCommentText.trim()) {
-
-        //S'ha d'agafar el nom de l'usuari actual.
-        this.comments.push({ user: this.loggedInUser, text: this.newCommentText });
+        this.comments.push({ user: username , text: this.newCommentText });
         this.toggleAddingComment();
       }
     },
