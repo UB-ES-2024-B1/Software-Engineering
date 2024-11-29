@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlmodel import Session, select
 from app.api.dependencies import get_db  # Import the get_db function for database session management
 from app.crud import movie_crud  # Import CRUD functions for movie operations
-from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, MovieUpdateRating, MovieUpdateLikes, Genre, CastMember, MovieGenre, MovieCast)  # Import movie models for input and output
+from app.models import (Movie, MovieIn, MovieOut, MovieUser, User)  # Import movie models for input and output
 from typing import List, Optional
 from datetime import datetime
 from fastapi.responses import FileResponse
@@ -380,6 +380,84 @@ def update_movie(movie_title: str, movie_data: MovieIn, db: Session = Depends(ge
     return updated_movie
 
 # Endpoint to update only the rating of an existing movie by its title
+@router.post("/rate/{movie_id}/{user_id}/{rating}")
+def rate_movie_endpoint(movie_id: int, user_id: int, rating: float, db: Session = Depends(get_db)):
+    # Check if the movie exists
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    # Check if the user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If the movie exists, proceed with the rating logic
+    return movie_crud.rate_movie(db, user_id, movie_id, rating)
+
+# Endpoint to increment the likes of a movie by its title
+@router.post("/like/{movie_id}/{user_id}")
+def like_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_db)):
+    # Check if the movie exists
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    # Check if the user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If the movie exists, proceed with the like logic
+    return movie_crud.like_movie(db, user_id, movie_id)
+
+# Endpoint to remove the rating of an existing movie by a user
+@router.post("/unrate/{movie_id}/{user_id}")
+def unrate_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_db)):
+    # Check if the movie exists
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    # Check if the user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If the movie exists, proceed with the rating logic
+    return movie_crud.remove_rate_movie(db, user_id, movie_id)
+
+# Endpoint to increment the likes of a movie by its title
+@router.post("/dislike/{movie_id}/{user_id}")
+def dislike_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_db)):
+    # Check if the movie exists
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    # Check if the user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If the movie exists, proceed with the like logic
+    return movie_crud.remove_like_movie(db, user_id, movie_id)
+
+# Endpoint to get the list of a user of ratings
+@router.get("/liked_and_rated_list/{user_id}")
+def get_liked_and_rated_movies(user_id: int, db: Session = Depends(get_db)):
+    # Query to get all movies liked by the user
+    liked_movies = db.query(Movie).join(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.liked == True).all()
+
+    # Query to get all movies rated by the user (excluding None values for rating)
+    rated_movies = db.query(Movie).join(MovieUser).filter(MovieUser.user_id == user_id, MovieUser.rating != None).all()
+
+    # Format the result to return both liked and rated movies
+    liked_movie_titles = [movie.title for movie in liked_movies]
+    rated_movie_details = [
+        {"title": movie.title, "rating": db.query(MovieUser.rating).filter(MovieUser.movie_id == movie.id, MovieUser.user_id == user_id).first()[0]}
+        for movie in rated_movies
+    ]
+
+    return {"liked_movies": liked_movie_titles, "rated_movies": rated_movie_details}
+
+'''# Endpoint to update only the rating of an existing movie by its title
 @router.put("/{movie_title}/rating", response_model=MovieOut)
 def update_movie_rating_by_title(movie_title: str, rating_data: MovieUpdateRating, db: Session = Depends(get_db)):
     """
@@ -418,7 +496,7 @@ def add_movie_like(movie_title: str, db: Session = Depends(get_db)):
     if updated_movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")
     
-    return updated_movie
+    return updated_movie'''
 
 # Endpoint to delete an existing movie by its ID
 @router.delete("/id/{movie_id}", response_model=dict)
@@ -455,3 +533,4 @@ def delete_movie_by_title(movie_title: str, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Movie not found")
     return {"message": "Movie deleted successfully"}
+

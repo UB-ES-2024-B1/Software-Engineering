@@ -33,71 +33,71 @@
 </template>
 
 <script>
-import HeaderPage from '@/components/HeaderPage.vue';
-import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
-import FooterComponent from '@/components/FooterComponent.vue';
 
-export default {
-  name: 'UserLogin',
-  components: {
-    HeaderPage,
-    FooterComponent,
-  },
-  data() {
-    return {
-      email: '', // Correo del usuario
-      password: '', // Contraseña del usuario
-      loginError: false, // Estado para mostrar o esconder el mensaje de error
-      userImg: '',
-      userName: '',
-    };
-  },
-  methods: {
-    async handleLogin() {
-      try {
-        // Crear el formulario de datos
-        const formData = new FormData();
-        formData.append('username', this.email);
-        formData.append('password', this.password);
-
-        // Realizar el login y obtener el token
-        const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        });
-
-        // Guardar el token y el email en localStorage
-        localStorage.setItem('token', response.data.access_token);
-        localStorage.setItem('userEmail', this.email);
-
-        // Obtener datos del usuario
-        const userResponse = await axios.get(`${API_BASE_URL}/users/email/${this.email}`);
-        const userData = userResponse.data;
-
-        // Guardar los datos del usuario en localStorage
-        localStorage.setItem('userName', userData.full_name);
-        localStorage.setItem('userImg', userData.img_url);
-
-        // Actualizar datos en el componente
-        this.userData = userData;
-
-        // Notificar éxito
-        window.dispatchEvent(new Event('storage')); // Informar a otros componentes
-        this.loginError = false;
-
-        // Redirigir al usuario
-        this.$router.push('/');
-      } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-        this.loginError = true; // Mostrar mensaje de error
-      }
+  import HeaderPage from '@/components/HeaderPage.vue';
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
+  import FooterComponent from '@/components/FooterComponent.vue';
+  
+  export default {
+    name: 'UserLogin',
+    components: {
+      HeaderPage,
+      FooterComponent,
     },
-
-  },
-};
-</script>
+    data() {
+      return {
+        email: '', // Correo del usuario
+        password: '', // Contraseña del usuario
+        loginError: false, // Estado para mostrar o esconder el mensaje de error
+      };
+    },
+    methods: {
+      async handleLogin() {
+        try {
+          // Usar FormData para enviar los datos en el formato adecuado
+          const formData = new FormData();
+          formData.append('username', this.email); // OAuth2PasswordRequestForm espera 'username'
+          formData.append('password', this.password); // Y también espera 'password'
+  
+          // Realizar la solicitud POST al backend para el login
+          const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          });
+  
+          // Guardar el token en localStorage
+          localStorage.setItem('token', response.data.access_token);
+  
+          // Guardar el email para futuras solicitudes
+          localStorage.setItem('userEmail', this.email);
+  
+          // Ahora obtenemos el user_id a partir del email
+          const userEmail = this.email;
+          const userResponse = await axios.get(`${API_BASE_URL}/users/email/${encodeURIComponent(userEmail)}`);
+          
+          // Guardar datos en localStorage
+          localStorage.setItem('user_id', userResponse.data.id);
+                 
+          localStorage.setItem('userName', userResponse.full_name);
+          localStorage.setItem('userImg', userResponse.img_url);
+  
+          // Notificar éxito
+          window.dispatchEvent(new Event('storage')); // Informa a otros componentes sobre el cambio
+          this.loginError = false;
+  
+          // Redirigir al usuario a la página de perfil
+          this.$router.push('/');
+        } catch (error) {
+          console.error('Error al iniciar sesión:', error);
+          this.loginError = true; // Mostrar mensaje de error
+        }
+      },
+    },
+  };
+  </script>
+  
 
 
 <style scoped>

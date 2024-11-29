@@ -21,83 +21,117 @@
             <div class="info-item">
               <span class="info-title">Country: </span> <span>{{ bannerMovie.country }}</span>
             </div>
+            <div class="rating-likes-banner">
+              <div class="rating">
+                <img src="@/assets/star.png" alt="Star" class="icon" />
+                <span>{{ bannerMovie.rating.toFixed(1) }}</span>
+              </div>
+              <div class="likes">
+                <img src="@/assets/like.png" alt="Like" class="icon" />
+                <span>{{ bannerMovie.likes }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="rating-likes-banner">
-          <div class="rating">
-            <img src="@/assets/star.png" alt="Star" class="icon" />
-            <span>{{ bannerMovie.rating }}</span>
-          </div>
-          <div class="likes">
-            <img src="@/assets/like.png" alt="Like" class="icon" />
-            <span>{{ bannerMovie.likes }}</span>
-          </div>
-        </div>
 
         <!-- Aquí agregamos las estrellas de votación -->
         <div class="star-rating-container">
           <div class="radio">
-            <input value="1" name="rating" type="radio" id="rating-1" />
-            <label title="1 stars" for="rating-1">
-              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
-                <path
-                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z">
-                </path>
-              </svg>
-            </label>
-
-            <input value="2" name="rating" type="radio" id="rating-2" />
-            <label title="2 stars" for="rating-2">
-              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
-                <path
-                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z">
-                </path>
-              </svg>
-            </label>
-
-            <input value="3" name="rating" type="radio" id="rating-3" />
-            <label title="3 stars" for="rating-3">
-              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
-                <path
-                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z">
-                </path>
-              </svg>
-            </label>
-
-            <input value="4" name="rating" type="radio" id="rating-4" />
-            <label title="4 stars" for="rating-4">
-              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
-                <path
-                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z">
-                </path>
-              </svg>
-            </label>
-
-            <input value="5" name="rating" type="radio" id="rating-5" />
+            <!-- Estrellas para la valoración -->
+            <input 
+              value="5" 
+              name="rating" 
+              type="radio" 
+              id="rating-5" 
+              :checked="rating === 5"
+              @click="saveRating(5)" />
             <label title="5 star" for="rating-5">
               <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
-                <path
-                  d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z">
-                </path>
+                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path>
+              </svg>
+            </label>
+      
+            <input 
+              value="4" 
+              name="rating" 
+              type="radio" 
+              id="rating-4" 
+              :checked="rating === 4"
+              @click="saveRating(4)" />
+            <label title="4 stars" for="rating-4">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path>
+              </svg>
+            </label>
+      
+            <input 
+              value="3" 
+              name="rating" 
+              type="radio" 
+              id="rating-3" 
+              :checked="rating === 3"
+              @click="saveRating(3)" />
+            <label title="3 stars" for="rating-3">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path>
+              </svg>
+            </label>
+      
+            <input 
+              value="2" 
+              name="rating" 
+              type="radio" 
+              id="rating-2" 
+              :checked="rating === 2"
+              @click="saveRating(2)" />
+            <label title="2 stars" for="rating-2">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path>
+              </svg>
+            </label>
+      
+            <input 
+              value="1" 
+              name="rating" 
+              type="radio" 
+              id="rating-1" 
+              :checked="rating === 1"
+              @click="saveRating(1)" />
+            <label title="1 star" for="rating-1">
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path>
               </svg>
             </label>
           </div>
         </div>
+
         <!-- Like -->
         <div class="like-container">
           <label class="container">
-            <input checked="checked" type="checkbox" />
+            <!-- Checkbox para manejar el like -->
+            <input 
+              type="checkbox" 
+              id="like-toggle" 
+              :checked="likedMovies.includes(bannerMovie.title)"  
+              @change="toggleLike(bannerMovie.id, !$event.target.checked)" 
+            />
             <div class="checkmark">
               <svg viewBox="0 0 256 256">
                 <rect fill="none" height="256" width="256"></rect>
-                <path
-                  d="M224.6,51.9a59.5,59.5,0,0,0-43-19.9,60.5,60.5,0,0,0-44,17.6L128,59.1l-7.5-7.4C97.2,28.3,59.2,26.3,35.9,47.4a59.9,59.9,0,0,0-2.3,87l83.1,83.1a15.9,15.9,0,0,0,22.6,0l81-81C243.7,113.2,245.6,75.2,224.6,51.9Z"
-                  stroke-width="20px" stroke="#000" fill="none"></path>
+                <path 
+                  id="heart-path" 
+                  :stroke="likedMovies.includes(bannerMovie.title) ? 'red' : '#000'"  
+                  d="M224.6,51.9a59.5,59.5,0,0,0-43-19.9,60.5,60.5,0,0,0-44,17.6L128,59.1l-7.5-7.4C97.2,28.3,59.2,26.3,35.9,47.4a59.9,59.9,0,0,0-2.3,87l83.1,83.1a15.9,15.9,0,0,0,22.6,0l81-81C243.7,113.2,245.6,75.2,224.6,51.9Z" 
+                  stroke-width="20px" 
+                  fill="none">
+                </path>
               </svg>
             </div>
           </label>
         </div>
+
+
       </div>
     </section>
 
@@ -174,7 +208,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -190,7 +224,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -206,7 +240,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -222,7 +256,7 @@
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -249,163 +283,291 @@
 </template>
 
 <script>
-import HeaderPage from '@/components/HeaderPage.vue';
-import axios from 'axios';
-import { API_BASE_URL } from '@/config.js';
-import FooterComponent from '@/components/FooterComponent.vue';
-import VideoPlayer from "@/components/VideoPlayer.vue";
+  import HeaderPage from '@/components/HeaderPage.vue';
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config.js';
+  import FooterComponent from '@/components/FooterComponent.vue';
+  import VideoPlayer from "@/components/VideoPlayer.vue";
 
-export default {
-  name: 'MovieDetails',
-  components: {
-    HeaderPage,
-    FooterComponent,
-    VideoPlayer,
-  },
-  data() {
-    return {
-      bannerMovie: null, // Película del banner
-      movies: [], // Lista de películas ordenadas
-      relatedMovies: [], // Lista de películas relacionadas
-      genresList: [], // Lista de géneros disponibles
-      visibleCount: 9, // Initially show up to 10 items (5 items x 2 rows)
-      showAll: false, // To toggle between showing all items or not
-
-    };
-  },
-  computed: {
-    // Combine the director and cast, ensuring the director is always first
-    combinedCast() {
-      return [this.bannerMovie.director, ...this.bannerMovie.cast];
-    }
-  },
-  methods: {
-    toggleSeeMore() {
-      if (this.showAll) {
-        this.visibleCount = 9; // Hide items and show 10-1 (2 rows) - director
-      } else {
-        this.visibleCount = this.combinedCast.length; // Show all items (director + cast)
-      }
-      this.showAll = !this.showAll;
+  export default {
+    name: 'MovieDetails',
+    components: {
+      HeaderPage,
+      FooterComponent,
+      VideoPlayer,
     },
-    async fetchTitle(title) {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
-        this.bannerMovie = await generateMovieObject(response.data);
-      } catch (error) {
-        console.error('Error retrieving banner movie:', error);
-      }
+    data() {
+      return {
+        bannerMovie: null, // Película del banner
+        movies: [], // Lista de películas ordenadas
+        relatedMovies: [], // Lista de películas relacionadas
+        genresList: [], // Lista de géneros disponibles
+        visibleCount: 9, // Inicialmente mostrar hasta 9 elementos
+        showAll: false, // Para alternar entre mostrar todos los elementos o no
+        userId: localStorage.getItem('user_id'), // ID del usuario
+        rating: 0, // Valoración inicial
+        userRatedMovies: {}, // Almacenará las películas valoradas por el usuario
+        likedMovies: [] // Almacena las películas que el usuario ha marcado como "like"
+      };
     },
-    async fetchBannerMovie(id) {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/movies/${id}`);
-        this.bannerMovie = await generateMovieObject(response.data);
-      } catch (error) {
-        console.error('Error retrieving banner movie:', error);
-      }
-    },
-    async fetchMovies(start, end, movies_section, movieTitle) {
-      try {
-        const encodedTitle = encodeURIComponent(movieTitle);
-        const url = `${API_BASE_URL}/movies/sorted/related_movies/${encodedTitle}`;
-        const movieObjects = [];
-        const response = await axios.get(url);
-
-        if (!response.data || response.data.length === 0) {
-          console.log('No related movies found.');
-          return;
-        }
-
-        const movies = response.data.slice(start, end);
-
-        for (const movieData of movies) {
-          const movieObject = movies_section === 1
-            ? await generateMovieObject(movieData)
-            : await generateRecentMovieObject(movieData);
-          movieObjects.push(movieObject);
-        }
-
-        if (movies_section === 1) {
-          this.movies = movieObjects;
-        } else {
-          this.relatedMovies = movieObjects;
-        }
-
-      } catch (error) {
-        console.error('Error retrieving related movies:', error);
-      }
-    },
-    async loadMovieData(movieId) {
-      try {
-        await this.fetchBannerMovie(movieId); // Cargar la película del banner
-        if (this.bannerMovie) {
-          const movieTitle = this.bannerMovie.title;
-          console.log('Movie title to fetch related movies:', movieTitle);
-          await this.fetchMovies(0, 50, 2, movieTitle); // Cargar películas relacionadas
-          this.scrollToTop();
-        }
-      } catch (error) {
-        console.error('Error loading movie data:', error);
-      }
-    },
-
-    scrollToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth', // Esto añade un efecto suave al scroll
-      });
-    },
-  },
-  watch: {
-    '$route.params.id': {
-      immediate: true, // Ejecutar al montar el componente
-      handler(newId) {
-        console.log('Route changed, fetching new movie data for ID:', newId);
-        this.loadMovieData(newId);
+    computed: {
+      combinedCast() {
+        return [this.bannerMovie.director, ...this.bannerMovie.cast];
       },
     },
-  },
-};
+    methods: {
+      toggleSeeMore() {
+        if (this.showAll) {
+          this.visibleCount = 9; // Mostrar solo 9 (director + 2 filas de actores)
+        } else {
+          this.visibleCount = this.combinedCast.length; // Mostrar todos los elementos
+        }
+        this.showAll = !this.showAll;
+      },
+      async fetchTitle(title) {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
+          this.bannerMovie = await generateMovieObject(response.data);
+        } catch (error) {
+          console.error('Error retrieving banner movie:', error);
+        }
+      },
+      async fetchBannerMovie(id) {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/movies/${id}`);
+          this.bannerMovie = await generateMovieObject(response.data);
+        } catch (error) {
+          console.error('Error retrieving banner movie:', error);
+        }
+      },
+      async fetchMovies(start, end, movies_section, movieTitle) {
+        try {
+          const encodedTitle = encodeURIComponent(movieTitle);
+          const url = `${API_BASE_URL}/movies/sorted/related_movies/${encodedTitle}`;
+          const movieObjects = [];
+          const response = await axios.get(url);
 
-function getImagePath(image) {
-  if (image && image.startsWith('http')) {
-    return image;
-  } else {
-    return require(`@/assets/${image}`);
+          if (!response.data || response.data.length === 0) {
+            console.log('No related movies found.');
+            return;
+          }
+
+          const movies = response.data.slice(start, end);
+
+          for (const movieData of movies) {
+            const movieObject = movies_section === 1
+              ? await generateMovieObject(movieData)
+              : await generateRecentMovieObject(movieData);
+            movieObjects.push(movieObject);
+          }
+
+          if (movies_section === 1) {
+            this.movies = movieObjects;
+          } else {
+            this.relatedMovies = movieObjects;
+          }
+        } catch (error) {
+          console.error('Error retrieving related movies:', error);
+        }
+      },
+      async loadMovieData(movieId) {
+        try {
+          await this.fetchBannerMovie(movieId); // Cargar la película del banner
+          if (this.bannerMovie) {
+            const movieTitle = this.bannerMovie.title;
+            console.log('Movie title to fetch related movies:', movieTitle);
+            await this.fetchMovies(0, 50, 2, movieTitle); // Cargar películas relacionadas
+
+            // Si la película actual está valorada, actualiza `this.rating`..
+            if (this.userRatedMovies && this.userRatedMovies[this.bannerMovie.title]) {
+              this.rating = this.userRatedMovies[this.bannerMovie.title];
+            } else {
+              // Si no está valorada, reinicia `this.rating` a 0
+              this.rating = 0;
+            }
+
+            this.scrollToTop();
+          }
+        } catch (error) {
+          console.error('Error loading movie data:', error);
+        }
+      },
+
+      async saveRating(rating) {
+        try {
+          if (!this.userId) { // Verifica si el userId está disponible
+            alert('Debes iniciar sesión para puntuar una película.'); // Muestra advertencia
+            this.$router.push('/login');
+            return; // Salir del método
+          }
+
+          if (this.rating === rating) {
+            // Si la calificación seleccionada es la misma que la actual, deshacer la calificación
+            const unrateEndpoint = `${API_BASE_URL}/movies/unrate/${this.bannerMovie.id}/${this.userId}`;
+            const response = await axios.post(unrateEndpoint);
+            if (response.status === 200) {
+              console.log('Rating removed successfully.');
+              this.rating = null; // Reiniciar el estado local de la valoración
+
+              // Actualizar el estado de las películas valoradas
+              if (this.userRatedMovies && this.bannerMovie.title in this.userRatedMovies) {
+                delete this.userRatedMovies[this.bannerMovie.title];
+              }
+            }
+          } else {
+            // Si es una nueva calificación o diferente, guardar la calificación
+            const rateEndpoint = `${API_BASE_URL}/movies/rate/${this.bannerMovie.id}/${this.userId}/${rating}`;
+            const response = await axios.post(rateEndpoint);
+            if (response.status === 200) {
+              console.log('Rating saved successfully.');
+              this.rating = rating; // Actualizamos el estado local de la valoración
+
+              // Actualizar el estado de las películas valoradas
+              if (!this.userRatedMovies) {
+                this.userRatedMovies = {}; // Asegurarse de que exista el objeto
+              }
+              this.userRatedMovies[this.bannerMovie.title] = rating; // Actualizamos localmente
+            }
+          }
+
+          this.loadMovieData(this.$route.params.id);
+
+        } catch (error) {
+          console.error('Error saving or removing rating:', error);
+        }
+      },
+
+
+      async toggleLike(movieId) {
+        try {
+          if (!this.userId) { // Verifica si el userId está disponible
+            alert('Debes iniciar sesión para puntuar una película.'); // Muestra advertencia
+            this.$router.push('/login');
+            return; // Salir del método
+          }
+
+          // Verificar si la película ya está en likedMovies
+          const isLiked = this.likedMovies.includes(this.bannerMovie.title);
+
+          // Elegir el endpoint basado en el estado actual
+          const endpoint = isLiked
+            ? `${API_BASE_URL}/movies/dislike/${movieId}/${this.userId}`
+            : `${API_BASE_URL}/movies/like/${movieId}/${this.userId}`;
+
+          const response = await axios.post(endpoint);
+
+          if (response.status === 200) {
+            console.log(isLiked ? 'Movie disliked successfully.' : 'Movie liked successfully.');
+
+            // Actualizar el estado local de likedMovies
+            if (isLiked) {
+              this.likedMovies = this.likedMovies.filter(title => title !== this.bannerMovie.title);
+            } else {
+              this.likedMovies.push(this.bannerMovie.title);
+            }
+          }
+
+          this.loadMovieData(this.$route.params.id);
+
+        } catch (error) {
+          console.error('Error toggling like:', error.response?.data || error.message);
+        }
+      },
+
+      async loadUserPreferences() {
+        try {
+          if (!this.userId) {
+            console.error('User ID not found.');
+            return;
+          }
+          const endpoint = `${API_BASE_URL}/movies/liked_and_rated_list/${this.userId}`;
+          const response = await axios.get(endpoint);
+
+          const data = response.data;
+
+          // Procesar películas valoradas
+          const ratedMovies = {};
+          if (data.rated_movies) {
+            data.rated_movies.forEach((movie) => {
+              ratedMovies[movie.title] = movie.rating;
+            });
+          }
+          this.userRatedMovies = ratedMovies;
+
+          // Procesar películas con like
+          this.likedMovies = data.liked_movies || [];
+        } catch (error) {
+          console.error('Error loading user preferences:', error.response?.data || error.message);
+        }
+      },
+
+      scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      },
+    },
+    mounted() {
+      if (this.userId) {
+        this.loadUserPreferences().then(() => {
+          // Cargar datos de la película después de cargar las preferencias
+          this.loadMovieData(this.$route.params.id);
+        });
+      } else {
+        console.warn('User ID not found in localStorage.');
+        this.loadMovieData(this.$route.params.id);
+      }
+    },
+    watch: {
+      '$route.params.id': {
+        immediate: true,
+        handler(newId) {
+          console.log('Route changed, fetching new movie data for ID:', newId);
+          this.loadMovieData(newId);
+        },
+      },
+    },
+  };
+
+  function getImagePath(image) {
+    if (image && image.startsWith('http')) {
+      return image;
+    } else {
+      return require(`@/assets/${image}`);
+    }
   }
-}
 
-async function generateMovieObject(movieData) {
-  return {
-    id: movieData.id,
-    image: getImagePath(movieData.image[1]),
-    smallImage: getImagePath(movieData.image[0]),
-    title: movieData.title,
-    description: movieData.description,
-    rating: movieData.rating,
-    likes: movieData.likes,
-    director: movieData.director,
-    country: movieData.country,
-    release_date: movieData.release_date,
-    genres: movieData.genres.map((genre) => genre.type),
-    cast: movieData.cast_members.map((cast) => cast.name),
-    trailer: movieData.trailer,
-  };
-}
+  async function generateMovieObject(movieData) {
+    return {
+      id: movieData.id,
+      image: getImagePath(movieData.image[1]),
+      smallImage: getImagePath(movieData.image[0]),
+      title: movieData.title,
+      description: movieData.description,
+      rating: movieData.rating,
+      likes: movieData.likes,
+      director: movieData.director,
+      country: movieData.country,
+      release_date: movieData.release_date,
+      genres: movieData.genres.map((genre) => genre.type),
+      cast: movieData.cast_members.map((cast) => cast.name),
+      trailer: movieData.trailer,
+    };
+  }
 
-async function generateRecentMovieObject(movieData) {
-  return {
-    id: movieData.id,
-    image: getImagePath(movieData.image[0]),
-    rating: movieData.rating,
-    likes: movieData.likes,
-  };
-
-
-}
-
-
+  async function generateRecentMovieObject(movieData) {
+    return {
+      id: movieData.id,
+      image: getImagePath(movieData.image[0]),
+      rating: movieData.rating,
+      likes: movieData.likes,
+    };
+  }
 </script>
+
+
+
 
 
 
@@ -461,7 +623,7 @@ body {
 /* Estilos del carrusel */
 .carousel-inner img {
   width: 100%;
-  height: 600px;
+  height: 82vh;
   /* Cambia el tamaño aquí si lo deseas */
   object-fit: cover;
   /* Asegura que la imagen cubra todo el contenedor */
@@ -521,9 +683,9 @@ body {
 .small-cover {
   position: absolute;
   /* Posiciona de forma absoluta */
-  bottom: 20px;
+  bottom: 3vh;
   /* Distancia desde el fondo */
-  left: 200px;
+  left: 27vh;
   /* Distancia desde el lado izquierdo */
   z-index: 10;
   /* Asegura que esté encima de la imagen del carrusel */
@@ -616,8 +778,8 @@ body {
 
 .rating-likes-banner {
   position: absolute;
-  bottom: 35px;
-  right: 485px;
+  bottom: 1vh;
+  right: 1vh;
   background-color: rgba(255, 255, 255, 0);
   /* Fondo oscuro semi-transparente */
   color: white;
@@ -765,7 +927,7 @@ body {
   bottom: 25px;
   right: 150px;
   z-index: 10;
-  opacity: 0;
+  opacity: 1;
 }
 
 .radio {
@@ -898,9 +1060,10 @@ body {
   user-select: none;
   transition: 100ms;
   z-index: 10;
-  bottom: 23px;
-  left: 1400px;
-  opacity: 0;
+  top: 90%;
+  left: 92%;
+  width: 2em;
+  height: 2em;
 }
 
 .checkmark {
@@ -910,9 +1073,10 @@ body {
   width: 2em;
   transition: 100ms;
   animation: dislike_effect 400ms ease;
-  position: relative;
+  position: absolute;
   z-index: 2;
   /* Se asegura de que el corazón esté sobre otros elementos */
+  overflow: visible; /* Esto es importante */
 }
 
 .checkmark path {
@@ -926,14 +1090,15 @@ body {
 /* Efecto hover: cuando pasas el cursor por encima, el corazón se pone rojo */
 .container:hover .checkmark path {
   fill: #f52121;
-  /* Rojo cuando el cursor está encima */
+  filter: drop-shadow(0 0 15px rgba(96, 13, 13, 0.9)); /* Sombra dinámica */
+  animation: shimmerHeart  1s ease infinite alternate; /* Animación shimmer */
 }
 
 /* El color cambia cuando está seleccionado */
-.container input:checked~.checkmark path {
+.container input:checked ~ .checkmark path {
   fill: #f52121;
-  /* Color rojo cuando está seleccionado */
-  stroke-width: 0;
+  filter: drop-shadow(0 0 15px rgba(96, 13, 13, 0.9)); /* Sombra dinámica */
+  animation: shimmerHeart  1s ease infinite alternate; /* Animación shimmer */
 }
 
 .container input:checked~.checkmark {
@@ -969,6 +1134,18 @@ body {
     transform: scale(1);
   }
 }
+
+/* Animación para el efecto de brillo (shimmer) con sombra roja para el corazón */
+@keyframes shimmerHeart {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(255, 13, 13, 0.5)); /* Sombra roja suave */
+  }
+
+  100% {
+    filter: drop-shadow(0 0 20px rgba(255, 13, 13, 1)); /* Sombra roja más intensa */
+  }
+}
+
 
 
 .detail-item {

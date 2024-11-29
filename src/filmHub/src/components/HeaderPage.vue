@@ -85,14 +85,19 @@ export default {
       this.scrolled = window.scrollY > 60;
     },
     logout() {
+
       // Método para cerrar sesión
       localStorage.removeItem('token'); // Elimina el token del almacenamiento local
       localStorage.removeItem('userEmail'); // Elimina el correo del usuario
       localStorage.removeItem('userImg'); // Elimina el ID del usuario
       localStorage.removeItem('userName'); // Elimina el nombre del usuario
+      localStorage.removeItem('user_id'); // Asegúrate de eliminar el user_id también
 
       this.isAuthenticated = false; // Actualiza el estado de autenticación
-      this.$router.push('/'); // Redirigir a la página de inicio
+      window.dispatchEvent(new Event('storage')); // Notifica a otros componentes del cambio
+
+      // Redirigir a la página de inicio o de login
+      this.$router.push('/');
     },
   },
   mounted() {

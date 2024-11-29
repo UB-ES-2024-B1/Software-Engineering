@@ -6,7 +6,6 @@
 
     <div class="main-content">
       <div class="profile-box">
-        <h2 class="profile-title">Edit Profile</h2>
 
         <!-- Mostrar error si no se pudo cargar la información -->
         <p v-if="error" class="error-message">{{ error }}</p>
@@ -196,23 +195,25 @@ export default {
 }
 
 .profile-box {
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.9);
-  padding: 40px;
-  border-radius: 10px;
-  width: 750px;
-  height: 650px;
-  color: white;
-  z-index: 20;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    padding: 40px;
+    border-radius: 10px;
+    width: 750px;
+    height: 350px;
+    color: white;
+    z-index: 20;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Mejora visual */
+    border: 2px solid rgba(255, 255, 255, 0.1); /* Sutileza */
+    margin-bottom: 146px;
+
 }
 
-.profile-title {
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
-}
+
 
 /* Campo de foto de perfil */
 .profile-picture-group {
@@ -256,7 +257,7 @@ export default {
 .profile-edit-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 
