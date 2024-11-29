@@ -71,7 +71,7 @@ def test_update_user():
         "is_admin": True,
         "full_name": "updateduser"
     }
-    update_response = client.put(f"/users/email/testuser@example.com", json=update_data)
+    update_response = client.put(f"/users/email/testuser@example.com", data=update_data)
 
     # Verify the update was successful
     assert update_response.status_code == 200
