@@ -443,8 +443,8 @@ def dislike_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(ge
 @router.get("/liked_and_rated_list/{user_id}")
 def get_liked_and_rated_movies(user_id: int, db: Session = Depends(get_db)):
     # Format the result to return both liked and rated movies
-    liked_movie_titles = movie_crud.get_user_rated_movies(db, user_id=user_id)
-    rated_movie_details = movie_crud.get_user_liked_movies(db, user_id)
+    liked_movie_titles = movie_crud.get_user_liked_movies(db, user_id=user_id)
+    rated_movie_details = movie_crud.get_user_rated_movies(db, user_id)
 
     return {"liked_movies": liked_movie_titles, "rated_movies": rated_movie_details}
 
