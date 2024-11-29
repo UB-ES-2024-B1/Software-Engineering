@@ -594,7 +594,7 @@ def test_get_liked_and_rated_movies():
     user_id = 1  # Assuming the user with ID 1 exists
     
     # Get the liked and rated movies for the user
-    response = client.get(f"/movies/liked_and_rated_list/{user_id}")
+    response = client.get(f"/movies/liked_rated_and_wished_list/{user_id}")
     
     assert response.status_code == 200
     
