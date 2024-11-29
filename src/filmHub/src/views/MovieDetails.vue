@@ -171,6 +171,13 @@
               <p>
                 <strong>{{ comment.user }}:</strong> {{ comment.text }}
               </p>
+              <!-- Botón de eliminar comentario para el usuario logueado -->
+              <button 
+                v-if="comment.user === loggedInUser" 
+                class="delete-comment-btn" 
+                @click="confirmDelete(index)">
+                🗑️
+              </button>
             </div>
           </div>
 
@@ -187,6 +194,16 @@
           </div>
         </div>
       </div>
+
+      <!-- Confirmación de eliminación de comentario -->
+      <div v-if="showDeleteConfirm" class="delete-modal">
+        <p>Are you sure you want to delete this comment?</p>
+        <div class="delete-modal-buttons">
+          <button @click="deleteComment" class="delete-confirm-btn">Yes</button>
+          <button @click="cancelDelete" class="delete-cancel-btn">No</button>
+        </div>
+      </div>
+      
     </section>
 
 
@@ -305,9 +322,14 @@ export default {
       comments: [
         { user: "Alice", text: "Great movie!" },
         { user: "Bob", text: "I really enjoyed it." },
+        { user: "You", text: "Amazing story!" },
       ],
       isAddingComment: false,
       newCommentText: "",
+
+      loggedInUser: "You", // Usuario logueado
+      showDeleteConfirm: false, // Controla si la confirmación de eliminación de comomment está visible
+      commentToDeleteIndex: null, // Índice del comentario a eliminar
 
     };
   },
@@ -328,6 +350,21 @@ export default {
         this.toggleAddingComment();
       }
     },
+    confirmDelete(index) {
+      this.commentToDeleteIndex = index;
+      this.showDeleteConfirm = true;
+    },
+    deleteComment() {
+      if (this.commentToDeleteIndex !== null) {
+        this.comments.splice(this.commentToDeleteIndex, 1); // Eliminar comentario
+      }
+      this.cancelDelete();
+    },
+    cancelDelete() {
+      this.commentToDeleteIndex = null;
+      this.showDeleteConfirm = false;
+    },
+
     toggleSeeMore() {
       if (this.showAll) {
         this.visibleCount = 9; // Hide items and show 10-1 (2 rows) - director
@@ -519,6 +556,11 @@ async function generateRecentMovieObject(movieData) {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   font-size: 1rem;
+
+  /* Para colocar el icono de la basurita a la derecha */
+  display: flex; /* Activa la flexbox */
+  justify-content: space-between; /* Espaciado entre texto e icono */
+  align-items: center; /* Centra verticalmente el contenido */
 }
 
 .comment-item:last-child {
@@ -598,6 +640,79 @@ async function generateRecentMovieObject(movieData) {
 .cancel-btn:hover {
   background-color: #c82333;
 }
+
+/* Estilos para eliminación de comentarios */
+/* Botón de eliminar comentario */
+.delete-comment-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #ff4d4d; /* Rojo para el botón */
+  margin-left: auto;
+  transition: color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-comment-btn:hover {
+  color: #e60000; /* Rojo más oscuro al pasar el cursor */
+
+}
+
+/* Modal de confirmación de eliminación */
+.delete-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  text-align: center;
+}
+
+.delete-modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.delete-confirm-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.delete-confirm-btn:hover {
+  background-color: #218838;
+}
+
+.delete-cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.delete-cancel-btn:hover {
+  background-color: #c82333;
+}
+
 
 
 body {
