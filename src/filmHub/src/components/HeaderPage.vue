@@ -66,7 +66,7 @@ export default {
     },
     profileImage() {
       const storedImage = localStorage.getItem('userImg');
-      if (storedImage === 'null') {
+      if (storedImage === 'null' || storedImage === 'undefined') {
         return require('@/assets/foto_perfil.png');
       }
       return storedImage;
