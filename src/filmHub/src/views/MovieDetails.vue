@@ -158,6 +158,84 @@
       </div>
     </section>
 
+
+    <!-- Sección del foro de comentarios -->
+    <section class="comments-section">
+      <div v-if="bannerMovie">
+        <h4 class="section-title">Comments</h4>
+        <div class="comments-container">
+          <!-- Contenedor con barra de desplazamiento -->
+          <div class="scrollable-comments">
+            <!-- Lista de comentarios -->
+            <div v-for="(comment, index) in comments" :key="index" class="comment-item">
+              <p>
+                <strong>{{ comment.user }}:</strong> {{ comment.text }}
+              </p>
+
+              <!-- Botón de eliminar comentario para el usuario logueado -->
+              <button 
+                v-if="comment.user === loggedUserName" 
+                class="delete-comment-btn" 
+                @click="handleDelete(index)">
+                🗑️
+              </button>
+
+              <!-- Botón para contestar el comentario de un usuario-->
+              <button 
+                v-if="comment.user !== loggedUserName" 
+                class="reply-comment-btn" 
+                @click="handleReply(comment.user)">
+                ↩️
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Botón "New Comment" -->
+          <button
+            :class="['new-comment-btn', { disabled: !loggedInUser }]"
+            @click="handleNewComment">
+            New Comment
+          </button>
+          
+          <!-- Formulario para añadir un comentario -->
+          <div v-if="isAddingComment" class="comment-form">
+            <textarea v-model="newCommentText" placeholder="Write your comment here..." class="comment-textarea"></textarea>
+            <div class="comment-buttons">
+              <button @click="addComment" class="post-comment-btn">Post Comment</button>
+              <button @click="toggleAddingComment" class="cancel-btn">Cancel</button>
+            </div>
+          </div>
+
+
+    
+        </div>
+      </div>
+
+      <!-- Confirmación de eliminación de comentario -->
+      <div v-if="showDeleteConfirm" class="delete-modal">
+        <p>Are you sure you want to delete this comment?</p>
+        <div class="delete-modal-buttons">
+          <button @click="deleteComment" class="delete-confirm-btn">Yes</button>
+          <button @click="cancelDelete" class="delete-cancel-btn">No</button>
+        </div>
+      </div>
+
+      <!-- Mensaje de alerta cuando un user no esta logged -->
+      <div v-if="showAlert" class="alert-modal">
+        <p>{{ alertMessage }}</p>
+        <button @click="closeAlert" class="alert-close-btn">OK</button>
+      </div>
+
+      <!-- Mensaje de alerta conforme se ha publicado el comentario-->
+      <div v-if="showAlert" class="alert-box">
+        {{ alertMessage }}
+        <button @click="closeAlert" class="close-alert-btn">x</button>
+      </div>
+
+    </section>
+
+
     <!-- Sección de películas relacionadas -->
     <section class="top-rated-movies">
       <h4 class="section-title" id="related-movies">Related Movies</h4>
@@ -271,6 +349,20 @@ export default {
       visibleCount: 9, // Initially show up to 10 items (5 items x 2 rows)
       showAll: false, // To toggle between showing all items or not
 
+      //cuando se junte con el backend modificar para coger metodo que da los commentarios asociados a una mvoie
+      comments: [
+        { user: "Alice", text: "Great movie!" },
+        { user: "Bob", text: "I really enjoyed it." },
+        { user: "You", text: "Amazing story!" },
+      ],
+      isAddingComment: false,
+      newCommentText: "",
+      loggedUserName: localStorage.getItem('userName'),
+      loggedInUser: !!localStorage.getItem('token'), // Usuario logueado
+      showDeleteConfirm: false, // Controla si la confirmación de eliminación de comomment está visible
+      commentToDeleteIndex: null, // Índice del comentario a eliminar
+      showAlert: false, // Controla la visibilidad de la alerta
+      alertMessage: "", // Mensaje dinámico de la alerta
     };
   },
   computed: {
@@ -280,6 +372,68 @@ export default {
     }
   },
   methods: {
+    handleNewComment() {
+      if (!this.loggedInUser) {
+        this.showAlertMessage("You need to log in or register to access this feature.");
+      } else {
+        this.toggleAddingComment();
+      }
+    },
+
+    handleDelete(index) {
+      if (!this.loggedInUser) {
+        this.showAlertMessage("You need to log in or register to access this feature.");
+      } else {
+        this.confirmDelete(index);
+      }
+    },
+
+    handleReply(otherUserName){
+      if (!this.loggedInUser) {
+        this.showAlertMessage("You need to log in or register to access this feature.");
+      } else {
+        this.toggleAddingComment();
+        this.newCommentText ="@" + otherUserName + " ";
+      }
+    },
+
+    toggleAddingComment() { //Muestra el formulario en funcion del boolean
+      this.isAddingComment = !this.isAddingComment;
+      if (!this.isAddingComment){
+        this.newCommentText = "";
+      }
+    },
+    async addComment() {
+      const username = localStorage.getItem('userName')
+      if (this.newCommentText.trim()) {
+        this.comments.push({ user: username , text: this.newCommentText });
+        this.toggleAddingComment();
+        this.showAlertMessage("Your comment has been successfully posted");
+      }
+    },
+    confirmDelete(index) {
+      this.commentToDeleteIndex = index;
+      this.showDeleteConfirm = true;
+    },
+    deleteComment() {
+      if (this.commentToDeleteIndex !== null) {
+        this.comments.splice(this.commentToDeleteIndex, 1); // Eliminar comentario
+      }
+      this.cancelDelete();
+    },
+    cancelDelete() {
+      this.commentToDeleteIndex = null;
+      this.showDeleteConfirm = false;
+    },
+    showAlertMessage(message) {
+      this.alertMessage = message;
+      this.showAlert = true;
+    },
+    closeAlert() {
+      this.showAlert = false;
+      this.alertMessage = "";
+    },
+
     toggleSeeMore() {
       if (this.showAll) {
         this.visibleCount = 9; // Hide items and show 10-1 (2 rows) - director
@@ -404,12 +558,269 @@ async function generateRecentMovieObject(movieData) {
 
 }
 
-
 </script>
 
 
 
 <style scoped>
+/* Estilo para comentarios */
+.comments-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #1c1c1c;
+  border-radius: 8px;
+  color: #ffffff;
+}
+
+/* Título de la sección */
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  text-align: center;
+  color: #f5f5f5;
+}
+
+/* Contenedor de comentarios */
+.comments-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  
+}
+
+.scrollable-comments {
+  max-height: 400px; /* Limita la altura visible a unos 6 comentarios (ajusta según el diseño). */
+  overflow-y: auto; /* Habilita el desplazamiento vertical. */
+  padding-right: 10px; /* Espacio para evitar superposición con la barra de desplazamiento. */
+  border: 1px solid #ddd; /* Opcional: borde para resaltar el área. */
+  width: 80%;
+  padding: 10px; /* Añade espacio interno alrededor del contenido. */
+  border-radius: 5px; /* Bordes redondeados. */
+  background-color: #f9f9f931; /* Fondo claro para destacar los comentarios. */
+  box-sizing: border-box; /* Asegura que `padding` no afecte al ancho/altura total. */
+}
+.scrollable-comments::-webkit-scrollbar {
+  width: 8px; /* Ancho de la barra de desplazamiento. */
+}
+.scrollable-comments::-webkit-scrollbar-thumb {
+  background: #ccc; /* Color de la barra de desplazamiento. */
+  border-radius: 4px;
+}
+
+.scrollable-comments::-webkit-scrollbar-thumb:hover {
+  background: #aaa; /* Color al pasar el cursor por la barra. */
+}
+
+
+/* Estilo para los comentarios individuales */
+.comment-item {
+  width: 100%; /* Asegura que el comentario ocupe todo el ancho disponible */
+  box-sizing: border-box; /* Asegura que padding y borde no afecten el tamaño */
+  padding: 10px; /* Espacio interno para que el contenido no toque los bordes */
+  border-bottom: 1px solid #eee; /* Línea divisoria entre comentarios */
+  background-color: #2a2a2a;
+  
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  font-size: 1rem;
+
+  /* Para colocar el icono de la basurita a la derecha */
+  display: flex; /* Activa la flexbox */
+  justify-content: space-between; /* Espaciado entre texto e icono */
+  align-items: center; /* Centra verticalmente el contenido */
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
+
+/* Modal de alerta */
+.alert-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #1c1c1c;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  text-align: center;
+}
+
+.alert-close-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.alert-close-btn:hover {
+  background-color: #0056b3;
+}
+
+
+/* Botón "New Comment" */
+.new-comment-btn {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.new-comment-btn.disabled {
+  background-color: #888; /* Botón deshabilitado en gris */
+  cursor: not-allowed;
+}
+
+.new-comment-btn:hover {
+  background-color: #0055aa;
+}
+
+.new-comment-btn:hover:not(.disabled) {
+  background-color: #0055aa;
+}
+
+/* Formulario para añadir comentario */
+.comment-form {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Textarea de comentarios */
+.comment-textarea {
+  width: 100%;
+  height: 80px;
+  resize: none;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1rem;
+  color: #000;
+}
+
+/* Botones del formulario */
+.comment-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.post-comment-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.post-comment-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333;
+}
+
+/* Estilos para eliminación de comentarios */
+/* Botón de eliminar comentario */
+.delete-comment-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #ff4d4d; /* Rojo para el botón */
+  margin-left: auto;
+  transition: color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-comment-btn:hover {
+  color: #e60000; /* Rojo más oscuro al pasar el cursor */
+
+}
+
+/* Modal de confirmación de eliminación */
+.delete-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  text-align: center;
+}
+
+.delete-modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.delete-confirm-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.delete-confirm-btn:hover {
+  background-color: #218838;
+}
+
+.delete-cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.delete-cancel-btn:hover {
+  background-color: #c82333;
+}
+
+
+
 body {
   background-color: #121212;
   /* Color oscuro para el fondo */
