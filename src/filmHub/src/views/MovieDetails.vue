@@ -175,17 +175,21 @@
               <button 
                 v-if="comment.user === loggedInUser" 
                 class="delete-comment-btn" 
-                @click="confirmDelete(index)">
+                @click="handleDelete(index)">
                 🗑️
               </button>
             </div>
           </div>
 
           <!-- Botón "New Comment" -->
-          <button v-if="!isAddingComment" class="new-comment-btn" @click="toggleAddingComment">New Comment</button>
-
+          <button
+            :class="['new-comment-btn', { disabled: !loggedInUser }]"
+            @click="handleNewComment">
+            New Comment
+          </button>
+          
           <!-- Formulario para añadir un comentario -->
-          <div v-else class="comment-form">
+          <div v-if="isAddingComment" class="comment-form">
             <textarea v-model="newCommentText" placeholder="Write your comment here..." class="comment-textarea"></textarea>
             <div class="comment-buttons">
               <button @click="addComment" class="post-comment-btn">Post Comment</button>
@@ -202,6 +206,12 @@
           <button @click="deleteComment" class="delete-confirm-btn">Yes</button>
           <button @click="cancelDelete" class="delete-cancel-btn">No</button>
         </div>
+      </div>
+
+      <!-- Mensaje de alerta cuando un user no esta logged -->
+      <div v-if="showAlert" class="alert-modal">
+        <p>{{ alertMessage }}</p>
+        <button @click="closeAlert" class="alert-close-btn">OK</button>
       </div>
       
     </section>
@@ -327,10 +337,11 @@ export default {
       isAddingComment: false,
       newCommentText: "",
 
-      loggedInUser: "You", // Usuario logueado
+      loggedInUser: !!localStorage.getItem('token'), // Usuario logueado
       showDeleteConfirm: false, // Controla si la confirmación de eliminación de comomment está visible
       commentToDeleteIndex: null, // Índice del comentario a eliminar
-
+      showAlert: false, // Controla la visibilidad de la alerta
+      alertMessage: "", // Mensaje dinámico de la alerta
     };
   },
   computed: {
@@ -340,13 +351,31 @@ export default {
     }
   },
   methods: {
+    handleNewComment() {
+      if (!this.loggedInUser) {
+        this.showAlertMessage("You need to log in or register to access this feature.");
+      } else {
+        this.toggleAddingComment();
+      }
+    },
+
+    handleDelete(index) {
+      if (!this.loggedInUser) {
+        this.showAlertMessage("You need to log in or register to access this feature.");
+      } else {
+        this.confirmDelete(index);
+      }
+    },
+
     toggleAddingComment() { //Muestra el formulario en funcion del boolean
       this.isAddingComment = !this.isAddingComment;
       if (!this.isAddingComment) this.newCommentText = "";
     },
     addComment() {
       if (this.newCommentText.trim()) {
-        this.comments.push({ user: "You", text: this.newCommentText });
+
+        //S'ha d'agafar el nom de l'usuari actual.
+        this.comments.push({ user: this.loggedInUser, text: this.newCommentText });
         this.toggleAddingComment();
       }
     },
@@ -363,6 +392,14 @@ export default {
     cancelDelete() {
       this.commentToDeleteIndex = null;
       this.showDeleteConfirm = false;
+    },
+    showAlertMessage(message) {
+      this.alertMessage = message;
+      this.showAlert = true;
+    },
+    closeAlert() {
+      this.showAlert = false;
+      this.alertMessage = "";
     },
 
     toggleSeeMore() {
@@ -489,7 +526,6 @@ async function generateRecentMovieObject(movieData) {
 
 }
 
-
 </script>
 
 
@@ -567,6 +603,36 @@ async function generateRecentMovieObject(movieData) {
   border-bottom: none;
 }
 
+/* Modal de alerta */
+.alert-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #1c1c1c;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  text-align: center;
+}
+
+.alert-close-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.alert-close-btn:hover {
+  background-color: #0056b3;
+}
+
+
 /* Botón "New Comment" */
 .new-comment-btn {
   background-color: #0066cc;
@@ -578,8 +644,16 @@ async function generateRecentMovieObject(movieData) {
   cursor: pointer;
   transition: background-color 0.3s;
 }
+.new-comment-btn.disabled {
+  background-color: #888; /* Botón deshabilitado en gris */
+  cursor: not-allowed;
+}
 
 .new-comment-btn:hover {
+  background-color: #0055aa;
+}
+
+.new-comment-btn:hover:not(.disabled) {
   background-color: #0055aa;
 }
 
