@@ -179,6 +179,15 @@
                 @click="handleDelete(index)">
                 🗑️
               </button>
+
+              <!-- Botón para contestar el comentario de un usuario-->
+              <button 
+                v-if="comment.user !== loggedUserName" 
+                class="reply-comment-btn" 
+                @click="handleReply(comment.user)">
+                ↩️
+              </button>
+
             </div>
           </div>
 
@@ -197,6 +206,9 @@
               <button @click="toggleAddingComment" class="cancel-btn">Cancel</button>
             </div>
           </div>
+
+
+    
         </div>
       </div>
 
@@ -376,9 +388,20 @@ export default {
       }
     },
 
+    handleReply(otherUserName){
+      if (!this.loggedInUser) {
+        this.showAlertMessage("You need to log in or register to access this feature.");
+      } else {
+        this.toggleAddingComment();
+        this.newCommentText ="@" + otherUserName + " ";
+      }
+    },
+
     toggleAddingComment() { //Muestra el formulario en funcion del boolean
       this.isAddingComment = !this.isAddingComment;
-      if (!this.isAddingComment) this.newCommentText = "";
+      if (!this.isAddingComment){
+        this.newCommentText = "";
+      }
     },
     async addComment() {
       const username = localStorage.getItem('userName')
