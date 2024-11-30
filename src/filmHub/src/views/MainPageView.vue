@@ -22,6 +22,19 @@
               <router-link :to="`/movie/${movie.id}`">
                 <img :src="movie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
               </router-link>
+
+              <!-- Wishlist Indicator-->
+              <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                <svg viewBox="0 0 32 32" class="wishlist-icon">
+                  <g>
+                    <path
+                      d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                    ></path>
+                  </g>
+                </svg>
+              </div>
+
               <div class="movie-info">
                 <h5>{{ movie.title }}</h5>
                 <p>{{ movie.description }}</p>
@@ -66,6 +79,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -81,6 +107,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -96,6 +135,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -111,6 +163,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -145,6 +210,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -160,6 +238,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -175,6 +266,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -190,6 +294,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -253,7 +370,8 @@ async function generateRecentMovieObject(movieData) {
     id: movieData.id,
     image: getImagePath(movieData.image[0]),
     rating: movieData.rating,
-    likes: movieData.likes
+    likes: movieData.likes,
+    title: movieData.title
   };
 
   return movieObject;
@@ -272,6 +390,11 @@ export default {
       recentMovies: [],
 
       topRatedMovies: [],
+
+      wishedMovies: [], // Lista de películas deseadas
+
+      userId: localStorage.getItem('user_id'), // ID del usuario
+
 
     };
   },
@@ -331,8 +454,26 @@ export default {
       }
     },
 
+    async loadUserPreferences() {
+        try {
+          if (!this.userId) {
+            console.error('User ID not found.');
+            return;
+          }
+          const endpoint = `${API_BASE_URL}/movies/liked_rated_and_wished_list/${this.userId}`;
+          const response = await axios.get(endpoint);
 
+          const data = response.data;
 
+          // Procesar películas en la wishlist
+          this.wishedMovies = data.wished_movies || [];
+
+          console.log('Wished Movies:', this.wishedMovies);
+
+        } catch (error) {
+          console.error('Error loading user preferences:', error.response?.data || error.message);
+        }
+      },
 
     navigateToMovie(movieId) {
       console.log(`Navigating to movie with ID: ${movieId}`);
@@ -343,6 +484,10 @@ export default {
     this.fetchMovies(0, 20, 2);
     this.fetchMovies(0, 20, 3);
   },
+  mounted() {
+    // Aquí llamas a loadUserPreferences una vez que el componente está montado
+    this.loadUserPreferences();
+  },  
 };
 </script>
 
@@ -730,6 +875,31 @@ body {
   /* Mantiene la proporción de la imagen */
   border-radius: 20px;
   /* Bordes redondeados */
+}
+
+
+/* Indicador de wishlist */
+.wishlist-indicator {
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  display: flex; /* Centra el SVG si hay paddings */
+  align-items: center;
+  justify-content: center;
+}
+
+/* Escalar el icono */
+.wishlist-icon {
+  width: 40px; /* Aumenta el tamaño del icono */
+  height: 40px;
+  fill: #007bff; 
+  opacity: 0.8;/* Azul para indicar que está en wishlist */
+
+}
+
+/* Sin hover ni interacción */
+.wishlist-indicator:hover {
+  cursor: default;
 }
 
 </style>

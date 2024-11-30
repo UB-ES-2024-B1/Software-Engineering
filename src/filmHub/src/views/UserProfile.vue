@@ -301,12 +301,13 @@
           this.showWishlistMovies = true;
         }
 
-        // Actualizar la lista mostrada
+        // Actualizar la lista mostrada inmediatamente después de cambiar el estado
         this.updateDisplayedMovies();
       },
 
+
       updateDisplayedMovies() {
-        // Cambiar la lista de películas que se muestra
+        // Actualizar la lista de películas que se debe mostrar según el estado actual
         if (this.showRatedMovies) {
           this.displayedMovies = this.ratedMovies;
         } else if (this.showFavouriteMovies) {
@@ -315,6 +316,7 @@
           this.displayedMovies = this.wishedMovies;
         }
       },
+
 
       removeMovie(movieId) {
         if (this.showRatedMovies) {
@@ -372,10 +374,18 @@
     },
     watch: {
       // Cuando cambie el estado de las películas, actualizamos la lista mostrada
-      showRatedMovies(newVal) {
-        this.displayedMovies = newVal ? this.ratedMovies : this.likedMovies;
+      showRatedMovies() {
+        this.updateDisplayedMovies();
       },
+      showFavouriteMovies() {
+        this.updateDisplayedMovies();
+      },
+      showWishlistMovies() {
+        this.updateDisplayedMovies();
+      }
     },
+
+
   };
 </script>
 

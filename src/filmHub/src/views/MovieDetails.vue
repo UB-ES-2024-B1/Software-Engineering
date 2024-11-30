@@ -19,8 +19,9 @@
               type="checkbox"
               :checked="wishedMovies.includes(bannerMovie.title)"
               @change="toggleWishlist(bannerMovie.id)"
+              :disabled="userRatedMovies[bannerMovie.title]" 
             />
-            <div class="bookmark">
+            <div class="bookmark" :class="{ disabled: userRatedMovies[bannerMovie.title] }">
               <svg viewBox="0 0 32 32">
                 <g>
                   <path
@@ -30,8 +31,6 @@
               </svg>
             </div>
           </label>
-          
-        
 
         
           <!-- Información de la película -->
@@ -231,6 +230,19 @@
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
 
+                <!-- Wishlist Indicator -->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -247,6 +259,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -263,6 +288,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator -->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -279,6 +317,19 @@
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
@@ -423,7 +474,7 @@
       async saveRating(rating) {
         try {
           if (!this.userId) { // Verifica si el userId está disponible
-            alert('Debes iniciar sesión para puntuar una película.'); // Muestra advertencia
+            alert('You must log in to rate a movie.'); // Muestra advertencia
             this.$router.push('/login');
             return; // Salir del método
           }
@@ -449,6 +500,14 @@
               console.log('Rating saved successfully.');
               this.rating = rating; // Actualizamos el estado local de la valoración
 
+              // Si la película está en la wishlist, quitarla automáticamente
+              if (this.wishedMovies.includes(this.bannerMovie.title)) {
+                console.log('Removing movie from wishlist due to rating.');
+                const wishlistEndpoint = `${API_BASE_URL}/movies/nowish/${this.bannerMovie.id}/${this.userId}`;
+                await axios.post(wishlistEndpoint);
+                this.wishedMovies = this.wishedMovies.filter(title => title !== this.bannerMovie.title);
+              }
+
               // Actualizar el estado de las películas valoradas
               if (!this.userRatedMovies) {
                 this.userRatedMovies = {}; // Asegurarse de que exista el objeto
@@ -468,7 +527,7 @@
       async toggleLike(movieId) {
         try {
           if (!this.userId) { // Verifica si el userId está disponible
-            alert('Debes iniciar sesión para puntuar una película.'); // Muestra advertencia
+            alert('You must log in to give like a movie.'); // Muestra advertencia
             this.$router.push('/login');
             return; // Salir del método
           }
@@ -504,36 +563,42 @@
       async toggleWishlist(movieId) {
         try {
           if (!this.userId) { // Verifica si el userId está disponible
-            alert('Debes iniciar sesión para añadir a tu wishlist.'); // Muestra advertencia
+            alert('You must log in to add to your wishlist.'); // Muestra advertencia
             this.$router.push('/login');
             return; // Salir del método
+          }
+
+          // Verificar si la película ya está valorada
+          if (this.userRatedMovies[this.bannerMovie.title]) {
+            alert('No puedes añadir una película valorada a tu wishlist.');
+            return; // Salir antes de cualquier otro cambio
           }
 
           // Verificar si la película ya está en wishedMovies
           const isWished = this.wishedMovies.includes(this.bannerMovie.title);
 
-          // Elegir el endpoint basado en el estado actual
-          const endpoint = isWished
+          // Evitar cambios visuales hasta que la base de datos responda
+          const response = await axios.post(isWished
             ? `${API_BASE_URL}/movies/nowish/${movieId}/${this.userId}`
-            : `${API_BASE_URL}/movies/wish/${movieId}/${this.userId}`;
-
-          const response = await axios.post(endpoint);
+            : `${API_BASE_URL}/movies/wish/${movieId}/${this.userId}`
+          );
 
           if (response.status === 200) {
             console.log(isWished ? 'Movie removed from wishlist.' : 'Movie added to wishlist.');
 
-            // Actualizar el estado local de wishedMovies
+            // Actualizar el estado local sólo si la respuesta es exitosa
             if (isWished) {
               this.wishedMovies = this.wishedMovies.filter(title => title !== this.bannerMovie.title);
             } else {
               this.wishedMovies.push(this.bannerMovie.title);
             }
           }
-
         } catch (error) {
           console.error('Error toggling wishlist:', error.response?.data || error.message);
         }
       },
+
+
 
       async loadUserPreferences() {
         try {
@@ -560,6 +625,8 @@
 
           // Procesar películas en la wishlist
           this.wishedMovies = data.wished_movies || [];
+
+          console.log('Wished Movies:', this.wishedMovies);
 
         } catch (error) {
           console.error('Error loading user preferences:', error.response?.data || error.message);
@@ -628,6 +695,7 @@
       image: getImagePath(movieData.image[0]),
       rating: movieData.rating,
       likes: movieData.likes,
+      title: movieData.title,
     };
   }
 </script>
@@ -1328,9 +1396,9 @@ body {
 
 .ui-bookmark {
   --icon-size: 65px;
-  --icon-secondary-color: rgb(100, 100, 100, 1);
-  --icon-hover-color: rgb(125, 125, 125, 1);
-  --icon-primary-color: rgba(0, 157, 255, 1);
+  --icon-secondary-color: rgb(100, 100, 100, 0.8);
+  --icon-hover-color: rgb(125, 125, 125, 0.9);
+  --icon-primary-color: rgba(0, 157, 255, 0.8);
   --icon-circle-border: 1px solid var(--icon-primary-color);
   --icon-circle-size: 90px;
   --icon-anmt-duration: 0.3s;
@@ -1371,6 +1439,12 @@ body {
   -ms-transform-origin: top;
   transform-origin: top;
 
+}
+
+.ui-bookmark .bookmark.disabled {
+  pointer-events: none; /* Deshabilita cualquier interacción */
+  opacity: 0; /* Visualmente más claro para indicar que está deshabilitado */
+  cursor: not-allowed; /* Cambia el cursor para reforzar que no se puede interactuar */
 }
 
 .bookmark::after {
@@ -1536,5 +1610,33 @@ body {
     opacity: 0;
   }
 }
+
+
+
+/* Indicador de wishlist */
+.wishlist-indicator {
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  display: flex; /* Centra el SVG si hay paddings */
+  align-items: center;
+  justify-content: center;
+}
+
+/* Escalar el icono */
+.wishlist-icon {
+  width: 40px; /* Aumenta el tamaño del icono */
+  height: 40px;
+  fill: #007bff; 
+  opacity: 0.8;/* Azul para indicar que está en wishlist */
+
+}
+
+/* Sin hover ni interacción */
+.wishlist-indicator:hover {
+  cursor: default;
+}
+
+
 
 </style>
