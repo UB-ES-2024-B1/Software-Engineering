@@ -1,6 +1,7 @@
 from sqlmodel import Session, select
 from app.models.comments_model import Thread, Comment
-from typing import List
+from typing import List, Union
+from app.models.comments_model import ReportStatus, CommentReportedBy
 
 
 def create_thread(session: Session, movie_id: int) -> Thread:
@@ -37,11 +38,52 @@ def get_comments_by_thread(db: Session, thread_id: int) -> List[Comment]:
     """
     Retrieve all comments for a specific thread.
     """
-    statement = select(Comment).where(Comment.thread_id == thread_id)
+    statement = select(Comment).where(
+        (Comment.thread_id == thread_id) & (Comment.reported != ReportStatus.BANNED)
+    )
     results = db.execute(statement).scalars().all()
     return results
 
-def update_comment(db: Session, comment_id: int, text: str) -> Comment:
+def get_comments_reported(db: Session) -> List[Comment]:
+    """
+    Retrieve all comments that have been reported.
+    """
+    statement = select(Comment).where(Comment.reported == ReportStatus.REPORTED)
+    results = db.execute(statement).scalars().all()
+    return results
+
+def get_comments_reported_with_user(db: Session, user_id: int) -> List[Comment]:
+    """
+    Retrieve all comments that have been reported by a specific user.
+    """
+    statement = select(Comment).where(
+        (Comment.user_id == user_id) & (Comment.reported == ReportStatus.REPORTED)
+    )
+    results = db.execute(statement).scalars().all()
+    return results
+
+def get_comments_reported_by_user(db: Session, user_id: int) -> List[Comment]:
+    """
+    Retrieve all comments that have been reported by a specific user.
+    """
+    # Consulta para obtener los comentarios que fueron reportados por el usuario
+    statement = select(Comment).join(
+        CommentReportedBy
+    ).where(
+        CommentReportedBy.user_id == user_id
+    )
+    results = db.execute(statement).scalars().all()
+    return results
+
+def get_comments_banned(db: Session) -> List[Comment]:
+    """
+    Retrieve all comments that have been banned.
+    """
+    statement = select(Comment).where(Comment.reported == ReportStatus.BANNED)
+    results = db.execute(statement).scalars().all()
+    return results
+
+def update_comment_text(db: Session, comment_id: int, text: str) -> Comment:
     """
     Update a comment's text.
     """
@@ -52,6 +94,37 @@ def update_comment(db: Session, comment_id: int, text: str) -> Comment:
         db.commit()
         db.refresh(comment)
     return comment
+
+def update_comment_status_with_user(
+    db: Session,
+    comment_id: int,
+    reported: ReportStatus,
+    user_id: int
+) -> Comment:
+    """
+    Update a comment's report status and log the user who made the change.
+    """
+    # Obtener el comentario
+    comment = db.get(Comment, comment_id)
+    if not comment:
+        raise ValueError("Comment not found")
+
+    # Actualizar el estado del reporte
+    comment.reported = reported
+    db.add(comment)
+
+    # Registrar quién hizo el cambio
+    reported_by_entry = CommentReportedBy(
+        comment_id=comment_id,
+        user_id=user_id
+    )
+    db.add(reported_by_entry)
+
+    # Confirmar los cambios en la base de datos
+    db.commit()
+    db.refresh(comment)
+    return comment
+
 
 def delete_comment(db: Session, comment_id: int) -> bool:
     """
