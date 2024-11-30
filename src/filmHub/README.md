@@ -74,9 +74,17 @@ npm run lint
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### **About docker**
-Start service:
+Start frontend:
+    Delete dist/
     cd src/filmHub
-    docker-compose up -d
+    npm run build
+    docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-frontend:latest .
+    docker push mayeteco7/filmhub-frontend
+    Deploy in Azure
 
-Stop service:
-    docker-compose down
+
+Start backend:
+    cd src/backend
+    docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-backend:latest .
+    docker push mayeteco7/filmhub-backend
+    Deploy in Azure

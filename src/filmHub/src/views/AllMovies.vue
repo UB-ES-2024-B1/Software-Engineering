@@ -218,15 +218,15 @@ export default {
 
                 // Determine the API endpoint based on the criteria
                 if (criteria === "rating") {
-                    url = `${API_BASE_URL}/movies/sorted/rating/`;
+                    url = `${API_BASE_URL}/movies/sorted/rating`;
                 } else if (criteria === "year") {
                     if (this.selectedYear) {
                         url = `${API_BASE_URL}/movies/release/${this.selectedYear}`;
                     } else {
-                        url = `${API_BASE_URL}/movies/sorted/release_date/`;
+                        url = `${API_BASE_URL}/movies/sorted/release_date`;
                     }
                 } else if (criteria === "popularity") {
-                    url = `${API_BASE_URL}/movies/sorted/likes/`;
+                    url = `${API_BASE_URL}/movies/sorted/likes`;
                 } else if (criteria === "search") {
                     const searchQuery = this.$route.query.search;
                     url = `${API_BASE_URL}/movies/search/name/${searchQuery}`;

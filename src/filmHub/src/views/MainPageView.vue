@@ -282,9 +282,9 @@ export default {
       try {
         let url;
 
-        if (movies_section === 1) { url = `${API_BASE_URL}/movies/sorted/likes/`; }
+        if (movies_section === 1) { url = `${API_BASE_URL}/movies/sorted/likes`; }
         else if (movies_section === 2) { url = `${API_BASE_URL}/movies/sorted/release_date`; }
-        else { url = `${API_BASE_URL}/movies/sorted/rating/`; }
+        else { url = `${API_BASE_URL}/movies/sorted/rating`; }
 
         const movieObjects = [];
         const response = await axios.get(url);
