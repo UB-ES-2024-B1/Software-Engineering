@@ -72,11 +72,8 @@ export default {
       formData: {
         email: '',
         full_name: '',
-
-        //Modificar cuando el backend esté acabado
-        profile_picture: '', // URL de la foto de perfil actual
+        profile_picture: '', // URL of the current profile picture
       },
-      
       error: null,
     };
   },
@@ -87,28 +84,28 @@ export default {
       return;
     }
 
-    // Carga inicial de los datos del usuario
+    // Initial data loading
     axios
       .get(`${API_BASE_URL}/users/email/${userEmail}`)
       .then((response) => {
         const { email, full_name, img_url } = response.data;
 
-        // Asignar los valores al formulario
+        // Assign the fetched values to the form
         this.formData.email = email;
         this.formData.full_name = full_name;
 
-        // Usar la imagen proporcionada por el backend o una predeterminada si no existe
+        // Use the provided image URL or a default image if it doesn't exist
         this.formData.profile_picture = img_url;
       })
       .catch((error) => {
-        console.error('Error al obtener los datos del usuario:', error);
+        console.error('Error fetching user data:', error);
         this.error = 'Error fetching user data. Please try again.';
       });
   },
 
   methods: {
     handleProfilePictureClick() {
-      // Dispara el clic en el input de archivo
+      // Trigger the file input click event
       this.$refs.profilePictureInput.click();
     },
     handleProfilePictureChange(event) {
@@ -116,17 +113,44 @@ export default {
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.formData.profile_picture = e.target.result; // Actualiza la imagen en la vista
+          // Resize the image before assigning it to formData
+          this.resizeImage(e.target.result, (resizedImg) => {
+            this.formData.profile_picture = resizedImg; // Update the image in the view
+          });
         };
         reader.readAsDataURL(file);
       }
     },
 
+    resizeImage(imageSrc, callback) {
+      const img = new Image();
+      img.onload = () => {
+        // Create a canvas to resize the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set the new width and height (240px in this case)
+        const width = 240;
+        const height = (img.height / img.width) * width; // Maintain aspect ratio
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw the resized image on the canvas
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Get the resized image as a base64 string
+        const resizedImage = canvas.toDataURL('image/jpeg', 0.8); // JPEG format with 80% quality
+        callback(resizedImage);
+      };
+      img.src = imageSrc;
+    },
+
     submitChanges() {
-      // Crear un FormData para enviar los datos
+      // Create a FormData object to send the data
       const formData = new FormData();
 
-      // Agregar los campos opcionales si existen
+      // Append the form fields
       if (this.formData.full_name) {
         formData.append('full_name', this.formData.full_name);
       }
@@ -134,9 +158,7 @@ export default {
         formData.append('img', this.$refs.profilePictureInput.files[0]);
       }
 
-      // Puedes agregar más campos opcionales aquí si es necesario (is_admin, is_active, etc.)
-
-      // Enviar los datos actualizados al backend usando Axios
+      // Send the updated data to the backend using Axios
       axios
         .put(`${API_BASE_URL}/users/email/${this.formData.email}`, formData, {
           headers: {
@@ -144,20 +166,22 @@ export default {
           },
         })
         .then(() => {
-          // Redirigir al perfil después de actualizar
+          // Redirect to the profile page after successful update
           this.$router.push('/profile');
         })
         .catch((error) => {
-          console.error('Error al actualizar los datos del usuario:', error);
+          console.error('Error updating user data:', error);
           this.error = 'Error updating user data. Please try again.';
         });
-      localStorage.setItem('userName', this.formData.full_name);
-      localStorage.setItem('userImg', this.formData.profile_picture); 
-    },
 
+      // Save the updated profile picture and name to localStorage
+      localStorage.setItem('userName', this.formData.full_name);
+      localStorage.setItem('userImg', this.formData.profile_picture); // Save resized image
+    },
   },
 };
 </script>
+
 
 
 

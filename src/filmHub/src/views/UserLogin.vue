@@ -80,8 +80,8 @@
           // Guardar datos en localStorage
           localStorage.setItem('user_id', userResponse.data.id);
                  
-          localStorage.setItem('userName', userResponse.full_name);
-          localStorage.setItem('userImg', userResponse.img_url);
+          localStorage.setItem('userName', userResponse.data.full_name);
+          localStorage.setItem('userImg', userResponse.data.img_url);
   
           // Notificar éxito
           window.dispatchEvent(new Event('storage')); // Informa a otros componentes sobre el cambio
@@ -94,6 +94,7 @@
           this.loginError = true; // Mostrar mensaje de error
         }
       },
+
     },
   };
   </script>
