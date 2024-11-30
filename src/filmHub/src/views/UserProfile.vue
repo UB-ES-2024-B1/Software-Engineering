@@ -59,12 +59,14 @@
         <button :class="{ active: showRatedMovies }" @click="toggleMovies('rated')">
           Rated Movies
         </button>
-
-        <button :class="{ active: !showRatedMovies }" @click="toggleMovies('liked')">
+      
+        <button :class="{ active: showFavouriteMovies }" @click="toggleMovies('liked')">
           Favourite Movies
         </button>
-        
-        
+      
+        <button :class="{ active: showWishlistMovies }" @click="toggleMovies('wishlist')">
+          Wishlist Movies
+        </button>
       </div>
     
       <div class="movies-list">
@@ -166,9 +168,13 @@
         error: null,
         profile_image: '',
         showRatedMovies: true, // Controla si se muestran las valoradas o las con like
+        showFavouriteMovies: false, // Controla la visualización de la lista de wishlist
+        showWishlistMovies: false, // Controla la visualización de la lista de wishlist
         ratedMovies: [], // Películas valoradas
         likedMovies: [], // Películas con like
+        wishedMovies: [], // Películas en la wishlist
         displayedMovies: [], // Películas que se muestran actualmente
+        
       };
     },
     created() {
@@ -205,6 +211,8 @@
       },
 
       loadMovies() {
+
+        // Cargar las películas liked , rated y wished
         axios
           .get(`${API_BASE_URL}/movies/liked_list/${this.userData.id}`)
           .then((response) => {
@@ -218,42 +226,55 @@
               })
             );
 
-            // Después, hacemos la llamada para obtener las películas valoradas
+            // Obtener las películas valoradas
             axios
               .get(`${API_BASE_URL}/movies/rated_list/${this.userData.id}`)
               .then((response) => {
-                const ratedMoviesList = response.data; // Lista de películas valoradas
+                const ratedMoviesList = response.data;
 
-                // Obtener detalles completos de las películas rated
                 const ratedMoviesDetails = Promise.all(
                   ratedMoviesList.map(async (movie) => {
                     const movieData = await this.fetchMovieDetails(movie.title);
                     return movieData
-                      ? generateMovieObject(movieData, movie.rating) // Incluimos el userRating
+                      ? generateMovieObject(movieData, movie.rating)
                       : null;
                   })
                 );
 
-                // Esperamos a que ambas promesas terminen
-                Promise.all([likedMoviesDetails, ratedMoviesDetails])
-                  .then(([likedMovies, ratedMovies]) => {
-                    // Filtramos nulls (errores) y asignamos a las listas respectivas
-                    this.likedMovies = likedMovies.filter((movie) => movie !== null);
-                    this.ratedMovies = ratedMovies.filter((movie) => movie !== null);
+                // Obtener las películas wishlist
+                axios
+                  .get(`${API_BASE_URL}/movies/wished_list/${this.userData.id}`)
+                  .then((response) => {
+                    const wishedMoviesList = response.data;
 
-                    // Aseguramos que una película valorada pueda estar también en la lista de liked
-                    const likedTitlesSet = new Set(this.likedMovies.map((movie) => movie.title));
-                    this.ratedMovies.forEach((movie) => {
-                      if (likedTitlesSet.has(movie.title)) {
-                        movie.isLiked = true; // Marcamos la película como liked
-                      }
-                    });
+                    const wishedMoviesDetails = Promise.all(
+                      wishedMoviesList.map(async (movieTitle) => {
+                        const movieData = await this.fetchMovieDetails(movieTitle);
+                        return movieData ? generateMovieObject(movieData) : null;
+                      })
+                    );
 
-                    // Actualizamos la lista mostrada
-                    this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+                    // Esperamos a que todas las promesas se resuelvan
+                    Promise.all([likedMoviesDetails, ratedMoviesDetails, wishedMoviesDetails])
+                      .then(([likedMovies, ratedMovies, wishedMovies]) => {
+                        // Filtramos los valores nulos
+                        this.likedMovies = likedMovies.filter((movie) => movie !== null);
+                        this.ratedMovies = ratedMovies.filter((movie) => movie !== null);
+                        this.wishedMovies = wishedMovies.filter((movie) => movie !== null);
+
+                        // Ahora actualizamos la lista mostrada
+                        this.displayedMovies = this.showRatedMovies
+                          ? this.ratedMovies
+                          : this.showFavouriteMovies
+                          ? this.likedMovies
+                          : this.wishedMovies;
+                      })
+                      .catch((error) => {
+                        console.error('Error al procesar las películas wished:', error);
+                      });
                   })
                   .catch((error) => {
-                    console.error('Error al procesar las películas rated:', error);
+                    console.error('Error al obtener las películas wished:', error);
                   });
               })
               .catch((error) => {
@@ -265,26 +286,42 @@
           });
       },
 
-
-
       toggleMovies(type) {
-        // Cambiar entre mostrar las películas "rated" o "liked"
+        // Resetear todos los botones a false
+        this.showRatedMovies = false;
+        this.showFavouriteMovies = false;
+        this.showWishlistMovies = false;
+
+        // Activar el botón correspondiente según el tipo
         if (type === 'rated') {
           this.showRatedMovies = true;
-        } else {
-          this.showRatedMovies = false;
+        } else if (type === 'liked') {
+          this.showFavouriteMovies = true;
+        } else if (type === 'wishlist') {
+          this.showWishlistMovies = true;
         }
 
         // Actualizar la lista mostrada
-        this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies;
+        this.updateDisplayedMovies();
+      },
+
+      updateDisplayedMovies() {
+        // Cambiar la lista de películas que se muestra
+        if (this.showRatedMovies) {
+          this.displayedMovies = this.ratedMovies;
+        } else if (this.showFavouriteMovies) {
+          this.displayedMovies = this.likedMovies;
+        } else if (this.showWishlistMovies) {
+          this.displayedMovies = this.wishedMovies;
+        }
       },
 
       removeMovie(movieId) {
         if (this.showRatedMovies) {
-          // Si estamos en la lista de rated, hacer un "unrate" de la película
           this.unrateMovie(movieId);
+        } else if (this.showWishlistMovies) {
+          this.removeFromWishlist(movieId); // Función para eliminar de la wishlist
         } else {
-          // Si estamos en la lista de favoritos, hacer un "dislike"
           this.dislikeMovie(movieId);
         }
       },
@@ -317,6 +354,18 @@
           console.log('Película marcada como dislike correctamente');
         } catch (error) {
           console.error('Error al marcar la película como dislike:', error);
+        }
+      },
+
+      async removeFromWishlist(movieId) {
+        try {
+          await axios.post(`${API_BASE_URL}/movies/nowish/${movieId}/${this.userData.id}`);
+          // Actualizamos la lista de wishedMovies
+          this.wishedMovies = this.wishedMovies.filter((movie) => movie.id !== movieId);
+          this.displayedMovies = this.showWishlistMovies ? this.wishedMovies : this.likedMovies; // Actualizar la lista mostrada
+          console.log('Película eliminada de la wishlist');
+        } catch (error) {
+          console.error('Error al eliminar la película de la wishlist:', error);
         }
       },
 
@@ -479,44 +528,66 @@
   }
   
   .movies-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto;
-  position: relative;
-  margin-top: 20px;
-  z-index: 5;
+    position: absolute;
+    top: px; /* 20px desde la parte superior */
+    right: 363px; /* 20px desde la izquierda */
+    display: flex; /* Los botones en fila */
+    margin: 0 auto;
+    position: relative;
+    margin-top: 20px;
+    z-index: 5;
+
 }
 
+/* Estilo base de los botones */
 .movies-header button {
   padding: 10px 20px;
-  background: #d9d9d9; /* Color gris claro */
-  color: #000; /* Texto negro */
+  background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
+  color: white; /* Texto blanco por defecto */
   border: none;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   border-bottom: 2px solid transparent;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.3s ease;
-  margin-right: 2px; /* Separación entre pestañas */
+  transition: all 0.3s ease; /* Suavizar transiciones */
+  margin-right: 2px; /* Separación entre botones */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }
 
+/* El último botón no tiene margen derecho */
 .movies-header button:last-child {
   margin-right: 0;
 }
 
+/* Estilo para el botón activo */
 .movies-header button.active {
-  background: #4ea5d9; /* Azul claro */
-  color: white;
+  background: #4a90e2; /* Azul más fuerte para el fondo */
+  color: white; /* Texto blanco para mejor contraste */
   border-bottom: none;
   position: relative;
-  z-index: 10;
+  z-index: 10; /* Asegura que el botón activo se quede encima de los demás */
+  box-shadow: 0 0 20px rgba(74, 144, 226, 0.8), 0 0 15px rgba(0, 0, 0, 0.3); /* Sombra azulada */
+  transform: translateY(-4px); /* Eleva el botón ligeramente */
+  text-shadow: 0 0 10px rgba(74, 144, 226, 0.8), 0 0 20px rgba(74, 144, 226, 0.8), 0 0 40px rgba(74, 144, 226, 1); /* Resplandor azul */
 }
 
+/* Efecto hover */
 .movies-header button:hover {
-  background: #8fc3e8; /* Azul más claro al pasar el ratón */
+  background: #6fa3e0; /* Azul más claro cuando se pasa el ratón */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más intensa para el hover */
+  transform: translateY(-2px); /* Eleva el botón al pasar el ratón */
 }
+
+/* Agregar un enfoque visual más fuerte al pasar el ratón sobre el botón activo */
+.movies-header button.active:hover {
+  background: #3879c0; /* Azul aún más oscuro para hover cuando está activo */
+  box-shadow: 0 0 30px rgba(74, 144, 226, 1), 0 0 40px rgba(0, 0, 0, 0.4); /* Brillo más fuerte */
+  transform: translateY(-6px); /* Aumenta el efecto de elevación */
+  text-shadow: 0 0 15px rgba(74, 144, 226, 1), 0 0 30px rgba(74, 144, 226, 1), 0 0 50px rgba(74, 144, 226, 1); /* Brillo azul más intenso */
+}
+
+
 
   
   /* Contenedor de la lista de películas */
@@ -531,7 +602,6 @@
     box-sizing: border-box;
     background:rgba(255, 255, 255, 0.2);
     border-top-right-radius: 30px;
-    border-top-left-radius: 30px;
     z-index: 5;
   }
   
