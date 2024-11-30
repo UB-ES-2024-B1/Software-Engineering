@@ -6,13 +6,24 @@
 
     <div class="main-content">
       <div class="profile-box">
-        <h2 class="profile-title">Edit Profile</h2>
 
         <!-- Mostrar error si no se pudo cargar la información -->
         <p v-if="error" class="error-message">{{ error }}</p>
 
         <!-- Formulario de edición -->
         <form v-else class="profile-edit-form" @submit.prevent="submitChanges">
+          <!-- Campo de imagen de perfil -->
+          <div class="form-group profile-picture-group">
+            <label for="profile-picture">Profile Picture:</label>
+            <div class="profile-picture-wrapper">
+              <img :src="formData.profile_picture || require('@/assets/foto_perfil.png')" class="profile-picture"
+                @click="handleProfilePictureClick" />
+              <input id="profile-picture" type="file" ref="profilePictureInput" accept="image/*" style="display: none"
+                @change="handleProfilePictureChange" />
+            </div>
+          </div>
+
+
           <!-- Mostrar el correo como texto en vez de un formulario -->
           <div class="form-group">
             <label for="email">Email Address:</label>
@@ -61,8 +72,11 @@ export default {
       formData: {
         email: '',
         full_name: '',
-        password: '', // Inicializamos la contraseña vacía
+
+        //Modificar cuando el backend esté acabado
+        profile_picture: '', // URL de la foto de perfil actual
       },
+      
       error: null,
     };
   },
@@ -77,25 +91,58 @@ export default {
     axios
       .get(`${API_BASE_URL}/users/email/${userEmail}`)
       .then((response) => {
-        const { email, full_name } = response.data;
+        const { email, full_name, img_url } = response.data;
+
+        // Asignar los valores al formulario
         this.formData.email = email;
         this.formData.full_name = full_name;
+
+        // Usar la imagen proporcionada por el backend o una predeterminada si no existe
+        this.formData.profile_picture = img_url;
       })
       .catch((error) => {
         console.error('Error al obtener los datos del usuario:', error);
         this.error = 'Error fetching user data. Please try again.';
       });
   },
+
   methods: {
+    handleProfilePictureClick() {
+      // Dispara el clic en el input de archivo
+      this.$refs.profilePictureInput.click();
+    },
+    handleProfilePictureChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.formData.profile_picture = e.target.result; // Actualiza la imagen en la vista
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+
     submitChanges() {
-      // Si la contraseña está vacía, no la enviamos
-      if (!this.formData.password) {
-        delete this.formData.password; // Elimina la contraseña si no se cambió
+      // Crear un FormData para enviar los datos
+      const formData = new FormData();
+
+      // Agregar los campos opcionales si existen
+      if (this.formData.full_name) {
+        formData.append('full_name', this.formData.full_name);
+      }
+      if (this.formData.profile_picture && this.$refs.profilePictureInput.files[0]) {
+        formData.append('img', this.$refs.profilePictureInput.files[0]);
       }
 
-      // Enviar los datos actualizados al backend
+      // Puedes agregar más campos opcionales aquí si es necesario (is_admin, is_active, etc.)
+
+      // Enviar los datos actualizados al backend usando Axios
       axios
-        .put(`${API_BASE_URL}/users/email/${this.formData.email}`, this.formData)
+        .put(`${API_BASE_URL}/users/email/${this.formData.email}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
         .then(() => {
           // Redirigir al perfil después de actualizar
           this.$router.push('/profile');
@@ -104,7 +151,10 @@ export default {
           console.error('Error al actualizar los datos del usuario:', error);
           this.error = 'Error updating user data. Please try again.';
         });
+      localStorage.setItem('userName', this.formData.full_name);
+      localStorage.setItem('userImg', this.formData.profile_picture); 
     },
+
   },
 };
 </script>
@@ -115,6 +165,7 @@ export default {
 <style scoped>
 /* Estilos generales iguales a los de profile */
 .profile-page {
+  height: 100vh;
   margin: 0;
   padding: 0;
   background-image: url('@/assets/fondo_login.jpg');
@@ -144,29 +195,69 @@ export default {
 }
 
 .profile-box {
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.9);
-  padding: 40px;
-  border-radius: 10px;
-  width: 750px;
-  height: 450px;
-  color: white;
-  z-index: 20;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    padding: 40px;
+    border-radius: 10px;
+    width: 750px;
+    height: 350px;
+    color: white;
+    z-index: 20;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Mejora visual */
+    border: 2px solid rgba(255, 255, 255, 0.1); /* Sutileza */
+    margin-bottom: 146px;
+
 }
 
-.profile-title {
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
+
+
+/* Campo de foto de perfil */
+.profile-picture-group {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  margin-bottom: 20px;
 }
+
+.profile-picture-wrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+
+.profile-picture {
+  width: 120px;
+  /* Ajusta el tamaño según lo necesario */
+  height: 120px;
+  /* Asegúrate de que sea cuadrado */
+  border-radius: 50%;
+  /* Esto hace que la imagen sea circular */
+  object-fit: cover;
+  /* Asegura que la imagen se ajuste sin distorsión */
+  border: 2px solid white;
+  /* Opcional: borde blanco */
+  transition: transform 0.3s;
+  /* Animación al pasar el cursor */
+}
+
+.profile-picture:hover {
+  transform: scale(1.1);
+}
+
+
+
 
 /* Estilo de formulario */
 .profile-edit-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 
