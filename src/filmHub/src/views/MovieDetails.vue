@@ -407,6 +407,7 @@ export default {
     },
 
     handleDelete(commentId) {
+      console.log('Deleting comment:', commentId);
       if (!this.loggedInUser) {
         this.showAlertMessage("You need to log in or register to access this feature.");
       } else {
@@ -452,6 +453,7 @@ export default {
           console.log('Comentario añadido:', response.data);
           this.successMessage = 'Comentario añadido con éxito.';
           this.newCommentText = '';
+          await this.fetchComments();
         } catch (error) {
           console.error('Error al añadir el comentario:', error);
           this.errorMessage = 'No se pudo añadir el comentario. Inténtalo de nuevo.';
@@ -479,6 +481,7 @@ export default {
           // Elimina el comentario del array local
           this.comments = this.comments.filter(comment => comment.id !== this.commentToDeleteIndex);
           this.showAlertMessage('Comentario eliminado con éxito');
+          await this.fetchComments();
         }
       } catch (error) {
         console.error('Error al eliminar el comentario:', error);
