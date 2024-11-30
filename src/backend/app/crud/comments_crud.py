@@ -14,11 +14,11 @@ def create_thread(session: Session, movie_id: int) -> Thread:
     return thread
 
 
-def create_comment(session: Session, thread_id: int, user_id: int, text: str) -> Comment:
+def create_comment(session: Session, thread_id: int, user_id: int,user_name:str, text: str) -> Comment:
     """
     Create a new comment in a thread.
     """
-    comment = Comment(thread_id=thread_id, user_id=user_id, text=text)
+    comment = Comment(thread_id=thread_id, user_id=user_id, text=text, user_name=user_name)
     session.add(comment)
     session.commit()
     session.refresh(comment)

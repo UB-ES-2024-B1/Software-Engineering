@@ -35,12 +35,12 @@ def get_threads(movie_id: int, session: Session = Depends(get_db)):
     threads = get_threads_by_movie(session, movie_id)
     return threads
 
-@router.post("/comments/", response_model=Comment)
-def add_comment(thread_id: int, user_id: int, text: str, session: Session = Depends(get_db)):
+@router.post("/", response_model=Comment)
+def add_comment(thread_id: int, user_id: int, text: str, user_name: str, session: Session = Depends(get_db)):
     """
     Add a new comment to a thread.
     """
-    comment = create_comment(session, thread_id, user_id, text)
+    comment = create_comment(session, thread_id, user_id,user_name, text)
     if not comment:
         raise HTTPException(status_code=400, detail="Failed to create comment.")
     return comment
@@ -53,7 +53,7 @@ def get_thread_comments(thread_id: int, session: Session = Depends(get_db)):
     comments = get_comments_by_thread(session, thread_id)
     return comments
 
-@router.put("/comments/{comment_id}/", response_model=Comment)
+@router.put("/{comment_id}/", response_model=Comment)
 def edit_comment(comment_id: int, text: str, session: Session = Depends(get_db)):
     """
     Update an existing comment.
@@ -63,7 +63,7 @@ def edit_comment(comment_id: int, text: str, session: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="Comment not found.")
     return comment
 
-@router.delete("/comments/{comment_id}/", status_code=204)
+@router.delete("/{comment_id}/", status_code=204)
 def remove_comment(comment_id: int, session: Session = Depends(get_db)):
     """
     Delete a comment by its ID.

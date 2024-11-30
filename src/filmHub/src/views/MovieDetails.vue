@@ -168,39 +168,30 @@
           <div class="scrollable-comments">
             <!-- Lista de comentarios -->
             <div v-for="(comment, index) in comments" :key="index" class="comment-item">
+              <!-- Apply a gold class if the comment is from the logged-in user -->
               <p>
-                <strong>{{ comment.user }}:</strong> {{ comment.text }}
-              </p>
-
-              <!-- Botón de eliminar comentario para el usuario logueado -->
-              <button 
-                v-if="comment.user === loggedUserName" 
-                class="delete-comment-btn" 
-                @click="handleDelete(index)">
-                🗑️
-              </button>
-
-              <!-- Botón para contestar el comentario de un usuario-->
-              <button 
-                v-if="comment.user !== loggedUserName" 
-                class="reply-comment-btn" 
+              <strong :class="{ 'gold-username': comment.user === loggedUserName }">{{ comment.user }}</strong>: {{ comment.text }}
+            </p>
+              <!-- Button to delete the comment only visible to the logged-in user -->
+              <button v-if="comment.user === loggedUserName" @click="handleDelete(comment.id)">🗑️</button>
+              <button v-if="comment.user !== loggedUserName" class="reply-comment-btn"
                 @click="handleReply(comment.user)">
                 ↩️
               </button>
-
             </div>
+
+
           </div>
 
           <!-- Botón "New Comment" -->
-          <button
-            :class="['new-comment-btn', { disabled: !loggedInUser }]"
-            @click="handleNewComment">
+          <button :class="['new-comment-btn', { disabled: !loggedInUser }]" @click="handleNewComment">
             New Comment
           </button>
-          
+
           <!-- Formulario para añadir un comentario -->
           <div v-if="isAddingComment" class="comment-form">
-            <textarea v-model="newCommentText" placeholder="Write your comment here..." class="comment-textarea"></textarea>
+            <textarea v-model="newCommentText" placeholder="Write your comment here..."
+              class="comment-textarea"></textarea>
             <div class="comment-buttons">
               <button @click="addComment" class="post-comment-btn">Post Comment</button>
               <button @click="toggleAddingComment" class="cancel-btn">Cancel</button>
@@ -208,7 +199,7 @@
           </div>
 
 
-    
+
         </div>
       </div>
 
@@ -350,11 +341,7 @@ export default {
       showAll: false, // To toggle between showing all items or not
 
       //cuando se junte con el backend modificar para coger metodo que da los commentarios asociados a una mvoie
-      comments: [
-        { user: "Alice", text: "Great movie!" },
-        { user: "Bob", text: "I really enjoyed it." },
-        { user: "You", text: "Amazing story!" },
-      ],
+      comments: [],
       isAddingComment: false,
       newCommentText: "",
       loggedUserName: localStorage.getItem('userName'),
@@ -363,15 +350,44 @@ export default {
       commentToDeleteIndex: null, // Índice del comentario a eliminar
       showAlert: false, // Controla la visibilidad de la alerta
       alertMessage: "", // Mensaje dinámico de la alerta
+      successMessage: "", // Mensaje de éxito
+      errorMessage: "", // Mensaje de error
     };
   },
   computed: {
     // Combine the director and cast, ensuring the director is always first
     combinedCast() {
       return [this.bannerMovie.director, ...this.bannerMovie.cast];
-    }
+    },
+
   },
   methods: {
+
+    async fetchComments() {
+      console.log('Fetching comments for movie:', this.bannerMovie.id);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/comments/threads/${this.bannerMovie.id}/comments`, {
+          headers: {
+            'accept': 'application/json',
+          },
+        });
+
+        if (Array.isArray(response.data)) {
+          this.comments = response.data.map(comment => ({
+            id: comment.id, // Store the comment id
+            user: comment.user_name,
+            text: comment.text,
+          }));
+        } else {
+          console.warn('Unexpected response format for comments:', response.data);
+          this.comments = [];
+        }
+      } catch (error) {
+        console.error('Error al cargar los comentarios:', error);
+        this.errorMessage = 'Hubo un error al cargar los comentarios. Inténtalo de nuevo.';
+      }
+    },
+
     handleNewComment() {
       if (!this.loggedInUser) {
         this.showAlertMessage("You need to log in or register to access this feature.");
@@ -380,51 +396,93 @@ export default {
       }
     },
 
-    handleDelete(index) {
+    handleDelete(commentId) {
       if (!this.loggedInUser) {
         this.showAlertMessage("You need to log in or register to access this feature.");
       } else {
-        this.confirmDelete(index);
+        this.confirmDelete(commentId); // Pasa la `id` del comentario
       }
     },
 
-    handleReply(otherUserName){
+
+    handleReply(otherUserName) {
       if (!this.loggedInUser) {
         this.showAlertMessage("You need to log in or register to access this feature.");
       } else {
         this.toggleAddingComment();
-        this.newCommentText ="@" + otherUserName + " ";
+        this.newCommentText = "@" + otherUserName + " ";
       }
     },
 
     toggleAddingComment() { //Muestra el formulario en funcion del boolean
       this.isAddingComment = !this.isAddingComment;
-      if (!this.isAddingComment){
+      if (!this.isAddingComment) {
         this.newCommentText = "";
       }
     },
     async addComment() {
-      const username = localStorage.getItem('userName')
+      if (!Array.isArray(this.comments)) {
+        this.comments = [];
+      }
+      const username = localStorage.getItem('userName');
       if (this.newCommentText.trim()) {
-        this.comments.push({ user: username , text: this.newCommentText });
+        this.comments.push({ user: username, text: this.newCommentText });
+        try {
+          const response = await axios.post(`${API_BASE_URL}/comments/`, null, {
+            params: {
+              thread_id: this.bannerMovie.id,
+              user_id: localStorage.getItem('user_id'),
+              text: this.newCommentText,
+              user_name: localStorage.getItem('userName'),
+            },
+            headers: {
+              'accept': 'application/json',
+            },
+          });
+          console.log('Comentario añadido:', response.data);
+          this.successMessage = 'Comentario añadido con éxito.';
+          this.newCommentText = '';
+        } catch (error) {
+          console.error('Error al añadir el comentario:', error);
+          this.errorMessage = 'No se pudo añadir el comentario. Inténtalo de nuevo.';
+        }
         this.toggleAddingComment();
         this.showAlertMessage("Your comment has been successfully posted");
       }
     },
-    confirmDelete(index) {
-      this.commentToDeleteIndex = index;
-      this.showDeleteConfirm = true;
+    confirmDelete(commentId) {
+      this.commentToDeleteIndex = commentId;
+      this.showDeleteConfirm = true; // Muestra un modal o confirmación
     },
-    deleteComment() {
-      if (this.commentToDeleteIndex !== null) {
-        this.comments.splice(this.commentToDeleteIndex, 1); // Eliminar comentario
+
+    async deleteComment() {
+      try {
+        if (this.commentToDeleteIndex !== null) {
+          // Realiza la llamada al backend para eliminar el comentario con la `id`
+          await axios.delete(`${API_BASE_URL}/comments/${this.commentToDeleteIndex}`, {
+            headers: {
+              'accept': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`, // Si es necesario autenticar
+            },
+          });
+
+          // Elimina el comentario del array local
+          this.comments = this.comments.filter(comment => comment.id !== this.commentToDeleteIndex);
+          this.showAlertMessage('Comentario eliminado con éxito');
+        }
+      } catch (error) {
+        console.error('Error al eliminar el comentario:', error);
+        this.errorMessage = 'No se pudo eliminar el comentario. Inténtalo de nuevo.';
+      } finally {
+        this.cancelDelete();
       }
-      this.cancelDelete();
     },
+
     cancelDelete() {
       this.commentToDeleteIndex = null;
       this.showDeleteConfirm = false;
     },
+
     showAlertMessage(message) {
       this.alertMessage = message;
       this.showAlert = true;
@@ -518,7 +576,18 @@ export default {
         this.loadMovieData(newId);
       },
     },
+
+    bannerMovie: {
+      handler(newValue) {
+        if (newValue && newValue.id) {
+          console.log('THIS IS NIGGA:', newValue.id);
+          this.fetchComments(); // Fetch comments when `bannerMovie` becomes available
+        }
+      },
+      immediate: true, // Run the watcher immediately if data is already available
+    },
   },
+
 };
 
 function getImagePath(image) {
@@ -586,49 +655,69 @@ async function generateRecentMovieObject(movieData) {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  
+
 }
 
 .scrollable-comments {
-  max-height: 400px; /* Limita la altura visible a unos 6 comentarios (ajusta según el diseño). */
-  overflow-y: auto; /* Habilita el desplazamiento vertical. */
-  padding-right: 10px; /* Espacio para evitar superposición con la barra de desplazamiento. */
-  border: 1px solid #ddd; /* Opcional: borde para resaltar el área. */
+  max-height: 400px;
+  /* Limita la altura visible a unos 6 comentarios (ajusta según el diseño). */
+  overflow-y: auto;
+  /* Habilita el desplazamiento vertical. */
+  padding-right: 10px;
+  /* Espacio para evitar superposición con la barra de desplazamiento. */
+  border: 1px solid #ddd;
+  /* Opcional: borde para resaltar el área. */
   width: 80%;
-  padding: 10px; /* Añade espacio interno alrededor del contenido. */
-  border-radius: 5px; /* Bordes redondeados. */
-  background-color: #f9f9f931; /* Fondo claro para destacar los comentarios. */
-  box-sizing: border-box; /* Asegura que `padding` no afecte al ancho/altura total. */
+  padding: 10px;
+  /* Añade espacio interno alrededor del contenido. */
+  border-radius: 5px;
+  /* Bordes redondeados. */
+  background-color: #f9f9f931;
+  /* Fondo claro para destacar los comentarios. */
+  box-sizing: border-box;
+  /* Asegura que `padding` no afecte al ancho/altura total. */
 }
+
 .scrollable-comments::-webkit-scrollbar {
-  width: 8px; /* Ancho de la barra de desplazamiento. */
+  width: 8px;
+  /* Ancho de la barra de desplazamiento. */
 }
+
 .scrollable-comments::-webkit-scrollbar-thumb {
-  background: #ccc; /* Color de la barra de desplazamiento. */
+  background: #ccc;
+  /* Color de la barra de desplazamiento. */
   border-radius: 4px;
 }
 
 .scrollable-comments::-webkit-scrollbar-thumb:hover {
-  background: #aaa; /* Color al pasar el cursor por la barra. */
+  background: #aaa;
+  /* Color al pasar el cursor por la barra. */
 }
 
 
 /* Estilo para los comentarios individuales */
 .comment-item {
-  width: 100%; /* Asegura que el comentario ocupe todo el ancho disponible */
-  box-sizing: border-box; /* Asegura que padding y borde no afecten el tamaño */
-  padding: 10px; /* Espacio interno para que el contenido no toque los bordes */
-  border-bottom: 1px solid #eee; /* Línea divisoria entre comentarios */
+  width: 100%;
+  /* Asegura que el comentario ocupe todo el ancho disponible */
+  box-sizing: border-box;
+  /* Asegura que padding y borde no afecten el tamaño */
+  padding: 10px;
+  /* Espacio interno para que el contenido no toque los bordes */
+  border-bottom: 1px solid #eee;
+  /* Línea divisoria entre comentarios */
   background-color: #2a2a2a;
-  
+
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   font-size: 1rem;
 
   /* Para colocar el icono de la basurita a la derecha */
-  display: flex; /* Activa la flexbox */
-  justify-content: space-between; /* Espaciado entre texto e icono */
-  align-items: center; /* Centra verticalmente el contenido */
+  display: flex;
+  /* Activa la flexbox */
+  justify-content: space-between;
+  /* Espaciado entre texto e icono */
+  align-items: center;
+  /* Centra verticalmente el contenido */
 }
 
 .comment-item:last-child {
@@ -676,8 +765,10 @@ async function generateRecentMovieObject(movieData) {
   cursor: pointer;
   transition: background-color 0.3s;
 }
+
 .new-comment-btn.disabled {
-  background-color: #888; /* Botón deshabilitado en gris */
+  background-color: #888;
+  /* Botón deshabilitado en gris */
   cursor: not-allowed;
 }
 
@@ -754,7 +845,8 @@ async function generateRecentMovieObject(movieData) {
   border: none;
   cursor: pointer;
   font-size: 1.2rem;
-  color: #ff4d4d; /* Rojo para el botón */
+  color: #ff4d4d;
+  /* Rojo para el botón */
   margin-left: auto;
   transition: color 0.3s;
   display: flex;
@@ -763,7 +855,8 @@ async function generateRecentMovieObject(movieData) {
 }
 
 .delete-comment-btn:hover {
-  color: #e60000; /* Rojo más oscuro al pasar el cursor */
+  color: #e60000;
+  /* Rojo más oscuro al pasar el cursor */
 
 }
 
@@ -1153,7 +1246,7 @@ body {
   /* Cambia el color de fondo */
   border-radius: 20px;
   /* Bordes redondeados para que coincidan con el poster */
-  transition: transform ease 0.3s; 
+  transition: transform ease 0.3s;
   position: relative;
   /* Asegura que los elementos dentro se posicionen relativos a este */
 }
@@ -1492,7 +1585,7 @@ body {
   /* Ensure the video/image doesn't overflow */
 }
 
-.banner-image{
+.banner-image {
   width: 112rem;
   height: 63rem;
 }
@@ -1500,4 +1593,9 @@ body {
 #related-movies {
   margin-left: -0.2rem;
 }
+
+.gold-username {
+  color: gold;
+}
+
 </style>

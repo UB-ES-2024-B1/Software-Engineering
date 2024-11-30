@@ -20,6 +20,7 @@ class Comment(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     thread_id: int = Field(foreign_key="thread.id")  # Foreign key to Thread
     user_id: int = Field(foreign_key="user.id")  # Foreign key to User
+    user_name: str = Field()
     text: str  # Comment text
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

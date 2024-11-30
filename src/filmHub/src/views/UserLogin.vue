@@ -75,9 +75,9 @@ export default {
         const userEmail = this.email;
         const userResponse = await axios.get(`${API_BASE_URL}/users/email/${encodeURIComponent(userEmail)}`)
 
-        localStorage.setItem('user_id', userResponse.data_id);
-        localStorage.setItem('userName', userResponse.full_name);
-        localStorage.setItem('userImg', userResponse.img_url);
+        localStorage.setItem('user_id', userResponse.data.id);
+        localStorage.setItem('userName', userResponse.data.full_name);
+        localStorage.setItem('userImg', userResponse.data.img_url);
 
         // Notificar éxito
         window.dispatchEvent(new Event('storage')); // Informa a otros componentes sobre el cambio
