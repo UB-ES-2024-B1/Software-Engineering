@@ -67,6 +67,18 @@
                                 <img :src="movie.smallImage" :alt="movie.title" class="movie-poster" />
                             </div>
 
+                            <!-- Wishlist Indicator-->
+                            <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                                <svg viewBox="0 0 32 32" class="wishlist-icon">
+                                <g>
+                                    <path
+                                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                                    ></path>
+                                </g>
+                                </svg>
+                            </div>
+
                             <div class="rating-likes-inline">
                                 <div class="rating">
                                     <img src="@/assets/star.png" alt="Rating star" class="icon" />
@@ -99,278 +111,302 @@
 
 
 <script>
-    import HeaderPage from '@/components/HeaderPage.vue'; // Importa el componente HeaderPage
-    import axios from 'axios';
-    import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
-    import FooterComponent from '@/components/FooterComponent.vue';
+import HeaderPage from '@/components/HeaderPage.vue'; // Importa el componente HeaderPage
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
+import FooterComponent from '@/components/FooterComponent.vue';
 
-    function getImagePath(image) {
-        if (image && image.startsWith('http')) {
-            return image;
-        } else if (image) {
-            try {
-                return require(`@/assets/${image}`);
-            } catch (error) {
-                console.error(`Error loading local image: ${image}`, error);
-                return '';
-            }
-        } else {
-            console.warn('No image provided');
+function getImagePath(image) {
+    if (image && image.startsWith('http')) {
+        return image;
+    } else if (image) {
+        try {
+            return require(`@/assets/${image}`);
+        } catch (error) {
+            console.error(`Error loading local image: ${image}`, error);
             return '';
         }
+    } else {
+        console.warn('No image provided');
+        return '';
     }
+}
 
-    async function generateMovieObject(movieData) {
-        const movieObject = {
-            id: movieData.id,
-            image: getImagePath(movieData.image[1]),
-            smallImage: getImagePath(movieData.image[0]),
-            title: movieData.title,
-            description: movieData.description,
-            rating: movieData.rating,
-            likes: movieData.likes,
-            genre: movieData.genres.map(genre => genre.type).join(', '),
-            releaseDate: movieData.release_date.substring(0, 4),
-        };
-
-        return movieObject;
-    }
-
-    function debounce(func, wait) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
-    }
-
-    export default {
-        name: 'AllMovies',
-        components: {
-            HeaderPage,
-            FooterComponent,
-        },
-        data() {
-            return {
-                sortedMovies: [],
-                dropdowns: { genre: false, year: false },
-                genres: [],
-                years: Array.from({ length: 2024 - 2007 + 1 }, (_, i) => 2007 + i),
-                selectedGenre: '',  // Aquí se guarda el género seleccionado
-                selectedYear: '',   // Aquí se guarda el año seleccionado
-                cancelTokenSource: null,
-                activeSorting: '', // Almacena el criterio de orden activo (rating, year, popularity)
-            };
-        },
-        methods: {
-            async fetchGenres() {
-                try {
-                    const url = `${API_BASE_URL}/genres/`;
-                    const response = await axios.get(url);
-                    this.genres = response.data;
-                    console.log("Fetched genres:", this.genres);
-                } catch (error) {
-                    console.error("Error fetching genres:", error);
-                }
-            },
-            toggleDropdown(type) {
-                if (type === 'genre') {
-                    this.dropdowns.year = false;
-                } else if (type === 'year') {
-                    this.dropdowns.genre = false;
-                }
-                this.dropdowns[type] = !this.dropdowns[type];
-            },
-            handleClickOutside(event) {
-                const dropdownsElements = document.querySelectorAll('.dropdown');
-                let clickInsideDropdown = false;
-
-                dropdownsElements.forEach((dropdown) => {
-                    if (dropdown.contains(event.target)) {
-                        clickInsideDropdown = true;
-                    }
-                });
-
-                if (!clickInsideDropdown) {
-                    this.dropdowns.genre = false;
-                    this.dropdowns.year = false;
-                }
-            },
-            selectGenre(genre) {
-                document.querySelectorAll('.switch input').forEach(input => {
-                    if (input !== event.target) {
-                        input.checked = false;
-                    }
-                });
-                
-                console.log(`Selected genre: ${genre}`);
-                this.selectedGenre = genre;
-                this.selectedYear = '';  // Resetear el filtro de año
-                this.dropdowns.genre = false;
-                this.applySorting('genre');
-            },
-            selectYear(year) {
-                document.querySelectorAll('.switch input').forEach(input => {
-                    if (input !== event.target) {
-                        input.checked = false;
-                    }
-                });
-
-                console.log(`Selected year: ${year}`);
-                this.selectedYear = year;
-                this.selectedGenre = '';  // Resetear el filtro de género
-                this.dropdowns.year = false;
-                this.applySorting('year');
-            },
-            applySwitchSorting(criteria, event) {
-                document.querySelectorAll('.switch input').forEach(input => {
-                    if (input !== event.target) {
-                        input.checked = false;
-                    }
-                });
-
-                if (event.target.checked) {
-                    this.activeSorting = criteria;
-                    this.selectedGenre = '';
-                    this.selectedYear = ''; 
-                    this.applySorting(criteria);
-                } else {
-                    this.activeSorting = '';
-                    this.applySorting(''); 
-                }
-            },
-            async applySorting(criteria, resetSelectedYear = false) {
-                try {
-                    let url;
-
-                    if (resetSelectedYear) {
-                        this.selectedYear = '';
-                    }
-
-                    if (this.cancelTokenSource) {
-                        this.cancelTokenSource.cancel("Operation canceled due to new request.");
-                    }
-
-                    this.cancelTokenSource = axios.CancelToken.source();
-
-                    if (criteria === 'rating') {
-                        url = `${API_BASE_URL}/movies/sorted/rating`;
-                    } else if (criteria === 'year') {
-                        if (this.selectedYear) {
-                            url = `${API_BASE_URL}/movies/release/${this.selectedYear}`;
-                        } else {
-                            url = `${API_BASE_URL}/movies/sorted/release_date`; // Aquí usas la URL por año
-                        }
-                    } else if (criteria === 'popularity') {
-                        url = `${API_BASE_URL}/movies/sorted/likes`;
-                    } else if (criteria === 'search') {
-                        const searchQuery = this.$route.query.search;
-                        url = `${API_BASE_URL}/movies/search/name/${searchQuery}`;
-                    } else if (criteria === 'genre' && this.selectedGenre) {
-                        url = `${API_BASE_URL}/movies/genre/${this.selectedGenre}`;
-                    } else {
-                        url = `${API_BASE_URL}/movies/`;
-                    }
-
-                    const response = await axios.get(url, {
-                        cancelToken: this.cancelTokenSource.token,
-                    });
-
-                    let movies = response.data;
-
-                    if (criteria === 'year') {
-                        // Invertir el orden si estamos ordenando por año
-                        movies = movies.reverse(); // Aquí invertimos el array
-                    }
-
-                    const processedMovies = await Promise.all(
-                        movies.map(async (movieData) => {
-                            return await generateMovieObject(movieData);
-                        })
-                    );
-
-                    this.sortedMovies = this.chunkMovies(processedMovies, 5);
-
-                    console.log(`Movies filtered by ${criteria}:`, this.sortedMovies);
-                } catch (error) {
-                    if (axios.isCancel(error)) {
-                        console.log("Previous request canceled:", error.message);
-                    } else {
-                        console.error("Error retrieving movies:", error);
-                    }
-                } finally {
-                    this.cancelTokenSource = null;
-                }
-            },
-            chunkMovies(movies, size) {
-                const result = [];
-                for (let i = 0; i < movies.length; i += size) {
-                    result.push(movies.slice(i, i + size));
-                }
-                return result;
-            },
-        },
-        async mounted() {
-            document.addEventListener('click', this.handleClickOutside);
-            const searchQuery = this.$route.query.search;
-            const sortByYear = this.$route.query.sortByYear;
-            const sortByRate = this.$route.query.sortByRate;
-
-            if (searchQuery) {
-                this.applySorting('search');
-            } else if (sortByYear) {
-                this.applySorting('year');
-            } else if (sortByRate) {
-                this.applySorting('rating');
-            } else {
-                this.applySorting('');
-            }
-            await this.fetchGenres();
-        },
-        beforeRouteUpdate(to) {
-            const searchQuery = to.query.search;
-            const sortByYear = to.query.sortByYear;
-            const sortByRate = to.query.sortByRate;
-
-            if (searchQuery) {
-                this.applySorting('search');
-            } else if (sortByYear) {
-                this.applySorting('year');
-            } else if (sortByRate) {
-                this.applySorting('rating');
-            } else {
-                this.applySorting('');
-            }
-        },
-        beforeUnmount() {
-            document.removeEventListener('click', this.handleClickOutside);
-        },
-        watch: {
-            '$route.query.search': {
-                handler: debounce(function (newSearchQuery) {
-                    if (newSearchQuery) {
-                        this.applySorting('search');
-                    }
-                }, 300),
-                immediate: true,
-            },
-            '$route.query.sortByYear'(newSortByYear) {
-                if (newSortByYear) {
-                    this.applySorting('year');
-                }
-            },
-            '$route.query.sortByRate'(newSortByRate) {
-                if (newSortByRate) {
-                    this.applySorting('rating');
-                }
-            },
-            '$route.query.sortByPopularity'(newSortByPopularity) {
-                if (newSortByPopularity) {
-                    this.applySorting('popularity');
-                }
-            },
-        },
+async function generateMovieObject(movieData) {
+    const movieObject = {
+        id: movieData.id,
+        image: getImagePath(movieData.image[1]),
+        smallImage: getImagePath(movieData.image[0]),
+        title: movieData.title,
+        description: movieData.description,
+        rating: movieData.rating,
+        likes: movieData.likes,
+        genre: movieData.genres.map(genre => genre.type).join(', '),
+        releaseDate: movieData.release_date.substring(0, 4),
     };
+
+    return movieObject;
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+export default {
+    name: 'AllMovies',
+    components: {
+        HeaderPage,
+        FooterComponent,
+    },
+    data() {
+        return {
+            sortedMovies: [],
+            dropdowns: { genre: false, year: false },
+            genres: [],
+            years: Array.from({ length: 2024 - 2007 + 1 }, (_, i) => 2007 + i),
+            selectedGenre: '',  // Aquí se guarda el género seleccionado
+            selectedYear: '',   // Aquí se guarda el año seleccionado
+            cancelTokenSource: null,
+            activeSorting: '', // Almacena el criterio de orden activo (rating, year, popularity)
+            wishedMovies: [], // Lista de películas deseadas
+            userId: localStorage.getItem('user_id'), // ID del usuario
+            
+        };
+    },
+    methods: {
+        async fetchGenres() {
+            try {
+                const url = `${API_BASE_URL}/genres/`;
+                const response = await axios.get(url);
+                this.genres = response.data;
+                console.log("Fetched genres:", this.genres);
+            } catch (error) {
+                console.error("Error fetching genres:", error);
+            }
+        },
+        toggleDropdown(type) {
+            if (type === 'genre') {
+                this.dropdowns.year = false;
+            } else if (type === 'year') {
+                this.dropdowns.genre = false;
+            }
+            this.dropdowns[type] = !this.dropdowns[type];
+        },
+        handleClickOutside(event) {
+            const dropdownsElements = document.querySelectorAll('.dropdown');
+            let clickInsideDropdown = false;
+
+            dropdownsElements.forEach((dropdown) => {
+                if (dropdown.contains(event.target)) {
+                    clickInsideDropdown = true;
+                }
+            });
+
+            if (!clickInsideDropdown) {
+                this.dropdowns.genre = false;
+                this.dropdowns.year = false;
+            }
+        },
+        selectGenre(genre) {
+            document.querySelectorAll('.switch input').forEach(input => {
+                if (input !== event.target) {
+                    input.checked = false;
+                }
+            });
+            
+            console.log(`Selected genre: ${genre}`);
+            this.selectedGenre = genre;
+            this.selectedYear = '';  // Resetear el filtro de año
+            this.dropdowns.genre = false;
+            this.applySorting('genre');
+        },
+        selectYear(year) {
+            document.querySelectorAll('.switch input').forEach(input => {
+                if (input !== event.target) {
+                    input.checked = false;
+                }
+            });
+
+            console.log(`Selected year: ${year}`);
+            this.selectedYear = year;
+            this.selectedGenre = '';  // Resetear el filtro de género
+            this.dropdowns.year = false;
+            this.applySorting('year');
+        },
+        applySwitchSorting(criteria, event) {
+            document.querySelectorAll('.switch input').forEach(input => {
+                if (input !== event.target) {
+                    input.checked = false;
+                }
+            });
+
+            if (event.target.checked) {
+                this.activeSorting = criteria;
+                this.selectedGenre = '';
+                this.selectedYear = ''; 
+                this.applySorting(criteria);
+            } else {
+                this.activeSorting = '';
+                this.applySorting(''); 
+            }
+        },
+        async applySorting(criteria, resetSelectedYear = false) {
+            try {
+                let url;
+
+                if (resetSelectedYear) {
+                    this.selectedYear = '';
+                }
+
+                if (this.cancelTokenSource) {
+                    this.cancelTokenSource.cancel("Operation canceled due to new request.");
+                }
+
+                this.cancelTokenSource = axios.CancelToken.source();
+
+                if (criteria === 'rating') {
+                    url = `${API_BASE_URL}/movies/sorted/rating`;
+                } else if (criteria === 'year') {
+                    if (this.selectedYear) {
+                        url = `${API_BASE_URL}/movies/release/${this.selectedYear}`;
+                    } else {
+                        url = `${API_BASE_URL}/movies/sorted/release_date`; // Aquí usas la URL por año
+                    }
+                } else if (criteria === 'popularity') {
+                    url = `${API_BASE_URL}/movies/sorted/likes`;
+                } else if (criteria === 'search') {
+                    const searchQuery = this.$route.query.search;
+                    url = `${API_BASE_URL}/movies/search/name/${searchQuery}`;
+                } else if (criteria === 'genre' && this.selectedGenre) {
+                    url = `${API_BASE_URL}/movies/genre/${this.selectedGenre}`;
+                } else {
+                    url = `${API_BASE_URL}/movies/`;
+                }
+
+                const response = await axios.get(url, {
+                    cancelToken: this.cancelTokenSource.token,
+                });
+
+                let movies = response.data;
+
+                if (criteria === 'year') {
+                    // Invertir el orden si estamos ordenando por año
+                    movies = movies.reverse(); // Aquí invertimos el array
+                }
+
+                const processedMovies = await Promise.all(
+                    movies.map(async (movieData) => {
+                        return await generateMovieObject(movieData);
+                    })
+                );
+
+                this.sortedMovies = this.chunkMovies(processedMovies, 5);
+
+                console.log(`Movies filtered by ${criteria}:`, this.sortedMovies);
+            } catch (error) {
+                if (axios.isCancel(error)) {
+                    console.log("Previous request canceled:", error.message);
+                } else {
+                    console.error("Error retrieving movies:", error);
+                }
+            } finally {
+                this.cancelTokenSource = null;
+            }
+        },
+        chunkMovies(movies, size) {
+            const result = [];
+            for (let i = 0; i < movies.length; i += size) {
+                result.push(movies.slice(i, i + size));
+            }
+            return result;
+        },
+        async loadUserPreferences() {
+        try {
+          if (!this.userId) {
+            console.error('User ID not found.');
+            return;
+          }
+          const endpoint = `${API_BASE_URL}/movies/liked_rated_and_wished_list/${this.userId}`;
+          const response = await axios.get(endpoint);
+
+          const data = response.data;
+
+          // Procesar películas en la wishlist
+          this.wishedMovies = data.wished_movies || [];
+
+          console.log('Wished Movies:', this.wishedMovies);
+
+        } catch (error) {
+          console.error('Error loading user preferences:', error.response?.data || error.message);
+        }
+      },
+    },
+    async mounted() {
+        this.loadUserPreferences();
+        document.addEventListener('click', this.handleClickOutside);
+        const searchQuery = this.$route.query.search;
+        const sortByYear = this.$route.query.sortByYear;
+        const sortByRate = this.$route.query.sortByRate;
+
+        if (searchQuery) {
+            this.applySorting('search');
+        } else if (sortByYear) {
+            this.applySorting('year');
+        } else if (sortByRate) {
+            this.applySorting('rating');
+        } else {
+            this.applySorting('');
+        }
+        await this.fetchGenres();
+    },
+    beforeRouteUpdate(to) {
+        const searchQuery = to.query.search;
+        const sortByYear = to.query.sortByYear;
+        const sortByRate = to.query.sortByRate;
+
+        if (searchQuery) {
+            this.applySorting('search');
+        } else if (sortByYear) {
+            this.applySorting('year');
+        } else if (sortByRate) {
+            this.applySorting('rating');
+        } else {
+            this.applySorting('');
+        }
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this.handleClickOutside);
+    },
+    watch: {
+        '$route.query.search': {
+            handler: debounce(function (newSearchQuery) {
+                if (newSearchQuery) {
+                    this.applySorting('search');
+                }
+            }, 300),
+            immediate: true,
+        },
+        '$route.query.sortByYear'(newSortByYear) {
+            if (newSortByYear) {
+                this.applySorting('year');
+            }
+        },
+        '$route.query.sortByRate'(newSortByRate) {
+            if (newSortByRate) {
+                this.applySorting('rating');
+            }
+        },
+        '$route.query.sortByPopularity'(newSortByPopularity) {
+            if (newSortByPopularity) {
+                this.applySorting('popularity');
+            }
+        },
+    },
+};
 </script>
 
 
@@ -787,6 +823,30 @@ button:hover {
 
 .switch input:checked + .slider:before {
     transform: translateX(1.5em);
+}
+
+/* Indicador de wishlist */
+.wishlist-indicator {
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  display: flex; /* Centra el SVG si hay paddings */
+  align-items: center;
+  justify-content: center;
+}
+
+/* Escalar el icono */
+.wishlist-icon {
+  width: 40px; /* Aumenta el tamaño del icono */
+  height: 40px;
+  fill: #007bff; 
+  opacity: 0.8;/* Azul para indicar que está en wishlist */
+
+}
+
+/* Sin hover ni interacción */
+.wishlist-indicator:hover {
+  cursor: default;
 }
 
 
