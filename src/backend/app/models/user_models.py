@@ -1,6 +1,8 @@
 # backend/app/models/user_models.py
+from app.models.comments_model import Comment
 from sqlmodel import Field, SQLModel, Relationship
 from typing import Union, Optional, List
+
 
 # Shared properties
 class UserBase(SQLModel):
@@ -23,6 +25,7 @@ class MovieUser(SQLModel, table=True):
 class User(UserBase, table=True):
     id: Union[int, None] = Field(default=None, primary_key=True)  # Use Union for compatibility
     hashed_password: str
+    comments: List["Comment"] = Relationship(back_populates="user")
 
     # Establish relationship with movies
     movies: List["Movie"] = Relationship(back_populates="users", link_model=MovieUser)
