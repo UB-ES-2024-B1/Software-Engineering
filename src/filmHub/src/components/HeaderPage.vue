@@ -14,7 +14,7 @@
     <!-- Mostrar la barra de búsqueda solo si no estamos en páginas de registro o login -->
     <div v-if="!isAuthPage" class="search-bar">
       <!-- Conectar el input al modelo de datos -->
-      <input type="text" v-model="searchInput" placeholder="Search for movies..." @keyup.enter="searchMovies" />
+      <input type="text" v-model="searchInput" placeholder="Busca for movies..." @keyup.enter="searchMovies" />
       <!-- Enviar el término como parámetro de consulta -->
       <router-link v-if="!isAuthPage" :to="{ path: '/movies', query: { search: searchInput } }">
         <button @click="searchMovies">Go!</button> <!-- Método de búsqueda al hacer click -->
