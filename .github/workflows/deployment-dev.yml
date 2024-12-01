@@ -36,6 +36,7 @@ jobs:
         with:
           app-name: filmhub-backend
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BACKEND }}
+          images: mayeteco7/filmhub-backend:latest
 
       # ----------------------------
       # Frontend Steps
@@ -65,3 +66,4 @@ jobs:
         with:
           app-name: filmhub-frontend
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND }}
+          images: mayeteco7/filmhub-frontend:latest
