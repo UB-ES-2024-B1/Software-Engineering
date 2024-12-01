@@ -267,7 +267,6 @@ export default {
                 }
 
                 this.cancelTokenSource = axios.CancelToken.source();
-
                 if (criteria === 'rating') {
                     url = `${API_BASE_URL}/movies/sorted/rating`;
                 } else if (criteria === 'year') {

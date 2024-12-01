@@ -404,7 +404,7 @@ export default {
     async fetchMovies(start, end, movies_section) {
       try {
         let url;
-
+        
         // Seleccionar la URL en función de la sección
         if (movies_section === 1) { 
           url = `${API_BASE_URL}/movies/sorted/likes`; 

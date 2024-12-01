@@ -7,7 +7,7 @@
     </div>
 
     <!-- Mostrar el botón "All Movies" solo si no estamos en páginas de registro o login -->
-    <router-link v-if="!isAuthPage" to="/movies">
+    <router-link v-if="!isAuthPage" to="/movies/">
       <button class="all-movies">All Movies</button>
     </router-link>
 
