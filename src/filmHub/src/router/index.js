@@ -10,8 +10,7 @@ import EditProfile from '../views/EditProfile.vue';
 import AllMovies from '../views/AllMovies.vue';
 import AddMovies from '../views/AddMovies.vue'; // Importa el componente 
 
-
-
+import ShowReportsProfile from '@/views/ShowReportsProfile.vue';
 
 const routes = [
   {
@@ -57,6 +56,12 @@ const routes = [
     name: 'AddMovies',
     component: AddMovies,
   },
+  {
+
+    path: '/reportedComments',
+    name: 'ShowReportsProfile',
+    component: ShowReportsProfile,
+  },
 
 ];
 
@@ -64,5 +69,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
 
 export default router;

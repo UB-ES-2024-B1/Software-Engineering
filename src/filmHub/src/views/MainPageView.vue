@@ -22,6 +22,19 @@
               <router-link :to="`/movie/${movie.id}`">
                 <img :src="movie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
               </router-link>
+
+              <!-- Wishlist Indicator-->
+              <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                <svg viewBox="0 0 32 32" class="wishlist-icon">
+                  <g>
+                    <path
+                      d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                    ></path>
+                  </g>
+                </svg>
+              </div>
+
               <div class="movie-info">
                 <h5>{{ movie.title }}</h5>
                 <p>{{ movie.description }}</p>
@@ -31,7 +44,7 @@
             <div class="rating-likes-banner">
               <div class="rating">
                 <img src="@/assets/star.png" alt="Star" class="icon" />
-                <span>{{ movie.rating }}</span>
+                <span>{{ movie.rating.toFixed(1) }}</span>
               </div>
               <div class="likes">
                 <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -56,16 +69,29 @@
     <!-- Sección de películas recientes -->
     <section class="recent-movies">
       <router-link :to="{ path: '/movies', query: { sortByYear: 'year' } }" class="section-title-link">
-        <h2 class="section-title">Películas Más Recientes</h2>
+        <h2 class="section-title">Most Recent Movies</h2>
       </router-link>
       <div id="recentMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
-          <div class="carousel-item active">
+          <div class="carousel-item active carousel-item-lista">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(0, 5)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -75,12 +101,25 @@
               </div>
             </div>
           </div>
-          <div class="carousel-item">
+          <div class="carousel-item carousel-item-lista">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(5, 10)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -90,12 +129,25 @@
               </div>
             </div>
           </div>
-          <div class="carousel-item">
+          <div class="carousel-item carousel-item-lista">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(10, 15)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -105,12 +157,25 @@
               </div>
             </div>
           </div>
-          <div class="carousel-item">
+          <div class="carousel-item carousel-item-lista">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in recentMovies.slice(15, 20)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="likes">
                     <img src="@/assets/like.png" alt="Like" class="icon" />
@@ -135,65 +200,117 @@
     <!-- Sección de películas mejor valoradas -->
     <section class="top-rated-movies">
       <router-link :to="{ path: '/movies', query: { sortByRate: 'rating' } }" class="section-title-link">
-        <h2 class="section-title">Películas Mejor Valoradas</h2>
+        <h2 class="section-title">Top Valorated Movies</h2>
       </router-link>
       <div id="topRatedMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
-          <div class="carousel-item active">
+          <div class="carousel-item active carousel-item-lista">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(0, 5)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="carousel-item">
+          <div class="carousel-item carousel-item-lista">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(5, 10)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="carousel-item">
+          <div class="carousel-item carousel-item-lista">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(10, 15)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="carousel-item">
+          <div class="carousel-item carousel-item-lista">
             <div class="movie-grid responsive-carousel">
               <div class="movie-item" v-for="movie in topRatedMovies.slice(15, 20)" :key="movie.id">
                 <router-link :to="`/movie/${movie.id}`">
                   <img :src="movie.image" :alt="movie.title" class="movie-poster" />
                 </router-link>
+
+                <!-- Wishlist Indicator-->
+                <div v-if="wishedMovies.includes(movie.title)" class="wishlist-indicator">
+
+                  <svg viewBox="0 0 32 32" class="wishlist-icon">
+                    <g>
+                      <path
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
                 <div class="rating-likes-cover">
                   <div class="rating">
                     <img src="@/assets/star.png" alt="Star" class="icon" />
-                    <span>{{ movie.rating }}</span>
+                    <span>{{ movie.rating.toFixed(1) }}</span>
                   </div>
                 </div>
               </div>
@@ -253,7 +370,8 @@ async function generateRecentMovieObject(movieData) {
     id: movieData.id,
     image: getImagePath(movieData.image[0]),
     rating: movieData.rating,
-    likes: movieData.likes
+    likes: movieData.likes,
+    title: movieData.title
   };
 
   return movieObject;
@@ -273,6 +391,11 @@ export default {
 
       topRatedMovies: [],
 
+      wishedMovies: [], // Lista de películas deseadas
+
+      userId: localStorage.getItem('user_id'), // ID del usuario
+
+
     };
   },
   methods: {
@@ -281,14 +404,25 @@ export default {
     async fetchMovies(start, end, movies_section) {
       try {
         let url;
-
-        if (movies_section === 1) { url = `${API_BASE_URL}/movies/sorted/likes`; }
-        else if (movies_section === 2) { url = `${API_BASE_URL}/movies/sorted/release_date`; }
-        else { url = `${API_BASE_URL}/movies/sorted/rating`; }
+        
+        // Seleccionar la URL en función de la sección
+        if (movies_section === 1) { 
+          url = `${API_BASE_URL}/movies/sorted/likes`; 
+        } else if (movies_section === 2) { 
+          url = `${API_BASE_URL}/movies/sorted/release_date`; 
+        } else { 
+          url = `${API_BASE_URL}/movies/sorted/rating`; 
+        }
 
         const movieObjects = [];
         const response = await axios.get(url);
-        const movies = response.data; // Suponiendo que la respuesta es un arreglo de películas
+        let movies = response.data; 
+
+        // Ordenar de más reciente a más antiguo si es movies_section === 2
+        if (movies_section === 2) {
+          movies = movies.reverse(); 
+        }
+
         // Limitar a las primeras películas
         const topMovies = movies.slice(start, end);
 
@@ -299,24 +433,47 @@ export default {
 
           if (movies_section === 1) {
             movieObject = await generateMovieObject(movieData);
-
           } else {
             movieObject = await generateRecentMovieObject(movieData);
-
           }
 
           if (movieObject) movieObjects.push(movieObject);
         }
-        if (movies_section === 1) { this.movies = movieObjects; }
-        else if (movies_section === 2) { this.recentMovies = movieObjects; }
-        else { this.topRatedMovies = movieObjects; }
+
+        // Asignar las películas al estado correspondiente
+        if (movies_section === 1) {
+          this.movies = movieObjects;
+        } else if (movies_section === 2) {
+          this.recentMovies = movieObjects;
+        } else {
+          this.topRatedMovies = movieObjects;
+        }
 
       } catch (error) {
         console.error("Error retrieving movies:", error);
       }
     },
 
+    async loadUserPreferences() {
+        try {
+          if (!this.userId) {
+            console.error('User ID not found.');
+            return;
+          }
+          const endpoint = `${API_BASE_URL}/movies/liked_rated_and_wished_list/${this.userId}`;
+          const response = await axios.get(endpoint);
 
+          const data = response.data;
+
+          // Procesar películas en la wishlist
+          this.wishedMovies = data.wished_movies || [];
+
+          console.log('Wished Movies:', this.wishedMovies);
+
+        } catch (error) {
+          console.error('Error loading user preferences:', error.response?.data || error.message);
+        }
+      },
 
     navigateToMovie(movieId) {
       console.log(`Navigating to movie with ID: ${movieId}`);
@@ -327,6 +484,10 @@ export default {
     this.fetchMovies(0, 20, 2);
     this.fetchMovies(0, 20, 3);
   },
+  mounted() {
+    // Aquí llamas a loadUserPreferences una vez que el componente está montado
+    this.loadUserPreferences();
+  },  
 };
 </script>
 
@@ -367,6 +528,7 @@ body {
   height: 250px;
   background: linear-gradient(to top, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0));
   z-index: 5;
+
 }
 
 /* Estilos del carrusel */
@@ -436,6 +598,8 @@ body {
   z-index: 20;
   /* Aumenta el z-index para que estén encima de la imagen de portada */
   width: 50px;
+  top: 24px;
+  height: 375px;
   opacity: 0;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
@@ -447,7 +611,9 @@ body {
 .carousel-control-prev {
   z-index: 20;
   /* Aumenta el z-index para que estén encima de la imagen de portada */
+  top: 24px;
   width: 50px;
+  height: 375px;
   opacity: 0;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
@@ -455,6 +621,7 @@ body {
   /* Fondo semi-transparente */
   transition: background-color 0.3s;
 }
+
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
@@ -588,15 +755,17 @@ body {
 
 .recent-movies,
 .top-rated-movies {
-  padding: 40px 20px;
+  padding: 20px 20px;
   text-align: center;
   background-color: #121212;
   /* Color de fondo para diferenciar secciones */
-  margin: 10px 0;
+  margin: 0;
   /* Margen entre secciones */
   padding-left: 50px;
   /* Espacio desde la izquierda para toda la sección */
+
 }
+
 
 .movie-grid {
   display: grid;
@@ -617,23 +786,37 @@ body {
   /* Cambia la alineación (izquierda, centro, derecha) */
   margin-left: 0px;
   /* Agrega margen a la izquierda si es necesario */
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   /* Agrega margen abajo para separarlo de la cuadrícula */
   font-weight: bold;
+  
 }
 
-/* 
+/* Para el enlace */
+.section-title-link {
+  text-decoration: none; /* Quita el subrayado del router-link */
+  color: inherit; /* Evita el color azul predeterminado */
+}
+
+
+.section-title-link:hover {
+  text-decoration: underline; 
+  color: white; 
+}
+
+
 .movie-item:hover {
-  transform: scale(1.05); 
+  transform: scale(1.03);
+  z-index: 10;
+  /* Efecto de escala al pasar el cursor por encima */
 }
 
-*/
 
 
 .rating-likes-cover {
   position: absolute;
-  bottom: 290px;
-  left: 20px;
+  bottom: 315px;
+  left: 15px;
   background-color: rgba(0, 0, 0, 0.6);
   /* Fondo oscuro semi-transparente */
   color: white;
@@ -649,18 +832,26 @@ body {
 
 
 /* Estilo para el carrusel */
-.carousel-item {
-  justify-content: flex-start;
+.carousel-item{
+  justify-content: center;
   /* Alinear a la izquierda (o cambiar a center si prefieres) */
   align-items: flex-start;
   /* Alinea las películas al inicio */
 }
 
+.carousel-item-lista {
+  justify-content: center;
+  /* Alinear a la izquierda (o cambiar a center si prefieres) */
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+
 /* Estilo para cada película dentro del carrusel */
 .movie-item {
   width: 250px;
   /* Ajusta al tamaño deseado */
-  height: 350px;
+  height: 375px;
   /* Mantiene la proporción de la imagen */
   flex-direction: column;
   /* Apila el contenido verticalmente */
@@ -680,9 +871,35 @@ body {
 .movie-poster {
   width: 100%;
   /* Asegúrate de que ocupen todo el ancho del contenedor */
-  height: 350px !important;
+  height: 375px !important;
   /* Mantiene la proporción de la imagen */
   border-radius: 20px;
   /* Bordes redondeados */
 }
+
+
+/* Indicador de wishlist */
+.wishlist-indicator {
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  display: flex; /* Centra el SVG si hay paddings */
+  align-items: center;
+  justify-content: center;
+}
+
+/* Escalar el icono */
+.wishlist-icon {
+  width: 40px; /* Aumenta el tamaño del icono */
+  height: 40px;
+  fill: #007bff; 
+  opacity: 0.8;/* Azul para indicar que está en wishlist */
+
+}
+
+/* Sin hover ni interacción */
+.wishlist-indicator:hover {
+  cursor: default;
+}
+
 </style>

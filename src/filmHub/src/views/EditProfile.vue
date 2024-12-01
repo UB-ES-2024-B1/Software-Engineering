@@ -6,13 +6,24 @@
 
     <div class="main-content">
       <div class="profile-box">
-        <h2 class="profile-title">Edit Profile</h2>
 
         <!-- Mostrar error si no se pudo cargar la información -->
         <p v-if="error" class="error-message">{{ error }}</p>
 
         <!-- Formulario de edición -->
         <form v-else class="profile-edit-form" @submit.prevent="submitChanges">
+          <!-- Campo de imagen de perfil -->
+          <div class="form-group profile-picture-group">
+            <label for="profile-picture">Profile Picture:</label>
+            <div class="profile-picture-wrapper">
+              <img :src="formData.profile_picture || require('@/assets/foto_perfil.png')" class="profile-picture"
+                @click="handleProfilePictureClick" />
+              <input id="profile-picture" type="file" ref="profilePictureInput" accept="image/*" style="display: none"
+                @change="handleProfilePictureChange" />
+            </div>
+          </div>
+
+
           <!-- Mostrar el correo como texto en vez de un formulario -->
           <div class="form-group">
             <label for="email">Email Address:</label>
@@ -61,7 +72,7 @@ export default {
       formData: {
         email: '',
         full_name: '',
-        password: '', // Inicializamos la contraseña vacía
+        profile_picture: '', // URL of the current profile picture
       },
       error: null,
     };
@@ -73,37 +84,99 @@ export default {
       return;
     }
 
-    // Carga inicial de los datos del usuario
+    // Initial data loading
     axios
       .get(`${API_BASE_URL}/users/email/${userEmail}`)
       .then((response) => {
-        const { email, full_name } = response.data;
+        const { email, full_name, img_url } = response.data;
+
+        // Assign the fetched values to the form
         this.formData.email = email;
         this.formData.full_name = full_name;
+
+        // Use the provided image URL or a default image if it doesn't exist
+        this.formData.profile_picture = img_url;
       })
       .catch((error) => {
-        console.error('Error al obtener los datos del usuario:', error);
+        console.error('Error fetching user data:', error);
         this.error = 'Error fetching user data. Please try again.';
       });
   },
+
   methods: {
+    handleProfilePictureClick() {
+      // Trigger the file input click event
+      this.$refs.profilePictureInput.click();
+    },
+    handleProfilePictureChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          // Resize the image before assigning it to formData
+          this.resizeImage(e.target.result, (resizedImg) => {
+            this.formData.profile_picture = resizedImg; // Update the image in the view
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+
+    resizeImage(imageSrc, callback) {
+      const img = new Image();
+      img.onload = () => {
+        // Create a canvas to resize the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set the new width and height (240px in this case)
+        const width = 240;
+        const height = (img.height / img.width) * width; // Maintain aspect ratio
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw the resized image on the canvas
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Get the resized image as a base64 string
+        const resizedImage = canvas.toDataURL('image/jpeg', 0.8); // JPEG format with 80% quality
+        callback(resizedImage);
+      };
+      img.src = imageSrc;
+    },
+
     submitChanges() {
-      // Si la contraseña está vacía, no la enviamos
-      if (!this.formData.password) {
-        delete this.formData.password; // Elimina la contraseña si no se cambió
+      // Create a FormData object to send the data
+      const formData = new FormData();
+
+      // Append the form fields
+      if (this.formData.full_name) {
+        formData.append('full_name', this.formData.full_name);
+      }
+      if (this.formData.profile_picture && this.$refs.profilePictureInput.files[0]) {
+        formData.append('img', this.$refs.profilePictureInput.files[0]);
       }
 
-      // Enviar los datos actualizados al backend
+      // Send the updated data to the backend using Axios
       axios
-        .put(`${API_BASE_URL}/users/email/${this.formData.email}`, this.formData)
+        .put(`${API_BASE_URL}/users/email/${this.formData.email}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
         .then(() => {
-          // Redirigir al perfil después de actualizar
+          // Redirect to the profile page after successful update
           this.$router.push('/profile');
         })
         .catch((error) => {
-          console.error('Error al actualizar los datos del usuario:', error);
+          console.error('Error updating user data:', error);
           this.error = 'Error updating user data. Please try again.';
         });
+
+      // Save the updated profile picture and name to localStorage
+      localStorage.setItem('userName', this.formData.full_name);
+      localStorage.setItem('userImg', this.formData.profile_picture); // Save resized image
     },
   },
 };
@@ -112,9 +185,11 @@ export default {
 
 
 
+
 <style scoped>
 /* Estilos generales iguales a los de profile */
 .profile-page {
+  height: 100vh;
   margin: 0;
   padding: 0;
   background-image: url('@/assets/fondo_login.jpg');
@@ -144,29 +219,69 @@ export default {
 }
 
 .profile-box {
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.9);
-  padding: 40px;
-  border-radius: 10px;
-  width: 750px;
-  height: 450px;
-  color: white;
-  z-index: 20;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    padding: 40px;
+    border-radius: 10px;
+    width: 750px;
+    height: 550px;
+    color: white;
+    z-index: 20;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Mejora visual */
+    border: 2px solid rgba(255, 255, 255, 0.1); /* Sutileza */
+    margin-bottom: 146px;
+
 }
 
-.profile-title {
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
+
+
+/* Campo de foto de perfil */
+.profile-picture-group {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  margin-bottom: 20px;
 }
+
+.profile-picture-wrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+
+.profile-picture {
+  width: 120px;
+  /* Ajusta el tamaño según lo necesario */
+  height: 120px;
+  /* Asegúrate de que sea cuadrado */
+  border-radius: 50%;
+  /* Esto hace que la imagen sea circular */
+  object-fit: cover;
+  /* Asegura que la imagen se ajuste sin distorsión */
+  border: 2px solid white;
+  /* Opcional: borde blanco */
+  transition: transform 0.3s;
+  /* Animación al pasar el cursor */
+}
+
+.profile-picture:hover {
+  transform: scale(1.1);
+}
+
+
+
 
 /* Estilo de formulario */
 .profile-edit-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 
