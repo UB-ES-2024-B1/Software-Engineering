@@ -40,11 +40,11 @@ def get_threads(movie_id: int, session: Session = Depends(get_db)):
     return threads
 
 @router.post("/", response_model=Comment)
-def add_comment(thread_id: int, user_id: int, text: str, user_name: str, session: Session = Depends(get_db)):
+def add_comment(thread_id: int, user_id: int, text: str,session: Session = Depends(get_db)):
     """
     Add a new comment to a thread.
     """
-    comment = create_comment(session, thread_id, user_id,user_name, text)
+    comment = create_comment(session, thread_id, user_id, text)
     if not comment:
         raise HTTPException(status_code=400, detail="Failed to create comment.")
     return comment

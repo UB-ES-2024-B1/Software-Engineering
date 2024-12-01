@@ -27,7 +27,6 @@ class Comment(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     thread_id: int = Field(foreign_key="thread.id")
     user_id: int = Field(foreign_key="user.id")
-    user_name: str
     text: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     reported: ReportStatus = Field(default=ReportStatus.CLEAN)

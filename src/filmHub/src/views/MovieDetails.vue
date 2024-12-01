@@ -177,28 +177,26 @@
             <div v-for="(comment, index) in comments" :key="index" class="comment-item">
               <!-- Apply a gold class if the comment is from the logged-in user -->
               <p>
-                <strong :class="{ 'gold-username': comment.user === loggedUserName }">{{ comment.user }}</strong>: {{
-                  comment.text }}
+                <strong :class="{ 'gold-username': comment.user === userId }">{{ comment.username
+                  }}</strong>: {{
+                    comment.text }}
               </p>
               <!-- Button to delete the comment only visible to the logged-in user -->
-              <button v-if="comment.user === loggedUserName" class="delete-comment-btn" @click="handleDelete(comment.id) ">🗑️</button>
+              <button v-if="comment.user === userId" class="delete-comment-btn"
+                @click="handleDelete(comment.id)">🗑️</button>
 
               <div class="comment-actions">
                 <!-- Botón para contestar el comentario de otro usuario-->
-                <button 
-                  v-if="comment.user !== loggedUserName" 
-                  class="reply-comment-btn" 
-                  @click="handleReply(comment.user)">
+                <button v-if="comment.user !== userId" class="reply-comment-btn"
+                  @click="handleReply(comment.username)">
                   ↩️
                 </button>
 
                 <!-- Separador -->
-                <span class="vertical-separator" v-if="comment.user !== loggedUserName"></span>
+                <span class="vertical-separator" v-if="comment.user !== userId"></span>
 
                 <!-- Botón para reportar el comentario de otro usuario-->
-                <button 
-                  v-if="comment.user !== loggedUserName" 
-                  class="report-comment-btn" 
+                <button v-if="comment.user !== userId" class="report-comment-btn"
                   @click="handleReport(comment)">
                   🚩
                 </button>
@@ -367,14 +365,13 @@ export default {
       genresList: [], // Lista de géneros disponibles
       visibleCount: 9, // Inicialmente mostrar hasta 9 elementos
       showAll: false, // Para alternar entre mostrar todos los elementos o no
-      userId: localStorage.getItem('user_id'), // ID del usuario
+      userId: parseInt(localStorage.getItem('user_id')), // ID del usuario
       rating: 0, // Valoración inicial
       userRatedMovies: {}, // Almacenará las películas valoradas por el usuario
       likedMovies: [], // Almacena las películas que el usuario ha marcado como "like"
       comments: [],
       isAddingComment: false,
       newCommentText: "",
-      loggedUserName: localStorage.getItem('userName'),
       loggedInUser: !!localStorage.getItem('token'), // Usuario logueado
       showDeleteConfirm: false, // Controla si la confirmación de eliminación de comomment está visible
       commentToDeleteIndex: null, // Índice del comentario a eliminar
@@ -404,11 +401,18 @@ export default {
         });
 
         if (Array.isArray(response.data)) {
-          this.comments = response.data.map(comment => ({
-            id: comment.id, // Store the comment id
-            user: comment.user_name,
-            text: comment.text,
-          }));
+          // Mapeamos los comentarios y resolvemos las promesas de usernames
+          this.comments = await Promise.all(
+            response.data.map(async comment => {
+              const username = await this.getUsername(comment.user_id);
+              return {
+                id: comment.id,       // Guardar el ID del comentario
+                user: comment.user_id, // Guardar el ID del usuario
+                username,             // Agregar el nombre de usuario
+                text: comment.text,   // Guardar el texto del comentario
+              };
+            })
+          );
         } else {
           console.warn('Unexpected response format for comments:', response.data);
           this.comments = [];
@@ -416,6 +420,21 @@ export default {
       } catch (error) {
         console.error('Error al cargar los comentarios:', error);
         this.errorMessage = 'Hubo un error al cargar los comentarios. Inténtalo de nuevo.';
+      }
+    },
+
+    async getUsername(user_id) {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/users/id/${user_id}`, {
+          headers: {
+            'accept': 'application/json',
+          },
+        });
+        console.log('Username response:', response.data);
+        return response.data.full_name;
+      } catch (error) {
+        console.error('Error fetching username:', error);
+        return 'Unknown User';
       }
     },
 
@@ -438,6 +457,7 @@ export default {
 
 
     handleReply(otherUserName) {
+
       if (!this.loggedInUser) {
         this.showAlertMessage("You need to log in or register to access this feature.");
       } else {
@@ -446,7 +466,7 @@ export default {
       }
     },
 
-    handleReport(comment){
+    handleReport(comment) {
       if (!this.loggedInUser) {
         this.showAlertMessage("You need to log in or register to access this feature.");
       } else {
@@ -456,7 +476,7 @@ export default {
       }
     },
 
-    confirmReport2(){
+    confirmReport2() {
       console.log(`Reported user: ${this.userToReport}`);
       this.showAlertMessage("Comment reported successfully.");
       // Cerrar modal
@@ -534,7 +554,6 @@ export default {
               thread_id: this.bannerMovie.id,
               user_id: localStorage.getItem('user_id'),
               text: this.newCommentText,
-              user_name: localStorage.getItem('userName'),
             },
             headers: {
               'accept': 'application/json',
@@ -949,7 +968,7 @@ async function generateRecentMovieObject(movieData) {
 }
 
 /* Modal de alerta */
-.alert-modal{
+.alert-modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -1085,7 +1104,8 @@ async function generateRecentMovieObject(movieData) {
 }
 
 /* Modal de confirmación de eliminación */
-.delete-modal, .report-modal {
+.delete-modal,
+.report-modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -1099,7 +1119,8 @@ async function generateRecentMovieObject(movieData) {
   text-align: center;
 }
 
-.delete-modal-buttons, .report-modal-buttons {
+.delete-modal-buttons,
+.report-modal-buttons {
   display: flex;
   justify-content: center;
   gap: 10px;
