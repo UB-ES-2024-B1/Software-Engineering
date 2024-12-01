@@ -41,12 +41,17 @@
             <router-link to="/edit">
               <button class="modify-btn">Modify</button>
             </router-link>
+            <router-link to="/reportedComments">
+              <button class="report-comments-btn">Reported comments</button>
+            </router-link>
           </div>
+
         </div>
 
         <div v-else class="loading-message">
           Loading profile...
         </div>
+
       </div>
     </div>
 
@@ -169,6 +174,10 @@
         ratedMovies: [], // Películas valoradas
         likedMovies: [], // Películas con like
         displayedMovies: [], // Películas que se muestran actualmente
+
+        //REP eliminar
+        showReportedModal: false,
+        reportedComments: [],
       };
     },
     created() {
@@ -193,6 +202,7 @@
         });
     },
     methods: {
+      
       // Nueva función para obtener los detalles completos de una película usando el título
       async fetchMovieDetails(title) {
         try {
@@ -436,21 +446,145 @@
     color: #dcdcdc;
     font-size: 16px;
   }
+
+/* Fondo del modal */
+/* Fondo del modal */
+.modal-overlay {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  
+}
+
+/* Contenido del modal */
+.modal-content {
+  background-color: rgb(5, 1, 9); /* Fondo del modal */
+  padding: 20px;
+  border-radius: 10px;
+  color: black;
+  max-width: 600px; /* Ancho máximo */
+  width: 90%;
+  max-height: 80%; /* Altura máxima del modal */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Sombra alrededor del modal */
+  display: flex;
+  flex-direction: column; /* Organizar contenido en columna */
+  overflow: hidden; /* Prevenir contenido desbordado fuera del modal */
+}
+
+/* Estilo del título */
+h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px; /* Separación con los comentarios */
+}
+
+/* Lista de comentarios */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Contenedor con scroll exclusivo para los comentarios */
+.scrollable-comments {
+  max-height: 400px;
+  /* Limita la altura visible a unos 6 comentarios (ajusta según el diseño). */
+  overflow-y: auto;
+  /* Habilita el desplazamiento vertical. */
+  padding-right: 10px;
+  /* Espacio para evitar superposición con la barra de desplazamiento. */
+  border: 1px solid #ddd;
+  /* Opcional: borde para resaltar el área. */
+  width: 80%;
+  padding: 10px;
+  /* Añade espacio interno alrededor del contenido. */
+  border-radius: 5px;
+  /* Bordes redondeados. */
+  background-color: #f9f9f931;
+  /* Fondo claro para destacar los comentarios. */
+  box-sizing: border-box;
+  /* Asegura que `padding` no afecte al ancho/altura total. */
+}
+
+.scrollable-comments::-webkit-scrollbar {
+  width: 8px;
+  /* Ancho de la barra de desplazamiento. */
+}
+
+.scrollable-comments::-webkit-scrollbar-thumb {
+  background: #ccc;
+  /* Color de la barra de desplazamiento. */
+  border-radius: 4px;
+}
+
+.scrollable-comments::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+  /* Color al pasar el cursor por la barra. */
+}
+
+/* Cada comentario dentro de su propio bloque */
+.comment-item {
+  width: 100%;
+  /* Asegura que el comentario ocupe todo el ancho disponible */
+  box-sizing: border-box;
+  /* Asegura que padding y borde no afecten el tamaño */
+  padding: 10px;
+  /* Espacio interno para que el contenido no toque los bordes */
+  border-bottom: 1px solid #eee;
+  /* Línea divisoria entre comentarios */
+  background-color: #2a2a2a;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  font-size: 1rem;
+  /* Para colocar el icono de la basurita a la derecha */
+  display: flex;
+  /* Activa la flexbox */
+  justify-content: space-between;
+  /* Espaciado entre texto e icono */
+  align-items: center;
+  /* Centra verticalmente el contenido */
+}
+
+/* Botón para cerrar el modal */
+.close-modal-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.close-modal-btn:hover {
+  background-color: #d32f2f; /* Cambiar color al pasar el mouse */
+}
+
+
+
+
+
+
+
   
   /* Botones de acción */
-  .modify-btn,
-  .add-btn {
-    width: 100%;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s ease;
-    z-index: 5;
-  }
+.add-btn,
+.modify-btn,
+.report-comments-btn {
+  width: 150px;             /* Misma anchura para todos los botones */
+  height: 50px;             /* Misma altura para todos los botones */
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  text-align: center;       /* Asegura que el texto está centrado */
+}
   
   .btns-div {
     position: absolute;
@@ -461,6 +595,7 @@
   }
   
   .modify-btn:hover,
+  .report-comments-btn:hover,
   .add-btn:hover {
     background: rgba(255, 255, 255, 0.3);
   }

@@ -15,11 +15,11 @@ def create_thread(session: Session, movie_id: int) -> Thread:
     return thread
 
 
-def create_comment(session: Session, thread_id: int, user_id: int,user_name:str, text: str) -> Comment:
+def create_comment(session: Session, thread_id: int, user_id: int, text: str) -> Comment:
     """
     Create a new comment in a thread.
     """
-    comment = Comment(thread_id=thread_id, user_id=user_id, text=text, user_name=user_name)
+    comment = Comment(thread_id=thread_id, user_id=user_id, text=text)
     session.add(comment)
     session.commit()
     session.refresh(comment)
@@ -65,13 +65,14 @@ def get_comments_reported_with_user(db: Session, user_id: int) -> List[Comment]:
 def get_comments_reported_by_user(db: Session, user_id: int) -> List[Comment]:
     """
     Retrieve all comments that have been reported by a specific user.
+    Ensure that the same comment ID does not show up more than once.
     """
     # Consulta para obtener los comentarios que fueron reportados por el usuario
     statement = select(Comment).join(
         CommentReportedBy
     ).where(
         CommentReportedBy.user_id == user_id
-    )
+    ).distinct(Comment.id)
     results = db.execute(statement).scalars().all()
     return results
 
