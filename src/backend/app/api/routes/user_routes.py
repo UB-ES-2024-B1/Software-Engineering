@@ -274,6 +274,6 @@ def is_admin_user(current_user: User = Depends(get_current_user)) -> bool:
     if not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permiso para realizar esta acción"
+            detail="You don't have enough permission to do this action."
         )
     return True
