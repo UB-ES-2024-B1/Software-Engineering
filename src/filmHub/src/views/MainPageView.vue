@@ -69,7 +69,7 @@
     <!-- Sección de películas recientes -->
     <section class="recent-movies">
       <router-link :to="{ path: '/movies', query: { sortByYear: 'year' } }" class="section-title-link">
-        <h2 class="section-title">WoWWWWWW</h2>
+        <h2 class="section-title">Most Recent GGMovies</h2>
       </router-link>
       <div id="recentMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
