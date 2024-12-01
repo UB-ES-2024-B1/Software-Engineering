@@ -39,7 +39,7 @@ jobs:
           images: mayeteco7/filmhub-backend:latest
 
       # ----------------------------
-      # Frontend Steps
+      # Frontend Step
       # ----------------------------
 
       - name: Setup Node.js
