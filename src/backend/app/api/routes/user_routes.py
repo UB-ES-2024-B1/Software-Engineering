@@ -95,7 +95,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return user
 
 @router.get("/email/{user_email}", response_model=UserOut)
-def read_user(user_email: str, db: Session = Depends(get_db)):
+def read_user_mail(user_email: str, db: Session = Depends(get_db)):
     """
     Get a user by their ID.
     :param user_id: The ID of the user
@@ -123,7 +123,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 # Route to delete a user by email
 @router.delete("/email/{user_email}")
-def delete_user(user_email: str, db: Session = Depends(get_db)):
+def delete_user_mail(user_email: str, db: Session = Depends(get_db)):
     """
     Delete a user by their ID.
     :param user_id: The ID of the user to delete
