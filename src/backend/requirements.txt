@@ -9,7 +9,7 @@ certifi==2024.8.30
 cffi==1.17.1
 charset-normalizer==3.4.0
 click==8.1.7
-cloudinary==1.29.0
+cloudinary==1.41.0
 cryptography==43.0.3
 databases==0.9.0
 dnspython==2.7.0
