@@ -228,7 +228,7 @@ export default {
     padding: 40px;
     border-radius: 10px;
     width: 750px;
-    height: 350px;
+    height: 550px;
     color: white;
     z-index: 20;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Mejora visual */
