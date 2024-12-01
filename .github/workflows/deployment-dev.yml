@@ -38,17 +38,11 @@ jobs:
         working-directory: src/filmHub
         run: npm run build
 
-      - name: Remove existing dist folder
-        working-directory: src/filmHub
-        run: rm -rf dist/
-
       - name: Build Docker image for Frontend
         working-directory: src/filmHub
         run: |
-          docker buildx build --platform linux/amd64 \
-            -f Dockerfile \ # Ruta al Dockerfile de frontend (si está en src/filmHub)
-            -t mayeteco7/filmhub-frontend:latest \
-            . --push
+          docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-frontend:latest .
+          docker push mayeteco7/filmhub-frontend
 
       - name: Deploy Frontend to Azure
         uses: azure/webapps-deploy@v2
@@ -63,10 +57,8 @@ jobs:
       - name: Build Docker image for Backend
         working-directory: src/backend
         run: |
-          docker buildx build --platform linux/amd64 \
-            -f Dockerfile \ # Ruta al Dockerfile de backend (si está en src/backend)
-            -t mayeteco7/filmhub-backend:latest \
-            . --push
+          docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-backend:latest .
+          docker push mayeteco7/filmhub-backend
 
       - name: Deploy Backend to Azure
         uses: azure/webapps-deploy@v2
