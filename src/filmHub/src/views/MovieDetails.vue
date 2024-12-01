@@ -181,14 +181,29 @@
                   comment.text }}
               </p>
               <!-- Button to delete the comment only visible to the logged-in user -->
-              <button v-if="comment.user === loggedUserName" @click="handleDelete(comment.id)">🗑️</button>
-              <button v-if="comment.user !== loggedUserName" class="reply-comment-btn"
-                @click="handleReply(comment.user)">
-                ↩️
-              </button>
+              <button v-if="comment.user === loggedUserName" class="delete-comment-btn" @click="handleDelete(comment.id) ">🗑️</button>
+
+              <div class="comment-actions">
+                <!-- Botón para contestar el comentario de otro usuario-->
+                <button 
+                  v-if="comment.user !== loggedUserName" 
+                  class="reply-comment-btn" 
+                  @click="handleReply(comment.user)">
+                  ↩️
+                </button>
+
+                <!-- Separador -->
+                <span class="vertical-separator" v-if="comment.user !== loggedUserName"></span>
+
+                <!-- Botón para reportar el comentario de otro usuario-->
+                <button 
+                  v-if="comment.user !== loggedUserName" 
+                  class="report-comment-btn" 
+                  @click="handleReport(comment)">
+                  🚩
+                </button>
+              </div>
             </div>
-
-
           </div>
 
           <!-- Botón "New Comment" -->
@@ -226,10 +241,13 @@
         <button @click="closeAlert" class="alert-close-btn">OK</button>
       </div>
 
-      <!-- Mensaje de alerta conforme se ha publicado el comentario-->
-      <div v-if="showAlert" class="alert-box">
-        {{ alertMessage }}
-        <button @click="closeAlert" class="close-alert-btn">x</button>
+      <!-- Confirmación de denuncia de comentario -->
+      <div v-if="showReportConfirm" class="report-modal">
+        <p>Are you sure you want to report this comment?</p>
+        <div class="report-modal-buttons">
+          <button @click="confirmReport" class="delete-confirm-btn">Yes</button>
+          <button @click="cancelReport" class="delete-cancel-btn">Cancel</button>
+        </div>
       </div>
 
     </section>
@@ -364,6 +382,9 @@ export default {
       alertMessage: "", // Mensaje dinámico de la alerta
       successMessage: "", // Mensaje de éxito
       errorMessage: "", // Mensaje de error
+
+      showReportConfirm: false, //controla confirmación de denuncia de comentario
+      commentToReport: null,
     };
   },
   computed: {
@@ -425,6 +446,75 @@ export default {
       }
     },
 
+    handleReport(comment){
+      if (!this.loggedInUser) {
+        this.showAlertMessage("You need to log in or register to access this feature.");
+      } else {
+        // Mostrar modal de confirmación
+        this.showReportConfirm = true;
+        this.commentToReport = comment;
+      }
+    },
+
+    confirmReport2(){
+      console.log(`Reported user: ${this.userToReport}`);
+      this.showAlertMessage("Comment reported successfully.");
+      // Cerrar modal
+      this.showReportConfirm = false;
+      this.userToReport = null;
+    },
+
+    async confirmReport() {
+      if (!this.commentToReport) {
+        console.error("No comment selected to report.");
+        this.showAlertMessage("No comment selected to report.");
+        return;
+      }
+
+      try {
+        console.log(`Reportando comentario con ID: ${this.commentToReport.id}`);
+
+        // Realiza la solicitud PUT al backend
+        const response = await axios.put(
+          `${API_BASE_URL}/comments/${this.commentToReport.id}/status`,
+          { reported: "REPORTED" }, // Payload de la solicitud
+          {
+            params: {
+              user_id: this.userId, // Parámetro de usuario
+            },
+            headers: {
+              accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        console.log('Respuesta del servidor:', response.data);
+
+        // Muestra un mensaje de éxito
+        this.showAlertMessage("Comment reported successfully.");
+
+        // Opcional: Puedes actualizar los comentarios locales si es necesario
+        // this.fetchComments();
+
+      } catch (error) {
+        console.error("Error reporting comment:", error);
+        this.showAlertMessage("There was an error reporting the comment. Please try again.");
+      } finally {
+        // Cierra el modal y limpia el estado
+        this.showReportConfirm = false;
+        this.commentToReport = null;
+      }
+    },
+
+
+    cancelReport() {
+      // Cierra el modal sin realizar ninguna acción
+      this.showReportConfirm = false;
+      this.commentToReport = null;
+    },
+
+
     toggleAddingComment() { //Muestra el formulario en funcion del boolean
       this.isAddingComment = !this.isAddingComment;
       if (!this.isAddingComment) {
@@ -480,12 +570,12 @@ export default {
 
           // Elimina el comentario del array local
           this.comments = this.comments.filter(comment => comment.id !== this.commentToDeleteIndex);
-          this.showAlertMessage('Comentario eliminado con éxito');
+          this.showAlertMessage('The comment has been successfully deleted');
           await this.fetchComments();
         }
       } catch (error) {
-        console.error('Error al eliminar el comentario:', error);
-        this.errorMessage = 'No se pudo eliminar el comentario. Inténtalo de nuevo.';
+        console.error('Error when deleting the comment:', error);
+        this.errorMessage = 'The comment could not be deleted. Try it again.';
       } finally {
         this.cancelDelete();
       }
@@ -859,7 +949,7 @@ async function generateRecentMovieObject(movieData) {
 }
 
 /* Modal de alerta */
-.alert-modal {
+.alert-modal{
   position: fixed;
   top: 50%;
   left: 50%;
@@ -995,7 +1085,7 @@ async function generateRecentMovieObject(movieData) {
 }
 
 /* Modal de confirmación de eliminación */
-.delete-modal {
+.delete-modal, .report-modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -1009,7 +1099,7 @@ async function generateRecentMovieObject(movieData) {
   text-align: center;
 }
 
-.delete-modal-buttons {
+.delete-modal-buttons, .report-modal-buttons {
   display: flex;
   justify-content: center;
   gap: 10px;

@@ -10,6 +10,7 @@ import EditProfile from '../views/EditProfile.vue';
 import AllMovies from '../views/AllMovies.vue';
 import AddMovies from '../views/AddMovies.vue'; // Importa el componente 
 
+import ShowReportsProfile from '@/views/ShowReportsProfile.vue';
 
 const routes = [
   {
@@ -54,6 +55,12 @@ const routes = [
     path: '/addMovies', // Nueva ruta para el login
     name: 'AddMovies',
     component: AddMovies,
+  },
+  {
+
+    path: '/reportedComments',
+    name: 'ShowReportsProfile',
+    component: ShowReportsProfile,
   },
 
 ];
