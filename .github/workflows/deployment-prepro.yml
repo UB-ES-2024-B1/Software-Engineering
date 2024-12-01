@@ -47,6 +47,11 @@ jobs:
         with:
           node-version: '16'
 
+      # Eliminar el directorio dist/ si existe
+      - name: Remove dist folder if exists
+        working-directory: src/filmHub
+        run: rm -rf dist/ || true
+
       - name: Install dependencies for frontend
         working-directory: src/filmHub
         run: npm install
