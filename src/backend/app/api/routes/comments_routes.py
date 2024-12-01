@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-from app.api.dependencies import get_db
+from app.api.db_utils import get_db
 from app.crud.comments_crud import (
     create_thread,
     get_threads_by_movie,

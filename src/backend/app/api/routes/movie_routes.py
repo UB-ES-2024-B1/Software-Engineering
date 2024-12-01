@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlmodel import Session, select
-from app.api.dependencies import get_db  # Import the get_db function for database session management
+from app.api.db_utils import get_db  # Import the get_db function for database session management
 from app.crud import movie_crud  # Import CRUD functions for movie operations
 from app.models import (Movie, MovieIn, MovieOut, MovieUser, User)  # Import movie models for input and output
 from typing import List, Optional

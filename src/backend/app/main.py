@@ -8,7 +8,7 @@ from .db.database import SessionLocal
 from contextlib import asynccontextmanager
 from .api.routes import user_routes, movie_routes, genre_routes, login_routes, comments_routes
 from .db import init_movie_db
-from .api.dependencies import get_db
+from .api.db_utils import get_db
 
 
 
