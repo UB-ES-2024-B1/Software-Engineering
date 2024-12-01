@@ -19,6 +19,7 @@ class MovieUser(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, foreign_key="user.id", primary_key=True)
     rating: Optional[float] = Field(default=None, ge=0, le=5)  # User rating between 0 and 5
     liked: Optional[bool] = Field(default=False)  # Whether the user liked the movie
+    wished: Optional[bool] = Field(default=False)  # Whether the user liked the movie
  
 # Database model, database table inferred from class name
 class User(UserBase, table=True):

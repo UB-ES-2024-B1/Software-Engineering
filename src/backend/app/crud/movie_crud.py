@@ -339,6 +339,40 @@ def like_movie(db: Session, user_id: int, movie_id: int):
     db.refresh(movie_user)
     return movie_user
 
+# Intern function to add a wish by the user
+def add_movie_wish(db: Session, movie_id: int):
+    # Query the movie by title
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    
+    # If the movie doesn't exist, return None
+    if not movie:
+        return None
+    
+    # Commit the transaction and refresh the instance
+    db.commit()
+    db.refresh(movie)
+    
+    return movie
+ 
+# Function to add to wish to a specific movie by a user
+def wish_movie(db: Session, user_id: int, movie_id: int):
+    # Check if a relationship already exists
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    if not movie_user:
+        # Create a new relationship with the wish
+        movie_user = MovieUser(movie_id=movie_id, user_id=user_id, wished=True)
+        add_movie_wish(db,movie_id)
+        db.add(movie_user)
+    else:
+        # Toggle the wish status
+        movie_user.wished = True
+        add_movie_wish(db, movie_id)
+    
+    db.commit()
+    db.refresh(movie_user)
+    return movie_user
+
 # Functions for get the list of movies that the user have rated by stars and by given like
 def get_user_rated_movies(db: Session, user_id: int):
      # Query the Movie and MovieUser tables together to fetch ratings and titles
@@ -362,6 +396,18 @@ def get_user_liked_movies(db: Session, user_id: int):
     )
     # Transform the results into a list of titles
     return [title for title, in movies_liked]
+
+def get_user_wished_movies(db: Session, user_id: int):
+    # Query the Movie and MovieUser tables together to fetch wished movies
+    movies_wished = (
+        db.query(Movie.title)
+        .select_from(MovieUser)  # Explicitly start from MovieUser
+        .join(Movie, Movie.id == MovieUser.movie_id)
+        .filter(MovieUser.user_id == user_id, MovieUser.wished == True)
+        .all()
+    )
+    # Transform the results into a list of titles
+    return [title for title, in movies_wished]
 
 ### THE SAME BUT FOR REMOVING RATING
 # Intern function for remove in database the movie rating
@@ -460,6 +506,47 @@ def remove_like_movie(db: Session, user_id: int, movie_id: int):
         movie_user.liked = False
     else:
         raise HTTPException(status_code=400, detail="No like to remove")
+    
+    db.commit()
+    db.refresh(movie_user)
+    return movie_user
+
+# Intern function to remode a wish by the user
+def remove_movie_wish(db: Session, movie_id: int, user_id: int):
+    # Query the movie by ID
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    
+    # If the movie doesn't exist, return None
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
+    # Query to check if the user has already liked the movie (assuming a MovieUser or similar table exists)
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    # If the user hasn't wish the movie, return an error
+    if not movie_user or not movie_user.wished:
+        raise HTTPException(status_code=400, detail="User hasn't wish the movie")
+    
+    # Mark that the user no longer likes the movie
+    movie_user.wished = False
+    
+    # Commit the transaction and refresh the instance
+    db.commit()
+    db.refresh(movie)
+    
+    return movie
+ 
+# Function to remove a wish to a specific movie by a user
+def remove_wish_movie(db: Session, user_id: int, movie_id: int):
+    # Check if a relationship already exists
+    movie_user = db.query(MovieUser).filter(MovieUser.movie_id == movie_id, MovieUser.user_id == user_id).first()
+    
+    if movie_user:
+        # Toggle the like status
+        remove_movie_wish(db,movie_id,user_id)
+        movie_user.wished = False
+    else:
+        raise HTTPException(status_code=400, detail="No wish to remove")
     
     db.commit()
     db.refresh(movie_user)

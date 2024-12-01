@@ -409,6 +409,21 @@ def like_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_d
     # If the movie exists, proceed with the like logic
     return movie_crud.like_movie(db, user_id, movie_id)
 
+# Endpoint to add movie to wish list
+@router.post("/wish/{movie_id}/{user_id}")
+def wish_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_db)):
+    # Check if the movie exists
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    # Check if the user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If the movie exists, proceed with the wish logic
+    return movie_crud.wish_movie(db, user_id, movie_id)
+
 # Endpoint to remove the rating of an existing movie by a user
 @router.post("/unrate/{movie_id}/{user_id}")
 def unrate_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_db)):
@@ -439,14 +454,30 @@ def dislike_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(ge
     # If the movie exists, proceed with the like logic
     return movie_crud.remove_like_movie(db, user_id, movie_id)
 
+# Endpoint to remove wish of a movie
+@router.post("/nowish/{movie_id}/{user_id}")
+def nowish_movie_endpoint(movie_id: int, user_id: int, db: Session = Depends(get_db)):
+    # Check if the movie exists
+    movie = db.query(Movie).filter(Movie.id == movie_id).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    # Check if the user exists
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If the movie exists, proceed with the like logic
+    return movie_crud.remove_wish_movie(db, user_id, movie_id)
+
 # Endpoint to get the list of a user of ratings
-@router.get("/liked_and_rated_list/{user_id}")
+@router.get("/liked_rated_and_wished_list/{user_id}")
 def get_liked_and_rated_movies(user_id: int, db: Session = Depends(get_db)):
     # Format the result to return both liked and rated movies
     liked_movie_titles = movie_crud.get_user_liked_movies(db, user_id=user_id)
     rated_movie_details = movie_crud.get_user_rated_movies(db, user_id)
+    wished_movie_details = movie_crud.get_user_wished_movies(db, user_id)
 
-    return {"liked_movies": liked_movie_titles, "rated_movies": rated_movie_details}
+    return {"liked_movies": liked_movie_titles, "rated_movies": rated_movie_details, "wished_movies": wished_movie_details}
 
 # Endpoint to get the list of a user of ratings
 @router.get("/rated_list/{user_id}")
@@ -460,6 +491,11 @@ def get_rated_movies(user_id: int, db: Session = Depends(get_db)):
 @router.get("/liked_list/{user_id}")
 def get_liked_movies(user_id: int, db: Session = Depends(get_db)):
     return movie_crud.get_user_liked_movies(db, user_id)
+
+# Endpoint to get the list of a user of ratings
+@router.get("/wished_list/{user_id}")
+def get_wished_movies(user_id: int, db: Session = Depends(get_db)):
+    return movie_crud.get_user_wished_movies(db, user_id)
 
 '''# Endpoint to update only the rating of an existing movie by its title
 @router.put("/{movie_title}/rating", response_model=MovieOut)
