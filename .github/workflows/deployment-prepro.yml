@@ -1,0 +1,69 @@
+name: CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - PRE_PRODUCTION
+
+jobs:
+  deploy:
+    name: Build and Deploy Frontend & Backend
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Login a Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # ----------------------------
+      # Backend Steps
+      # ----------------------------
+
+      - name: Build Docker image for Backend
+        working-directory: src/backend
+        run: |
+          docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-backend:latest .
+          docker push mayeteco7/filmhub-backend
+
+      - name: Deploy Backend to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: filmhub-backend
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BACKEND_PRODUCTION }}
+          images: mayeteco7/filmhub-backend:latest
+
+      # ----------------------------
+      # Frontend Step
+      # ----------------------------
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies for frontend
+        working-directory: src/filmHub
+        run: npm install
+
+      - name: Build frontend
+        working-directory: src/filmHub
+        run: npm run build
+
+      - name: Build Docker image for Frontend
+        working-directory: src/filmHub
+        run: |
+          docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-frontend:latest .
+          docker push mayeteco7/filmhub-frontend
+
+      - name: Deploy Frontend to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: filmhub-frontend
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND_PRODUCTION }}
+          images: mayeteco7/filmhub-frontend:latest
