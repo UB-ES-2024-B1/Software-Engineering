@@ -6,8 +6,8 @@ module.exports = defineConfig({
 // vue.config.js
 module.exports = {
   devServer: {
-    proxy: 'https://filmhub-backend.azurewebsites.net', // redirige las solicitudes al backend
-    //proxy: 'http://localhost:8000', // for tests with selenium
+    //proxy: 'https://filmhub-backend.azurewebsites.net', // redirige las solicitudes al backend
+    proxy: 'http://localhost:8000', // for tests with selenium
   },
   publicPath: '/',
 

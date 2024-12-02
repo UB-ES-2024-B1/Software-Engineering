@@ -55,9 +55,13 @@ def test_rate_movie_success(login_user, db_session):
     assert driver.find_element(By.ID, "rating-5").is_selected(), "Rating was not saved correctly."
 
     user = user_crud.get_user_by_email(db_session, "user2@example.com")
+    movies = movie_crud.get_user_rated_movies(db_session, user.id)
+    movie = movie_crud.get_movie(db_session, 2)
+    assert any(m['title'] == movie.title for m in movies), f"Movie '{movie.title}' is not in the rated movies list."
+
     movie_crud.remove_rate_movie(db_session, user.id, 2)
 
-def test_rating_logged_out_user(driver_setup):
+def test_rating_logged_out_user(driver_setup, db_session):
     driver = driver_setup
     # Navigate to the movie page without logging in
     driver.get("http://localhost:8080/movie/3")
@@ -82,7 +86,12 @@ def test_rating_logged_out_user(driver_setup):
     # Verify that the user was redirected to the login page
     assert "login" in driver.current_url, "User was not redirected to login page."
 
-def test_remove_rating_success(login_user):
+    user = user_crud.get_user_by_email(db_session, "user2@example.com")
+    movies = movie_crud.get_user_rated_movies(db_session, user.id)
+    movie = movie_crud.get_movie(db_session, 3)
+    assert all(m['title'] != movie.title for m in movies), f"Movie '{movie.title}' is unexpectedly in the rated movies list."
+
+def test_remove_rating_success(login_user, db_session):
     driver = login_user
     driver.get("http://localhost:8080/movie/4")
 
@@ -96,18 +105,29 @@ def test_remove_rating_success(login_user):
 
     time.sleep(3)
 
+    user = user_crud.get_user_by_email(db_session, "user2@example.com")
+    movies = movie_crud.get_user_rated_movies(db_session, user.id)
+    movie = movie_crud.get_movie(db_session, 4)
+    assert any(m['title'] == movie.title for m in movies), f"Movie '{movie.title}' is not in the rated movies list."
+
     # Now click the same rating again to remove it
-    rating_element = driver.find_element(By.ID, "rating-3")   
+    rating_element = driver.find_element(By.ID, "rating-5")   
     
     WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, "//label[@for='rating-3']"))
+        EC.element_to_be_clickable((By.XPATH, "//label[@for='rating-5']"))
     ).click()
     time.sleep(3)
     # Ensure the rating is removed (the radio button should no longer be selected)
     assert not driver.find_element(By.ID, "rating-5").is_selected(), "Rating was not removed successfully."
 
+    user = user_crud.get_user_by_email(db_session, "user2@example.com")
+    movies = movie_crud.get_user_rated_movies(db_session, user.id)
+    movie = movie_crud.get_movie(db_session, 4)
+    assert all(m['title'] != movie.title for m in movies), f"Movie '{movie.title}' is unexpectedly in the rated movies list."
 
-def test_rating_functionality_on_movie_page(login_user):
+
+
+def test_rating_functionality_on_movie_page(login_user, db_session):
     driver = login_user
     driver.get("http://localhost:8080/movie/5")
 
@@ -138,3 +158,11 @@ def test_rating_functionality_on_movie_page(login_user):
     ).click()
     time.sleep(3)
     assert driver.find_element(By.ID, "rating-5").is_selected(), "Rating 5 was not saved correctly."
+
+    
+    user = user_crud.get_user_by_email(db_session, "user2@example.com")
+    movies = movie_crud.get_user_rated_movies(db_session, user.id)
+    movie = movie_crud.get_movie(db_session, 5)
+    assert any(m['title'] == movie.title for m in movies), f"Movie '{movie.title}' is not in the rated movies list."
+
+    movie_crud.remove_rate_movie(db_session, user.id, 5)

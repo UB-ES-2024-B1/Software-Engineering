@@ -31,8 +31,8 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     #allow_origins=["http://localhost:8080"],  # Permitir peticiones desde este origen
-    #allow_origins=["*"],   # for tests with selenium
-    allow_origins=["https://filmhub-frontend.azurewebsites.net"],
+    allow_origins=["*"],   # for tests with selenium
+    #allow_origins=["https://filmhub-frontend.azurewebsites.net"],
     allow_credentials=True,
     allow_methods=["*"],  # Permitir todos los métodos
     allow_headers=["*"],  # Permitir todas las cabeceras
