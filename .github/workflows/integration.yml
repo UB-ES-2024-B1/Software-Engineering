@@ -41,6 +41,7 @@ jobs:
           npm install axios
           npm install flatpickr
           # Start the Vue.js development server
+          export USE_SELE_CONFIG=false
           npm run serve &
 
           # Wait for the server to be ready using curl
