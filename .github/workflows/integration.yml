@@ -28,8 +28,8 @@ jobs:
           export USE_SELE_CONFIG=false
           alembic upgrade head
 
-      - name: Set USE_SELE_CONFIG=false and start the server (filmhub)
-        working-directory: src/filmhub
+      - name: Set USE_SELE_CONFIG=false and start the server (filmHub)
+        working-directory: src/filmHub
         run: |
           export USE_SELE_CONFIG=false
           npm run serve &   # Run the server in the background
