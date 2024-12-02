@@ -7,7 +7,7 @@ module.exports = defineConfig({
 module.exports = {
   devServer: {
     //proxy: 'https://filmhub-backend.azurewebsites.net', // redirige las solicitudes al backend
-    proxy: 'http://localhost:8000', // for tests with selenium
+    proxy: 'http://filmhub-backend.azurewebsites.net', // for tests with selenium
   },
   publicPath: '/',
 
