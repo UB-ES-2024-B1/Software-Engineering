@@ -1,0 +1,39 @@
+name: Run Integration Tests
+
+on:
+  push:            # Trigger the workflow on push
+  pull_request:    # Trigger the workflow on pull requests
+
+jobs:
+  test:
+    runs-on: ubuntu-latest   # Use the latest Ubuntu runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Check out the repository code
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'   # Adjust the Python version if needed
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set USE_SELE_CONFIG=false and apply database migrations (backend)
+        working-directory: src/backend
+        run: |
+          export USE_SELE_CONFIG=false
+          alembic upgrade head
+
+      - name: Set USE_SELE_CONFIG=false and start the server (filmhub)
+        working-directory: src/filmhub
+        run: |
+          export USE_SELE_CONFIG=false
+          npm run serve &   # Run the server in the background
+
+      - name: Run tests
+        working-directory: src/backend
+        run: pytest app/tests/integration
