@@ -28,16 +28,24 @@ jobs:
           export USE_SELE_CONFIG=false
           alembic upgrade head
 
-      - name: Set USE_SELE_CONFIG=false and start the server (filmhub)
+      - name: Install Vue CLI globally
+        run: |
+          cd src
+          npm install -g @vue/cli
+
+      - name: Install frontend dependencies and run the server (filmHub)
         working-directory: src/filmHub
         run: |
-          export USE_SELE_CONFIG=false
-          npm install  # Ensure all npm dependencies are installed
+          # Install frontend dependencies
+          npm install
+          npm install axios
+          npm install flatpickr
+          # Start the Vue.js development server
           npm run serve &
 
           # Wait for the server to be ready using curl
           until curl -s http://localhost:8080/login; do
-            echo "Waiting for backend to be ready..."
+            echo "Waiting for frontend to be ready..."
             sleep 5
           done
 
