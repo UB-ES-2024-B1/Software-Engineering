@@ -28,15 +28,15 @@ jobs:
       - name: Build Docker image for Backend
         working-directory: src/backend
         run: |
-          docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-backend:latest .
-          docker push mayeteco7/filmhub-backend
+          docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-backend-pro:latest .
+          docker push mayeteco7/filmhub-backend-pro
 
       - name: Deploy Backend to Azure
         uses: azure/webapps-deploy@v2
         with:
-          app-name: filmhub-backend
+          app-name: filmhub-backend-PREPRO
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BACKEND_PRODUCTION }}
-          images: mayeteco7/filmhub-backend:latest
+          images: mayeteco7/filmhub-backend-pro:latest
 
       # ----------------------------
       # Frontend Step
@@ -46,11 +46,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-
-      # Eliminar el directorio dist/ si existe
-      - name: Remove dist folder if exists
-        working-directory: src/filmHub
-        run: rm -rf dist/ || true
 
       - name: Install dependencies for frontend
         working-directory: src/filmHub
@@ -63,12 +58,12 @@ jobs:
       - name: Build Docker image for Frontend
         working-directory: src/filmHub
         run: |
-          docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-frontend:latest .
-          docker push mayeteco7/filmhub-frontend
+          docker buildx build --platform linux/amd64 -t mayeteco7/filmhub-frontend-pro:latest .
+          docker push mayeteco7/filmhub-frontend-pro
 
       - name: Deploy Frontend to Azure
         uses: azure/webapps-deploy@v2
         with:
-          app-name: filmhub-frontend
+          app-name: filmhub
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND_PRODUCTION }}
-          images: mayeteco7/filmhub-frontend:latest
+          images: mayeteco7/filmhub-frontend-pro:latest
