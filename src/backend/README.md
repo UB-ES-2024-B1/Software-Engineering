@@ -44,6 +44,8 @@
    pip install python-jose
    pip install requests
    pip install cloudinary
+   pip install selenium
+   pip install webdriver_manager
    ```
 
    For Mac:
@@ -60,6 +62,8 @@
    pip install python-jose
    pip install requests
    pip install cloudinary
+   pip install selenium
+   pip install webdriver_manager
    ```
 5. **Sep up for Alembic (databases)**:
 
