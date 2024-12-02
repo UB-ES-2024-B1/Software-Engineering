@@ -1,9 +1,9 @@
-name: CI/CD Deployment - DEV
+name: CI/CD Deployment - PRODUCTION
 
 on:
   push:
     branches:
-      - DEVELOP
+      - PRE_PRODUCTION
 
 jobs:
   deploy:
@@ -35,7 +35,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: filmhub-backend
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BACKEND }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BACKEND_PRODUCTION }}
           images: mayeteco7/filmhub-backend:latest
 
       # ----------------------------
@@ -70,5 +70,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: filmhub-frontend
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND_PRODUCTION }}
           images: mayeteco7/filmhub-frontend:latest

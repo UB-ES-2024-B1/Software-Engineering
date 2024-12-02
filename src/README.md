@@ -74,7 +74,7 @@ This project consists of two main parts: the **backend** developed with **FastAP
     ```
     Now, you should have a sqlite file called: src/filmhub_database.db
 
-    - If something goes wrong, you can roll back to a previous migration using the downgrade command. For example, to revert to the migration just before the most recent one:
+    - If something goes wrong, you can roll back to a previous migration using the downgrade command. For example to revert to the migration just before the most recent one:
     ```bash
     alembic downgrade -1
     ```
