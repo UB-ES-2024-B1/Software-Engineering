@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt  # Install from requirements.txt (which includes selenium and webdriver-manager)
 
       - name: Set USE_SELE_CONFIG=false and apply database migrations (backend)
         working-directory: src/backend
@@ -28,19 +28,24 @@ jobs:
           export USE_SELE_CONFIG=false
           alembic upgrade head
 
-      - name: Set USE_SELE_CONFIG=false and start the server (filmHub)
+      - name: Set USE_SELE_CONFIG=false and start the server (filmhub)
         working-directory: src/filmHub
         run: |
           export USE_SELE_CONFIG=false
-          npm run serve &   # Run the server in the background
-          
+          npm run serve &
+          # Wait for the server to be up and running
+          until curl -s http://localhost:8080/login; do
+            echo "Waiting for backend to be ready..."
+            sleep 5
+          done
+
       - name: Install Chrome and dependencies for Selenium
         run: |
           sudo apt update
           sudo apt install -y chromium-browser
           sudo apt install -y chromium-chromedriver
           sudo apt install -y libnss3 libgconf-2-4
-          
+
       - name: Run tests
         working-directory: src/backend
         run: pytest app/tests/integration
