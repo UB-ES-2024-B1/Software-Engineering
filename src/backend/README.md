@@ -144,7 +144,7 @@ The related files are found in src/backend/app/crud and src/backend/app/api/rout
 
 ## Authentication and Authorization
 
-* **Authentication Method**: JWT (JSON Web Tokens)
+* **Authentication Methods**: JWT (JSON Web Tokens)
 * **User Roles**: Users can have different roles (admin, user) with varying permissions.
 
 ## Testing
