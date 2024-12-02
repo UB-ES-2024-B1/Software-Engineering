@@ -1,14 +1,13 @@
-const { defineConfig } = require('@vue/cli-service')
+const { defineConfig } = require('@vue/cli-service');
+
 module.exports = defineConfig({
-  transpileDependencies: true
-})
+  transpileDependencies: true,
 
-// vue.config.js
-module.exports = {
   devServer: {
-    //proxy: 'https://filmhub-backend.azurewebsites.net', // redirige las solicitudes al backend
-    proxy: 'http://filmhub-backend.azurewebsites.net', // for tests with selenium
+    proxy: process.env.USE_SELE_CONFIG === 'true' 
+      ? 'https://filmhub-backend.azurewebsites.net' 
+      : 'http://localhost:8000', // You can modify this line based on your environment
   },
-  publicPath: '/',
 
-};
+  publicPath: '/',
+});

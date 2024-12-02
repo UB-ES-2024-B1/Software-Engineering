@@ -24,7 +24,7 @@ def driver_setup():
         options=chrome_options
     )
     """Setup the WebDriver and navigate to the app."""
-    driver.get("http://filmhub-frontend.azurewebsites.net/register")
+    driver.get("http://localhost:8080/register")
     yield driver
     driver.quit()
 
