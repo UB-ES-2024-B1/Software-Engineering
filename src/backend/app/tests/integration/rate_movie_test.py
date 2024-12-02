@@ -42,7 +42,7 @@ def login_user(driver_setup, db_session):
 def test_rate_movie_success(login_user, db_session):
     driver = login_user
     # Navigate to the movie page
-    driver.get("http://localhost:8080/movie/1")  # Change this URL to the movie page URL
+    driver.get("http://localhost:8080/movie/2")  # Change this URL to the movie page URL
 
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-5")   
@@ -50,16 +50,17 @@ def test_rate_movie_success(login_user, db_session):
     WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.XPATH, "//label[@for='rating-5']"))
     ).click()
+    time.sleep(3)
     # Check if the rating was saved correctly by checking the star selection
     assert driver.find_element(By.ID, "rating-5").is_selected(), "Rating was not saved correctly."
 
     user = user_crud.get_user_by_email(db_session, "user2@example.com")
-    movie_crud.remove_rate_movie(db_session, user.id, 1)
+    movie_crud.remove_rate_movie(db_session, user.id, 2)
 
 def test_rating_logged_out_user(driver_setup):
     driver = driver_setup
     # Navigate to the movie page without logging in
-    driver.get("http://localhost:8080/movie/2")
+    driver.get("http://localhost:8080/movie/3")
 
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-5")   
@@ -83,7 +84,7 @@ def test_rating_logged_out_user(driver_setup):
 
 def test_remove_rating_success(login_user):
     driver = login_user
-    driver.get("http://localhost:8080/movie/3")
+    driver.get("http://localhost:8080/movie/4")
 
     # Select a rating (5 stars)
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
@@ -108,7 +109,7 @@ def test_remove_rating_success(login_user):
 
 def test_rating_functionality_on_movie_page(login_user):
     driver = login_user
-    driver.get("http://localhost:8080/movie/4")
+    driver.get("http://localhost:8080/movie/5")
 
     # Rate with 1, 3, and 5 stars in sequence to check proper functionality
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-1")))  # Wait for the rating option

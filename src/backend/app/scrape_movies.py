@@ -278,7 +278,8 @@ def scrape_movie(title=None):
         if not movies:
             return None
         movie_id = movies[0]['id']
-
+    else:
+        return None
     # Obtener datos completos de la película por ID
     movie_data = fetch_movie_data(movie_id)
     
