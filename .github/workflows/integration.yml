@@ -42,9 +42,9 @@ jobs:
           npm install flatpickr
           # Start the Vue.js development server
           export USE_SELE_CONFIG=false
-          npm run serve &
+          nohup npm run serve &
 
-          # Wait for the server to be ready by checking multiple URLs
+          # Wait for the frontend server to be available
           for url in "http://localhost:8080/login" "http://localhost:8080/register" "http://localhost:8080/movie/2" "http://localhost:8080/movie/3" "http://localhost:8080/movie/4" "http://localhost:8080/movie/5"; do
             until curl -s "$url" > /dev/null; do
               echo "Waiting for $url to be ready..."
@@ -59,6 +59,11 @@ jobs:
           sudo apt install -y chromium-chromedriver
           sudo apt install -y libnss3 libgconf-2-4
 
+      - name: Set up Chrome environment variables for Selenium
+        run: |
+          echo "CHROME_BIN=/usr/bin/chromium-browser" >> $GITHUB_ENV
+          echo "CHROMEDRIVER_PATH=/usr/lib/chromium-browser/chromedriver" >> $GITHUB_ENV
+
       - name: Run tests
         working-directory: src/backend
-        run: pytest app/tests/integration
+        run: pytest app/tests/integration 
