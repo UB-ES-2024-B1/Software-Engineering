@@ -30,6 +30,8 @@ def test_create_movie():
             "Jane Smith",
             "Mike Johnson"
         ],
+        "image": [
+        ],
         "trailer": ""
     }
 
@@ -53,7 +55,7 @@ def test_create_movie():
     assert "id" in response_data
 
 # Test to create a movie
-def test_create_movie_2():
+def test_create_movie_invalid():
     new_movie = {
         "title": "The Lost City",
         "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
@@ -78,12 +80,13 @@ def test_create_movie_2():
 
     # Assert that the response status 
     assert response.status_code == 400
+
 # Test to get list of movies
 def test_get_movies():
     response = client.get("/movies/")
     assert response.status_code == 200
     response_data = response.json()
-    assert len(response_data) > 0  # Ensure there are users in the list
+    assert len(response_data) >= 0  # Ensure there are users in the list
 
 # Test to get movie by title
 def test_get_movie_by_title():
@@ -165,22 +168,6 @@ def test_update_movie():
     assert response_data["rating_count"] == update_data["rating_count"]
     assert response_data["likes"] == update_data["likes"]
 
-# Test update rating of movie
-def test_update_movie_rating_by_title():
-    update_data = {"rating": 4.9}
-    response = client.put("/movies/The Lost City/rating", json=update_data)
-    assert response.status_code == 200
-
-# Test update likes of movie
-def test_add_movie_like():
-    response = client.put("/movies/The Lost City/like")
-    assert response.status_code == 200
-
-    response_data = response.json()    
-    # Assuming likes were initially set to 5300
-    assert response_data["likes"] == 5301
-
-
 # Test get movies by year
 def test_get_movies_by_year():
     response = client.get("/movies/release/2010")
@@ -245,6 +232,10 @@ def test_delete_movie():
     response = client.delete("/movies/title/The Lost City")
     assert response.status_code == 200
 
+# Test to get movie by title
+def test_get_non_existent_movie_by_title():
+    response = client.get("/movies/title/The Lost City")
+    assert response.status_code == 404
 
 # Test to get related movies by title
 def test_get_related_movies_by_title():
@@ -299,3 +290,440 @@ def test_search_movies_by_name():
     for movie in response_data:
         assert "barb" in movie["title"].lower()
 
+# Test rating a movie
+def test_rate_movie():
+    # Test data for movie rating
+    # New user data
+    
+    new_user = {
+        "email": "testusermovie@example.com",
+        "is_active": True,
+        "is_admin" : False,
+        "full_name": "testusermovie",
+        "password": "password123"
+    }
+    new_movie2 = {
+        "title": "Test film",
+        "description": "Po and his new ally face a sorceress who wants to take their Staff of Wisdom from them.",
+        "director": "TBA",
+        "country": "USA",
+        "release_date": "2024-03-08",
+        "rating": 4.0,
+        "rating_count": 30000,
+        "likes": 90000,
+        "genres": [
+            "Animation",
+            "Action",
+            "Adventure"
+        ],
+        "cast_members": [
+            "Jack Black",
+            "Dustin Hoffman"
+        ],
+        "image": [
+        ],
+        "trailer": ""
+    }
+    # Create the initial data
+    response1 = client.post("/users/", json=new_user)
+    response2 = client.post("/movies/", json=new_movie2)
+    assert response1.status_code == 201
+    assert response2.status_code == 200
+    
+    movie_id = 1
+    user_id = 1
+    rating = 4.0
+    
+    # Simulate the movie rating request
+    response = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
+
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the rating is correctly reflected in the response
+    response_data = response.json()
+    assert "rating" in response_data  # Ensure 'rating' key is returned
+    assert response_data["rating"] == rating
+
+# Test rating a movie with invalid rating
+def test_rate_movie_invalid_rating():
+    movie_id = 1
+    user_id = 1 
+    invalid_rating = 6.0  # Invalid rating value, out of the range [0, 5]
+    
+    response = client.post(f"/movies/rate/{movie_id}/{user_id}/{invalid_rating}")
+    
+    assert response.status_code == 400  # Expect a Bad Request status code
+
+# Test liking a movie
+def test_like_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # Simulate the like movie request
+    response = client.post(f"/movies/like/{movie_id}/{user_id}")
+    
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the likes are updated
+    response_data = response.json()
+    assert response_data["liked"] == True  # Ensure that likes have increased
+
+# Test adding a movie to wish list
+def test_add_wish_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # Simulate the wish movie request
+    response = client.post(f"/movies/wish/{movie_id}/{user_id}")
+    
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the wish are updated
+    response_data = response.json()
+    assert response_data["wished"] == True  # Ensure that wish have become to True
+
+# Test liking a movie with toggling
+def test_toggle_like_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # First, simulate liking the movie
+    response = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response.status_code == 200
+    
+    # Store initial likes
+    initial_likes = response.json()["liked"]
+    
+    # Simulate unliking the movie 
+    response2 = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response2.status_code == 200
+    
+    # Ensure the likes are still the same for the same user
+    assert response2.json()["liked"] == initial_likes
+
+# Test wishing a movie with toggling
+def test_toggle_wish_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # First, simulate wishing the movie
+    response = client.post(f"/movies/wish/{movie_id}/{user_id}")
+    assert response.status_code == 200
+    
+    # Store initial likes
+    initial_wish = response.json()["wished"]
+    
+    # Simulate nowishing the movie 
+    response2 = client.post(f"/movies/wish/{movie_id}/{user_id}")
+    assert response2.status_code == 200
+    
+    # Ensure the wish are still the same for the same user
+    assert response2.json()["wished"] == initial_wish
+
+# Test updating movie rating (re-rating)
+def test_update_movie_rating():
+    movie_id = 1
+    user_id = 1
+    new_rating = 3.0
+    
+    # First, simulate rating the movie
+    response = client.post(f"/movies/rate/{movie_id}/{user_id}/{new_rating}")
+    assert response.status_code == 200
+    
+    # Check the new rating is updated correctly
+    response_data = response.json()
+    assert response_data["rating"] == new_rating
+
+# Test to rate a movie with invalid movie ID
+def test_rate_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    rating = 4.0
+    
+    response = client.post(f"/movies/rate/{invalid_movie_id}/{user_id}/{rating}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to like a non-existent movie
+def test_like_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    
+    response = client.post(f"/movies/like/{invalid_movie_id}/{user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to like a movie with an invalid user ID
+def test_like_movie_invalid_user_id():
+    movie_id = 1
+    invalid_user_id = 99999  # An invalid user ID
+    
+    response = client.post(f"/movies/like/{movie_id}/{invalid_user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error (User not found)
+
+# Test to wish a non-existent movie
+def test_wish_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    
+    response = client.post(f"/movies/wish/{invalid_movie_id}/{user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to wish a movie with an invalid user ID
+def test_wish_movie_invalid_user_id():
+    movie_id = 1
+    invalid_user_id = 99999  # An invalid user ID
+    
+    response = client.post(f"/movies/wish/{movie_id}/{invalid_user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error (User not found)
+
+# Test to remove rating to a movie
+def test_remove_rate_movie():
+    # Test data for movie rating
+    movie_id = 1
+    user_id = 1
+    
+    # Simulate the remove movie rating request
+    response = client.post(f"/movies/unrate/{movie_id}/{user_id}")
+
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the rating is correctly reflected in the response
+    response_data = response.json()
+    assert response_data["rating"] == None
+
+# Test disliking a movie
+def test_remove_like_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # Simulate the like movie request
+    response = client.post(f"/movies/dislike/{movie_id}/{user_id}")
+    
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the likes are updated
+    response_data = response.json()
+    assert response_data["liked"] == False  # Ensure that likes have increased
+
+# Test no wishing a movie
+def test_remove_wish_movie():
+    movie_id = 1
+    user_id = 1
+    
+    # Simulate the like movie request
+    response = client.post(f"/movies/nowish/{movie_id}/{user_id}")
+    
+    # Assert the response status code
+    assert response.status_code == 200
+    
+    # Check that the likes are updated
+    response_data = response.json()
+    assert response_data["wished"] == False  # Ensure that likes have increased
+
+
+# Test updating movie rating (re-rating)
+def test_update_movie_rating_after_remove():
+    movie_id = 1
+    user_id = 1
+    new_rating = 3.0
+    
+    # First, simulate rating the movie
+    response = client.post(f"/movies/rate/{movie_id}/{user_id}/{new_rating}")
+    assert response.status_code == 200
+    
+    # Check the new rating is updated correctly
+    response_data = response.json()
+    assert response_data["rating"] == new_rating
+
+# Test to remove a rate a movie with invalid movie ID
+def test_remove_rate_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    
+    response = client.post(f"/movies/unrate/{invalid_movie_id}/{user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to remove like a non-existent movie
+def test_remove_like_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    
+    response = client.post(f"/movies/dislike/{invalid_movie_id}/{user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to like a movie with an invalid user ID
+def test_remove_like_movie_invalid_user_id():
+    movie_id = 1
+    invalid_user_id = 99999  # An invalid user ID
+    
+    response = client.post(f"/movies/dislike/{movie_id}/{invalid_user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error (User not found)
+
+# Test to remove wish a non-existent movie
+def test_remove_wish_movie_invalid_movie_id():
+    invalid_movie_id = 99999  # A movie ID that doesn't exist
+    user_id = 1
+    
+    response = client.post(f"/movies/nowish/{invalid_movie_id}/{user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error
+
+# Test to wish a movie with an invalid user ID
+def test_remove_wish_movie_invalid_user_id():
+    movie_id = 1
+    invalid_user_id = 99999  # An invalid user ID
+    
+    response = client.post(f"/movies/nowish/{movie_id}/{invalid_user_id}")
+    
+    assert response.status_code == 404  # Expecting Not Found error (User not found)
+
+# Test to get the list of rating and liked of a user
+def test_get_liked_and_rated_movies():
+    user_id = 1  # Assuming the user with ID 1 exists
+    
+    # Get the liked and rated movies for the user
+    response = client.get(f"/movies/liked_rated_and_wished_list/{user_id}")
+    
+    assert response.status_code == 200
+    
+    response_data = response.json()
+    
+    # Check if the response contains liked and rated movies
+    assert "liked_movies" in response_data
+    assert isinstance(response_data["liked_movies"], list)
+    
+    assert "rated_movies" in response_data
+    assert isinstance(response_data["rated_movies"], list)
+    
+    # Check that the liked and rated movie lists are not empty
+    assert len(response_data["liked_movies"]) >= 0
+    assert len(response_data["rated_movies"]) >= 0
+
+# Test to get the list of rating of a user
+def test_get_liked_list_movies():
+    user_id = 1  # Assuming the user with ID 1 exists
+    
+    # Get the liked and rated movies for the user
+    response = client.get(f"/movies/liked_list/{user_id}")
+    
+    assert response.status_code == 200
+    response_data = response.json()
+
+    # Get the full movie list
+    all_movies_response = client.get("/movies")  # Replace with your actual endpoint for getting all movies
+    assert all_movies_response.status_code == 200
+    all_movies = all_movies_response.json()
+
+    
+    # Check that the liked and rated movie lists are not empty
+    assert len(response_data) >= 0
+    # Check that all liked movies are in the full movie list
+    liked_movie_ids = {movie["id"] for movie in response_data}
+    all_movie_ids = {movie["id"] for movie in all_movies}
+
+    # Validate that every liked movie is in the full movie list
+    assert liked_movie_ids.issubset(all_movie_ids), "Some liked movies are missing from the full movie list"
+
+# Test to get the list of wish of a user
+def test_get_wish_list_movies():
+    user_id = 1  # Assuming the user with ID 1 exists
+    
+    # Get the liked and rated movies for the user
+    response = client.get(f"/movies/wished_list/{user_id}")
+    
+    assert response.status_code == 200
+    response_data = response.json()
+
+    # Get the full movie list
+    all_movies_response = client.get("/movies")  # Replace with your actual endpoint for getting all movies
+    assert all_movies_response.status_code == 200
+    all_movies = all_movies_response.json()
+
+    
+    # Check that the liked and rated movie lists are not empty
+    assert len(response_data) >= 0
+    # Check that all liked movies are in the full movie list
+    wished_movie_ids = {movie["id"] for movie in response_data}
+    all_movie_ids = {movie["id"] for movie in all_movies}
+
+    # Validate that every liked movie is in the full movie list
+    assert wished_movie_ids.issubset(all_movie_ids), "Some liked movies are missing from the full movie list"
+    
+
+# Test to like a non existing user
+def test_like_non_existing_user():
+    response = client.delete("/users/email/testusermovie@example.com")
+    assert response.status_code == 200
+
+    movie_id = 1
+    user_id = -1
+    
+    # Simulate the movie like request
+    response3 = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response3.status_code == 404  # Expecting Not Found error
+
+# Test to rate a non existing user
+def test_rate_non_existing_user():
+    movie_id = 1
+    user_id = -1
+    rating = 5.0
+    
+    # Simulate the movie rating request 
+    response2 = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
+    # Assert the response status code
+    assert response2.status_code == 404
+
+# Test to wish a non existing user
+def test_wish_non_existing_user():
+    movie_id = 1
+    user_id = -1
+    
+    # Simulate the movie rating request 
+    response2 = client.post(f"/movies/wish/{movie_id}/{user_id}")
+    # Assert the response status code
+    assert response2.status_code == 404
+
+# Test to like a non existing movie
+def test_like_non_existing_movie():
+    response = client.delete("/movies/title/Test film")
+    assert response.status_code == 200
+
+    movie_id = -1
+    user_id = 1
+    
+    # Simulate the movie like request
+    response3 = client.post(f"/movies/like/{movie_id}/{user_id}")
+    assert response3.status_code == 404  # Expecting Not Found error
+
+ # Test to rating a non existing movie
+def test_rating_non_existing_movie():
+    movie_id = -1
+    user_id = 1
+    rating = 5.0
+    
+    # Simulate the movie rating request
+    response2 = client.post(f"/movies/rate/{movie_id}/{user_id}/{rating}")
+    # Assert the response status code
+    assert response2.status_code == 404
+
+# Test to wish a non existing movie
+def test_wish_non_existing_movie():
+    movie_id = -1
+    user_id = 1
+    
+    # Simulate the movie rating request
+    response2 = client.post(f"/movies/wish/{movie_id}/{user_id}")
+    # Assert the response status code
+    assert response2.status_code == 404

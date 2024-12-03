@@ -6,7 +6,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from .db.database import SessionLocal
 from contextlib import asynccontextmanager
-from .api.routes import user_routes, movie_routes, genre_routes, login_routes
+from .api.routes import user_routes, movie_routes, genre_routes, login_routes, comments_routes
 from .db import init_movie_db
 from .api.dependencies import get_db
 
@@ -31,7 +31,7 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     #allow_origins=["http://localhost:8080"],  # Permitir peticiones desde este origen
-    allow_origins=["*"],
+    allow_origins=["https://filmhub.azurewebsites.net"],
     allow_credentials=True,
     allow_methods=["*"],  # Permitir todos los métodos
     allow_headers=["*"],  # Permitir todas las cabeceras
@@ -46,3 +46,4 @@ app.include_router(user_routes.router, prefix="/users", tags=["users"])
 app.include_router(movie_routes.router, prefix="/movies", tags=["movies"])
 app.include_router(genre_routes.router, prefix="/genres", tags=["genres"])
 app.include_router(login_routes.router, prefix="/login",tags=["login"])
+app.include_router(comments_routes.router, prefix="/comments", tags=["comments"])
