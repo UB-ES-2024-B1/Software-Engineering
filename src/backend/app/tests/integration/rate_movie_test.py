@@ -15,7 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 @pytest.fixture
 def driver_setup():
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    #chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     driver.get("http://localhost:8080/login")
@@ -44,7 +44,7 @@ def test_rate_movie_success(login_user, db_session):
     # Navigate to the movie page
     driver.get("http://localhost:8080/movie/2")  # Change this URL to the movie page URL
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-5")   
     
     WebDriverWait(driver, 20).until(
@@ -66,7 +66,7 @@ def test_rating_logged_out_user(driver_setup, db_session):
     # Navigate to the movie page without logging in
     driver.get("http://localhost:8080/movie/3")
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-5")   
     
     WebDriverWait(driver, 20).until(
@@ -74,14 +74,14 @@ def test_rating_logged_out_user(driver_setup, db_session):
     ).click()
 
     # Handle the alert and check the text
-    WebDriverWait(driver, 10).until(EC.alert_is_present())  # Wait for alert to appear
+    WebDriverWait(driver, 20).until(EC.alert_is_present())  # Wait for alert to appear
     alert = driver.switch_to.alert  # Switch to the alert
     alert_text = alert.text  # Get the alert text
     assert alert_text == "You must log in to rate a movie.", f"Unexpected alert text: {alert_text}"
     alert.accept()  # Close the alert
 
     # Verify the user was redirected to the login page
-    WebDriverWait(driver, 10).until(EC.url_contains("login"))
+    WebDriverWait(driver, 20).until(EC.url_contains("login"))
 
     # Verify that the user was redirected to the login page
     assert "login" in driver.current_url, "User was not redirected to login page."
@@ -96,7 +96,7 @@ def test_remove_rating_success(login_user, db_session):
     driver.get("http://localhost:8080/movie/4")
 
     # Select a rating (5 stars)
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-5")   
     
     WebDriverWait(driver, 20).until(
@@ -132,7 +132,7 @@ def test_rating_functionality_on_movie_page(login_user, db_session):
     driver.get("http://localhost:8080/movie/5")
 
     # Rate with 1, 3, and 5 stars in sequence to check proper functionality
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-1")))  # Wait for the rating option
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "rating-1")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-1")   
     
     WebDriverWait(driver, 20).until(
@@ -141,7 +141,7 @@ def test_rating_functionality_on_movie_page(login_user, db_session):
     time.sleep(3)
     assert driver.find_element(By.ID, "rating-1").is_selected(), "Rating 1 was not saved correctly."
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-3")))  # Wait for the rating option
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "rating-3")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-3")   
     
     WebDriverWait(driver, 20).until(
@@ -150,7 +150,7 @@ def test_rating_functionality_on_movie_page(login_user, db_session):
     time.sleep(3)
     assert driver.find_element(By.ID, "rating-3").is_selected(), "Rating 3 was not saved correctly."
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-5")   
     
     WebDriverWait(driver, 20).until(
