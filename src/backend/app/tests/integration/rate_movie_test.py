@@ -45,7 +45,7 @@ def test_rate_movie_success(login_user, db_session):
     # Navigate to the movie page
     driver.get("http://localhost:8080/movie/2")  # Change this URL to the movie page URL
 
-    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "//label[@for='rating-5']")))  # Wait for the rating option
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "rating-5")))  # Wait for the rating option
     rating_element = driver.find_element(By.ID, "rating-5")   
     
     WebDriverWait(driver, 20).until(
