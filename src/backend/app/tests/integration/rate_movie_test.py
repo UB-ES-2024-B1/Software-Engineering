@@ -15,8 +15,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 @pytest.fixture
 def driver_setup():
     chrome_options = Options()
-    #chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     driver.get("http://localhost:8080/login")
     yield driver
