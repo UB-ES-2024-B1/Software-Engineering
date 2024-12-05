@@ -41,6 +41,11 @@ const routes = [
     component: UserProfile,
   },
   {
+    path: '/viewProfile',
+    name: 'ViewProfile',
+    component: UserProfile,
+  },
+  {
     path: '/edit',
     name: 'EditProfile',
     component: EditProfile,
