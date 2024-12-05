@@ -10,9 +10,6 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from .db.database import SessionLocal
 
-# Check for the environment variable USE_SELE_CONFIG to decide on CORS settings
-USE_SELE_CONFIG = os.getenv("USE_SELE_CONFIG", "false").lower() == "true"
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     user_routes.init_db()
@@ -25,16 +22,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Set dynamic CORS configuration based on the environment
-if USE_SELE_CONFIG:
-    allow_origins = ["https://filmhub-frontend.azurewebsites.net"]
-else:
-    allow_origins = ["*"]  # For tests with Selenium
-
 # Habilitar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_origins,  # Use the dynamic value for allow_origins
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
