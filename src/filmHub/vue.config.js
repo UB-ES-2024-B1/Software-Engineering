@@ -4,7 +4,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
 
   devServer: {
-    proxy: 'http://127.0.0.1:8000', // You can modify this line based on your environment
+    proxy: 'http://127.0.0.1:8000', // redirige las solicitudes al backend
   },
 
   publicPath: '/',
