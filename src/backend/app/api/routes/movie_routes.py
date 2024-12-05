@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlmodel import Session, select
-from app.api.dependencies import get_db  # Import the get_db function for database session management
+from app.api.db_utils import get_db  # Import the get_db function for database session management
 from app.crud import movie_crud  # Import CRUD functions for movie operations
 from app.models import (Movie, MovieIn, MovieOut, MovieUser, User)  # Import movie models for input and output
 from typing import List, Optional
@@ -231,7 +231,7 @@ def get_movie_by_title(movie_title: str, db: Session = Depends(get_db)):
     # return FileResponse(movie.image)
 # Endpoint to retrieve movies by release year
 @router.get("/release/{movie_year}", response_model=List[MovieOut])
-def get_movie_by_title(movie_year: int, db: Session = Depends(get_db)):
+def get_movies_by_release(movie_year: int, db: Session = Depends(get_db)):
     """
     Retrieves a list of movies by release year.
     
@@ -244,7 +244,7 @@ def get_movie_by_title(movie_year: int, db: Session = Depends(get_db)):
 
 # Endpoint to retrieve movies with one genre
 @router.get("/genre/{movie_genre}", response_model=List[MovieOut])
-def get_movie_by_title(movie_genre: str, db: Session = Depends(get_db)):
+def get_movies_by_genre(movie_genre: str, db: Session = Depends(get_db)):
     """
     Retrieves a list of movies taht have one specific genre
     
@@ -260,7 +260,7 @@ def get_movie_by_title(movie_genre: str, db: Session = Depends(get_db)):
 
 # Endpoint to retrieve movies with multiple genre
 @router.get("/genre/list/{movie_genre_list}", response_model=List[MovieOut])
-def get_movie_by_title(movie_genre_list: str, db: Session = Depends(get_db)):
+def get_movies_by_list_genre(movie_genre_list: str, db: Session = Depends(get_db)):
     """
     Retrieves a list of movies taht have more than one specific genre
     
