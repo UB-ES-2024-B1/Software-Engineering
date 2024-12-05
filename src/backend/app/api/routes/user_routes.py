@@ -107,6 +107,25 @@ def read_user(user_email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+@router.get("/username/{username}", response_model=UserOut)
+def read_user(username: str, db: Session = Depends(get_db)):
+    """
+    Get a user by their ID.
+    :param user_id: The ID of the user
+    :param db: Database session (injected via dependency)
+    :return: User object or 404 if not found
+    """
+    user = user_crud.get_user_by_username(db, username)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.public == False:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have enough permission to do this action."
+        )
+    return user
+
 # Route to delete a user by ID
 @router.delete("/id/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
@@ -144,6 +163,7 @@ def update_user_by_id(
     is_active: Optional[bool] = Form(None),
     is_admin: Optional[bool] = Form(None),
     img: Optional[UploadFile] = File(None),
+    public:Optional[bool] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -176,10 +196,12 @@ def update_user_by_id(
         update_data["is_active"] = is_active
     if is_admin is not None:
         update_data["is_admin"] = is_admin
+    if public is not None:
+        update_data["public"] = public
 
 
     # If an image is uploaded, process it
-    if img:
+    if img is not None or img =='string':
         try:
             if existing_user.img_public_id and existing_user.img_public_id != "imagenes-perfil/profile-circle":
                 # If there is an existing image, delete it from Cloudinary
@@ -210,6 +232,7 @@ def update_user_by_email(
     is_active: Optional[bool] = Form(None),
     is_admin: Optional[bool] = Form(None),
     img: Optional[UploadFile] = File(None),
+    public:Optional[bool] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -239,9 +262,11 @@ def update_user_by_email(
         update_data["is_active"] = is_active
     if is_admin is not None:
         update_data["is_admin"] = is_admin
+    if public is not None:
+        update_data["public"] = public
 
     # If an image is uploaded, process it
-    if img:
+    if img is not None or img =='string':
         try:
             if existing_user.img_public_id and existing_user.img_public_id != "imagenes-perfil/profile-circle":
                 # If there is an existing image, delete it from Cloudinary
@@ -277,3 +302,5 @@ def is_admin_user(current_user: User = Depends(get_current_user)) -> bool:
             detail="You don't have enough permission to do this action."
         )
     return True
+
+
