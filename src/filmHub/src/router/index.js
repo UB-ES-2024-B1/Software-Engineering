@@ -11,6 +11,7 @@ import AllMovies from '../views/AllMovies.vue';
 import AddMovies from '../views/AddMovies.vue'; // Importa el componente 
 
 import ShowReportsProfile from '@/views/ShowReportsProfile.vue';
+import ViewProfile from '@/views/ViewProfile.vue';
 
 const routes = [
   {
@@ -43,7 +44,7 @@ const routes = [
   {
     path: '/viewProfile',
     name: 'ViewProfile',
-    component: UserProfile,
+    component: ViewProfile,
   },
   {
     path: '/edit',

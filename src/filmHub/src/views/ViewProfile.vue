@@ -8,6 +8,15 @@
   
       <div class="main-content">
         <div class="shadow-overlay"></div>
+        <div class="search-box">
+          <input
+            type="text"
+            v-model="searchTerm"
+            placeholder="Search for user..."
+            @keyup.enter="searchUser"
+          />
+          <button @click="searchUser">Search</button>
+        </div>
         <div class="profile-box">
   
           <p v-if="error" class="error-message">{{ error }}</p>
@@ -179,7 +188,7 @@
           likedMovies: [], // Películas con like
           wishedMovies: [], // Películas en la wishlist
           displayedMovies: [], // Películas que se muestran actualmente
-  
+          searchTerm: '', // Búsqueda de usuario
   
           //REP eliminar
           showReportedModal: false,
@@ -379,6 +388,17 @@
             console.log('Película eliminada de la wishlist');
           } catch (error) {
             console.error('Error al eliminar la película de la wishlist:', error);
+          }
+        },
+
+        async searchUser() {
+          try {
+            const response = await axios.get(`${API_BASE_URL}/users/email/${this.searchTerm}`);
+            this.userData = response.data;
+            this.loadMovies();
+          } catch (error) {
+            console.error('Error al buscar el usuario:', error);
+            this.error = 'User not found. Please try again.';
           }
         },
   
@@ -956,6 +976,15 @@
     opacity: 1;
     transform: translateY(0px);
     transition-duration: 0.3s;
+  }
+
+  .search-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: rgba(233, 8, 8, 0.8);
+    z-index: 10;
   }
   
   </style>
