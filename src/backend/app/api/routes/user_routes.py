@@ -290,3 +290,16 @@ def upgrade_user_to_premium(user_email: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+# Endpoint to downgrade a user to premium
+@router.put("/downgrade_premium/{user_email}", response_model=UserOut)
+def downgrade_user_to_premium(user_email: str, db: Session = Depends(get_db)):
+    """
+    Downgrade a user to premium by email.
+
+    :param user_email: email of the current user
+    """
+    user = user_crud.downgrade_to_premium_by_email(db, user_email=user_email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

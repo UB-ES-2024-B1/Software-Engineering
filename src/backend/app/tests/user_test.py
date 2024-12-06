@@ -137,3 +137,44 @@ def test_verify_premium_status():
     user_data = response.json()
     assert user_data["email"] == "testpremiumuser@example.com"
     assert user_data["is_premium"] is True
+
+# Test to downgrade a user account to standard
+def test_remove_premium_status():
+    """
+    Test removing the premium status from a user.
+    """
+    user_email = "testpremiumuser@example.com"
+
+    # Update the premium status
+    response = client.put(f"/users/downgrade_premium/{user_email}")
+    assert response.status_code == 200
+
+    # Verify the response message
+    response_data = response.json()
+    assert response_data["is_premium"] == False
+
+# Test to try to upgrade a non existing email
+def test_update_premium_invalid_email():
+    """
+    Test updating premium status for a non-existent user.
+    """
+    invalid_email = "invalidemail@example.com"
+
+    # Try to update premium status for a non-existent user
+    response = client.put(f"/users/upgrade_premium/{invalid_email}")
+    assert response.status_code == 404
+
+# Test to ensure deleted users cannot be upgrade or downgrade
+def test_update_downgrade_deleted_user():
+    user_email = "testpremiumuser@example.com"
+    # Delete the user
+    delete_response = client.delete(f"/users/email/{user_email}")
+    assert delete_response.status_code == 200
+
+    # Update the premium status
+    response = client.put(f"/users/upgrade_premium/{user_email}")
+    assert response.status_code == 404
+
+    # Try to update premium status for a non-existent user
+    response = client.put(f"/users/downgrade_premium/{user_email}")
+    assert response.status_code == 404

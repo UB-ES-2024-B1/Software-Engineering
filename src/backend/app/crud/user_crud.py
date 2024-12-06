@@ -122,3 +122,16 @@ def upgrade_to_premium_by_email(db: Session, user_email: str) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+# Downgrade user to premium
+def downgrade_to_premium_by_email(db: Session, user_email: str) -> User:
+    """
+    Method to downgrade the model/database to premium user by email
+    """
+    user = db.query(User).filter(User.email == user_email).first()
+    if not user:
+        return None
+    user.is_premium = False
+    db.commit()
+    db.refresh(user)
+    return user
