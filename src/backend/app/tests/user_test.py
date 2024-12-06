@@ -95,3 +95,45 @@ def test_get_user_by_email_3():
     get_response = client.get(f"/users/email/updateduser@example.com")
 
     assert get_response.status_code == 404
+
+##### PREMIUM USER TEST
+# Test to check if premium status is False by default for new users
+def test_default_premium_status():
+    new_user = {
+        "email": "testpremiumuser@example.com",
+        "is_active": True,
+        "is_admin": False,
+        "full_name": "Test Premium User",
+        "password": "password123"
+    }
+
+    # Create the user
+    response = client.post("/users/", json=new_user)
+    assert response.status_code == 201
+
+    # Verify premium is False by default
+    user_data = response.json()
+    assert "is_premium" in user_data
+    assert user_data["is_premium"] is False
+
+# Test updating a user to premium
+def test_update_user_to_premium():
+    user_email = "testpremiumuser@example.com"
+
+    # Update the premium status
+    response = client.put(f"/users/upgrade_premium/{user_email}")
+    assert response.status_code == 200
+
+    # Verify the response message
+    response_data = response.json()
+    assert response_data["is_premium"] is True
+
+# Test verifying premium status after update
+def test_verify_premium_status():
+    response = client.get("/users/email/testpremiumuser@example.com")
+    assert response.status_code == 200
+
+    # Verify premium status is now True
+    user_data = response.json()
+    assert user_data["email"] == "testpremiumuser@example.com"
+    assert user_data["is_premium"] is True

@@ -12,6 +12,7 @@ class UserBase(SQLModel):
     full_name: Union[str, None] = None  # Optional full name using Union
     img_url: Union[str, None] = None  # Optional SRT link
     img_public_id: Union[str, None] = None  # Optional public ID
+    is_premium: bool = False
 
 # The link between movie and movie for rating
 class MovieUser(SQLModel, table=True):
