@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from app.models.user_models import User, UserOut
 
 # Function to create a user
-def create_user(db: Session, full_name: str, email: str, hashed_password: str, is_admin: bool =False) -> UserOut:
-    db_user = User(full_name=full_name, email=email, hashed_password=hashed_password,is_admin=is_admin)
+def create_user(db: Session, full_name: str, email: str, hashed_password: str, is_admin: bool =False, is_premium: bool = False) -> UserOut:
+    db_user = User(full_name=full_name, email=email, hashed_password=hashed_password,is_admin=is_admin, is_premium=is_premium)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -108,4 +108,30 @@ def update_user_by_email(db: Session, email: str, user_data: dict):
     db.commit()
     db.refresh(user)
     
+    return user
+
+# Upgrade user to premium
+def upgrade_to_premium_by_email(db: Session, user_email: str) -> User:
+    """
+    Method to update the model/database to premium user by email
+    """
+    user = db.query(User).filter(User.email == user_email).first()
+    if not user:
+        return None
+    user.is_premium = True
+    db.commit()
+    db.refresh(user)
+    return user
+
+# Downgrade user to premium
+def downgrade_to_premium_by_email(db: Session, user_email: str) -> User:
+    """
+    Method to downgrade the model/database to premium user by email
+    """
+    user = db.query(User).filter(User.email == user_email).first()
+    if not user:
+        return None
+    user.is_premium = False
+    db.commit()
+    db.refresh(user)
     return user
