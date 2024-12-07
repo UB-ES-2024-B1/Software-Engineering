@@ -26,9 +26,7 @@ from app.crud.movie_crud import (
     get_user_liked_movies,
     get_user_rated_movies
 )
-from fastapi import HTTPException
-import logging
-logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+
 
 # Initialize test database (SQLite in-memory)
 DATABASE_URL = "sqlite:///:memory:"
