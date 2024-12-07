@@ -196,7 +196,6 @@ def test_get_movies_by_genre():
     assert isinstance(movies, list)
     # Check if the movies in the list have all the genre
     for movie in movies:
-        
         assert "genres" in movie
         assert isinstance(movie["genres"], list)
         
@@ -227,15 +226,6 @@ def test_get_movies_by_genre_list_2():
     response = client.get("/movies/genre/list/Adventure,Science Fiction,Fun")
     assert response.status_code == 404
 
-# Test delete movie 
-def test_delete_movie():
-    response = client.delete("/movies/title/The Lost City")
-    assert response.status_code == 200
-
-# Test to get movie by title
-def test_get_non_existent_movie_by_title():
-    response = client.get("/movies/title/The Lost City")
-    assert response.status_code == 404
 
 # Test to get related movies by title
 def test_get_related_movies_by_title():
@@ -272,8 +262,13 @@ def test_get_related_movies_by_title():
         # At least one attribute should match to be considered related
         assert len(shared_genres) > 0 or len(shared_cast) > 0 or director_match
 
+# Test delete movie 
+def test_delete_movie():
+    response = client.delete("/movies/title/The Lost City")
+    assert response.status_code == 200
+
 # Test to get movie by title
-def test_get_movie_by_title_2():
+def test_get_non_existent_movie_by_title():
     response = client.get("/movies/title/The Lost City")
     assert response.status_code == 404
 
