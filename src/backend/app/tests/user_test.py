@@ -9,10 +9,10 @@ def test_create_user():
     # New user data
     new_user = {
         "email": "testuser@example.com",
-        "is_active": True,
+        "is_active": False,
         "is_admin" : False,
         "full_name": "testuser",
-        "password": "password123"
+        "password": "password123",
     }
     
     # Send a POST request to create a new user
@@ -45,7 +45,6 @@ def test_create_user_2():
 
 # Test to get all users
 def test_get_all_users():
-    
     response = client.get("/users/")
 
     # Verify the response status is 200 OK and that there is at least one user
@@ -178,3 +177,138 @@ def test_update_downgrade_deleted_user():
     # Try to update premium status for a non-existent user
     response = client.put(f"/users/downgrade_premium/{user_email}")
     assert response.status_code == 404
+
+
+
+##### ADD NEW TYPE LIST FOR PREMIUM USER
+# Test adding a list type as a premium user
+def test_add_list_type_as_premium_user():
+    # Create a premium user
+    premium_user = {
+        "email": "premiumuser@example.com",
+        "is_active": True,
+        "is_premium": True,
+        "full_name": "Premium User",
+        "password": "password123"
+    }
+    client.post("/users/", json=premium_user)
+
+    # Add a new list type
+    list_type_data = {"name": "Watch Again"}
+    response = client.post(f"/list-type/{premium_user['email']}/{list_type_data['name']}")
+
+    assert response.status_code == 201
+    assert response.json()["name"] == list_type_data["name"]
+
+# Test adding a list type as a non-premium user
+def test_add_list_type_as_non_premium_user():
+    # Create a non-premium user
+    non_premium_user = {
+        "email": "nonpremiumuser@example.com",
+        "is_active": True,
+        "is_premium": False,
+        "full_name": "Non-Premium User",
+        "password": "password123"
+    }
+    client.post("/users/", json=non_premium_user)
+
+    # Attempt to add a new list type
+    list_type_data = {"name": "Watch Later"}
+    response = client.post(f"/list-type/{non_premium_user['email']}/{list_type_data['name']}")
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "User not found or unable to create list"
+
+# Test to add movie id to a list by name
+def test_add_movie_to_list_and_get():
+    # Create a user and a list
+    user_data = {
+        "email": "user@example.com", 
+        "is_active": True, 
+        "is_premium": True, 
+        "full_name": "Test User", 
+        "password": "password123"
+    }
+    client.post("/users/", json=user_data)
+
+    list_type_data = {"name": "Watch Again"}
+    client.post(f"/list-type/{user_data['email']}/{list_type_data['name']}")
+
+    new_movie = {
+        "title": "The Lost City",
+        "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
+        "director": "Sarah Connors",
+        "country": "United States",
+        "release_date": "2024-10-26",
+        "rating": 4.2,
+        "rating_count": 12500,
+        "likes": 5200,
+        "genres": [
+            "Adventure",
+            "Thriller"
+        ],
+        "cast_members": [
+            "John Doe",
+            "Jane Smith",
+            "Mike Johnson"
+        ],
+        "image": [
+        ],
+        "trailer": ""
+    }
+
+    response = client.post("/movies/", json=new_movie)
+
+    # Assert that the response status 
+    assert response.status_code == 200
+
+    # Get the data of the new movie
+    movie_data = client.get(f"/movies/title/{new_movie['title']}").json()
+    response2 = client.post(f"/list-type/add-movie/{user_data['email']}/{list_type_data['name']}/{movie_data['id']}")
+
+    assert response2.status_code == 200
+    assert response2.json()["movie_id"] == movie_data['id']
+
+     # Get the list of movie names
+    response3 = client.get(f"/list-type/movies/{user_data['email']}/{list_type_data['name']}")
+    
+    assert response3.status_code == 200
+    assert response3.json() == ["The Lost City"]  # Expected movie names
+
+# Test adding a non-existing movie to a list
+def test_add_non_existing_movie_to_list():
+    # Create a user and a list
+    user_data = {
+        "email": "user2@example.com", 
+        "is_active": True, 
+        "is_premium": True, 
+        "full_name": "Test User 2", 
+        "password": "password456"
+    }
+    client.post("/users/", json=user_data)
+
+    list_type_data = {"name": "To Watch"}
+    client.post(f"/list-type/{user_data['email']}/{list_type_data['name']}")
+
+    movie_data = {"movie_id": 9999}  # Assuming movie ID 9999 does not exist
+    response = client.post(f"/list-type/add-movie/{user_data['email']}/{list_type_data['name']}/{movie_data['movie_id']}")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Movie not found"}
+
+# Test adding a movie to a non-existing list
+def test_add_movie_to_non_existing_list():
+    # Create a user
+    user_data = {
+        "email": "user3@example.com", 
+        "is_active": True, 
+        "is_premium": True, 
+        "full_name": "Test User 3", 
+        "password": "password789"
+    }
+    client.post("/users/", json=user_data)
+
+    movie_data = {"movie_id": 1}  # Assuming movie ID 1 exists
+    # Trying to add movie to a non-existing list
+    response = client.post(f"/list-type/add-movie/{user_data['email']}/NonExistentList/{movie_data['movie_id']}")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "List not found"}

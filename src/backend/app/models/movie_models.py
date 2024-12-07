@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import JSON
 
 from app.models.comments_model import Thread
 
-from app.models.user_models import *
+from app.models.user_models import User, MovieUser
 
 
 # Association table for the many-to-many relationship
@@ -56,8 +56,9 @@ class Movie(MovieBase, table=True):
     cast_members: List["CastMember"] = Relationship(back_populates='movies', link_model=MovieCast)
     threads: List[Thread] = Relationship()  # Relationship to comments
     users: List["User"] = Relationship(back_populates="movies", link_model=MovieUser)
-
-
+    # Relationship to MovieList
+    list_types: List["MovieList"] = Relationship(back_populates="movie")
+    
 # Model for response from the API
 class MovieOut(MovieBase):
     id: int
