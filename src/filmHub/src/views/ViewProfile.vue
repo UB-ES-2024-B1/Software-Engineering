@@ -4,10 +4,21 @@
     <main class="main-content">
 
       <div class="container">
+        <div class="search-wrapper">
+          <div class="search-bar">
+            <input type="text" v-model="searchQuery" @input="filterPosts" class="search-input"
+              placeholder="Search reviews..." />
+            <button @click="handleSearch" class="search-button">🔍</button>
+          </div>
+          <RadioForm v-model="selectedOption" :options="radioOptions" :fontFamily="'Arial, Helvetica, sans-serif'"
+            name="movie-options" :fontSize="'15px'" :title="'Sort by'" id="RadioForm" />
+        </div>
+
+
         <div class="feed">
           <div class="post" v-for="post in posts" :key="post.id">
             <div class="post-content">
-              <img :src="post.moviePoster" :alt="post.movieTitle" class="movie-poster" />
+              <img :src="post.moviePoster" v-if="post.moviePoster" :alt="post.movieTitle" class="movie-poster" />
               <div class="post-details">
                 <div class="post-higher">
                   <div class="post-header">
@@ -19,15 +30,15 @@
 
                   </div>
                   <div class="post-actions">
-                    <button  :class="['action-button', post.isFollowing ? 'following' : 'not-following']"
-                     @click="toggleFollow(post)">
+                    <button :class="['action-button', post.isFollowing ? 'following' : 'not-following']"
+                      @click="toggleFollow(post)">
                       {{ post.isFollowing ? 'Following' : 'Follow' }}
                     </button>
                   </div>
                 </div>
                 <div class="movie-info">
                   <h3 class="movie-title">{{ post.movieTitle }}</h3>
-                  <div class="rating">
+                  <div v-if="post.rating" class="rating">
                     <span v-for="n in 5" :key="n" class="star" :class="{ 'filled': n <= post.rating }">★</span>
                   </div>
                 </div>
@@ -41,9 +52,10 @@
         </div>
         <aside class="sidebar">
           <div class="user-profile">
-            <img :src="require('@/assets/foto_perfil.png')" alt="Your profile" class="avatar" />
+            <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Your profile" class="avatar" />
             <h2>Your Profile</h2>
-            <p>@cinephile42</p>
+            <p v-if="userData">@{{ userData.full_name }}</p>
+            <p v-else>Guest</p>
             <div class="stats">
               <div class="stat">
                 <span class="stat-value">152</span>
@@ -81,13 +93,63 @@
 
 <script>
 import HeaderPage from '@/components/HeaderPage.vue'; // Importa el componente HeaderPage
+import RadioForm from '@/components/RadioForm.vue'; // Importa el componente RadioForm
+import axios from 'axios';
+import { API_BASE_URL } from '@/config.js'; // Importa tu archivo de configuración
+
+
+async function generateMovieObject(movieData, userRating = null) {
+  const movieObject = {
+    id: movieData.id,
+    image: getImagePath(movieData.image[1]),
+    smallImage: getImagePath(movieData.image[0]),
+    title: movieData.title,
+    description: movieData.description,
+    rating: movieData.rating,
+    likes: movieData.likes,
+    genre: movieData.genres.map((genre) => genre.type).join(', '),
+    releaseDate: movieData.release_date.substring(0, 4),
+    userRating: userRating, // Agregamos el rating del usuario, si existe
+  };
+
+  return movieObject;
+}
+
+function getImagePath(image) {
+    if (image && image.startsWith('http')) {
+      return image;
+    } else if (image) {
+      try {
+        return require(`@/assets/${image}`);
+      } catch (error) {
+        console.error(`Error loading local image: ${image}`, error);
+        return '';
+      }
+    } else {
+      console.warn('No image provided');
+      return '';
+
+    }
+  }
 export default {
   name: 'ViewProfile',
   components: {
     HeaderPage, // Registra el componente HeaderPage
+    RadioForm // Registra el componente RadioForm
   },
   data() {
     return {
+      userData: null,
+      profile_image: '',
+      user_rated_movies: [],
+      trendingMovies: [],
+      selectedOption: 'option1', // Default selected value
+      radioOptions: [
+        { label: 'Popularity', value: 'option1' },
+        { label: 'Date', value: 'option2' },// Newer
+        { label: 'Done Reviews', value: 'option3' }, // Older
+        { label: 'Following', value: 'option4' },
+      ],
       searchQuery: '',
       posts: [
         {
@@ -129,13 +191,17 @@ export default {
           timestamp: '1 day ago',
           isFollowing: false,
         },
+        {
+          id: 4,
+          user: {
+            username: 'filmfanatic88',
+            avatar: require('@/assets/foto_perfil.png')
+          },
+          isFollowing: true,
+        }
 
       ],
-      trendingMovies: [
-        { id: 1, title: 'Dune 2', poster: require('@/assets/dunePartTwo_cover.jpg'), rating: 4 },
-        { id: 2, title: 'Barbie', poster: require('@/assets/barbie_cover.jpg'), rating: 4 },
-        { id: 3, title: 'Inception', poster: require('@/assets/inception_cover.jpg'), rating: 5 }
-      ]
+
     }
   },
   methods: {
@@ -153,12 +219,84 @@ export default {
 
     toggleFollow(post) {
       post.isFollowing = !post.isFollowing;
-    }
+    },
+    async fetchMovieDetails(title) {
+      try {
+        const movieResponse = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
+        return movieResponse.data; // Devuelve los detalles completos de la película
+      } catch (error) {
+        console.error(`Error al obtener detalles de la película "${title}":`, error);
+        return null; // Retorna null si hay un error
+      }
+    },
+    loadLastRatedMovies() {
+      if (!this.userData) {
+        console.error('No user data available');
+        return;
+      }
+      // Solicitar las películas valoradas
+      axios
+        .get(`${API_BASE_URL}/movies/rated_list/${this.userData.id}`)
+        .then(async (response) => {
+          const ratedMoviesList = response.data;
+
+          // Tomar las últimas 3 películas valoradas
+          const lastRatedMovies = ratedMoviesList.slice(-3);
+
+          // Obtener detalles completos de las últimas 3 películas
+          const ratedMoviesDetails = await Promise.all(
+            lastRatedMovies.map(async (movie) => {
+              const movieData = await this.fetchMovieDetails(movie.title);
+              return movieData ? generateMovieObject(movieData, movie.rating) : null;
+            })
+          );
+
+          // Asignar las películas valoradas filtradas a ratedMovies
+          this.ratedMovies = ratedMoviesDetails.filter((movie) => movie !== null);
+
+          // Actualizar trendingMovies con los resultados
+          this.trendingMovies = this.ratedMovies.map((movie) => ({
+            id: movie.id,
+            title: movie.title,
+            poster: movie.smallImage, // Asegúrate de usar el campo que corresponde a la portada
+            rating: movie.userRating || movie.rating, // Mostrar rating del usuario si está disponible
+          }));
+        })
+        .catch((error) => {
+          console.error('Error al obtener las últimas películas valoradas:', error);
+        });
+    },
+
+
   },
   mounted() {
     // Keep a copy of the original posts for filtering
     this.originalPosts = [...this.posts];
+  },
+  created() {
+  const userEmail = localStorage.getItem('userEmail');
+  if (!userEmail) {
+    return;
   }
+
+  // Solicitar datos del usuario
+  axios
+    .get(`${API_BASE_URL}/users/email/${userEmail}`)
+    .then((response) => {
+      this.userData = response.data;
+
+      // Verificar que userData esté disponible antes de cargar las películas valoradas
+      if (this.userData) {
+        // Cargar las películas valoradas y con like desde un solo endpoint
+        this.loadLastRatedMovies();
+      }
+    })
+    .catch((error) => {
+      console.error('Error al obtener los datos del usuario:', error);
+      this.error = 'Error fetching user data. Please try again.';
+    });
+},
+
 
 }
 </script>
@@ -184,12 +322,12 @@ export default {
 .main-content .container {
   display: flex;
   gap: 20px;
-  margin-top:5rem;
+  margin-top: 5rem;
 }
 
 .feed {
   flex: 1;
-  max-height: 100%;
+  max-height: 85%;
   overflow-y: auto;
 }
 
@@ -296,21 +434,25 @@ export default {
 }
 
 .action-button.following {
-  background-color: #d21bd8; /* Violet for "Following" */
+  background-color: #d21bd8;
+  /* Violet for "Following" */
   color: #ffffff;
 }
 
 .action-button.following:hover {
-  background-color: #b700d6; /* Darker violet on hover */
+  background-color: #b700d6;
+  /* Darker violet on hover */
 }
 
 .action-button.not-following {
-  background-color: #cccccc; /* Light gray for "Not Following" */
+  background-color: #cccccc;
+  /* Light gray for "Not Following" */
   color: #000000;
 }
 
 .action-button.not-following:hover {
-  background-color: #b3b3b3; /* Darker gray on hover */
+  background-color: #b3b3b3;
+  /* Darker gray on hover */
 }
 
 
@@ -417,7 +559,7 @@ export default {
   }
 }
 
-.search-bar-wrapper {
+.search-wrapper {
   margin-bottom: 20px;
 }
 
@@ -448,5 +590,9 @@ export default {
   color: #ff4081;
   font-size: 18px;
   cursor: pointer;
+}
+
+#RadioForm {
+  margin-top: 5vh;
 }
 </style>
