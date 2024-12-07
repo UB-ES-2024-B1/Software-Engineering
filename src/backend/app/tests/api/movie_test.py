@@ -104,6 +104,7 @@ def test_get_movie_by_id():
 def test_get_movie_by_id_2():
     response = client.get("/movies/-3")
     assert response.status_code == 404
+
 # Test to get movies sorted by date
 def test_get_movies_sorted_by_release_date():
     response = client.get("/movies/sorted/release_date")
@@ -255,8 +256,12 @@ def test_get_related_movies_by_title():
         "director": "Sarah Connors"
     }
     for movie in related_movies:
-        shared_genres = set(movie["genres"]).intersection(set(target_movie["genres"]))
-        shared_cast = set(movie["cast_members"]).intersection(set(target_movie["cast_members"]))
+        movie_genres = set(genre['type'] for genre in movie['genres'])
+        movie_cast = set(cast_member['name'] for cast_member in movie['cast_members'])
+        
+        # Check for shared genres
+        shared_genres = movie_genres.intersection(target_movie['genres'])
+        shared_cast = movie_cast.intersection(target_movie['cast_members'])
         director_match = movie["director"] == target_movie["director"]
 
         # At least one attribute should match to be considered related

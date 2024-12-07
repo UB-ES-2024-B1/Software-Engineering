@@ -91,7 +91,7 @@ def get_movies_sorted_by_likes(db: Session) -> List[MovieOut]:
     return db.execute(statement).scalars().all()
 
 # The idea is to return the five top relaetd movies given a movie name, by genre, cast and director
-def get_movies_sorted_by_related(db: Session, target_movie_title: str, limit: int = 60) -> List[MovieOut]:
+def get_movies_sorted_by_related(db: Session, target_movie_title: str, limit: int = 5) -> List[MovieOut]:
     # Step 1: Get the target movie by title
     target_movie = db.execute(select(Movie).where(Movie.title == target_movie_title)).scalars().first()
     
