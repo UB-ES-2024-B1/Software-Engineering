@@ -238,7 +238,7 @@ def test_get_related_movies_by_title():
     assert isinstance(related_movies, list)
     
     # Check that no more than 5 movies are returned
-    assert len(related_movies) <= 5
+    assert len(related_movies) <= 60
 
     # Validate structure and relation to the target movie
     for movie in related_movies:

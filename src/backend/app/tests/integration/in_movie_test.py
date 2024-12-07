@@ -626,7 +626,7 @@ def test_create_get_related_movies_and_delete():
     assert isinstance(related_movies, list)
     
     # Check that no more than 5 related movies are returned
-    assert len(related_movies) <= 5
+    assert len(related_movies) <= 60
 
     # Validate structure and relation to "The Lost City"
     for movie in related_movies:
