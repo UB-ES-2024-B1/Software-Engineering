@@ -65,8 +65,10 @@
         </div>
         <aside class="sidebar">
           <div class="user-profile">
-            <img v-if="userData" :src="userData.img_url" alt="Your profile" class="avatar" />
+            <img v-if="userData" :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Your profile"
+              class="avatar" />
             <img v-else :src="require('@/assets/foto_perfil.png')" alt="Your profile" class="avatar" />
+
             <h2>Your Profile</h2>
             <p v-if="userData">@{{ userData.full_name }}</p>
             <p v-else>Guest</p>
@@ -130,10 +132,12 @@ async function generateMovieObject(movieData, userRating = null) {
 }
 
 function getImagePath(image) {
+  console.log('Image:', image);
   if (image && image.startsWith('http')) {
     return image;
   } else if (image) {
     try {
+      console.log('Local image:', image);
       return require(`@/assets/${image}`);
     } catch (error) {
       console.error(`Error loading local image: ${image}`, error);
@@ -160,59 +164,17 @@ export default {
       user_rated_movies: [],
       user_reviews: 0,
       trendingMovies: [],
-      originalPosts: [],
       selectedOption: 'option1', // Default selected value
       radioOptions: [
         { label: 'Posts', value: 'option1' },
-        { label: 'Users', value: 'option2' },// Newer
+        { label: 'Users', value: 'option2' },
       ],
       searchQuery: '',
       feed: [],
-      posts: [
-        {
-          id: 1,
-          user: {
-            username: 'moviebuff99',
-            avatar: require('@/assets/foto_perfil.png')
-          },
-          movieTitle: 'Inception',
-          moviePoster: require('@/assets/inception_banner.jpg'),
-          rating: 5,
-          review: "Mind-bending masterpiece! Christopher Nolan outdoes himself with this intricate plot and stunning visuals. A must-watch for any sci-fi fan.",
-          timestamp: '2 hours ago',
-          isFollowing: true,
-        },
-        {
-          id: 2,
-          user: {
-            username: 'filmcritic22',
-            avatar: require('@/assets/foto_perfil.png')
-          },
-          movieTitle: 'Bullet Train',
-          moviePoster: require('@/assets/bulletTrain_banner.jpg'),
-          rating: 5,
-          review: "A timeless classic that set the standard for crime dramas. Marlon Brando's performance is unforgettable. Every frame is a masterpiece.",
-          timestamp: '5 hours ago',
-          isFollowing: false,
-        },
-        {
-          id: 3,
-          user: {
-            username: 'cinephile42',
-            avatar: require('@/assets/foto_perfil.png')
-          },
-          movieTitle: 'Bohemian Rhapsody',
-          moviePoster: require('@/assets/bohemianRhapsody_banner.jpg'),
-          rating: 4,
-          review: "Tarantino's non-linear storytelling at its finest. The dialogue is sharp, the characters are unforgettable, and the soundtrack is perfect.",
-          timestamp: '1 day ago',
-          isFollowing: false,
-        },
-
-      ],
+      posts: [],
       users: [],
       user_list: [],
-
+      originalPosts: [], // Se inicializa correctamente
     }
   },
   methods: {
@@ -234,7 +196,6 @@ export default {
     async fillUsers() {
       try {
         const userList = await this.fetchUsers(0, 25);
-        console.log('List of USERS', userList);
         this.users = []; // Ensure `this.users` is initialized
 
         userList.forEach((user) => {
@@ -253,6 +214,50 @@ export default {
         console.error('Error filling users:', error);
       }
     },
+    async fetchPosts(skip = 0, limit = 25) {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/movies/rated/all_ratings`, {
+          params: {
+            skip: skip,
+            limit: limit,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        return [];
+      }
+    },
+    async fillPosts() {
+      try {
+        const posts = await this.fetchPosts(0, 25);
+
+        posts.forEach((post) => {
+          this.posts.push({
+            id: this.posts.length,
+            user: {
+              username: post.full_name,
+              avatar: post.user_image_url
+                ? post.user_image_url
+                : require('@/assets/foto_perfil.png'), // Fallback avatar
+            },
+            movieTitle: post.title,
+            moviePoster: getImagePath(post.movie_image_url)
+              ? getImagePath(post.movie_image_url)
+              : require('@/assets/fondo_login.jpg'), // Fallback image
+            rating: post.rating,
+            review: post.first_comment,
+            timestamp: post.time_since_comment,
+            isFollowing: false,
+          });
+        });
+
+        // Guardar la lista original de posts para el filtrado
+        this.originalPosts = [...this.posts];
+      } catch (error) {
+        console.error('Error filling posts:', error);
+      }
+    },
 
     handleSortChange(event) {
       this.selectedSort = event.target.value;
@@ -269,6 +274,7 @@ export default {
     },
     handleSearch() {
       console.log('Searching for:', this.searchQuery);
+      this.filterPosts();
     },
     filterPosts() {
       const query = this.searchQuery.toLowerCase();
@@ -338,8 +344,10 @@ export default {
     this.originalPosts = [...this.feed];
   },
   created() {
+    this.fillPosts();
     this.fillUsers();
     this.feed = this.posts;
+    this.originalPosts = [...this.posts];
     const userEmail = localStorage.getItem('userEmail');
     if (!userEmail) {
       return;
@@ -367,10 +375,10 @@ export default {
     selectedOption(newVal) {
       if (newVal === 'option1') {
         this.feed = this.posts;
-        this.originalPosts = [...this.posts];
+        this.originalPosts = [...this.feed];
       } else {
         this.feed = this.users;
-        this.originalPosts = [...this.users];
+        this.originalPosts = [...this.feed];
       }
     }
   }

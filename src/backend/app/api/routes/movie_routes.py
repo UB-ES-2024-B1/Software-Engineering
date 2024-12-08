@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 from app.api.dependencies import get_db  # Import the get_db function for database session management
 from app.crud import movie_crud  # Import CRUD functions for movie operations
 from app.models import (Movie, MovieIn, MovieOut, MovieUser, User)  # Import movie models for input and output
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 from fastapi.responses import FileResponse
 from app.api.routes.user_routes import is_admin_user
@@ -496,6 +496,17 @@ def get_liked_movies(user_id: int, db: Session = Depends(get_db)):
 @router.get("/wished_list/{user_id}")
 def get_wished_movies(user_id: int, db: Session = Depends(get_db)):
     return movie_crud.get_user_wished_movies(db, user_id)
+
+# Endpoint to get the list of all ratings
+@router.get("/rated/all_ratings", response_model=List[Dict[str, Any]])
+def get_all_rated_movies(
+    skip: int = 0,  # Default value for skip
+    limit: int = 100,  # Default value for limit
+    db: Session = Depends(get_db)
+):
+    return movie_crud.get_all_ratings(db, skip, limit)
+
+
 
 '''# Endpoint to update only the rating of an existing movie by its title
 @router.put("/{movie_title}/rating", response_model=MovieOut)
