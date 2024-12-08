@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.user_models import User, UserOut, ListType, MovieList
 from app.models.movie_models import Movie
 from typing import List
+from sqlmodel import Session, select
 
 # Function to create a user
 def create_user(db: Session, full_name: str, email: str, hashed_password: str, is_admin: bool =False, is_premium: bool = False) -> UserOut:
@@ -40,6 +41,9 @@ def delete_user(db: Session, user_id: int) -> bool:
     """
     user = db.query(User).filter(User.id == user_id).first()
     if user:
+        # Handle associated listtype records
+        db.query(ListType).filter(ListType.user_id == user.id).delete()
+
         db.delete(user)
         db.commit()
         return True  # Deletion successful
@@ -54,6 +58,9 @@ def delete_user_by_email(db: Session, user_email: str) -> bool:
     """
     user = db.query(User).filter(User.email == user_email).first()
     if user:
+        # Handle associated listtype records
+        db.query(ListType).filter(ListType.user_id == user.id).delete()
+
         db.delete(user)
         db.commit()
         return True  # Deletion successful
@@ -219,6 +226,7 @@ def add_movie_to_list(db: Session, user_email: str, list_name: str, movie_id: in
     movie = db.query(Movie).filter(Movie.id == movie_id).first()
     if not movie:
         return None
+    
     # Check if the movie already exists in the list
     existing_movie = db.query(MovieList).filter(
         MovieList.list_type_id == list_type.id,
@@ -234,3 +242,115 @@ def add_movie_to_list(db: Session, user_email: str, list_name: str, movie_id: in
     db.commit()
     db.refresh(new_movie_list)
     return new_movie_list
+
+# Get all lists with the movie inside
+def get_all_lists_with_movies(db: Session, user_email: str):
+    """
+    Retrieve all lists with their movies for a specific user.
+    :param db: Database session
+    :param user_email: The email of the user
+    :return: A list of dictionaries where each contains the list name and its movies
+    """
+    # Get all list types for the user
+    user_lists = db.query(ListType).filter(
+        ListType.created_by_user_email == user_email
+    ).all()
+
+    if not user_lists:
+        return []
+
+    # Prepare the response
+    result = []
+    for list_type in user_lists:
+        # Get all movies in the list
+        movies = db.query(Movie).join(MovieList).filter(
+            MovieList.list_type_id == list_type.id
+        ).all()
+        
+        # Append the list and movies
+        result.append({
+            "list_name": list_type.name,
+            "movies": [
+                {
+                    "id": movie.id,
+                    "title": movie.title,
+                    "description": movie.description,
+                    "director": movie.director,
+                    "country": movie.country,
+                    "release_date": movie.release_date,
+                    "rating": movie.rating,
+                    "genres": movie.genres
+                }
+                for movie in movies
+            ]
+        })
+    
+    return result
+
+# CRUD method for deleting a list by name
+def delete_list_by_name(db: Session, user_email: str, list_name: str):
+    """
+    Delete a list for a user by email and list name.
+    :param db: Database session
+    :param user_email: The email of the user who owns the list
+    :param list_name: The name of the list to delete
+    :return: None
+    """
+    list_type = db.query(ListType).filter(
+        ListType.created_by_user_email == user_email,
+        ListType.name == list_name
+    ).first()
+
+    if list_type:
+        db.delete(list_type)
+        db.commit()
+
+# Method to remove a movie from a list
+def remove_movie_from_list_by_email(db: Session, user_email: str, list_name: str, movie_id: int) -> MovieList:
+    """
+    Method to remove a movie from a user's list.
+    :param db: Database session
+    :param user_email: The email of the user who owns the list
+    :param list_name: The name of the list
+    :param movie_id: The ID of the movie to remove
+    :return: MovieList object that was removed or None if not found
+    """
+    # Retrieve the list by name and user email
+    list_type = db.query(ListType).filter(
+        ListType.name == list_name,
+        ListType.created_by_user_email == user_email
+    ).first()
+
+    if not list_type:
+        return None
+
+    # Check if the movie exists in the list
+    movie_list_entry = db.query(MovieList).filter(
+        MovieList.list_type_id == list_type.id,
+        MovieList.movie_id == movie_id
+    ).first()
+
+    if not movie_list_entry:
+        return None
+    
+    # Remove the movie from the list
+    db.delete(movie_list_entry)
+    db.commit()
+
+    return movie_list_entry
+
+# Delete the movie-list link if delete movie from db
+def delete_movie_links(db: Session, movie_id: int) -> None:
+    """
+    Delete a movie and all associated MovieList entries (links to ListType).
+    """
+    # Fetch the movie from the database
+    movie = db.get(Movie, movie_id)
+    if movie:
+        # Delete all associated MovieList entries
+        statement = select(MovieList).where(MovieList.movie_id == movie_id)
+        movie_links = db.execute(statement).scalars().all()
+        for link in movie_links:
+            db.delete(link)
+        return True
+    return False  # Movie not found

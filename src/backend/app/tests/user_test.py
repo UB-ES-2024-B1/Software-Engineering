@@ -279,13 +279,12 @@ def test_add_movie_to_list_and_get():
 def test_add_non_existing_movie_to_list():
     # Create a user and a list
     user_data = {
-        "email": "user2@example.com", 
+        "email": "user@example.com", 
         "is_active": True, 
         "is_premium": True, 
-        "full_name": "Test User 2", 
-        "password": "password456"
+        "full_name": "Test User", 
+        "password": "password123"
     }
-    client.post("/users/", json=user_data)
 
     list_type_data = {"name": "To Watch"}
     client.post(f"/list-type/{user_data['email']}/{list_type_data['name']}")
@@ -298,17 +297,138 @@ def test_add_non_existing_movie_to_list():
 # Test adding a movie to a non-existing list
 def test_add_movie_to_non_existing_list():
     # Create a user
-    user_data = {
-        "email": "user3@example.com", 
-        "is_active": True, 
-        "is_premium": True, 
-        "full_name": "Test User 3", 
-        "password": "password789"
+    premium_user = {
+        "email": "premiumuser@example.com",
+        "is_active": True,
+        "is_premium": True,
+        "full_name": "Premium User",
+        "password": "password123"
     }
-    client.post("/users/", json=user_data)
 
     movie_data = {"movie_id": 1}  # Assuming movie ID 1 exists
     # Trying to add movie to a non-existing list
-    response = client.post(f"/list-type/add-movie/{user_data['email']}/NonExistentList/{movie_data['movie_id']}")
+    response = client.post(f"/list-type/add-movie/{premium_user['email']}/NonExistentList/{movie_data['movie_id']}")
     assert response.status_code == 404
     assert response.json() == {"detail": "List not found"}
+
+def test_delete_list():
+    # Create a premium user and a list
+    premium_user = {
+        "email": "premiumuser@example.com",
+        "is_active": True,
+        "is_premium": True,
+        "full_name": "Premium User",
+        "password": "password123"
+    }
+    
+    list_type_data = {"name": "Watch Again"}
+    client.post(f"/list-type/{premium_user['email']}/{list_type_data['name']}")
+
+    # Delete the list
+    response = client.delete(f"/list-type/{premium_user['email']}/{list_type_data['name']}")
+    assert response.status_code == 200
+    print(response.json())
+    assert response.json() == {"detail": f"List '{list_type_data['name']}' deleted successfully."}
+
+def test_remove_movie_from_list():
+    # Create a user, list, and movie
+    user_data = {
+        "email": "user@example.com", 
+        "is_active": True, 
+        "is_premium": True, 
+        "full_name": "Test User", 
+        "password": "password123"
+    }
+    
+    list_type_data = {"name": "Watch Later"}
+    client.post(f"/list-type/{user_data['email']}/{list_type_data['name']}")
+
+    new_movie = {
+        "title": "The Lost City",
+        "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
+        "director": "Sarah Connors",
+        "country": "United States",
+        "release_date": "2024-10-26",
+        "rating": 4.2,
+        "rating_count": 12500,
+        "likes": 5200,
+        "genres": [
+            "Adventure",
+            "Thriller"
+        ],
+        "cast_members": [
+            "John Doe",
+            "Jane Smith",
+            "Mike Johnson"
+        ],
+        "image": [
+        ],
+        "trailer": ""
+    }
+    movie_data = client.get(f"/movies/title/{new_movie['title']}").json()
+
+    # Add the movie to the list
+    client.post(f"/list-type/add-movie/{user_data['email']}/{list_type_data['name']}/{movie_data['id']}")
+
+    # Remove the movie from the list
+    response = client.delete(f"/list-type/remove-movie/{user_data['email']}/{list_type_data['name']}/{movie_data['id']}")
+    assert response.status_code == 200
+    assert response.json() == {"detail": f"Movie ID {movie_data['id']} removed from list '{list_type_data['name']}'."}
+
+# Deleting all users and lists should return Not found error
+def test_deleted_user_lists_try_post_invalid():
+    user_email = "premiumuser@example.com"
+    non_premium_user = "nonpremiumuser@example.com"
+    user_example = "user@example.com"
+
+    # Delete the user
+    delete_response = client.delete(f"/users/email/{user_email}")
+    assert delete_response.status_code == 200
+    # Delete the user non premium
+    delete_response2 = client.delete("/users/email/nonpremiumuser@example.com")
+    assert delete_response2.status_code == 200
+    # Delete the user example
+    delete_response3 = client.delete(f"/users/email/{user_example}")
+    assert delete_response3.status_code == 200
+    
+    # 1. Try that cannot create a new list for non existing email
+    list_type_data = {"name": "Watch Later"}
+    response = client.post(f"/list-type/{non_premium_user}/{list_type_data['name']}")
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "User not found or unable to create list"
+
+# Deleting movie and try to add movie to invalid list
+def test_deleted_movie_try_post_invalid():
+    user_email = "premiumuser@example.com"
+    
+    new_movie = {
+        "title": "The Lost City",
+        "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
+        "director": "Sarah Connors",
+        "country": "United States",
+        "release_date": "2024-10-26",
+        "rating": 4.2,
+        "rating_count": 12500,
+        "likes": 5200,
+        "genres": [
+            "Adventure",
+            "Thriller"
+        ],
+        "cast_members": [
+            "John Doe",
+            "Jane Smith",
+            "Mike Johnson"
+        ],
+        "image": [
+        ],
+        "trailer": ""
+    }
+    # Delete movie
+    response = client.delete(f"/movies/title/{new_movie['title']}")
+    assert response.status_code == 200
+    
+    list_type_data = {"name": "Watch Later"}
+    response2 = client.post(f"/list-type/add-movie/{user_email}/{list_type_data['name']}/1")
+    assert response2.status_code == 404
+

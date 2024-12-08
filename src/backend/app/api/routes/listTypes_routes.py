@@ -95,3 +95,54 @@ def get_movie_names_by_list_name(user_email: str, list_name: str, db: Session = 
     movie_names = [movie.movie.title for movie in list_type.movies]
     
     return movie_names
+
+# Delete a list by name and user's email
+@router.delete("/{user_email}/{list_name}", status_code=status.HTTP_200_OK)
+def delete_list(user_email: str, list_name: str, db: Session = Depends(get_db)):
+    """
+    Delete a list for a user by email.
+    :param user_email: The email of the user who owns the list
+    :param list_name: The name of the list to delete
+    :param db: Database session (injected via dependency)
+    """
+    # Call the CRUD function to remove the list
+    list_type = user_crud.get_list_type_by_name(db, user_email=user_email, name=list_name)
+    if not list_type:
+        raise HTTPException(status_code=404, detail="List not found")
+    
+    # Use CRUD function to delete the list
+    user_crud.delete_list_by_name(db, user_email=user_email, list_name=list_name)
+
+    return {"detail": f"List '{list_name}' deleted successfully."}
+
+# Remove a movie from a list by movie id and list name
+@router.delete("/remove-movie/{user_email}/{list_name}/{movie_id}", status_code=status.HTTP_200_OK)
+def remove_movie_from_list(user_email: str, list_name: str, movie_id: int, db: Session = Depends(get_db)):
+    """
+    Remove a movie from a user's list.
+    :param user_email: The email of the user who owns the list
+    :param list_name: The name of the list from which to remove the movie
+    :param movie_id: The ID of the movie to remove from the list
+    :param db: Database session (injected via dependency)
+    """
+    # Call the CRUD function to remove the movie from the list
+    movie_list_entry = user_crud.remove_movie_from_list_by_email(db, user_email, list_name, movie_id)
+    if not movie_list_entry:
+        raise HTTPException(status_code=404, detail="Movie not found in the list")
+    
+    return {"detail": f"Movie ID {movie_id} removed from list '{list_name}'."}
+
+# Get all lists with movies for a user
+@router.get("/get-lists-with-movies/{user_email}", response_model=List[dict])
+def get_lists_with_movies(user_email: str, db: Session = Depends(get_db)):
+    """
+    Retrieve all lists with their movies for a user by email.
+    :param user_email: The email of the user
+    :param db: Database session (injected via dependency)
+    :return: A list of lists, each with its movies
+    """
+    user_lists = user_crud.get_all_lists_with_movies(db, user_email)
+    if not user_lists:
+        raise HTTPException(status_code=404, detail="No lists found for the user.")
+    
+    return user_lists
