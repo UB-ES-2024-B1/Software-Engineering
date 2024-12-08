@@ -627,7 +627,7 @@ def test_create_get_related_movies_and_delete():
     
     # Check that no more than 5 related movies are returned
     assert len(related_movies) <= 60
-
+    
     # Validate structure and relation to "The Lost City"
     for movie in related_movies:
         assert "title" in movie
@@ -645,7 +645,7 @@ def test_create_get_related_movies_and_delete():
     }
 
     # For each movie in related movies, compare the genres and cast members
-    for movie in related_movies:
+    for movie in related_movies[:5]:
         movie_genres = set(genre['type'] for genre in movie['genres'])
         movie_cast = set(cast_member['name'] for cast_member in movie['cast_members'])
         

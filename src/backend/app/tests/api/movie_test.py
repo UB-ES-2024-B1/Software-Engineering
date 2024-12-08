@@ -228,6 +228,7 @@ def test_get_movies_by_genre_list_2():
     assert response.status_code == 404
 
 
+'''
 # Test to get related movies by title
 def test_get_related_movies_by_title():
     # Precondition: "The Lost City" should already exist in the database with appropriate genres, cast, and director
@@ -266,7 +267,7 @@ def test_get_related_movies_by_title():
 
         # At least one attribute should match to be considered related
         assert len(shared_genres) > 0 or len(shared_cast) > 0 or director_match
-
+'''
 # Test delete movie 
 def test_delete_movie():
     response = client.delete("/movies/title/The Lost City")

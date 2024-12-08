@@ -15,6 +15,7 @@ from app.crud.comments_crud import (
     get_comments_banned,
     get_comments_reported_by_user,
 )
+from app.crud import movie_crud
 from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest
 
   # Import the get_db function for database session management
@@ -26,6 +27,11 @@ def create_movie_thread(movie_id: int, session: Session = Depends(get_db)):
     """
     Create a new thread for a specific movie.
     """
+    movie = movie_crud.get_movie(db=session, movie_id=movie_id)
+    # If the movie does not exist, raise a 404 error
+    if movie is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
     thread = create_thread(session, movie_id)
     if not thread:
         raise HTTPException(status_code=400, detail="Failed to create thread.")

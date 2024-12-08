@@ -7,14 +7,14 @@ client = TestClient(app)
 def test_create_two_users_and_get_and_delete():
     # Define two new users
     user1 = {
-        "email": "user1@example.com",
+        "email": "user1test@example.com",
         "is_active": True,
         "is_admin": False,
         "full_name": "User One",
         "password": "password123"
     }
     user2 = {
-        "email": "user2@example.com",
+        "email": "user2test@example.com",
         "is_active": True,
         "is_admin": False,
         "full_name": "User Two",
