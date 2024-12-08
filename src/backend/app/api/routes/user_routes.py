@@ -25,12 +25,12 @@ def init_db():
     if len(user_crud.get_users(db)) == 0:
         # Crear 6 usuarios
         initial_users = [
-            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premiun": True},
-            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premiun": True},
-            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premiun": True},
-            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premiun": True},
-            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premiun": False},
-            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premiun": False},
+            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": True},
+            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": True},
+            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": True},
+            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": True},
+            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": False},
+            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": False},
         ]
         # Insertar usuarios en la base de datos
         for user_data in initial_users:
@@ -39,8 +39,8 @@ def init_db():
                 full_name=user_data.get("full_name"),
                 email=user_data.get("email"),
                 hashed_password=pwd_context.hash(user_data.get("password")),
-                is_admin=user_data.get("is_admin")
-                #is_premium=user_data.get("is_premium")
+                is_admin=user_data.get("is_admin"),
+                is_premium=user_data.get("is_premium")
             )
     db.close()  # Cerrar la sesión
     
@@ -62,7 +62,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     hashed_password = pwd_context.hash(user.password)
 
     # Call the CRUD operation to create the user in the database
-    new_user = user_crud.create_user(db, full_name=user.full_name, email=user.email, hashed_password=hashed_password)
+    new_user = user_crud.create_user(db, full_name=user.full_name, email=user.email, hashed_password=hashed_password, is_premium=user.is_premium)
     return new_user
 
 # Route to get all users
@@ -303,3 +303,4 @@ def downgrade_user_to_premium(user_email: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+

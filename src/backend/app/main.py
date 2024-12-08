@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from .api.routes import user_routes, movie_routes, genre_routes, login_routes, comments_routes
+from .api.routes import user_routes, movie_routes, genre_routes, login_routes, comments_routes, listTypes_routes
 from .db import init_movie_db
 from .api.db_utils import get_db
 from .db.database import engine, Base
@@ -42,3 +42,4 @@ app.include_router(movie_routes.router, prefix="/movies", tags=["movies"])
 app.include_router(genre_routes.router, prefix="/genres", tags=["genres"])
 app.include_router(login_routes.router, prefix="/login", tags=["login"])
 app.include_router(comments_routes.router, prefix="/comments", tags=["comments"])
+app.include_router(listTypes_routes.router, prefix="/list-type", tags=["List Types"])

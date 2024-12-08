@@ -5,6 +5,8 @@ from typing import List
 from fastapi import File, UploadFile, HTTPException
 from sqlalchemy.sql import func, case, extract
 from app.api.routes.comments_routes import create_thread, delete_thread
+from app.crud.user_crud import delete_movie_links
+
 
 
 
@@ -209,6 +211,7 @@ def delete_movie(db: Session, movie_id: int) -> bool:
     movie = result[0] if result else None
     if movie:
         delete_thread(db, movie_id)
+        delete_movie_links(db, movie_id)
         db.delete(movie)
         db.commit()
         return True  # Deletion successful
@@ -221,6 +224,7 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
     movie = result[0] if result else None
     if movie:
         delete_thread(db, movie.id)
+        delete_movie_links(db, movie.id)
         db.delete(movie)
         db.commit()
         return True  # Deletion successful

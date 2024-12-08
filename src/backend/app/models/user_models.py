@@ -3,7 +3,6 @@ from app.models.comments_model import Comment
 from sqlmodel import Field, SQLModel, Relationship
 from typing import Union, Optional, List
 
-
 # Shared properties
 class UserBase(SQLModel):
     email: str = Field(unique=True, index=True)
@@ -21,16 +20,39 @@ class MovieUser(SQLModel, table=True):
     rating: Optional[float] = Field(default=None, ge=0, le=5)  # User rating between 0 and 5
     liked: Optional[bool] = Field(default=False)  # Whether the user liked the movie
     wished: Optional[bool] = Field(default=False)  # Whether the user liked the movie
- 
+
+# Tables to create the new relationship for list of movies of a premium user
+# MovieList is the many-to-many relation table between movies and listtypes
+class MovieList(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    list_type_id: Optional[int] = Field(default=None, foreign_key="listtype.id")  # Links to ListType
+    movie_id: Optional[int] = Field(default=None, foreign_key="movie.id")  # Links to Movie
+
+    # Relationships
+    list_type: "ListType" = Relationship(back_populates="movies")
+    movie: "Movie" = Relationship(back_populates="list_types")
+
+# The ListType model that links to Movie through MovieList
+class ListType(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)  # The name of the list type
+    created_by_user_email: str = Field(index=True)  # Store the unique email here
+    # Define ForeignKey reference to User
+    user_id: int = Field(foreign_key="user.id")  # Assuming the User model uses 'email' as primary key
+
+    # Relationships to MovieList
+    movies: List["MovieList"] = Relationship(back_populates="list_type")
+    user: "User" = Relationship(back_populates="list_types")
+
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
     id: Union[int, None] = Field(default=None, primary_key=True)  # Use Union for compatibility
     hashed_password: str
     comments: List["Comment"] = Relationship(back_populates="user")
-
     # Establish relationship with movies
     movies: List["Movie"] = Relationship(back_populates="users", link_model=MovieUser)
-
+    # Relationships to list type
+    list_types: List["ListType"] = Relationship(back_populates="user")
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
