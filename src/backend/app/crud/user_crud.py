@@ -150,6 +150,13 @@ def create_list_by_email(db: Session, user_email: str, list_name: str) -> ListTy
     """
     Method to create a new list for a premium user by email.
     """
+    # Define restricted names
+    restricted_names = {"Favorite", "Wish", "Rated"}
+
+    # Check if the list name is restricted
+    if list_name in restricted_names:
+        return None
+
     # Fetch the user by email
     user = db.query(User).filter(User.email == user_email).first()
     if not user:
