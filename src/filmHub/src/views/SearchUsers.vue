@@ -28,13 +28,17 @@
         <div class="feed">
           <div class="post" v-for="post in feed" :key="post.id">
             <div class="post-content">
+              <router-link :to="{ path: `/movie/${post.movie_id}`}" class="movie-post">
               <img :src="post.moviePoster" v-if="post.moviePoster" :alt="post.movieTitle" class="movie-poster" />
+              </router-link>
               <div class="post-details">
                 <div class="post-higher">
                   <div class="post-header">
                     <img :src="post.user.avatar" :alt="post.user.username" class="avatar" />
                     <div class="user-info">
-                      <span class="username">{{ post.user.username }}</span>
+                        <router-link class="username" :to="{ path: `/otherProfiles/${post.user.username.charAt(0).toLowerCase() + post.user.username.slice(1)}@example.com`}">
+                      <span>{{ post.user.username }}</span>
+                      </router-link>
                       <span class="timestamp">{{ post.timestamp }}</span>
                     </div>
 
@@ -66,7 +70,6 @@
               class="avatar" />
             <img v-else :src="require('@/assets/foto_perfil.png')" alt="Your profile" class="avatar" />
 
-            <h2>Your Profile</h2>
             <p v-if="userData">@{{ userData.full_name }}</p>
             <p v-else>Guest</p>
             <div class="stats">
@@ -230,13 +233,13 @@ export default {
         const posts = await this.fetchPosts(0, 25);
 
         posts.forEach((post) => {
-          this.posts.push({
+            this.posts.unshift({
             id: this.posts.length,
             user: {
               username: post.full_name,
               avatar: post.user_image_url
-                ? post.user_image_url
-                : require('@/assets/foto_perfil.png'), // Fallback avatar
+              ? post.user_image_url
+              : require('@/assets/foto_perfil.png'), // Fallback avatar
             },
             movieTitle: post.title,
             moviePoster: getImagePath(post.movie_image_url)
@@ -245,6 +248,7 @@ export default {
             rating: post.rating,
             review: post.first_comment,
             timestamp: post.time_since_comment,
+            movie_id: post.movie_id,
             isFollowing: false,
           });
         });
@@ -456,6 +460,12 @@ export default {
 
 .username {
   font-weight: bold;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.username:hover {
+  text-decoration: underline;
 }
 
 .timestamp {

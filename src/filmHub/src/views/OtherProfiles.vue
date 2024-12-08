@@ -11,38 +11,41 @@
                     <!-- Imagen de perfil -->
                     <div class="profile-image">
                         <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Profile Picture" />
-                    </div>
-
-                    <div class="profile-info">
-                        <div class="username-div">
-                            <strong>Name:</strong><br />
-                            <span>{{ userData.full_name }}</span>
+                        <!-- Nombre de usuario debajo de la imagen -->
+                        <div class="username">
+                            <strong>{{ userData.full_name }}</strong>
                         </div>
 
-                        <!-- Información adicional: followers, reviews, followed -->
-                        <div class="extra-info">
-                            <div class="info-item">
-                                <strong>Followers:</strong>
-                                <span>125</span> <!-- Valor hardcodeado -->
-                            </div>
-                            <div class="info-item">
-                                <strong>Reviews:</strong>
-                                <span>34</span> <!-- Valor hardcodeado -->
-                            </div>
-                            <div class="info-item">
-                                <strong>Followed:</strong>
-                                <span>58</span> <!-- Valor hardcodeado -->
-                            </div>
-
-                        </div>
+                        <!-- Botón de seguir/Dejar de seguir -->
                         <div class="follow-button">
-                            <button @click="toggleFollow">
-                                {{ isFollowing ? 'Unfollow' : 'Follow' }}
+                            <button @click="toggleFollow" :style="{ backgroundColor: isFollowing ? '#696869' : '#640b75' }">
+                                {{ isFollowing ? 'Following' : 'Follow' }}
                             </button>
                         </div>
+                    </div>
 
+                    <!-- Información adicional: followers, reviews, followed -->
+                    <div class="profile-info">
+                        <div class="extra-info">
+                            <div class="info-item">
+                                <h3 class ="info-number">34</h3> <!-- Valor hardcodeado -->
+                                <h4 class="info-text">Reviews</h4>
+                                
+                            </div>
+                            <div class="info-item">
+                                <h3 class ="info-number">125</h3> <!-- Valor hardcodeado -->
+                                <h4 class="info-text">Followers</h4>
+                            </div>
+                            <div class="info-item">
+                                <h3 class ="info-number">58</h3> <!-- Valor hardcodeado -->
+                                <h4 class="info-text">Followed</h4>
+                                
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+
                 <div v-else class="loading-message">
                     Loading profile...
                 </div>
@@ -109,7 +112,6 @@
 <script>
 
 import HeaderPage from '@/components/HeaderPage.vue';
-import FooterComponent from '@/components/FooterComponent.vue';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
@@ -151,7 +153,6 @@ export default {
     name: 'UserProfile',
     components: {
         HeaderPage,
-        FooterComponent,
     },
     data() {
         return {
@@ -388,14 +389,14 @@ export default {
     backdrop-filter: blur(5px);
     padding: 40px;
     border-radius: 10px;
-    width: 750px;
-    height: 350px;
     color: white;
     z-index: 20;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     /* Mejora visual */
     border: 2px solid rgba(255, 255, 255, 0.1);
     /* Sutileza */
+    margin-top: 10vh;
+    
 }
 
 /* Contenido del perfil (imagen + info) */
@@ -404,17 +405,9 @@ export default {
     width: 100%;
     align-items: center;
     justify-content: space-between;
+    flex-direction: column;
 }
 
-/* Estilo de la imagen de perfil */
-.profile-image {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-right: 50px;
-    padding-bottom: 0px;
-}
 
 .profile-image img {
     width: 150px;
@@ -429,10 +422,12 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 1rem;
-    gap: 20px;
 }
-
+.info-text{
+    font-size:15px;
+    font-weight: 300;
+    color: rgb(194, 191, 191)
+}
 .profile-info p {
     margin-bottom: 60px;
     font-size: 18px;
@@ -830,19 +825,65 @@ h2 {
 
 .extra-info {
     display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    margin-top: 10px;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.extra-info .info-item {
-    display: flex;
-    flex-direction: column;
     align-items: center;
+    gap: 10px;
+    margin-top: 10px;
 }
 
+.info-item {
+    display: flex;
+    justify-content: center;
+    align-self: center;
+    gap: 5px;
+    flex-direction: column;
+    background: linear-gradient(145deg, #3a3a3a, #1e1e1f, #3a3a3a);
+    border-radius: 10px;
+    width: 15vh;
+    height: 10vh;
+    position: relative;
+    overflow: hidden; /* Ensure the animation doesn't bleed out */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+.info-item::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%; /* Larger than the element for a smooth gradient */
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 80%);
+    transform: rotate(45deg); /* Diagonal movement */
+    opacity: 0; /* Initially invisible */
+}
+
+.info-item:hover {
+    cursor: pointer; /* Ensure pointer cursor on hover */
+}
+
+.info-item:hover::before {
+    opacity: 1; /* Make the light visible on hover */
+    animation: lightMove 0.6s ease-in-out forwards; /* Play the animation */
+}
+
+@keyframes lightMove {
+    0% {
+        top: -50%;
+        left: -50%;
+    }
+    100% {
+        top: 150%;
+        left: 150%;
+    }
+}
+
+
+
+.info-number{
+    font-size: 25px;
+    margin-bottom: -5px;
+    color:#ffffff;
+}
 .follow-button {
     margin-top: 15px;
     text-align: center;
@@ -850,8 +891,6 @@ h2 {
 
 .follow-button button {
     padding: 8px 16px;
-    background-color: #007bff;
-    /* Color azul */
     color: white;
     border: none;
     border-radius: 4px;
@@ -861,12 +900,28 @@ h2 {
 }
 
 .follow-button button:hover {
-    background-color: #0056b3;
+    transform: scale(1.1)
     /* Azul más oscuro al pasar el mouse */
 }
 
 .follow-button button:active {
-    background-color: #003f7f;
+    background-color: #740a9e;
     /* Azul aún más oscuro al hacer clic */
+}
+
+.profile-image {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+
+}
+
+.username {
+    padding-top: 3vh;
+    font-size: larger;
+
 }
 </style>
