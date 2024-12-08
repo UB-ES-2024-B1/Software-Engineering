@@ -11,12 +11,25 @@
             <button @click="handleSearch" class="search-button">🔍</button>
           </div>
           <RadioForm v-model="selectedOption" :options="radioOptions" :fontFamily="'Arial, Helvetica, sans-serif'"
-            name="movie-options" :fontSize="'15px'" :title="'Sort by'" id="RadioForm" />
+            name="movie-options" :fontSize="'15px'" :title="'Show'" id="RadioForm" />
+
+          <div class="input-group mt-2" id="dropdown-menu">
+            <label class="input-group-text" for="sortOptions">Sort By</label>
+            <select class="form-select" id="sortOptions" @change="handleSortChange">
+              <option value="date" selected>Date</option>
+              <option value="popularity">Popularity</option>
+              <option value="rating">Rating</option>
+            </select>
+          </div>
+
+          <!-- Optional: Display the selected sort -->
+          <p class="mt-3">Selected sort: {{ selectedSort }}</p>
+
         </div>
 
 
         <div class="feed">
-          <div class="post" v-for="post in posts" :key="post.id">
+          <div class="post" v-for="post in feed" :key="post.id">
             <div class="post-content">
               <img :src="post.moviePoster" v-if="post.moviePoster" :alt="post.movieTitle" class="movie-poster" />
               <div class="post-details">
@@ -52,13 +65,14 @@
         </div>
         <aside class="sidebar">
           <div class="user-profile">
-            <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Your profile" class="avatar" />
+            <img v-if="userData" :src="userData.img_url" alt="Your profile" class="avatar" />
+            <img v-else :src="require('@/assets/foto_perfil.png')" alt="Your profile" class="avatar" />
             <h2>Your Profile</h2>
             <p v-if="userData">@{{ userData.full_name }}</p>
             <p v-else>Guest</p>
             <div class="stats">
               <div class="stat">
-                <span class="stat-value">152</span>
+                <span class="stat-value">{{ this.user_reviews }}</span>
                 <span class="stat-label">Reviews</span>
               </div>
               <div class="stat">
@@ -116,21 +130,22 @@ async function generateMovieObject(movieData, userRating = null) {
 }
 
 function getImagePath(image) {
-    if (image && image.startsWith('http')) {
-      return image;
-    } else if (image) {
-      try {
-        return require(`@/assets/${image}`);
-      } catch (error) {
-        console.error(`Error loading local image: ${image}`, error);
-        return '';
-      }
-    } else {
-      console.warn('No image provided');
+  if (image && image.startsWith('http')) {
+    return image;
+  } else if (image) {
+    try {
+      return require(`@/assets/${image}`);
+    } catch (error) {
+      console.error(`Error loading local image: ${image}`, error);
       return '';
-
     }
+  } else {
+    console.warn('No image provided');
+    return '';
+
   }
+}
+
 export default {
   name: 'ViewProfile',
   components: {
@@ -139,18 +154,20 @@ export default {
   },
   data() {
     return {
+      selectedSort: 'date', // Default sort option
       userData: null,
       profile_image: '',
       user_rated_movies: [],
+      user_reviews: 0,
       trendingMovies: [],
+      originalPosts: [],
       selectedOption: 'option1', // Default selected value
       radioOptions: [
-        { label: 'Popularity', value: 'option1' },
-        { label: 'Date', value: 'option2' },// Newer
-        { label: 'Done Reviews', value: 'option3' }, // Older
-        { label: 'Following', value: 'option4' },
+        { label: 'Posts', value: 'option1' },
+        { label: 'Users', value: 'option2' },// Newer
       ],
       searchQuery: '',
+      feed: [],
       posts: [
         {
           id: 1,
@@ -191,31 +208,78 @@ export default {
           timestamp: '1 day ago',
           isFollowing: false,
         },
-        {
-          id: 4,
-          user: {
-            username: 'filmfanatic88',
-            avatar: require('@/assets/foto_perfil.png')
-          },
-          isFollowing: true,
-        }
 
       ],
+      users: [],
+      user_list: [],
 
     }
   },
   methods: {
+    async fetchUsers(skip = 0, limit = 100) {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/users/`, {
+          params: {
+            skip: skip,
+            limit: limit,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        return [];
+      }
+    },
+
+    async fillUsers() {
+      try {
+        const userList = await this.fetchUsers(0, 25);
+        console.log('List of USERS', userList);
+        this.users = []; // Ensure `this.users` is initialized
+
+        userList.forEach((user) => {
+          this.users.push({
+            id: this.users.length,
+            user: {
+              username: user.full_name,
+              avatar: user.img_url
+                ? user.img_url
+                : require('@/assets/foto_perfil.png'), // Fallback avatar
+            },
+            isFollowing: false,
+          });
+        });
+      } catch (error) {
+        console.error('Error filling users:', error);
+      }
+    },
+
+    handleSortChange(event) {
+      this.selectedSort = event.target.value;
+      console.log('Sort by:', this.selectedSort);
+
+      // Add logic to sort your data based on the selected value
+      if (this.selectedSort === 'date') {
+        // Sort by date
+      } else if (this.selectedSort === 'popularity') {
+        // Sort by popularity
+      } else if (this.selectedSort === 'rating') {
+        // Sort by rating
+      }
+    },
     handleSearch() {
       console.log('Searching for:', this.searchQuery);
     },
     filterPosts() {
       const query = this.searchQuery.toLowerCase();
-      this.posts = this.originalPosts.filter(post =>
-        post.movieTitle.toLowerCase().includes(query) ||
-        post.review.toLowerCase().includes(query) ||
-        post.user.username.toLowerCase().includes(query)
-      );
+      this.feed = this.originalPosts.filter(feed => {
+        const movieTitle = feed.movieTitle ? feed.movieTitle.toLowerCase() : '';
+        const review = feed.review ? feed.review.toLowerCase() : '';
+        const username = feed.user.username ? feed.user.username.toLowerCase() : '';
+        return movieTitle.includes(query) || review.includes(query) || username.includes(query);
+      });
     },
+
 
     toggleFollow(post) {
       post.isFollowing = !post.isFollowing;
@@ -239,7 +303,7 @@ export default {
         .get(`${API_BASE_URL}/movies/rated_list/${this.userData.id}`)
         .then(async (response) => {
           const ratedMoviesList = response.data;
-
+          this.user_reviews = ratedMoviesList.length;
           // Tomar las últimas 3 películas valoradas
           const lastRatedMovies = ratedMoviesList.slice(-3);
 
@@ -271,31 +335,45 @@ export default {
   },
   mounted() {
     // Keep a copy of the original posts for filtering
-    this.originalPosts = [...this.posts];
+    this.originalPosts = [...this.feed];
   },
   created() {
-  const userEmail = localStorage.getItem('userEmail');
-  if (!userEmail) {
-    return;
-  }
+    this.fillUsers();
+    this.feed = this.posts;
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) {
+      return;
+    }
 
-  // Solicitar datos del usuario
-  axios
-    .get(`${API_BASE_URL}/users/email/${userEmail}`)
-    .then((response) => {
-      this.userData = response.data;
+    // Solicitar datos del usuario
+    axios
+      .get(`${API_BASE_URL}/users/email/${userEmail}`)
+      .then((response) => {
+        this.userData = response.data;
 
-      // Verificar que userData esté disponible antes de cargar las películas valoradas
-      if (this.userData) {
-        // Cargar las películas valoradas y con like desde un solo endpoint
-        this.loadLastRatedMovies();
+        // Verificar que userData esté disponible antes de cargar las películas valoradas
+        if (this.userData) {
+          // Cargar las películas valoradas y con like desde un solo endpoint
+          this.loadLastRatedMovies();
+        }
+      })
+      .catch((error) => {
+        console.error('Error al obtener los datos del usuario:', error);
+        this.error = 'Error fetching user data. Please try again.';
+      });
+  },
+
+  watch: {
+    selectedOption(newVal) {
+      if (newVal === 'option1') {
+        this.feed = this.posts;
+        this.originalPosts = [...this.posts];
+      } else {
+        this.feed = this.users;
+        this.originalPosts = [...this.users];
       }
-    })
-    .catch((error) => {
-      console.error('Error al obtener los datos del usuario:', error);
-      this.error = 'Error fetching user data. Please try again.';
-    });
-},
+    }
+  }
 
 
 }
@@ -426,11 +504,12 @@ export default {
   margin-left: auto;
   padding: 8px 12px;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   border: none;
-  min-width: 100px;
+  min-width: 5wh;
+  max-width: 5wh;
 }
 
 .action-button.following {
@@ -594,5 +673,18 @@ export default {
 
 #RadioForm {
   margin-top: 5vh;
+  margin-bottom: 5vh;
+}
+
+.input-group-text {
+  background-color: #2c2c2c;
+  color: #b3b3b3;
+  border-color: rgb(148, 146, 146);
+}
+
+.form-select {
+  background-color: #2c2c2c;
+  color: #e7e5e5;
+  border-color: rgb(148, 146, 146);
 }
 </style>
