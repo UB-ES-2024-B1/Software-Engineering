@@ -14,16 +14,13 @@
             name="movie-options" :fontSize="'15px'" :title="'Show'" id="RadioForm" />
 
           <div class="input-group mt-2" id="dropdown-menu">
-            <label class="input-group-text" for="sortOptions">Sort By</label>
+            <label class="input-group-text" for="sortOptions">Sort by:</label>
             <select class="form-select" id="sortOptions" @change="handleSortChange">
               <option value="date" selected>Date</option>
               <option value="popularity">Popularity</option>
               <option value="rating">Rating</option>
             </select>
           </div>
-
-          <!-- Optional: Display the selected sort -->
-          <p class="mt-3">Selected sort: {{ selectedSort }}</p>
 
         </div>
 
@@ -389,7 +386,16 @@ export default {
 
 <style scoped>
 .cinesphere {
-  background-color: #121212;
+  width: 100%;
+  height: 100%;
+  background-color: #111111;
+  background-image: linear-gradient(
+    32deg,
+    rgba(8, 8, 8, 0.74) 30px,
+    transparent
+  );
+  background-size: 60px 60px;
+  background-position: -5px -5px;
   color: #ffffff;
   font-family: Arial, sans-serif;
 
@@ -687,12 +693,22 @@ export default {
 .input-group-text {
   background-color: #2c2c2c;
   color: #b3b3b3;
-  border-color: rgb(148, 146, 146);
+  border:none;
 }
 
 .form-select {
   background-color: #2c2c2c;
   color: #e7e5e5;
-  border-color: rgb(148, 146, 146);
+  border:none;
 }
+
+.form-select:focus {
+  outline: none; /* Quita el borde azul de selección */
+  box-shadow: none; /* Quita la sombra del borde */
+}
+
+.form-select:hover {
+  box-shadow: none; /* Quita la sombra del borde en hover también */
+}
+
 </style>
