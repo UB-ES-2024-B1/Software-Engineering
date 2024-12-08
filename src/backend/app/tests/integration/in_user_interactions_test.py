@@ -522,3 +522,138 @@ def test_create_movie_user_comment_invalid():
     # Try to get the deleted movie
     get_response_after_delete = client.get(f"/movies/{movie_id}")
     assert get_response_after_delete.status_code == 404  # Movie should not be found
+
+# If reported can't delete comment
+def test_create_movie_user_comment_report_and_get_comment_status():
+    # New user data
+    new_user = {
+        "email": "testusercomments@example.com",
+        "is_active": True,
+        "is_admin": False,
+        "full_name": "testusercomments",
+        "password": "password123"
+    }
+
+    new_user2 = {
+        "email": "testusercomments2@example.com",
+        "is_active": True,
+        "is_admin": False,
+        "full_name": "testusercomments",
+        "password": "password123"
+    }
+
+    # New movie data
+    new_movie = {
+        "title": "Test Film for Comments",
+        "description": "A thrilling journey to the unknown.",
+        "director": "Director Name",
+        "country": "USA",
+        "release_date": "2024-05-01",
+        "rating": 4.0,
+        "rating_count": 5000,
+        "likes": 100,
+        "genres": ["Action", "Thriller"],
+        "cast_members": ["Actor 1", "Actor 2"],
+        "image": [],
+        "trailer": ""
+    }
+
+    # Create the user
+    response1 = client.post("/users/", json=new_user)  # Assumes /users/ is the correct route for user creation
+    assert response1.status_code == 201  # Assert user creation successful
+
+    # Create the user
+    response3 = client.post("/users/", json=new_user2)  # Assumes /users/ is the correct route for user creation
+    assert response3.status_code == 201  # Assert user creation successful
+
+    # Create the movie
+    response2 = client.post("/movies/", json=new_movie)  # Assumes /movies/ is the correct route for movie creation
+    assert response2.status_code == 200  # Assert movie creation successful
+
+    # Get movie id and user id
+    movie_id = response2.json()["id"]
+    user_id = response1.json()["id"]
+    user_id2 = response3.json()["id"]
+
+    # Create a movie thread for the movie, passing movie_id as a query parameter
+    response3 = client.post(f"/comments/threads/?movie_id={movie_id}")
+    assert response3.status_code == 200  # Assert thread creation successful
+    thread_id = response3.json()["id"]
+
+    # Add a comment to the movie thread
+    comment_text = "This movie is amazing!"
+    response4 = client.post(f"/comments/?thread_id={thread_id}&user_id={user_id}&text={comment_text}")
+    assert response4.status_code == 200  # Assert comment creation successful
+    comment_id = response4.json()["id"]
+
+    # Verify the comment after the update
+    response5 = client.get(f"/comments/threads/{thread_id}/comments/")  # Fetch updated comment by ID
+    assert response5.status_code == 200  # Assert comment retrieval after status update
+    updated_comment_data = response5.json()
+    assert any(comment["text"] == comment_text for comment in updated_comment_data)
+
+    # Report the comment
+    status_report = {
+        "reported": "REPORTED"
+    }
+
+    response6 = client.put(f"/comments/{comment_id}/status/?user_id={user_id2}", json=status_report)
+    assert response6.status_code == 200
+
+    # Verify the comment after the update
+    response5 = client.get(f"/comments/threads/{thread_id}/comments/")  # Fetch updated comment by ID
+    assert response5.status_code == 200  # Assert comment retrieval after status update
+    updated_comment_data = response5.json()
+    for comment in updated_comment_data:
+        if(comment["id"] == comment_id):
+            assert comment["reported"]  == "REPORTED"
+
+    # Verify the list of reported comments after the update
+    response5 = client.get(f"/comments/reported_by_user/{user_id2}/")
+    assert response6.status_code == 200
+    updated_comment_data = response5.json()
+    assert any(comment["text"] == comment_text for comment in updated_comment_data)
+    
+    # DELETE the comment
+    response8 = client.delete(f"/comments/{comment_id}")
+    assert response8.status_code == 204  # Assert comment deletion successful
+
+    # Verify the comment delete
+    response5 = client.get(f"/comments/threads/{thread_id}/comments")  # Fetch updated comment by ID
+    assert response5.status_code == 200  # Assert comment retrieval after status update
+    updated_comment_data = response5.json()
+    assert all(comment["text"] != comment_text for comment in updated_comment_data)
+
+    # DELETE the thread
+    response10 = client.delete(f"/comments/threads/{thread_id}")
+    assert response10.status_code == 204  # Assert thread deletion successful
+
+    # Verify the thread delete
+    response5 = client.get(f"/comments/threads/{thread_id}")  # Fetch updated comment by ID
+    assert response5.status_code == 200
+    updated_comment_data = response5.json()
+    assert len(updated_comment_data) <= 0
+
+    # Now delete the movie by title
+    delete_response = client.delete(f"/movies/title/Test Film for Comments")
+    assert delete_response.status_code == 200  # Assert movie deletion successful
+
+    # Try to get the deleted movie
+    get_response_after_delete = client.get(f"/movies/{movie_id}")
+    assert get_response_after_delete.status_code == 404  # Movie should not be found
+
+    # Delete the  user
+    delete_response1 = client.delete(f"/users/email/{new_user['email']}")
+    assert delete_response1.status_code == 200
+    
+    # Ensure the user is deleted
+    get_response1_after_delete = client.get(f"/users/email/{new_user['email']}")
+    assert get_response1_after_delete.status_code == 404
+
+    # Delete the  user2
+    delete_response1 = client.delete(f"/users/email/{new_user2['email']}")
+    assert delete_response1.status_code == 200
+    
+    # Ensure the user is deleted
+    get_response1_after_delete = client.get(f"/users/email/{new_user2['email']}")
+    assert get_response1_after_delete.status_code == 404

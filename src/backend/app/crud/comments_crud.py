@@ -133,6 +133,7 @@ def delete_comment(db: Session, comment_id: int) -> bool:
     """
     comment = db.get(Comment, comment_id)
     if comment:
+        db.query(CommentReportedBy).filter(CommentReportedBy.comment_id == comment_id).delete()
         db.delete(comment)
         db.commit()
         return True
