@@ -311,6 +311,48 @@ def test_add_movie_to_non_existing_list():
     assert response.status_code == 404
     assert response.json() == {"detail": "List not found"}
 
+def test_get_lists_with_movies():
+    # Create a user
+    user_data = {
+        "email": "user@example.com", 
+        "is_active": True, 
+        "is_premium": True, 
+        "full_name": "Test User", 
+        "password": "password123"
+    }
+    # Create lists
+    client.post(f"/list-type/{user_data['email']}/Watch Later")
+    client.post(f"/list-type/{user_data['email']}/Loves")
+
+    # Create a movie
+    new_movie = {
+        "title": "The Lost City",
+        "description": "Adventure movie.",
+        "director": "Sarah Connors",
+        "country": "United States",
+        "release_date": "2024-10-26",
+        "rating": 4.2,
+        "genres": ["Adventure", "Thriller"]
+    }
+    movie_data = client.get(f"/movies/title/{new_movie['title']}").json()
+
+    # Add the movie to the lists
+    client.post(f"/list-type/add-movie/{user_data['email']}/Watch Later/{movie_data['id']}")
+    client.post(f"/list-type/add-movie/{user_data['email']}/Loves/{movie_data['id']}")
+
+    # Fetch the lists with movies
+    response = client.get(f"/list-type/get-lists-with-movies/{user_data['email']}")
+    assert response.status_code == 200
+
+    lists_with_movies = response.json()
+    assert len(lists_with_movies) == 4
+    assert lists_with_movies[0]["list_name"] == "Watch Again"
+    assert lists_with_movies[1]["list_name"] == "To Watch"
+    assert lists_with_movies[2]["list_name"] == "Watch Later"
+    assert lists_with_movies[3]["list_name"] == "Loves"
+    assert len(lists_with_movies[2]["movies"]) == 1
+    assert lists_with_movies[2]["movies"][0]["title"] == "The Lost City"
+
 def test_delete_list():
     # Create a premium user and a list
     premium_user = {
