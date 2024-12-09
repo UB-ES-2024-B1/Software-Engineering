@@ -18,8 +18,6 @@ from app.crud.comments_crud import (
     delete_reported_comment
 )
 from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest, ReportStatus
-from app.models.user_models import User
-from app.api.dependencies import get_current_user
 
   # Import the get_db function for database session management
 
