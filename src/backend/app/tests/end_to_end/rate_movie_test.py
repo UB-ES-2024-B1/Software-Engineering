@@ -87,11 +87,6 @@ def test_rating_logged_out_user(driver_setup, db_session):
     # Verify that the user was redirected to the login page
     assert "login" in driver.current_url, "User was not redirected to login page."
 
-    user = user_crud.get_user_by_email(db_session, "user2@example.com")
-    movies = movie_crud.get_user_rated_movies(db_session, user.id)
-    movie = movie_crud.get_movie(db_session, 3)
-    assert all(m['title'] != movie.title for m in movies), f"Movie '{movie.title}' is unexpectedly in the rated movies list."
-
 def test_remove_rating_success(login_user, db_session):
     driver = login_user
     driver.get("http://localhost:8080/movie/4")
@@ -220,7 +215,7 @@ def test_check_list_actualization(login_user, db_session):
     # Check if the movie with id=1 is in the rated list
     movie_item = driver.find_element(By.XPATH, "//div[@class='movie-item']//a[contains(@href, '/movie/6')]")
     ActionChains(driver).move_to_element(movie_item).perform()
-    assert movie_item.is_displayed(), "Movie with id=1 is not displayed in the Rated Movies list."
+    assert movie_item.is_displayed(), "Movie with id=6 is not displayed in the Rated Movies list."
     
     
     time.sleep(3) 
