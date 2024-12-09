@@ -15,9 +15,9 @@ from app.crud.comments_crud import (
     get_comments_banned,
     get_comments_reported_by_user,
     get_reported_comments_ordered,
-    get_comments_ordered_by_status
+    delete_reported_comment
 )
-from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest
+from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest, ReportStatus
 from app.models.user_models import User
 from app.api.dependencies import get_current_user
 
@@ -170,5 +170,19 @@ def get_reported_comments_ordered_by_status(session: Session = Depends(get_db)):
     """
     Retrieve all reported comments, grouped and ordered by their report status.
     """
-    comments = get_comments_ordered_by_status(session)
+    comments = get_reported_comments_ordered(session, order_by="status")
     return comments
+
+@router.delete("/reported/{comment_id}/", status_code=204)
+def delete_reported_comment_endpoint(
+    comment_id: int,
+    session: Session = Depends(get_db)
+):
+    """
+    Delete a reported comment by its ID (admin only).
+    """
+    try:
+        delete_reported_comment(session, comment_id)
+        return {"message": f"Comment with ID {comment_id} successfully deleted."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

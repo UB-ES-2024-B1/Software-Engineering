@@ -157,36 +157,69 @@ def delete_thread(db: Session, thread_id: int) -> bool:
         return True
     return False
 
-def get_reported_comments_ordered(db: Session, order_by: str = "date") -> List[Comment]:
-    """
-    Retrieve reported comments ordered by date, user, or status.
-    """
-    statement = select(Comment).where(Comment.reported != ReportStatus.CLEAN)
+from sqlalchemy.orm import joinedload
+from sqlalchemy import desc
 
+def get_reported_comments_ordered(
+    db: Session, 
+    order_by: str = "date"
+) -> List[dict]:
+    """
+    Retrieve reported comments ordered by date, user, or status, including the user's name.
+    """
+    # Base query: Retrieve reported comments with user relationship loaded
+    statement = (
+        select(Comment)
+        .where(Comment.reported != ReportStatus.CLEAN)
+        .options(joinedload(Comment.user))  # Preload the User relationship
+    )
+
+    # Apply ordering based on the specified criterion
     if order_by == "date":
         statement = statement.order_by(desc(Comment.created_at))  # Newest first
     elif order_by == "user":
         statement = statement.order_by(Comment.user_id)
-
-    results = db.execute(statement).scalars().all()
-    return results
-
-def get_comments_ordered_by_status(session: Session) -> List[Comment]:
-    """
-    Retrieve all comments ordered by status:
-    1. REPORTED
-    2. BANNED
-    3. CLEAN
-    """
-    # Define custom sorting order using SQL CASE
-    status_order = case(
-        (
-            (Comment.reported == ReportStatus.REPORTED, 1),
-            (Comment.reported == ReportStatus.BANNED, 2),
-            (Comment.reported == ReportStatus.CLEAN, 3),
+    elif order_by == "status":
+        statement = statement.order_by(
+            case(
+                (Comment.reported == ReportStatus.REPORTED, 1),
+                (Comment.reported == ReportStatus.BANNED, 2),
+            )
         )
-    )
 
-    statement = select(Comment).order_by(status_order, desc(Comment.created_at))
-    results = session.execute(statement).scalars().all()
+    # Execute query and retrieve results
+    results = db.execute(statement).scalars().all()
+
+    # Include user name in the response
     return results
+
+def delete_reported_comment(session: Session, comment_id: int) -> bool:
+    """
+    Delete a reported comment by its ID.
+
+    Args:
+        session (Session): The database session.
+        comment_id (int): The ID of the comment to be deleted.
+
+    Returns:
+        bool: True if the comment was successfully deleted, False otherwise.
+
+    Raises:
+        ValueError: If the comment does not exist or is not reported.
+    """
+    # Retrieve the comment by ID
+    comment = session.get(Comment, comment_id)
+    
+    if not comment:
+        raise ValueError(f"Comment with ID {comment_id} not found.")
+
+    if comment.reported == ReportStatus.CLEAN:
+        raise ValueError(f"Comment with ID {comment_id} is not reported.")
+
+    # Delete related records in CommentReportedBy
+    session.query(CommentReportedBy).filter(CommentReportedBy.comment_id == comment_id).delete()
+
+    # Proceed to delete the comment
+    session.delete(comment)
+    session.commit()
+    return True
