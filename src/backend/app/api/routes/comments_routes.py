@@ -14,6 +14,7 @@ from app.crud.comments_crud import (
     get_comments_reported,
     get_comments_banned,
     get_comments_reported_by_user,
+    get_comments_by_user
 )
 from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest
 
@@ -141,4 +142,9 @@ def get_banned_comments(session: Session = Depends(get_db)):
     Retrieve all comments that have been banned.
     """
     comments = get_comments_banned(session)
+    return comments
+
+@router.get("/by_user/", response_model=List[Comment])
+def get_user_comments(user_id:int, session: Session = Depends(get_db)):
+    comments = get_comments_by_user(session, user_id)
     return comments
