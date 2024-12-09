@@ -14,8 +14,12 @@ from app.crud.comments_crud import (
     get_comments_reported,
     get_comments_banned,
     get_comments_reported_by_user,
+    get_reported_comments_ordered,
+    get_comments_ordered_by_status
 )
 from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest
+from app.models.user_models import User
+from app.api.dependencies import get_current_user
 
   # Import the get_db function for database session management
 
@@ -141,4 +145,30 @@ def get_banned_comments(session: Session = Depends(get_db)):
     Retrieve all comments that have been banned.
     """
     comments = get_comments_banned(session)
+    return comments
+
+@router.get("/reported/order_by_date/", response_model=List[Comment])
+def get_reported_comments_ordered_by_date(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, ordered by the date they were reported.
+    """
+    comments = get_reported_comments_ordered(session, order_by="date")
+    return comments
+
+
+@router.get("/reported/order_by_user/", response_model=List[Comment])
+def get_reported_comments_ordered_by_user(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, grouped and ordered by the user who reported them.
+    """
+    comments = get_reported_comments_ordered(session, order_by="user")
+    return comments
+
+
+@router.get("/reported/order_by_status/", response_model=List[Comment])
+def get_reported_comments_ordered_by_status(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, grouped and ordered by their report status.
+    """
+    comments = get_comments_ordered_by_status(session)
     return comments

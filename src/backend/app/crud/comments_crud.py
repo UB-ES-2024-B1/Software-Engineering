@@ -1,7 +1,8 @@
 from sqlmodel import Session, select
 from app.models.comments_model import Thread, Comment
-from typing import List, Union
+from typing import List
 from app.models.comments_model import ReportStatus, CommentReportedBy
+from sqlalchemy import desc, case
 
 
 def create_thread(session: Session, movie_id: int) -> Thread:
@@ -155,3 +156,37 @@ def delete_thread(db: Session, thread_id: int) -> bool:
         db.commit()
         return True
     return False
+
+def get_reported_comments_ordered(db: Session, order_by: str = "date") -> List[Comment]:
+    """
+    Retrieve reported comments ordered by date, user, or status.
+    """
+    statement = select(Comment).where(Comment.reported != ReportStatus.CLEAN)
+
+    if order_by == "date":
+        statement = statement.order_by(desc(Comment.created_at))  # Newest first
+    elif order_by == "user":
+        statement = statement.order_by(Comment.user_id)
+
+    results = db.execute(statement).scalars().all()
+    return results
+
+def get_comments_ordered_by_status(session: Session) -> List[Comment]:
+    """
+    Retrieve all comments ordered by status:
+    1. REPORTED
+    2. BANNED
+    3. CLEAN
+    """
+    # Define custom sorting order using SQL CASE
+    status_order = case(
+        (
+            (Comment.reported == ReportStatus.REPORTED, 1),
+            (Comment.reported == ReportStatus.BANNED, 2),
+            (Comment.reported == ReportStatus.CLEAN, 3),
+        )
+    )
+
+    statement = select(Comment).order_by(status_order, desc(Comment.created_at))
+    results = session.execute(statement).scalars().all()
+    return results
