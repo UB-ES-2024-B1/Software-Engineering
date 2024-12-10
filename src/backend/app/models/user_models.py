@@ -30,6 +30,15 @@ class User(UserBase, table=True):
     # Establish relationship with movies
     movies: List["Movie"] = Relationship(back_populates="users", link_model=MovieUser)
 
+    # Followers and followed users as many-to-many relationships
+    followers: List["User"] = Relationship(
+        back_populates="followed_users",
+        link_model="Follow"
+    )
+    followed_users: List["User"] = Relationship(
+        back_populates="followers",
+        link_model="Follow"
+    )
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
@@ -49,3 +58,8 @@ class UserUpdate(SQLModel):
 
 class TokenRequest(SQLModel):
     token: str
+
+# The link between User instances for following using email
+class Follow(SQLModel, table=True):
+    follower_email: str = Field(foreign_key="user.email", primary_key=True)
+    followed_email: str = Field(foreign_key="user.email", primary_key=True)

@@ -1,6 +1,7 @@
 # backend/app/crud/user_crud.py
 from sqlalchemy.orm import Session
-from app.models.user_models import User, UserOut
+from app.models.user_models import User, UserOut,Follow
+
 
 # Function to create a user
 def create_user(db: Session, full_name: str, email: str, hashed_password: str, is_admin: bool =False) -> UserOut:
@@ -109,3 +110,11 @@ def update_user_by_email(db: Session, email: str, user_data: dict):
     db.refresh(user)
     
     return user
+
+def get_followers(db: Session, user_email: str) -> list:
+    # Get followers by user email
+    return db.query(User).join(Follow, Follow.followed_email == user_email).all()
+
+def get_followed_users(db: Session, user_email: str) -> list:
+    # Get followed users by user email
+    return db.query(User).join(Follow, Follow.follower_email == user_email).all()

@@ -277,3 +277,18 @@ def is_admin_user(current_user: User = Depends(get_current_user)) -> bool:
             detail="You don't have enough permission to do this action."
         )
     return True
+
+@router.get("/users/followers{user_email}", response_model=List[UserOut])
+def get_followers(user_email: str, db: Session = Depends(get_db())):
+    followers = user_crud.get_followers(db, user_email)
+    if not followers:
+        raise HTTPException(status_code=404, detail="User not found or has no followers")
+    return followers
+
+@router.get("/users/followed{user_email}", response_model=List[UserOut])
+def get_followers(user_email: str, db: Session = Depends(get_db())):
+    followed_users = user_crud.get_followed_users(db, user_email)
+    if not followed_users:
+        raise HTTPException(status_code=404, detail="User not found or has no followers")
+    return followed_users
+
