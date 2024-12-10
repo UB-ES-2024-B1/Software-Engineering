@@ -193,6 +193,17 @@ def get_reported_comments_ordered(
     # Include user name in the response
     return results
 
+def ban_comment_by_id(db: Session, comment_id: int):
+    # Busca el comentario
+    comment = db.query(Comment).filter_by(id=comment_id).first()
+    if not comment:
+        return None
+    
+    # Actualiza el estado del comentario a "BANNED"
+    comment.reported = "BANNED"
+    db.commit()
+    return comment
+
 def delete_reported_comment(session: Session, comment_id: int) -> bool:
     """
     Delete a reported comment by its ID.
