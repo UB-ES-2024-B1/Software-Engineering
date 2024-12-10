@@ -184,7 +184,7 @@ export default {
 
         // Solicitar datos del usuario
         axios
-            .get(`${API_BASE_URL}/users/email/${this.$route.params.username}`)
+            .get(`${API_BASE_URL}/users/username/${this.$route.params.username}`)
             .then((response) => {
                 if (!response.data || Object.keys(response.data).length === 0) {
                     this.error = 'User does not exist.';

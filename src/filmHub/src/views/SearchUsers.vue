@@ -36,7 +36,7 @@
                   <div class="post-header">
                     <img :src="post.user.avatar" :alt="post.user.username" class="avatar" />
                     <div class="user-info">
-                        <router-link class="username" :to="{ path: `/otherProfiles/${post.user.username.charAt(0).toLowerCase() + post.user.username.slice(1)}@example.com`}">
+                        <router-link class="username" :to="{ path: `/otherProfiles/${post.user.username}`}">
                       <span>{{ post.user.username }}</span>
                       </router-link>
                       <span class="timestamp">{{ post.timestamp }}</span>
@@ -349,14 +349,14 @@ export default {
     this.fillUsers();
     this.feed = this.posts;
     this.originalPosts = [...this.posts];
-    const userEmail = localStorage.getItem('userEmail');
-    if (!userEmail) {
+    const userName = localStorage.getItem('userName');
+    if (!userName) {
       return;
     }
 
     // Solicitar datos del usuario
     axios
-      .get(`${API_BASE_URL}/users/email/${userEmail}`)
+      .get(`${API_BASE_URL}/users/username/${userName}`)
       .then((response) => {
         this.userData = response.data;
 
