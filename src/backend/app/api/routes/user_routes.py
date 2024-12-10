@@ -300,10 +300,10 @@ def follow_user(user_id: int, db: Session = Depends(get_db), current_user: User 
 
 
 # Endpoint para dejar de seguir a un usuario
-@router.post("/unfollow/{user_id}", response_model=UserOut)
-def unfollow_user(user_id: int, db: Session = Depends(get_db)):
+@router.post("/unfollow/{user_id}", response_model=FollowOut)
+def unfollow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
-        success = user_crud.unfollow_user(db, follower_id=1, followed_id=user_id)  # Cambio 1 por el ID del usuario autenticado
+        success = user_crud.unfollow_user(db, follower_id=current_user.id, followed_id=user_id)  # Cambio 1 por el ID del usuario autenticado
         if not success:
             raise HTTPException(status_code=400, detail="Unable to unfollow user")
         return JSONResponse(status_code=200, content={"message": "Unfollowed successfully"})
