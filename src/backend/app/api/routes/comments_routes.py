@@ -15,8 +15,7 @@ from app.crud.comments_crud import (
     get_comments_banned,
     get_comments_reported_by_user,
     get_reported_comments_ordered,
-    delete_reported_comment,
-    ban_comment_by_id
+    delete_reported_comment
 )
 from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest, ReportStatus
 
@@ -171,17 +170,6 @@ def get_reported_comments_ordered_by_status(session: Session = Depends(get_db)):
     """
     comments = get_reported_comments_ordered(session, order_by="status")
     return comments
-
-@router.put("/reported_to_banned/{comment_id}/")
-def ban_comment(comment_id: int, session: Session = Depends(get_db)):
-    """
-    Convert a reported comment to Banned by its ID (admin only).
-    """
-    comment = ban_comment_by_id(session, comment_id)
-    if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
-    
-    return {"message": "Comment banned successfully"}
 
 @router.delete("/reported/{comment_id}/", status_code=204)
 def delete_reported_comment_endpoint(

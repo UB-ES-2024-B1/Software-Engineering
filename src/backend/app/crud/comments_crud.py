@@ -134,28 +134,33 @@ def delete_comment(db: Session, comment_id: int) -> bool:
     """
     comment = db.get(Comment, comment_id)
     if comment:
+        db.query(CommentReportedBy).filter(CommentReportedBy.comment_id == comment_id).delete()
         db.delete(comment)
         db.commit()
         return True
     return False
 
-def delete_thread(db: Session, thread_id: int) -> bool:
+def delete_thread(db: Session, movie_id: int) -> bool:
     """
     Delete a thread and all associated comments.
     """
-    thread = db.get(Thread, thread_id)
-    if thread:
-        # Delete all associated comments
-        statement = select(Comment).where(Comment.thread_id == thread_id)
+    # Fetch all threads associated with the movie_id
+    statement = select(Thread).where(Thread.movie_id == movie_id)
+    threads = db.execute(statement).scalars().all()
+
+    # Delete each thread
+    for thread in threads:
+        # 3. Delete all associated comments for each thread
+        statement = select(Comment).where(Comment.thread_id == thread.id)
         comments = db.execute(statement).scalars().all()
         for comment in comments:
             db.delete(comment)
         
         # Delete the thread
         db.delete(thread)
-        db.commit()
-        return True
-    return False
+
+    db.commit()  # Commit after deleting all threads and associated comments
+    return True
 
 from sqlalchemy.orm import joinedload
 from sqlalchemy import desc
@@ -192,17 +197,6 @@ def get_reported_comments_ordered(
 
     # Include user name in the response
     return results
-
-def ban_comment_by_id(db: Session, comment_id: int):
-    # Busca el comentario
-    comment = db.query(Comment).filter_by(id=comment_id).first()
-    if not comment:
-        return None
-    
-    # Actualiza el estado del comentario a "BANNED"
-    comment.reported = "BANNED"
-    db.commit()
-    return comment
 
 def delete_reported_comment(session: Session, comment_id: int) -> bool:
     """
