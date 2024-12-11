@@ -6,7 +6,6 @@ from app.core.security import authenticate_user
 from app.core.jwt import decode_token
 from app.crud import user_crud
 from app.models import User
-from app.api.routes import user_routes
 from typing import Generator  # Import Generator from typing
 from app.db.database import SessionLocal
 from app.api.db_utils import get_db
