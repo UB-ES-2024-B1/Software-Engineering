@@ -21,14 +21,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      
       - name: Apply database migrations (backend)
         working-directory: src/backend
         run: |
           alembic upgrade head
+      
       - name: Install Vue CLI globally
         run: |
           cd src
           npm install -g @vue/cli
+      
       - name: Install frontend dependencies and run the server (filmHub)
         working-directory: src/filmHub
         run: |
@@ -45,16 +48,19 @@ jobs:
               sleep 5
             done
           done
-      - name: Install Chrome and dependencies for Selenium
+      
+      - name: Install Chrome dependencies for Selenium
         run: |
           sudo apt update
-          sudo apt install -y chromium-browser
-          sudo apt install -y chromium-chromedriver
-          sudo apt install -y libnss3 libgconf-2-4
-      - name: Set up Chrome environment variables for Selenium
+          sudo apt install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxrandr2 libxss1 libasound2 libxshmfence1 libgbm1
+          
+      - name: Install ChromeDriver with WebDriver Manager
         run: |
-          echo "CHROME_BIN=/usr/bin/chromium-browser" >> $GITHUB_ENV
-          echo "CHROMEDRIVER_PATH=/usr/lib/chromium-browser/chromedriver" >> $GITHUB_ENV
+          python -m pip install webdriver-manager
+      
       - name: Run tests
         working-directory: src/backend
-        run: pytest app/tests/end_to_end 
+        env:
+          DISPLAY: ":99"  # Required if running headless browser tests
+        run: |
+          pytest app/tests/end_to_end
