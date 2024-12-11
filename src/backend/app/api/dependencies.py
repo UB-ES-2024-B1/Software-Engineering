@@ -6,7 +6,6 @@ from app.core.security import authenticate_user
 from app.core.jwt import decode_token
 from app.crud import user_crud
 from app.models import User
-from app.api.routes import user_routes
 from typing import Generator  # Import Generator from typing
 from app.db.database import SessionLocal
 from app.api.db_utils import get_db
@@ -23,5 +22,16 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
+def is_admin(user: User = Depends(get_current_user)) -> User:
+    """
+    Check if the current user is an admin.
+    """
+    if not user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this resource",
         )
     return user
