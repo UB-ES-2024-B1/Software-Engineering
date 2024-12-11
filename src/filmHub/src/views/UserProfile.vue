@@ -138,7 +138,7 @@
         <img :src="user.img_url || defaultImage" alt="Profile Image" class="user-image-popup" />
         <p class="user-name">{{ user.full_name }}</p>
         <button class="follow-btn" @click="toggleFollow(user)">
-          {{ user.isFollowing ? 'Unfollow' : 'Follow' }}
+          {{ isFollowing(user) ? 'Unfollow' : 'Follow' }}
         </button>
       </div>
     </FollowsPopup>
@@ -254,6 +254,10 @@ export default {
   },
   methods: {
 
+    isFollowing(user) {
+      return this.following.some(followingUser => followingUser.id === user.id);
+    },
+
     openPopup(type) {
       if (type === 'followers') {
         this.popupTitle = 'Followers';
@@ -267,9 +271,31 @@ export default {
     closePopup() {
       this.isPopupVisible = false;
     },
-    toggleFollow(user) {
-      user.isFollowing = !user.isFollowing;
-      // Aquí podrías añadir una llamada a la API para actualizar el estado en el servidor.
+    async toggleFollow(user) {
+
+      const url = `${API_BASE_URL}/users/${this.isFollowing(user) ? 'unfollow' : 'follow'}/${user.id}`;
+      const token = localStorage.getItem('token');
+
+      try {
+        await axios.post(
+          url,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/json',
+            },
+          }
+        );
+
+        this.loadFollowing(); // Recarga la lista para reflejar los cambios
+
+
+        
+      } catch (error) {
+        console.error(this.isFollowing(user) ? 'Error unfollowing user:' : 'Error following user:', error);
+      }
+
     },
 
     // Nueva función para obtener los detalles completos de una película usando el título
@@ -283,7 +309,7 @@ export default {
       }
     },
 
-    loadFollowers() {
+    async loadFollowers() {
       // Obtener la lista de seguidores
       const url = `${API_BASE_URL}/users/followers/${localStorage.getItem('user_id')}`;
 
@@ -305,7 +331,7 @@ export default {
 
     },
 
-    loadFollowing() {
+    async loadFollowing() {
       // Obtener la lista de seguidos
       const url = `${API_BASE_URL}/users/followed/${localStorage.getItem('user_id')}`;
 
@@ -318,6 +344,13 @@ export default {
         .then(response => {
           // Handle the response
           this.following = response.data;
+          if(this.popupTitle === 'Following') {
+            this.popupList = this.following;
+          }
+          else {
+            this.popupList = this.followers;
+          }
+
 
         })
         .catch(error => {
@@ -1126,9 +1159,6 @@ h2 {
   transition-duration: 0.3s;
 }
 
-.popup-list {
-  color: black;
-}
 
 .user-image-popup{
   width: 40px;
@@ -1143,21 +1173,21 @@ h2 {
   justify-content: space-between;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  background-color: #0f0f0f;
 }
 
 .user-name {
   flex: 1;
   font-size: 16px;
   font-weight: bold;
-  color: black;
+  color: rgb(255, 255, 255);
   margin-right: 10px;
 }
 
 .follow-btn {
-  background-color: #007bff;
+  background-color: #5d0d92;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -1166,6 +1196,6 @@ h2 {
 }
 
 .follow-btn:hover {
-  background-color: #0056b3;
+  background-color: #2d0349;
 }
 </style>
