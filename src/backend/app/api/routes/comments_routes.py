@@ -14,6 +14,8 @@ from app.crud.comments_crud import (
     get_comments_reported,
     get_comments_banned,
     get_comments_reported_by_user,
+    delete_reported_comment,
+    ban_comment_by_id
 )
 from app.crud import movie_crud
 from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest
@@ -148,3 +150,31 @@ def get_banned_comments(session: Session = Depends(get_db)):
     """
     comments = get_comments_banned(session)
     return comments
+
+@router.put("/reported_to_banned/{comment_id}/")
+def ban_comment(comment_id: int, session: Session = Depends(get_db)):
+    """
+    Convert a reported comment to Banned by its ID (admin only).
+    """
+    comment = ban_comment_by_id(session, comment_id)
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    return {"message": "Comment banned successfully"}
+
+@router.delete("/reported/{comment_id}/", status_code=204)
+def delete_reported_comment_endpoint(
+    comment_id: int,
+    session: Session = Depends(get_db)
+):
+    """
+    Delete a reported comment by its ID (admin only).
+    """
+    try:
+        delete_reported_comment(session, comment_id)
+        return {"message": f"Comment with ID {comment_id} successfully deleted."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+

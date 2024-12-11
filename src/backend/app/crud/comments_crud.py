@@ -143,16 +143,63 @@ def delete_thread(db: Session, thread_id: int) -> bool:
     """
     Delete a thread and all associated comments.
     """
-    thread = db.get(Thread, thread_id)
-    if thread:
-        # Delete all associated comments
-        statement = select(Comment).where(Comment.thread_id == thread_id)
+    # Fetch all threads associated with the movie_id
+    statement = select(Thread).where(Thread.movie_id == thread_id)
+    threads = db.execute(statement).scalars().all()
+
+    # Delete each thread
+    for thread in threads:
+        # 3. Delete all associated comments for each thread
+        statement = select(Comment).where(Comment.thread_id == thread.id)
         comments = db.execute(statement).scalars().all()
         for comment in comments:
             db.delete(comment)
         
         # Delete the thread
         db.delete(thread)
-        db.commit()
-        return True
-    return False
+
+    db.commit()  # Commit after deleting all threads and associated comments
+    return True
+
+def ban_comment_by_id(db: Session, comment_id: int):
+    # Busca el comentario
+    comment = db.query(Comment).filter_by(id=comment_id).first()
+    if not comment:
+        return None
+    
+    # Actualiza el estado del comentario a "BANNED"
+    comment.reported = "BANNED"
+    db.commit()
+    return comment
+
+def delete_reported_comment(session: Session, comment_id: int) -> bool:
+    """
+    Delete a reported comment by its ID.
+
+    Args:
+        session (Session): The database session.
+        comment_id (int): The ID of the comment to be deleted.
+
+    Returns:
+        bool: True if the comment was successfully deleted, False otherwise.
+
+    Raises:
+        ValueError: If the comment does not exist or is not reported.
+    """
+    # Retrieve the comment by ID
+    comment = session.get(Comment, comment_id)
+    
+    if not comment:
+        raise ValueError(f"Comment with ID {comment_id} not found.")
+
+    if comment.reported == ReportStatus.CLEAN:
+        raise ValueError(f"Comment with ID {comment_id} is not reported.")
+
+    # Delete related records in CommentReportedBy
+    session.query(CommentReportedBy).filter(CommentReportedBy.comment_id == comment_id).delete()
+
+    # Proceed to delete the comment
+    session.delete(comment)
+    session.commit()
+    return True
+
