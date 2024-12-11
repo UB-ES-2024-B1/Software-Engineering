@@ -18,15 +18,29 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
+        working-directory: src/backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      
-      - name: Apply database migrations (backend)
-        working-directory: src/backend
+          
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+        
+      # Run migrations
+      - name: Apply database migrations
         run: |
+          cd src/backend
           alembic upgrade head
-      
+  
+      # Start backend server
+      - name: Start backend server
+        run: |
+          cd src/backend
+          nohup uvicorn app.main:app --reload &
+        
       - name: Install Vue CLI globally
         run: |
           cd src
@@ -48,16 +62,7 @@ jobs:
               sleep 5
             done
           done
-      
-      - name: Install Chrome dependencies for Selenium
-        run: |
-          sudo apt update
-          sudo apt install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxrandr2 libxss1 libasound2 libxshmfence1 libgbm1
-          
-      - name: Install ChromeDriver with WebDriver Manager
-        run: |
-          python -m pip install webdriver-manager
-      
+       
       - name: Run tests
         working-directory: src/backend
         env:
