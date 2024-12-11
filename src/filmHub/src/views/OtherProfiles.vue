@@ -18,7 +18,8 @@
 
                         <!-- Botón de seguir/Dejar de seguir -->
                         <div class="follow-button">
-                            <button @click="toggleFollow" :style="{ backgroundColor: isFollowing ? '#696869' : '#640b75' }">
+                            <button @click="toggleFollow"
+                                :style="{ backgroundColor: isFollowing ? '#696869' : '#640b75' }">
                                 {{ isFollowing ? 'Following' : 'Follow' }}
                             </button>
                         </div>
@@ -27,19 +28,19 @@
                     <!-- Información adicional: followers, reviews, followed -->
                     <div class="profile-info">
                         <div class="extra-info">
-                            <div class="info-item">
-                                <h3 class ="info-number">34</h3> <!-- Valor hardcodeado -->
+                            <div class="info-item" @click="scrollToRatedMovies()">
+                                <h3 class="info-number">{{ ratedMovies.length }}</h3> <!-- Valor hardcodeado -->
                                 <h4 class="info-text">Reviews</h4>
-                                
+
                             </div>
-                            <div class="info-item">
-                                <h3 class ="info-number">125</h3> <!-- Valor hardcodeado -->
+                            <div class="info-item" @click="openPopup('followers')">
+                                <h3 class="info-number">{{ followers.length }}</h3> <!-- Valor hardcodeado -->
                                 <h4 class="info-text">Followers</h4>
                             </div>
-                            <div class="info-item">
-                                <h3 class ="info-number">58</h3> <!-- Valor hardcodeado -->
+                            <div class="info-item" @click="openPopup('following')">
+                                <h3 class="info-number">{{ following.length }}</h3> <!-- Valor hardcodeado -->
                                 <h4 class="info-text">Followed</h4>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -53,7 +54,7 @@
         </div>
 
         <!-- Mostrar películas solo si el usuario existe -->
-        <div class="movies-section" v-if="!error">
+        <div class="movies-section" v-if="!error" ref="ratedMoviesSection">
             <!-- Nueva capa de overlay -->
             <div class="movies-overlay"></div>
 
@@ -105,6 +106,16 @@
         <div v-if="error" class="error-container">
             <p class="error-message">{{ error }}</p>
         </div>
+        <FollowsPopup :isVisible="isPopupVisible" :title="popupTitle" @close="closePopup">
+            <div v-for="user in popupList" :key="user.id" class="user-card">
+                <img :src="user.img_url || defaultImage" alt="Profile Image" class="user-image-popup" />
+                <p class="user-name">{{ user.full_name }}</p>
+                <button class="follow-btn" @click="toggleFollow(user)">
+                    {{ isFollowing ? 'Unfollow' : 'Follow' }}
+                </button>
+            </div>
+        </FollowsPopup>
+        <FooterComponent />
     </div>
 </template>
 
@@ -112,6 +123,8 @@
 <script>
 
 import HeaderPage from '@/components/HeaderPage.vue';
+import FollowsPopup from '@/components/FollowsPopup.vue';
+import FooterComponent from '@/components/FooterComponent.vue';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
@@ -153,6 +166,9 @@ export default {
     name: 'UserProfile',
     components: {
         HeaderPage,
+        FollowsPopup,
+        FooterComponent,
+
     },
     data() {
         return {
@@ -167,6 +183,12 @@ export default {
             likedMovies: [], // Películas con like
             wishedMovies: [], // Películas en la wishlist
             displayedMovies: [], // Películas que se muestran actualmente
+            isPopupVisible: false,
+            popupTitle: '',
+            popupList: [],
+            defaultImage: require('@/assets/foto_perfil.png'), // Ruta a una imagen por defecto
+            followers: [], // Lista de seguidores
+            following: [], // Lista de seguidos
 
 
             //REP eliminar
@@ -199,9 +221,85 @@ export default {
                 console.error('Error al obtener los datos del usuario:', error);
                 this.error = 'User does not exist.';
             });
+        this.loadFollowing();
+        this.loadFollowers();
     },
 
     methods: {
+
+        scrollToRatedMovies() {
+            this.toggleMovies('rated'); // Cambiar a la vista de Rated Movies
+            this.$nextTick(() => {
+                const ratedSection = this.$refs.ratedMoviesSection;
+                if (ratedSection) {
+                    ratedSection.scrollIntoView({ behavior: 'smooth' }); // Desplazamiento suave
+                }
+            });
+        },
+        async loadFollowers() {
+            // Obtener la lista de seguidores
+            const url = `${API_BASE_URL}/users/followers/${localStorage.getItem('user_id')}`;
+
+            // Make the GET request
+            axios.get(url, {
+                headers: {
+                    'accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    // Handle the response
+                    this.followers = response.data;
+
+                })
+                .catch(error => {
+                    // Handle the error
+                    console.error('Error occurred:', error);
+                });
+
+        },
+
+        async loadFollowing() {
+            // Obtener la lista de seguidos
+            const url = `${API_BASE_URL}/users/followed/${localStorage.getItem('user_id')}`;
+
+            // Make the GET request
+            axios.get(url, {
+                headers: {
+                    'accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    // Handle the response
+                    this.following = response.data;
+                    if (this.popupTitle === 'Following') {
+                        this.popupList = this.following;
+                    }
+                    else {
+                        this.popupList = this.followers;
+                    }
+
+
+                })
+                .catch(error => {
+                    // Handle the error
+                    console.error('Error occurred:', error);
+                });
+
+        },
+        async openPopup(type) {
+            if (type === 'followers') {
+                this.popupTitle = 'Followers';
+                this.popupList = this.followers;
+            } else if (type === 'following') {
+
+                this.popupTitle = 'Following';
+                this.popupList = this.following;
+            }
+            this.isPopupVisible = true;
+        },
+        closePopup() {
+            this.isPopupVisible = false;
+        },
         toggleFollow() {
             this.isFollowing = !this.isFollowing;
         },
@@ -322,7 +420,10 @@ export default {
                 this.displayedMovies = this.wishedMovies;
             }
         },
+
+
     },
+
 
     watch: {
         // Cuando cambie el estado de las películas, actualizamos la lista mostrada
@@ -396,7 +497,7 @@ export default {
     border: 2px solid rgba(255, 255, 255, 0.1);
     /* Sutileza */
     margin-top: 10vh;
-    
+
 }
 
 /* Contenido del perfil (imagen + info) */
@@ -423,11 +524,13 @@ export default {
     display: flex;
     flex-direction: column;
 }
-.info-text{
-    font-size:15px;
+
+.info-text {
+    font-size: 15px;
     font-weight: 300;
     color: rgb(194, 191, 191)
 }
+
 .profile-info p {
     margin-bottom: 60px;
     font-size: 18px;
@@ -841,8 +944,10 @@ h2 {
     width: 15vh;
     height: 10vh;
     position: relative;
-    overflow: hidden; /* Ensure the animation doesn't bleed out */
-    cursor: pointer; /* Change cursor to pointer */
+    overflow: hidden;
+    /* Ensure the animation doesn't bleed out */
+    cursor: pointer;
+    /* Change cursor to pointer */
 }
 
 .info-item::before {
@@ -850,20 +955,26 @@ h2 {
     position: absolute;
     top: -50%;
     left: -50%;
-    width: 200%; /* Larger than the element for a smooth gradient */
+    width: 200%;
+    /* Larger than the element for a smooth gradient */
     height: 200%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 80%);
-    transform: rotate(45deg); /* Diagonal movement */
-    opacity: 0; /* Initially invisible */
+    transform: rotate(45deg);
+    /* Diagonal movement */
+    opacity: 0;
+    /* Initially invisible */
 }
 
 .info-item:hover {
-    cursor: pointer; /* Ensure pointer cursor on hover */
+    cursor: pointer;
+    /* Ensure pointer cursor on hover */
 }
 
 .info-item:hover::before {
-    opacity: 1; /* Make the light visible on hover */
-    animation: lightMove 0.6s ease-in-out forwards; /* Play the animation */
+    opacity: 1;
+    /* Make the light visible on hover */
+    animation: lightMove 0.6s ease-in-out forwards;
+    /* Play the animation */
 }
 
 @keyframes lightMove {
@@ -871,6 +982,7 @@ h2 {
         top: -50%;
         left: -50%;
     }
+
     100% {
         top: 150%;
         left: 150%;
@@ -879,11 +991,12 @@ h2 {
 
 
 
-.info-number{
+.info-number {
     font-size: 25px;
     margin-bottom: -5px;
-    color:#ffffff;
+    color: #ffffff;
 }
+
 .follow-button {
     margin-top: 15px;
     text-align: center;
@@ -901,7 +1014,7 @@ h2 {
 
 .follow-button button:hover {
     transform: scale(1.1)
-    /* Azul más oscuro al pasar el mouse */
+        /* Azul más oscuro al pasar el mouse */
 }
 
 .follow-button button:active {
@@ -923,5 +1036,44 @@ h2 {
     padding-top: 3vh;
     font-size: larger;
 
+}
+
+.user-image-popup {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #0f0f0f;
+}
+
+.user-name {
+    flex: 1;
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+    margin-right: 10px;
+}
+
+.follow-btn {
+    background-color: #5d0d92;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.follow-btn:hover {
+    background-color: #2d0349;
 }
 </style>

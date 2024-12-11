@@ -47,7 +47,7 @@
                   <div class="post-actions">
                     <button :class="['action-button', post.isFollowing ? 'following' : 'not-following']"
                       @click="toggleFollow(post)">
-                      {{ post.isFollowing ? 'Following' : 'Follow' }}
+                      {{ this.isFollowing(post.user.id) ? 'Following' : 'Follow' }}
                     </button>
                   </div>
                 </div>
@@ -81,11 +81,11 @@
                 <span class="stat-label">Reviews</span>
               </div>
               <div class="stat">
-                <span class="stat-value">1.2k</span>
-                <span class="stat-label">Followers</span>
+                <span class="stat-value">{{ this.followers.length }}</span>
+                <span class="stat-label">Followed</span>
               </div>
               <div class="stat">
-                <span class="stat-value">890</span>
+                <span class="stat-value">{{ this.following.length }}</span>
                 <span class="stat-label">Following</span>
               </div>
             </div>
@@ -180,9 +180,59 @@ export default {
       users: [],
       user_list: [],
       originalPosts: [], // Se inicializa correctamente
+      followers: [], // Lista de seguidores
+      following: [], // Lista de seguidos
     }
   },
   methods: {
+
+    isFollowing(userId) {
+      return this.following.some(followingUser => followingUser.id === userId);
+    },
+
+    async loadFollowers() {
+      // Obtener la lista de seguidores
+      const url = `${API_BASE_URL}/users/followers/${localStorage.getItem('user_id')}`;
+
+      // Make the GET request
+      axios.get(url, {
+        headers: {
+          'accept': 'application/json'
+        }
+      })
+        .then(response => {
+          // Handle the response
+          this.followers = response.data;
+
+        })
+        .catch(error => {
+          // Handle the error
+          console.error('Error occurred:', error);
+        });
+
+    },
+
+    async loadFollowing() {
+      // Obtener la lista de seguidos
+      const url = `${API_BASE_URL}/users/followed/${localStorage.getItem('user_id')}`;
+
+      // Make the GET request
+      axios.get(url, {
+        headers: {
+          'accept': 'application/json'
+        }
+      })
+        .then(response => {
+          // Handle the response
+          this.following = response.data;
+
+        })
+        .catch(error => {
+          // Handle the error
+          console.error('Error occurred:', error);
+        });
+
+    },
     async fetchUsers(skip = 0, limit = 100) {
       try {
         const response = await axios.get(`${API_BASE_URL}/users/`, {
@@ -207,12 +257,13 @@ export default {
           this.users.push({
             id: this.users.length,
             user: {
+              id: user.id,
               username: user.full_name,
               avatar: user.img_url
                 ? user.img_url
                 : require('@/assets/foto_perfil.png'), // Fallback avatar
             },
-            isFollowing: false,
+            isFollowing: this.isFollowing(user.id),
           });
         });
       } catch (error) {
@@ -241,6 +292,7 @@ export default {
           this.posts.unshift({
             id: this.posts.length,
             user: {
+              id: post.user_id,
               username: post.full_name,
               avatar: post.user_image_url
                 ? post.user_image_url
@@ -254,7 +306,7 @@ export default {
             review: post.first_comment.length > 350 ? post.first_comment.substring(0, 350) + '...' : post.first_comment,
             timestamp: post.time_since_comment,
             movie_id: post.movie_id,
-            isFollowing: false,
+            isFollowing: this.isFollowing(post.user_id),
           });
         });
 
@@ -300,9 +352,49 @@ export default {
     },
 
 
-    toggleFollow(post) {
-      post.isFollowing = !post.isFollowing;
+    async toggleFollow(post) {
+      const isCurrentlyFollowing = this.isFollowing(post.user.id);
+      const url = `${API_BASE_URL}/users/${isCurrentlyFollowing ? 'unfollow' : 'follow'}/${post.user.id}`;
+      const token = localStorage.getItem('token');
+
+      try {
+        await axios.post(
+          url,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/json',
+            },
+          }
+        );
+
+        // Vuelve a cargar la lista de seguidos
+        await this.loadFollowing();
+        await this.loadFollowers();
+
+        // Actualiza el estado del botón basándose en la lista actualizada
+        post.isFollowing = this.isFollowing(post.user.id);
+        
+      } catch (error) {
+        console.error(isCurrentlyFollowing ? 'Error unfollowing user:' : 'Error following user:', error);
+      }
     },
+
+    updateFollowButtons() {
+      // Recalcula el estado de seguimiento para todos los usuarios
+      this.posts.forEach(post => {
+        post.isFollowing = this.isFollowing(post.user.id);
+
+      });
+
+      this.users.forEach(user => {
+        user.isFollowing = this.isFollowing(user.id);
+        
+      });
+
+    },
+
     async fetchMovieDetails(title) {
       try {
         const movieResponse = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
@@ -358,6 +450,8 @@ export default {
     this.originalPosts = [...this.feed];
   },
   created() {
+    this.loadFollowers();
+    this.loadFollowing();
     this.fillPosts();
     this.fillUsers();
     this.feed = this.posts;
@@ -402,6 +496,17 @@ export default {
 </script>
 
 <style scoped>
+
+.action-button.following {
+  background-color: grey;
+  color: white;
+}
+
+.action-button.not-following {
+  background-color: magenta;
+  color: white;
+}
+
 .cinesphere {
   width: 100%;
   height: 100%;
@@ -438,7 +543,7 @@ export default {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #333 #11111100;
-  
+
 }
 
 .post {
@@ -546,30 +651,8 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   border: none;
-  min-width: 5wh;
-  max-width: 5wh;
-}
-
-.action-button.following {
-  background-color: #d21bd8;
-  /* Violet for "Following" */
-  color: #ffffff;
-}
-
-.action-button.following:hover {
-  background-color: #b700d6;
-  /* Darker violet on hover */
-}
-
-.action-button.not-following {
-  background-color: #cccccc;
-  /* Light gray for "Not Following" */
-  color: #000000;
-}
-
-.action-button.not-following:hover {
-  background-color: #b3b3b3;
-  /* Darker gray on hover */
+  min-width: 5vw;
+  max-width: 5vw;
 }
 
 
