@@ -5,10 +5,11 @@ from app.db.database import SessionLocal  # Import the SessionLocal from databas
 from app.crud import user_crud
 from app.api.dependencies import *  # Import the get_db function
 from app.models import (
-    User, UserOut, UserCreate,UserUpdate
+    User, UserOut, UserCreate,UserUpdate,FollowOut
 )
 from scripts.upload import eliminar_imagen, subir_imagen_desde_archivo
 from typing import List, Optional
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -95,7 +96,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return user
 
 @router.get("/email/{user_email}", response_model=UserOut)
-def read_user(user_email: str, db: Session = Depends(get_db)):
+def read_user_mail(user_email: str, db: Session = Depends(get_db)):
     """
     Get a user by their ID.
     :param user_id: The ID of the user
@@ -142,7 +143,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 # Route to delete a user by email
 @router.delete("/email/{user_email}")
-def delete_user(user_email: str, db: Session = Depends(get_db)):
+def delete_user_mail(user_email: str, db: Session = Depends(get_db)):
     """
     Delete a user by their ID.
     :param user_id: The ID of the user to delete
@@ -302,5 +303,40 @@ def is_admin_user(current_user: User = Depends(get_current_user)) -> bool:
             detail="You don't have enough permission to do this action."
         )
     return True
+
+
+@router.get("/followers/{user_id}", response_model=List[UserOut])
+def get_followers(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
+    followers = user_crud.get_followers(db, user_id)
+    if followers ==None:
+        raise HTTPException(status_code=404, detail="User not found or has no followers")
+    return followers
+
+@router.get("/followed/{user_id}", response_model=List[UserOut])
+def get_followed_users(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
+    followed_users = user_crud.get_followed_users(db, user_id)
+    if followed_users ==None:
+        raise HTTPException(status_code=404, detail="User not foundç")
+    return followed_users
+
+@router.post("/follow/{user_id}", response_model=FollowOut)
+def follow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    follow = user_crud.follow_user(db, current_user.id, user_id)
+    return follow
+
+
+# Endpoint para dejar de seguir a un usuario
+@router.post("/unfollow/{user_id}", response_model=FollowOut)
+def unfollow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    try:
+        success = user_crud.unfollow_user(db, follower_id=current_user.id, followed_id=user_id)  # Cambio 1 por el ID del usuario autenticado
+        if not success:
+            raise HTTPException(status_code=400, detail="Unable to unfollow user")
+        return JSONResponse(status_code=200, content={"message": "Unfollowed successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 
 

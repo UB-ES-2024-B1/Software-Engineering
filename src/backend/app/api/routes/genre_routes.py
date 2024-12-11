@@ -1,7 +1,7 @@
 # backend/app/api/routes/genre_routes.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.api.dependencies import get_db  # Import the get_db function for database session management
+from app.api.db_utils import get_db  # Import the get_db function for database session management
 from app.crud import genre_crud  # Import CRUD functions for movie operations
 from app.models import (Genre)  # Import movie models for input and output
 from typing import List

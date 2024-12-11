@@ -15,6 +15,10 @@ from sqlalchemy.exc import SQLAlchemyError
 # Function to create a new movie
 def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> MovieOut:
     # Check if a movie with the same title already exists
+    existing_movie = get_movie_by_title(db, movie.title)
+    if existing_movie:
+        raise HTTPException(status_code=400, detail="A movie with this title already exists.")
+    
     # Create new movie instance
     db_movie = Movie(
         title=movie.title,
@@ -73,7 +77,10 @@ def get_movie(db: Session, movie_id: int) -> MovieOut:
 # CRUDs to get different types of list of movies
 def get_movie_by_title(db: Session, movie_title: str) -> MovieOut:
     statement = select(Movie).where(Movie.title == movie_title)
-    return db.execute(statement).scalars().first()
+    movie = db.execute(statement).scalars().first()
+    if movie:
+        return MovieOut.model_validate(movie)  # Use model_validate
+    return None  # If movie not found
 
 def get_movies_sorted_by_release_date(db: Session) -> List[MovieOut]:
     statement = select(Movie).order_by(Movie.release_date)

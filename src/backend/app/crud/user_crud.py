@@ -1,6 +1,7 @@
 # backend/app/crud/user_crud.py
 from sqlalchemy.orm import Session
-from app.models.user_models import User, UserOut
+from app.models.user_models import User, UserOut,Follow
+
 
 # Function to create a user
 def create_user(db: Session, full_name: str, email: str, hashed_password: str, is_admin: bool =False) -> UserOut:
@@ -113,3 +114,38 @@ def update_user_by_email(db: Session, email: str, user_data: dict):
     db.refresh(user)
     
     return user
+
+def get_followers(db: Session, user_id: int) -> list:
+    """
+    Get followers for a user.
+    """
+    return db.query(User).join(Follow, Follow.follower_id == User.id).filter(Follow.followed_id == user_id).all()
+
+def get_followed_users(db: Session, user_id: int) -> list:
+    """
+    Get followed users for a user.
+    """
+    return db.query(User).join(Follow, Follow.followed_id == User.id).filter(Follow.follower_id == user_id).all()
+
+
+# Función para seguir a un usuario
+def follow_user(db: Session, follower_id: int, followed_id: int) -> Follow:
+    # Verificar si ya existe un seguimiento
+    existing_follow = db.query(Follow).filter(Follow.follower_id == follower_id, Follow.followed_id == followed_id).first()
+    if existing_follow:
+        return existing_follow  # Si ya existe, devolverlo en lugar de crear uno nuevo
+    else:
+        follow = Follow(follower_id=follower_id, followed_id=followed_id)
+        db.add(follow)
+        db.commit()
+        db.refresh(follow)
+        return follow
+
+# Función para dejar de seguir a un usuario
+def unfollow_user(db: Session, follower_id: int, followed_id: int) -> bool:
+    follow = db.query(Follow).filter(Follow.follower_id == follower_id, Follow.followed_id == followed_id).first()
+    if follow:
+        db.delete(follow)
+        db.commit()
+        return True
+    return False
