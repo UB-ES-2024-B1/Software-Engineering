@@ -16,9 +16,10 @@
           <div class="input-group mt-2" id="dropdown-menu">
             <label class="input-group-text" for="sortOptions">Sort by:</label>
             <select class="form-select" id="sortOptions" @change="handleSortChange">
-              <option value="date" selected>Date</option>
-              <option value="popularity">Popularity</option>
-              <option value="rating">Rating</option>
+              <option value="More Recent" selected>More Recent</option>
+              <option value="Older">Older</option>
+              <option value="Followers">Followers</option>
+              <option value="Rating" v-if="selectedOption === 'option1'">Rating</option>
             </select>
           </div>
 
@@ -28,16 +29,16 @@
         <div class="feed">
           <div class="post" v-for="post in feed" :key="post.id">
             <div class="post-content">
-              <router-link :to="{ path: `/movie/${post.movie_id}`}" class="movie-post">
-              <img :src="post.moviePoster" v-if="post.moviePoster" :alt="post.movieTitle" class="movie-poster" />
+              <router-link :to="{ path: `/movie/${post.movie_id}` }" class="movie-post">
+                <img :src="post.moviePoster" v-if="post.moviePoster" :alt="post.movieTitle" class="movie-poster" />
               </router-link>
               <div class="post-details">
                 <div class="post-higher">
                   <div class="post-header">
                     <img :src="post.user.avatar" :alt="post.user.username" class="avatar" />
                     <div class="user-info">
-                        <router-link class="username" :to="{ path: `/otherProfiles/${post.user.username}`}">
-                      <span>{{ post.user.username }}</span>
+                      <router-link class="username" :to="{ path: `/otherProfiles/${post.user.username}` }">
+                        <span>{{ post.user.username }}</span>
                       </router-link>
                       <span class="timestamp">{{ post.timestamp }}</span>
                     </div>
@@ -66,10 +67,12 @@
         </div>
         <aside class="sidebar">
           <div class="user-profile">
-            <img v-if="userData" :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Your profile"
-              class="avatar" />
-            <img v-else :src="require('@/assets/foto_perfil.png')" alt="Your profile" class="avatar" />
+            <router-link :to="{ path: `/profile` }">
+              <img v-if="userData" :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Your profile"
+                class="avatar" />
 
+              <img v-else :src="require('@/assets/foto_perfil.png')" alt="Your profile" class="avatar" />
+            </router-link>
             <p v-if="userData">@{{ userData.full_name }}</p>
             <p v-else>Guest</p>
             <div class="stats">
@@ -91,7 +94,9 @@
             <h4>Recently rated movies</h4>
             <ul>
               <li v-for="movie in trendingMovies" :key="movie.id">
-                <img :src="movie.poster" :alt="movie.title" class="movie-thumbnail" />
+                <router-link :to="{ path: `/movie/${movie.id}` }">
+                  <img :src="movie.poster" :alt="movie.title" class="movie-thumbnail" />
+                </router-link>
                 <div class="movie-info">
                   <span class="movie-title">{{ movie.title }}</span>
                   <div class="rating">
@@ -233,20 +238,20 @@ export default {
         const posts = await this.fetchPosts(0, 25);
 
         posts.forEach((post) => {
-            this.posts.unshift({
+          this.posts.unshift({
             id: this.posts.length,
             user: {
               username: post.full_name,
               avatar: post.user_image_url
-              ? post.user_image_url
-              : require('@/assets/foto_perfil.png'), // Fallback avatar
+                ? post.user_image_url
+                : require('@/assets/foto_perfil.png'), // Fallback avatar
             },
             movieTitle: post.title,
             moviePoster: getImagePath(post.movie_image_url)
               ? getImagePath(post.movie_image_url)
               : require('@/assets/fondo_login.jpg'), // Fallback image
             rating: post.rating,
-            review: post.first_comment,
+            review: post.first_comment.length > 350 ? post.first_comment.substring(0, 350) + '...' : post.first_comment,
             timestamp: post.time_since_comment,
             movie_id: post.movie_id,
             isFollowing: false,
@@ -265,12 +270,19 @@ export default {
       console.log('Sort by:', this.selectedSort);
 
       // Add logic to sort your data based on the selected value
-      if (this.selectedSort === 'date') {
-        // Sort by date
-      } else if (this.selectedSort === 'popularity') {
-        // Sort by popularity
-      } else if (this.selectedSort === 'rating') {
+      if (this.selectedSort === 'More Recent') {
+        this.feed = this.originalPosts;
+
+      } else if (this.selectedSort === 'Older') {
+        this.feed = this.originalPosts.slice().reverse();
+
+      } else if (this.selectedSort === 'Followers') {
+        // Sort by followers
+        //this.posts = this.originalPosts.sort((a, b) => b.followers - a.followers);
+
+      } else if (this.selectedSort === 'Rating') {
         // Sort by rating
+        this.feed = this.originalPosts.sort((a, b) => b.rating - a.rating);
       }
     },
     handleSearch() {
@@ -300,6 +312,7 @@ export default {
         return null; // Retorna null si hay un error
       }
     },
+
     loadLastRatedMovies() {
       if (!this.userData) {
         console.error('No user data available');
@@ -393,11 +406,9 @@ export default {
   width: 100%;
   height: 100%;
   background-color: #111111;
-  background-image: linear-gradient(
-    32deg,
-    rgba(8, 8, 8, 0.74) 30px,
-    transparent
-  );
+  background-image: linear-gradient(32deg,
+      rgba(8, 8, 8, 0.74) 30px,
+      transparent);
   background-size: 60px 60px;
   background-position: -5px -5px;
   color: #ffffff;
@@ -406,7 +417,7 @@ export default {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 85vw;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -425,6 +436,9 @@ export default {
   flex: 1;
   max-height: 85%;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #333 #11111100;
+  
 }
 
 .post {
@@ -703,22 +717,24 @@ export default {
 .input-group-text {
   background-color: #2c2c2c;
   color: #b3b3b3;
-  border:none;
+  border: none;
 }
 
 .form-select {
   background-color: #2c2c2c;
   color: #e7e5e5;
-  border:none;
+  border: none;
 }
 
 .form-select:focus {
-  outline: none; /* Quita el borde azul de selección */
-  box-shadow: none; /* Quita la sombra del borde */
+  outline: none;
+  /* Quita el borde azul de selección */
+  box-shadow: none;
+  /* Quita la sombra del borde */
 }
 
 .form-select:hover {
-  box-shadow: none; /* Quita la sombra del borde en hover también */
+  box-shadow: none;
+  /* Quita la sombra del borde en hover también */
 }
-
 </style>
