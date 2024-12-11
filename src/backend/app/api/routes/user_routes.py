@@ -5,10 +5,11 @@ from app.db.database import SessionLocal  # Import the SessionLocal from databas
 from app.crud import user_crud
 from app.api.dependencies import *  # Import the get_db function
 from app.models import (
-    User, UserOut, UserCreate,UserUpdate
+    User, UserOut, UserCreate,UserUpdate,FollowOut
 )
 from scripts.upload import eliminar_imagen, subir_imagen_desde_archivo
 from typing import List, Optional
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -277,3 +278,38 @@ def is_admin_user(current_user: User = Depends(get_current_user)) -> bool:
             detail="You don't have enough permission to do this action."
         )
     return True
+
+@router.get("/users/followers/{user_id}", response_model=List[UserOut])
+def get_followers(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
+    followers = user_crud.get_followers(db, user_id)
+    if not followers:
+        raise HTTPException(status_code=404, detail="User not found or has no followers")
+    return followers
+
+@router.get("/users/followed/{user_id}", response_model=List[UserOut])
+def get_followed_users(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
+    followed_users = user_crud.get_followed_users(db, user_id)
+    if not followed_users:
+        raise HTTPException(status_code=404, detail="User not found or has no followed users")
+    return followed_users
+
+@router.post("/follow/{user_id}", response_model=FollowOut)
+def follow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    follow = user_crud.follow_user(db, current_user.id, user_id)
+    return follow
+
+
+# Endpoint para dejar de seguir a un usuario
+@router.post("/unfollow/{user_id}", response_model=FollowOut)
+def unfollow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    try:
+        success = user_crud.unfollow_user(db, follower_id=current_user.id, followed_id=user_id)  # Cambio 1 por el ID del usuario autenticado
+        if not success:
+            raise HTTPException(status_code=400, detail="Unable to unfollow user")
+        return JSONResponse(status_code=200, content={"message": "Unfollowed successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
