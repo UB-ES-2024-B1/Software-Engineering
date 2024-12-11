@@ -25,3 +25,14 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+def is_admin(user: User = Depends(get_current_user)) -> User:
+    """
+    Check if the current user is an admin.
+    """
+    if not user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this resource",
+        )
+    return user

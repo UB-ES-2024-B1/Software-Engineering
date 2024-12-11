@@ -50,7 +50,7 @@ def test_create_thread_and_comment():
     new_user = {
         "email": "testuser@example.com",
         "is_active": True,
-        "is_admin" : False,
+        "is_admin" : True,
         "full_name": "testuser",
         "password": "password123"
     }
@@ -88,5 +88,5 @@ def test_ban_comment_not_found():
     response = client.put("/comments/reported_to_banned/999/")  # Using a non-existing ID
 
     # Assert the response
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Comment not found"}
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Not authenticated"}

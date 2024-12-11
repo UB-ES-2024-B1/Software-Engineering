@@ -18,7 +18,8 @@ from app.crud.comments_crud import (
     ban_comment_by_id
 )
 from app.crud import movie_crud
-from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest
+from app.models import Thread, Comment, CommentUpdateRequest, CommentReportRequest, User
+from app.api.dependencies import is_admin  # Import the is_admin dependency
 
   # Import the get_db function for database session management
 
@@ -152,7 +153,11 @@ def get_banned_comments(session: Session = Depends(get_db)):
     return comments
 
 @router.put("/reported_to_banned/{comment_id}/")
-def ban_comment(comment_id: int, session: Session = Depends(get_db)):
+def ban_comment(
+    comment_id: int,
+    session: Session = Depends(get_db),
+    user: User = Depends(is_admin)  # Ensure that only admins can access this route
+):
     """
     Convert a reported comment to Banned by its ID (admin only).
     """
@@ -165,7 +170,8 @@ def ban_comment(comment_id: int, session: Session = Depends(get_db)):
 @router.delete("/reported/{comment_id}/", status_code=204)
 def delete_reported_comment_endpoint(
     comment_id: int,
-    session: Session = Depends(get_db)
+    session: Session = Depends(get_db),
+    user: User = Depends(is_admin)  # Ensure that only admins can access this route
 ):
     """
     Delete a reported comment by its ID (admin only).
@@ -175,6 +181,5 @@ def delete_reported_comment_endpoint(
         return {"message": f"Comment with ID {comment_id} successfully deleted."}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
 
 
