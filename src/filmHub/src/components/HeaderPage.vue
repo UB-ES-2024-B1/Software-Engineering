@@ -11,6 +11,9 @@
       <button class="all-movies">All Movies</button>
     </router-link>
 
+    <router-link v-if="!isAuthPage" to="/searchUsers/">
+      <button class="all-users">Main Forum</button>
+    </router-link>
     <!-- Mostrar la barra de búsqueda solo si no estamos en páginas de registro o login -->
     <div v-if="!isAuthPage" class="search-bar">
       <!-- Conectar el input al modelo de datos -->
@@ -20,6 +23,7 @@
         <button @click="searchMovies">Go!</button> <!-- Método de búsqueda al hacer click -->
       </router-link>
     </div>
+
 
 
     <div class="auth-buttons">
@@ -206,11 +210,12 @@ export default {
 .sign-up:hover,
 .login:hover,
 .logout:hover,
-.all-movies:hover {
+.all-movies:hover,
+.all-users:hover {
   background-color: rgba(255, 255, 255, 0.4);
 }
 
-.all-movies {
+.all-movies{
   padding: 10px 15px;
   background-color: rgba(255, 255, 255, 0.3);
   color: white;
@@ -219,6 +224,16 @@ export default {
   cursor: pointer;
   margin-left: 150px;
   /* Añadir margen solo al botón */
+}
+
+.all-users{
+  padding: 10px 15px;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-left: 20px;
+  cursor: pointer;
 }
 
 .profile-image:hover {

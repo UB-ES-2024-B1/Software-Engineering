@@ -12,6 +12,7 @@ class UserBase(SQLModel):
     full_name: Union[str, None] = None  # Optional full name using Union
     img_url: Union[str, None] = None  # Optional SRT link
     img_public_id: Union[str, None] = None  # Optional public ID
+    public: bool = True  # Whether the profile is public or not
 
 # The link between movie and movie for rating
 class MovieUser(SQLModel, table=True):
@@ -32,9 +33,9 @@ class User(UserBase, table=True):
     id: Union[int, None] = Field(default=None, primary_key=True)  # Use Union for compatibility
     hashed_password: str
     comments: List["Comment"] = Relationship(back_populates="user")
-
     # Establish relationship with movies
     movies: List["Movie"] = Relationship(back_populates="users", link_model=MovieUser)
+
 
     followers: List["User"] = Relationship(
         sa_relationship_kwargs={
@@ -59,6 +60,7 @@ class User(UserBase, table=True):
     )
 
 
+
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     password: str
@@ -74,7 +76,8 @@ class UserUpdate(SQLModel):
     is_admin: Union[bool, None] = None
     img_url: Union[str, None] = None  # Optional update for SRT link
     img_public_id: Union[str, None] = None  # Optional update for public ID
-
+    public: Union[bool, None] = None  # Optional update for public profile
+    
 class TokenRequest(SQLModel):
     token: str
 

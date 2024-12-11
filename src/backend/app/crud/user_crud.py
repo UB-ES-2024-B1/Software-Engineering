@@ -29,6 +29,10 @@ def get_user(db: Session, user_id: int):
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
+def get_user_by_username(db: Session, username: str):
+    return db.query(User).filter(User.full_name == username).first()
+
+
 # Function to delete a user by ID
 def delete_user(db: Session, user_id: int) -> bool:
     """
