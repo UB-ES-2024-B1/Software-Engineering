@@ -18,7 +18,7 @@
             <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Profile Picture" />
             <div class="extra-info">
 
-              <div class="info-follow">
+              <div class="info-follow" @click="scrollToRatedMovies()">
 
                 <h5>{{ ratedMovies.length }}</h5>
                 <h6>Reviews</h6>
@@ -75,7 +75,7 @@
     </div>
 
     <!-- Sección de películas (liked o rated) -->
-    <div class="movies-section">
+    <div class="movies-section" ref="ratedMoviesSection">
       <!-- Nueva capa de overlay -->
       <div class="movies-overlay"></div>
 
@@ -254,6 +254,15 @@ export default {
   },
   methods: {
 
+    scrollToRatedMovies() {
+      this.toggleMovies('rated'); // Cambiar a la vista de Rated Movies
+      this.$nextTick(() => {
+        const ratedSection = this.$refs.ratedMoviesSection;
+        if (ratedSection) {
+          ratedSection.scrollIntoView({ behavior: 'smooth' }); // Desplazamiento suave
+        }
+      });
+    },
     isFollowing(user) {
       return this.following.some(followingUser => followingUser.id === user.id);
     },
@@ -291,7 +300,7 @@ export default {
         this.loadFollowing(); // Recarga la lista para reflejar los cambios
 
 
-        
+
       } catch (error) {
         console.error(this.isFollowing(user) ? 'Error unfollowing user:' : 'Error following user:', error);
       }
@@ -344,7 +353,7 @@ export default {
         .then(response => {
           // Handle the response
           this.following = response.data;
-          if(this.popupTitle === 'Following') {
+          if (this.popupTitle === 'Following') {
             this.popupList = this.following;
           }
           else {
@@ -1160,7 +1169,7 @@ h2 {
 }
 
 
-.user-image-popup{
+.user-image-popup {
   width: 40px;
   height: 40px;
   border-radius: 50%;
