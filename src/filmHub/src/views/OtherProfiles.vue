@@ -254,10 +254,10 @@ export default {
                     this.followers = response.data;
                     this.following = response.data;
                     if (this.popupTitle === 'Followers') {
-                        this.popupList = this.following;
+                        this.popupList = this.followers;
                     }
                     else {
-                        this.popupList = this.followers;
+                        this.popupList = this.following;
                     }
 
                 })
