@@ -45,10 +45,11 @@
 
                   </div>
                   <div class="post-actions">
-                    <button :class="['action-button', post.isFollowing ? 'following' : 'not-following']"
+                    <button :class="['action-button', isFollowing(post.user.id) ? 'following' : 'not-following']"
                       @click="toggleFollow(post)">
-                      {{ this.isFollowing(post.user.id) ? 'Following' : 'Follow' }}
+                      {{ isFollowing(post.user.id) ? 'Following' : 'Follow' }}
                     </button>
+
                   </div>
                 </div>
                 <div class="movie-info">
@@ -250,7 +251,7 @@ export default {
 
     async fillUsers() {
       try {
-        const userList = await this.fetchUsers(0, 25);
+        const userList = await this.fetchUsers(0, 100);
         this.users = []; // Ensure `this.users` is initialized
 
         userList.forEach((user) => {
@@ -270,7 +271,7 @@ export default {
         console.error('Error filling users:', error);
       }
     },
-    async fetchPosts(skip = 0, limit = 25) {
+    async fetchPosts(skip = 0, limit = 100) {
       try {
         const response = await axios.get(`${API_BASE_URL}/movies/rated/all_ratings`, {
           params: {
@@ -286,7 +287,7 @@ export default {
     },
     async fillPosts() {
       try {
-        const posts = await this.fetchPosts(0, 25);
+        const posts = await this.fetchPosts(0, 100);
 
         posts.forEach((post) => {
           this.posts.unshift({
@@ -323,7 +324,7 @@ export default {
 
       // Add logic to sort your data based on the selected value
       if (this.selectedSort === 'More Recent') {
-        this.feed = this.originalPosts;
+        this.feed = this.originalPosts
 
       } else if (this.selectedSort === 'Older') {
         this.feed = this.originalPosts.slice().reverse();
@@ -368,32 +369,25 @@ export default {
             },
           }
         );
-
+        // Actualiza el estado del botón para todos los posts del mismo usuario
+        this.feed.forEach((item) => {
+          if (item.user.id === post.user.id) {
+            item.isFollowing = this.isFollowing(post.user.id);
+          }
+        });
         // Vuelve a cargar la lista de seguidos
         await this.loadFollowing();
         await this.loadFollowers();
 
-        // Actualiza el estado del botón basándose en la lista actualizada
-        post.isFollowing = this.isFollowing(post.user.id);
-        
+
+
       } catch (error) {
         console.error(isCurrentlyFollowing ? 'Error unfollowing user:' : 'Error following user:', error);
       }
     },
 
-    updateFollowButtons() {
-      // Recalcula el estado de seguimiento para todos los usuarios
-      this.posts.forEach(post => {
-        post.isFollowing = this.isFollowing(post.user.id);
 
-      });
 
-      this.users.forEach(user => {
-        user.isFollowing = this.isFollowing(user.id);
-        
-      });
-
-    },
 
     async fetchMovieDetails(title) {
       try {
@@ -454,6 +448,8 @@ export default {
     this.loadFollowing();
     this.fillPosts();
     this.fillUsers();
+
+
     this.feed = this.posts;
     this.originalPosts = [...this.posts];
     const userName = localStorage.getItem('userName');
@@ -496,7 +492,6 @@ export default {
 </script>
 
 <style scoped>
-
 .action-button.following {
   background-color: grey;
   color: white;
@@ -506,6 +501,7 @@ export default {
   background-color: magenta;
   color: white;
 }
+
 
 .cinesphere {
   width: 100%;

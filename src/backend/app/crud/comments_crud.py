@@ -60,6 +60,14 @@ def get_comments_reported(db: Session) -> List[Comment]:
     results = db.execute(statement).scalars().all()
     return results
 
+def get_comments(db: Session) -> List[Comment]:
+    """
+    Retrieve all comments.
+    """
+    statement = select(Comment)
+    results = db.execute(statement).scalars().all()
+    return results
+
 def get_comments_reported_with_user(db: Session, user_id: int) -> List[Comment]:
     """
     Retrieve all comments that have been reported by a specific user.

@@ -18,9 +18,9 @@
 
                         <!-- Botón de seguir/Dejar de seguir -->
                         <div class="follow-button">
-                            <button @click="toggleFollow"
-                                :style="{ backgroundColor: isFollowing ? '#696869' : '#640b75' }">
-                                {{ isFollowing ? 'Following' : 'Follow' }}
+                            <button @click="toggleFollow(userData)"
+                                :style="{ backgroundColor: isFollowing(userData) ? '#696869' : '#640b75' }">
+                                {{ isFollowing(userData) ? 'Following' : 'Follow' }}
                             </button>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                 <img :src="user.img_url || defaultImage" alt="Profile Image" class="user-image-popup" />
                 <p class="user-name">{{ user.full_name }}</p>
                 <button class="follow-btn" @click="toggleFollow(user)">
-                    {{ isFollowing ? 'Unfollow' : 'Follow' }}
+                    {{ isFollowing(user) ? 'Unfollow' : 'Follow' }}
                 </button>
             </div>
         </FollowsPopup>
@@ -172,7 +172,6 @@ export default {
     },
     data() {
         return {
-            isFollowing: false,
             userData: null,
             error: null,
             profile_image: '',
@@ -227,6 +226,10 @@ export default {
 
     methods: {
 
+        isFollowing(user) {
+            console.log("nigga",user);
+            return this.following.some(followingUser => followingUser.id === user.id);
+        },
         scrollToRatedMovies() {
             this.toggleMovies('rated'); // Cambiar a la vista de Rated Movies
             this.$nextTick(() => {
@@ -249,6 +252,13 @@ export default {
                 .then(response => {
                     // Handle the response
                     this.followers = response.data;
+                    this.following = response.data;
+                    if (this.popupTitle === 'Followers') {
+                        this.popupList = this.following;
+                    }
+                    else {
+                        this.popupList = this.followers;
+                    }
 
                 })
                 .catch(error => {
@@ -300,8 +310,32 @@ export default {
         closePopup() {
             this.isPopupVisible = false;
         },
-        toggleFollow() {
-            this.isFollowing = !this.isFollowing;
+        async toggleFollow(user) {
+
+            const url = `${API_BASE_URL}/users/${this.isFollowing(user) ? 'unfollow' : 'follow'}/${user.id}`;
+            const token = localStorage.getItem('token');
+
+            try {
+                await axios.post(
+                    url,
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: 'application/json',
+                        },
+                    }
+                );
+
+                this.loadFollowing(); // Recarga la lista para reflejar los cambios
+                this.loadFollowers(); // Recarga la lista para reflejar los cambios
+
+
+
+            } catch (error) {
+                console.error(this.isFollowing(user) ? 'Error unfollowing user:' : 'Error following user:', error);
+            }
+
         },
         // Nueva función para obtener los detalles completos de una película usando el título
         async fetchMovieDetails(title) {

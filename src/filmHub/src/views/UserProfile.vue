@@ -55,7 +55,7 @@
 
           <div class="btns-div">
             <router-link to="/addMovies">
-              <button class="add-btn">Add Movies</button>
+              <button v-if="userData.is_admin" class="add-btn">Add Movies</button>
             </router-link>
             <router-link to="/edit">
               <button class="modify-btn">Modify</button>
@@ -298,6 +298,7 @@ export default {
         );
 
         this.loadFollowing(); // Recarga la lista para reflejar los cambios
+        this.loadFollowers(); // Recarga la lista para reflejar los cambios
 
 
 
@@ -331,6 +332,12 @@ export default {
         .then(response => {
           // Handle the response
           this.followers = response.data;
+          if (this.popupTitle === 'Followers') {
+            this.popupList = this.following;
+          }
+          else {
+            this.popupList = this.followers;
+          }
 
         })
         .catch(error => {
