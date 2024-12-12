@@ -19,8 +19,16 @@
               <div v-for="(comment, index) in reportedComments" :key="index" class="comment-item">
                 <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
 
-                <!-- Modificar de cara al siguiente sprint para cuando se haga funcional-->
-                <div class="submitted-badge">Submitted</div> <!-- Recuadro de "Submitted" -->
+                <!-- Contenedor para la fecha y el badge -->
+                <div class="comment-info-container">
+                  <div class="comment-date">
+                    <p>{{ comment.date.slice(0, 10) }}</p>
+                  </div>
+                  <div class="submitted-badge">
+                    <p>{{ comment.state }}</p>
+                  </div>
+                </div>
+
                 <hr />
               </div>
             </div>
@@ -99,6 +107,8 @@ export default {
               id: comment.id,
               text: comment.text,
               username, // Nombre de usuario obtenido
+              date: comment.created_at,
+              state: comment.reported,
             };
           })
         );
@@ -250,24 +260,45 @@ export default {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   font-size: 1rem;
   display: flex;
-  justify-content: space-between;
-  /* Distribuye espacio entre el texto y el recuadro */
-  align-items: center;
+  justify-content: space-between; /* Distribuye espacio entre el contenido principal y el contenedor derecho */
+  align-items: center; /* Centrado vertical */
+}
+
+.comment-info-container {
+  display: flex; /* Para alinear los elementos horizontalmente */
+  align-items: center; /* Asegura que estén centrados verticalmente */
+  margin-left: auto; /* Empuja este contenedor hacia la derecha */
+  gap: 10px; /* Espacio entre la fecha y el badge */
+}
+
+
+.comment-date,
+.submitted-badge {
+  display: inline-flex; /* Ambos elementos se comportan igual */
+  align-items: center; /* Centrado vertical */
+  justify-content: center; /* Centrado horizontal */
+  padding: 5px 10px; /* Espaciado interno */
+  border-radius: 5px; /* Bordes redondeados */
+  font-size: 0.875rem; /* Tamaño de fuente igual */
+  font-weight: bold; /* Negrita */
+  text-transform: uppercase; /* Texto en mayúsculas */
+  height: auto; /* Ajusta la altura automáticamente */
+  min-width: 80px; /* Tamaño mínimo igual */
+}
+
+.comment-date {
+  background-color: transparent; /* Fondo transparente */
+  color: white; /* Texto blanco */
+  border: 0.5px solid white; /* Bordes blancos */
 }
 
 .submitted-badge {
-  background-color: #6ba76d;
-  /* Color verde */
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 0.875rem;
-  /* Fuente más pequeña */
-  font-weight: bold;
-  text-transform: uppercase;
-  margin-left: auto;
-  /* Empuja el recuadro a la derecha */
+  background-color: #6ba76d; /* Fondo verde */
+  color: white; /* Texto blanco */
+  border: 0.5px solid white; /* Bordes blancos */
 }
+
+
 
 
 /* Botón para cerrar el modal */
