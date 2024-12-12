@@ -170,7 +170,7 @@
             <!-- Modificado para hacer un link hacia allMovies y que se muestren las pelis del Director-->
             <h4>Director</h4>
             <p>
-              <router-link :to="{ name: 'AllMovies', query: { director: bannerMovie.director } }">
+              <router-link :to="{ name: 'AllMovies', query: { director: bannerMovie.director } }" class="genre-link">
                 {{ bannerMovie.director }}
               </router-link>
             </p>
@@ -181,7 +181,7 @@
             v-show="index < visibleCount">
             <h4>Actor</h4>
             <p>
-              <router-link :to="{ name: 'AllMovies', query: { actor: actor } }">
+              <router-link :to="{ name: 'AllMovies', query: { actor: actor } }" class="genre-link">
               {{ actor }}
               </router-link>
             </p>
