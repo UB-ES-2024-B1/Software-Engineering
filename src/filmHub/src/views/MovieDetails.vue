@@ -54,7 +54,11 @@
 
 
             <div class="info-item">
-              <span class="info-title">Date: </span> <span>{{ bannerMovie.release_date }}</span>
+              <span class="info-title">Date: </span> <span>
+                <router-link :to="{ name: 'AllMovies', query: { year: bannerMovie.release_date.slice(0,4) } }" class="genre-link">
+                  {{ bannerMovie.release_date }}
+                </router-link>
+              </span>
             </div>
             <div class="info-item">
               <span class="info-title">Country: </span> <span>{{ bannerMovie.country }}</span>

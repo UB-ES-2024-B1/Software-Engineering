@@ -174,6 +174,8 @@ export default {
             activeSorting: '', // Almacena el criterio de orden activo (rating, year, popularity)
             wishedMovies: [], // Lista de películas deseadas
             userId: localStorage.getItem('user_id'), // ID del usuario
+
+            //Para mostrar desde movie details
             selectedDirector: null, //Para mostrar las peliculas por Director
             selectedActor: null,
         };
@@ -466,6 +468,17 @@ export default {
                     this.selectedGenre = newGenre;
                     this.$nextTick(() => {
                         this.applySorting('genre'); // Aplicar filtro solo después de actualizar selectedGenre
+                    });
+                }
+            },
+        },
+        '$route.query.year': {
+            immediate: true,
+            handler(newYear) {
+                if (newYear) {
+                    this.selectedYear = newYear;
+                    this.$nextTick(() => {
+                        this.applySorting('year'); // Aplicar filtro solo después de actualizar selectedYear
                     });
                 }
             },
