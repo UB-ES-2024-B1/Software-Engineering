@@ -174,7 +174,7 @@ export default {
             activeSorting: '', // Almacena el criterio de orden activo (rating, year, popularity)
             wishedMovies: [], // Lista de películas deseadas
             userId: localStorage.getItem('user_id'), // ID del usuario
-            
+            selectedDirector: null, //Para mostrar las peliculas por Director
         };
     },
     methods: {
@@ -254,6 +254,24 @@ export default {
                 this.applySorting(''); 
             }
         },
+
+        async filterMoviesByDirector(movies, directorName) {
+            try {
+                // Filtrar las películas por el nombre del director
+                let directorMovies = [];
+                for (const movie of movies){
+                    if (movie.director === directorName){
+                        directorMovies.push(movie);
+                    }
+                }
+                return directorMovies;
+            } catch (error) {
+                console.error("Error filtering movies by director:", error);
+                return [];
+            }
+        },
+
+        
         async applySorting(criteria, resetSelectedYear = false) {
             try {
                 let url;
@@ -265,9 +283,11 @@ export default {
                 if (this.cancelTokenSource) {
                     this.cancelTokenSource.cancel("Operation canceled due to new request.");
                 }
-
                 this.cancelTokenSource = axios.CancelToken.source();
-                if (criteria === 'rating') {
+
+                if (criteria === 'director' && this.selectedDirector){
+                    url = `${API_BASE_URL}/movies`;
+                }else if (criteria === 'rating') {
                     url = `${API_BASE_URL}/movies/sorted/rating`;
                 } else if (criteria === 'year') {
                     if (this.selectedYear) {
@@ -292,6 +312,12 @@ export default {
 
                 let movies = response.data;
 
+                if (criteria === 'director'){
+                    // Filtra las películas por director
+                    movies = await this.filterMoviesByDirector(movies, this.selectedDirector);
+                }
+
+
                 if (criteria === 'year') {
                     // Invertir el orden si estamos ordenando por año
                     movies = movies.reverse(); // Aquí invertimos el array
@@ -306,6 +332,8 @@ export default {
                 this.sortedMovies = this.chunkMovies(processedMovies, 5);
 
                 console.log(`Movies filtered by ${criteria}:`, this.sortedMovies);
+            
+
             } catch (error) {
                 if (axios.isCancel(error)) {
                     console.log("Previous request canceled:", error.message);
@@ -350,6 +378,7 @@ export default {
         const searchQuery = this.$route.query.search;
         const sortByYear = this.$route.query.sortByYear;
         const sortByRate = this.$route.query.sortByRate;
+        const directorName = this.$route.query.director;
 
         if (searchQuery) {
             this.applySorting('search');
@@ -357,7 +386,9 @@ export default {
             this.applySorting('year');
         } else if (sortByRate) {
             this.applySorting('rating');
-        } else {
+        } else if (directorName) {
+            this.applySorting('director');
+        }else {
             this.applySorting('');
         }
         await this.fetchGenres();
@@ -415,6 +446,18 @@ export default {
                 }
             },
         },
+        '$route.query.director': {
+            immediate: true,
+            handler(newDirector) {
+            if (newDirector) {
+                console.log(`Filtering by director: ${newDirector}`);
+                this.selectedDirector = newDirector;
+                this.applySorting('director');
+            }
+            },
+        },
+
+
 
 
     },

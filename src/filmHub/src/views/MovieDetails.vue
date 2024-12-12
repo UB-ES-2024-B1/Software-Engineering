@@ -37,7 +37,7 @@
           <div class="movie-info">
             <h4>{{ bannerMovie.title }}</h4>
 
-            <!-- Modificado para redireccionar-lo a AllMovies -->
+            <!-- Modificado para redireccionarlo a AllMovies según el género -->
             <div class="info-item">
               <span class="info-title">Genres: </span> 
               <!-- <span>{{ bannerMovie.genres.join(", ") }}</span> -->
@@ -49,6 +49,7 @@
                   <span v-if="index < bannerMovie.genres.length - 1">, </span>
                 </span>
               </span>
+
             </div>
 
 
@@ -164,9 +165,15 @@
         <h4 class="section-title">Cast & Crew</h4>
         <div class="cards-container">
           <!-- Card for Director (Always visible as the first item) -->
+          
           <div class="detail-card">
+            <!-- Modificado para hacer un link hacia allMovies y que se muestren las pelis del Director-->
             <h4>Director</h4>
-            <p>{{ bannerMovie.director }}</p>
+            <p>
+              <router-link :to="{ name: 'AllMovies', query: { director: bannerMovie.director } }">
+                {{ bannerMovie.director }}
+              </router-link>
+            </p>
           </div>
 
           <!-- Cards for Cast, excluding the director -->
