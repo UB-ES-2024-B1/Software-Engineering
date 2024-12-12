@@ -23,6 +23,7 @@
                                 {{ isFollowing(userData) ? 'Following' : 'Follow' }}
                             </button>
                         </div>
+
                     </div>
 
                     <!-- Información adicional: followers, reviews, followed -->
@@ -215,21 +216,30 @@ export default {
 
                 // Cargar las películas liked, rated y wishlist
                 this.loadMovies();
+
+                // Cargar seguidores y seguidos del perfil visitado
+                this.loadFollowers();
+                this.loadFollowing();
             })
             .catch((error) => {
                 console.error('Error al obtener los datos del usuario:', error);
                 this.error = 'User does not exist.';
             });
-        this.loadFollowing();
-        this.loadFollowers();
+
+
     },
 
     methods: {
 
         isFollowing(user) {
-            console.log("nigga",user);
-            return this.following.some(followingUser => followingUser.id === user.id);
+            console.log('user', user);
+            // Obtén nuestro email desde el almacenamiento local
+            const userEmail = localStorage.getItem('userEmail');
+
+            // Verifica si nosotros estamos en la lista de followers del usuario explorado
+            return this.followers.some(follower => follower.email === userEmail);
         },
+
         scrollToRatedMovies() {
             this.toggleMovies('rated'); // Cambiar a la vista de Rated Movies
             this.$nextTick(() => {
@@ -240,62 +250,45 @@ export default {
             });
         },
         async loadFollowers() {
-            // Obtener la lista de seguidores
-            const url = `${API_BASE_URL}/users/followers/${localStorage.getItem('user_id')}`;
+            if (!this.userData) return; // Verificar si el usuario se cargó
+            const url = `${API_BASE_URL}/users/followers/${this.userData.id}`;
 
-            // Make the GET request
-            axios.get(url, {
-                headers: {
-                    'accept': 'application/json'
-                }
-            })
-                .then(response => {
-                    // Handle the response
-                    this.followers = response.data;
-                    this.following = response.data;
-                    if (this.popupTitle === 'Followers') {
-                        this.popupList = this.followers;
-                    }
-                    else {
-                        this.popupList = this.following;
-                    }
-
-                })
-                .catch(error => {
-                    // Handle the error
-                    console.error('Error occurred:', error);
+            try {
+                const response = await axios.get(url, {
+                    headers: {
+                        'accept': 'application/json',
+                    },
                 });
+                this.followers = response.data;
 
+                if (this.popupTitle === 'Followers') {
+                    this.popupList = this.followers;
+                }
+            } catch (error) {
+                console.error('Error al obtener la lista de seguidores:', error);
+            }
         },
 
         async loadFollowing() {
-            // Obtener la lista de seguidos
-            const url = `${API_BASE_URL}/users/followed/${localStorage.getItem('user_id')}`;
+            if (!this.userData) return; // Verificar si el usuario se cargó
+            const url = `${API_BASE_URL}/users/followed/${this.userData.id}`;
 
-            // Make the GET request
-            axios.get(url, {
-                headers: {
-                    'accept': 'application/json'
-                }
-            })
-                .then(response => {
-                    // Handle the response
-                    this.following = response.data;
-                    if (this.popupTitle === 'Following') {
-                        this.popupList = this.following;
-                    }
-                    else {
-                        this.popupList = this.followers;
-                    }
-
-
-                })
-                .catch(error => {
-                    // Handle the error
-                    console.error('Error occurred:', error);
+            try {
+                const response = await axios.get(url, {
+                    headers: {
+                        'accept': 'application/json',
+                    },
                 });
+                this.following = response.data;
 
+                if (this.popupTitle === 'Following') {
+                    this.popupList = this.following;
+                }
+            } catch (error) {
+                console.error('Error al obtener la lista de seguidos:', error);
+            }
         },
+
         async openPopup(type) {
             if (type === 'followers') {
                 this.popupTitle = 'Followers';
@@ -311,10 +304,9 @@ export default {
             this.isPopupVisible = false;
         },
         async toggleFollow(user) {
-
             const url = `${API_BASE_URL}/users/${this.isFollowing(user) ? 'unfollow' : 'follow'}/${user.id}`;
             const token = localStorage.getItem('token');
-
+            console.log('url', url);
             try {
                 await axios.post(
                     url,
@@ -327,16 +319,17 @@ export default {
                     }
                 );
 
-                this.loadFollowing(); // Recarga la lista para reflejar los cambios
-                this.loadFollowers(); // Recarga la lista para reflejar los cambios
-
-
-
+                // Actualiza las listas desde el backend tras realizar la acción
+                await this.loadFollowers();
+                await this.loadFollowing();
             } catch (error) {
                 console.error(this.isFollowing(user) ? 'Error unfollowing user:' : 'Error following user:', error);
             }
-
         },
+
+
+
+
         // Nueva función para obtener los detalles completos de una película usando el título
         async fetchMovieDetails(title) {
             try {
