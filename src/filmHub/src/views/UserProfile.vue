@@ -38,6 +38,10 @@
           </div>
 
           <div class="profile-info">
+            <div class="privacity-div">
+              <strong>Account type:</strong><br />
+              <span>{{ accountType(userData.isPublic) }} and {{ isAdmin(userData.is_admin) }}</span>
+            </div>
             <div class="email-div">
               <strong>Email Address:</strong><br />
               <span>{{ userData.email }}</span>
@@ -253,6 +257,25 @@ export default {
     this.loadFollowing();
   },
   methods: {
+
+    isAdmin(isAdmin) {
+      if(isAdmin){
+        return 'Admin';
+      }
+      else{
+        return 'User';
+      }
+    },
+    accountType(accType){
+      if(accType === 'public'){
+        return 'Public';
+      }
+      else if(accType === 'private'){ 
+        return 'Private';
+      }
+
+      return 'Only Followers';
+    },
 
     scrollToRatedMovies() {
       this.toggleMovies('rated'); // Cambiar a la vista de Rated Movies

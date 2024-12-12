@@ -1,18 +1,25 @@
 # backend/app/models/user_models.py
 from app.models.comments_model import Comment
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel, Relationship, Enum
 from typing import Union, Optional, List
 
+class ProfileVisibility(str, Enum):
+    PUBLIC = "public"
+    PRIVATE = "private"
+    ONLY_FOLLOWERS = "only_followers"
 
 # Shared properties
 class UserBase(SQLModel):
+    class Config:
+        arbitrary_types_allowed = True  # Allow enums or arbitrary types
+
     email: str = Field(unique=True, index=True)
     is_active: bool = True
     is_admin: bool = False
     full_name: Union[str, None] = None  # Optional full name using Union
     img_url: Union[str, None] = None  # Optional SRT link
     img_public_id: Union[str, None] = None  # Optional public ID
-    public: bool = True  # Whether the profile is public or not
+    isPublic: str = ProfileVisibility.PUBLIC  # Profile visibility using enum
 
 # The link between movie and movie for rating
 class MovieUser(SQLModel, table=True):

@@ -5,7 +5,7 @@ from app.db.database import SessionLocal  # Import the SessionLocal from databas
 from app.crud import user_crud
 from app.api.dependencies import *  # Import the get_db function
 from app.models import (
-    User, UserOut, UserCreate,UserUpdate,FollowOut
+    User, UserOut, UserCreate,UserUpdate,FollowOut,ProfileVisibility
 )
 from scripts.upload import eliminar_imagen, subir_imagen_desde_archivo
 from typing import List, Optional
@@ -120,7 +120,7 @@ def read_user(username: str, db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if user.public == False:
+    if user.isPublic == False:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have enough permission to do this action."
@@ -164,7 +164,7 @@ def update_user_by_id(
     is_active: Optional[bool] = Form(None),
     is_admin: Optional[bool] = Form(None),
     img: Optional[UploadFile] = File(None),
-    public:Optional[bool] = Form(None),
+    isPublic:Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -197,8 +197,8 @@ def update_user_by_id(
         update_data["is_active"] = is_active
     if is_admin is not None:
         update_data["is_admin"] = is_admin
-    if public is not None:
-        update_data["public"] = public
+    if isPublic is not None:
+        update_data["isPublic"] = isPublic
 
 
     # If an image is uploaded, process it
@@ -233,7 +233,7 @@ def update_user_by_email(
     is_active: Optional[bool] = Form(None),
     is_admin: Optional[bool] = Form(None),
     img: Optional[UploadFile] = File(None),
-    public:Optional[bool] = Form(None),
+    isPublic:Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -263,8 +263,8 @@ def update_user_by_email(
         update_data["is_active"] = is_active
     if is_admin is not None:
         update_data["is_admin"] = is_admin
-    if public is not None:
-        update_data["public"] = public
+    if isPublic is not None:
+        update_data["isPublic"] = isPublic
 
     # If an image is uploaded, process it
     if img is not None or img =='string':

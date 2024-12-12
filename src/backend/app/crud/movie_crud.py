@@ -511,9 +511,10 @@ def get_all_ratings(db: Session, skip: int = 0, limit: int = 100):
             Movie.title,
             MovieUser.rating,
             MovieUser.user_id,
+            
             User.full_name.label("user_full_name"),
             User.img_url.label("user_image_url"),
-            # Siempre hay una imagen de la película, tomar la primera
+            User.isPublic.label("isPublic"),
             Movie.image[0].label("movie_image_url"),
             subquery.c.text.label("first_comment"),
             subquery.c.created_at.label("comment_created_at"),
@@ -534,7 +535,7 @@ def get_all_ratings(db: Session, skip: int = 0, limit: int = 100):
     # Transform the results into the desired format with a human-readable time difference
     results = []
     for row in movies_rated:
-        movie_id, title, rating, user_id, full_name, user_image_url, movie_image_url, first_comment, comment_created_at = row
+        movie_id, title, rating, user_id, full_name, user_image_url,isPublic, movie_image_url, first_comment, comment_created_at = row
         
         if comment_created_at:
             # Ensure the comment creation time is timezone-aware
@@ -550,6 +551,7 @@ def get_all_ratings(db: Session, skip: int = 0, limit: int = 100):
             "title": title,
             "rating": rating,
             "user_id": user_id,
+            "public": isPublic,
             "full_name": full_name,
             "user_image_url": user_image_url,  # Include only user profile image URL
             "movie_image_url": movie_image_url,  # Directly take the first movie image URL

@@ -37,11 +37,20 @@
                   <div class="post-header">
                     <img :src="post.user.avatar" :alt="post.user.username" class="avatar" />
                     <div class="user-info">
-                      <router-link class="username" :to="{ path: `/otherProfiles/${post.user.username}` }">
+                      <router-link v-if="post.user.id === userData.id" :to="{ path: `/profile` }" class="my_username">
                         <span>{{ post.user.username }}</span>
                       </router-link>
+                      <router-link
+                        v-else-if="post.user.public === 'public' || (post.user.public === 'only_followers' && isFollowing(post.user.id))"
+                        class="username" :to="{ path: `/otherProfiles/${post.user.username}` }">
+                        <span>{{ post.user.username }}</span>
+                      </router-link>
+                      <span v-else class="username" @click="handlePermisions(post.user.public)">
+                        {{ post.user.username }}
+                      </span>
                       <span class="timestamp">{{ post.timestamp }}</span>
                     </div>
+
 
                   </div>
                   <div class="post-actions">
@@ -186,7 +195,13 @@ export default {
     }
   },
   methods: {
-
+    handlePermisions(permision) {
+      if (permision === 'only_followers') {
+        alert('You must be a follower to see this user profile');
+      } else {
+        alert('This user profile is private');
+      }
+    },
     isFollowing(userId) {
       return this.following.some(followingUser => followingUser.id === userId);
     },
@@ -252,12 +267,14 @@ export default {
     async fillUsers() {
       try {
         const userList = await this.fetchUsers(0, 100);
+
         this.users = []; // Ensure `this.users` is initialized
 
         userList.forEach((user) => {
           this.users.push({
             id: this.users.length,
             user: {
+              public: user.public,
               id: user.id,
               username: user.full_name,
               avatar: user.img_url
@@ -288,11 +305,12 @@ export default {
     async fillPosts() {
       try {
         const posts = await this.fetchPosts(0, 100);
-
+        console.log('Posts list:', posts);
         posts.forEach((post) => {
           this.posts.unshift({
             id: this.posts.length,
             user: {
+              public: post.public,
               id: post.user_id,
               username: post.full_name,
               avatar: post.user_image_url
@@ -580,6 +598,16 @@ export default {
 }
 
 .username:hover {
+  text-decoration: underline;
+}
+
+.my_username{
+  font-weight: bold;
+  text-decoration: none;
+  color: gold;
+}
+
+.my_username:hover {
   text-decoration: underline;
 }
 
