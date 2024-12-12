@@ -180,7 +180,11 @@
           <div v-for="(actor, index) in bannerMovie.cast" :key="actor" class="detail-card"
             v-show="index < visibleCount">
             <h4>Actor</h4>
-            <p>{{ actor }}</p>
+            <p>
+              <router-link :to="{ name: 'AllMovies', query: { actor: actor } }">
+              {{ actor }}
+              </router-link>
+            </p>
           </div>
         </div>
         <!-- See More Button -->

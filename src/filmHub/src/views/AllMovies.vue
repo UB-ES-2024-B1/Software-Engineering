@@ -175,6 +175,7 @@ export default {
             wishedMovies: [], // Lista de películas deseadas
             userId: localStorage.getItem('user_id'), // ID del usuario
             selectedDirector: null, //Para mostrar las peliculas por Director
+            selectedActor: null,
         };
     },
     methods: {
@@ -271,6 +272,24 @@ export default {
             }
         },
 
+        async filterMoviesByActor(movies, actorName) {
+            try {
+                // Filtrar las películas por el nombre del actor
+                let actorMovies = [];
+                for (const movie of movies){
+                    for (const actor of movie.cast_members){
+                        if (actor.name === actorName){
+                            actorMovies.push(movie);
+                        }
+                    }
+                }
+                return actorMovies;
+            } catch (error) {
+                console.error("Error filtering movies by director:", error);
+                return [];
+            }
+        },
+
         
         async applySorting(criteria, resetSelectedYear = false) {
             try {
@@ -285,7 +304,7 @@ export default {
                 }
                 this.cancelTokenSource = axios.CancelToken.source();
 
-                if (criteria === 'director' && this.selectedDirector){
+                if ((criteria === 'director' && this.selectedDirector) || (criteria === 'actor' && this.selectedActor)){
                     url = `${API_BASE_URL}/movies`;
                 }else if (criteria === 'rating') {
                     url = `${API_BASE_URL}/movies/sorted/rating`;
@@ -315,6 +334,8 @@ export default {
                 if (criteria === 'director'){
                     // Filtra las películas por director
                     movies = await this.filterMoviesByDirector(movies, this.selectedDirector);
+                }else if(criteria === 'actor'){
+                    movies = await this.filterMoviesByActor(movies, this.selectedActor);
                 }
 
 
@@ -379,6 +400,7 @@ export default {
         const sortByYear = this.$route.query.sortByYear;
         const sortByRate = this.$route.query.sortByRate;
         const directorName = this.$route.query.director;
+        const actorName = this.$route.query.actor;
 
         if (searchQuery) {
             this.applySorting('search');
@@ -388,6 +410,8 @@ export default {
             this.applySorting('rating');
         } else if (directorName) {
             this.applySorting('director');
+        }else if (actorName) {
+            this.applySorting('actor');
         }else {
             this.applySorting('');
         }
@@ -456,7 +480,16 @@ export default {
             }
             },
         },
-
+        '$route.query.actor': {
+            immediate: true,
+            handler(newActor) {
+            if (newActor) {
+                console.log(`Filtering by director: ${newActor}`);
+                this.selectedActor = newActor;
+                this.applySorting('actor');
+            }
+            },
+        },
 
 
 
