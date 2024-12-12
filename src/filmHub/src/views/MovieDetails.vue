@@ -36,9 +36,22 @@
           <!-- Información de la película -->
           <div class="movie-info">
             <h4>{{ bannerMovie.title }}</h4>
+
+            <!-- Modificado para redireccionar-lo a AllMovies -->
             <div class="info-item">
-              <span class="info-title">Genres: </span> <span>{{ bannerMovie.genres.join(", ") }}</span>
+              <span class="info-title">Genres: </span> 
+              <!-- <span>{{ bannerMovie.genres.join(", ") }}</span> -->
+              <span>
+                <span v-for="(genre, index) in bannerMovie.genres" :key="index">
+                  <router-link :to="{ name: 'AllMovies', query: { genre: genre } }" class="genre-link">
+                    {{ genre }}
+                  </router-link>
+                  <span v-if="index < bannerMovie.genres.length - 1">, </span>
+                </span>
+              </span>
             </div>
+
+
             <div class="info-item">
               <span class="info-title">Date: </span> <span>{{ bannerMovie.release_date }}</span>
             </div>
@@ -1006,6 +1019,18 @@ async function generateRecentMovieObject(movieData) {
 
 
 <style scoped>
+.genre-link {
+  color: #3498db;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.genre-link:hover {
+  text-decoration: underline;
+}
+
+
+
 /* Estilo para comentarios */
 .comments-section {
   margin-top: 30px;

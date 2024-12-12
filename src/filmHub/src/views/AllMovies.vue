@@ -404,6 +404,19 @@ export default {
                 this.applySorting('popularity');
             }
         },
+        '$route.query.genre': {
+            immediate: true,
+            handler(newGenre) {
+                if (newGenre) {
+                    this.selectedGenre = newGenre;
+                    this.$nextTick(() => {
+                        this.applySorting('genre'); // Aplicar filtro solo después de actualizar selectedGenre
+                    });
+                }
+            },
+        },
+
+
     },
 };
 </script>
@@ -415,6 +428,7 @@ export default {
 
 
 <style scoped>
+
 .horizontal-bar {
     position: fixed;
     top: 70px;
