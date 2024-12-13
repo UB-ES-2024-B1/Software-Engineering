@@ -15,6 +15,9 @@
                         <div class="username">
                             <strong>{{ userData.full_name }}</strong>
                         </div>
+                        <div class="account-type">
+                            <span>{{ handleAccountText() }}</span>
+                        </div>
 
                         <!-- Botón de seguir/Dejar de seguir -->
                         <div class="follow-button">
@@ -55,7 +58,7 @@
         </div>
 
         <!-- Mostrar películas solo si el usuario existe -->
-        <div class="movies-section" v-if="!error" ref="ratedMoviesSection">
+        <div class="movies-section" v-if="!error && isVisible" ref="ratedMoviesSection">
             <!-- Nueva capa de overlay -->
             <div class="movies-overlay"></div>
 
@@ -116,7 +119,6 @@
                 </button>
             </div>
         </FollowsPopup>
-        <FooterComponent />
     </div>
 </template>
 
@@ -125,7 +127,6 @@
 
 import HeaderPage from '@/components/HeaderPage.vue';
 import FollowsPopup from '@/components/FollowsPopup.vue';
-import FooterComponent from '@/components/FooterComponent.vue';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
 
@@ -168,7 +169,6 @@ export default {
     components: {
         HeaderPage,
         FollowsPopup,
-        FooterComponent,
 
     },
     data() {
@@ -189,6 +189,7 @@ export default {
             defaultImage: require('@/assets/foto_perfil.png'), // Ruta a una imagen por defecto
             followers: [], // Lista de seguidores
             following: [], // Lista de seguidos
+            isVisible: false, // Tipo de cuenta
 
 
             //REP eliminar
@@ -220,6 +221,11 @@ export default {
                 // Cargar seguidores y seguidos del perfil visitado
                 this.loadFollowers();
                 this.loadFollowing();
+
+                setTimeout(() => {
+                    this.isAbleToWatchProfile(); // Llamar con un pequeño retraso
+                }, 100); // Ejecutar después de que el componente esté montado
+
             })
             .catch((error) => {
                 console.error('Error al obtener los datos del usuario:', error);
@@ -229,7 +235,35 @@ export default {
 
     },
 
+
     methods: {
+
+        handleAccountText() {
+            if (this.userData.isPublic === 'public') {
+                return 'Public Account';
+            }
+            else if (this.userData.isPublic === 'private') {
+                return 'Private Account';
+            }
+            else if (this.userData.isPublic === 'only_followers') {
+                return 'Only Followers Account';
+            }
+        },
+
+        isAbleToWatchProfile() {
+            console.log('acc_type', this.account_type);
+            if (this.userData.isPublic === 'public') {
+
+                this.isVisible = true;
+            }
+            else if (this.userData.isPublic === 'private') {
+
+                this.isVisible = false;
+            }
+            else if (this.userData.isPublic === 'only_followers') {
+                this.isVisible = this.isFollowing(this.userData);
+            }
+        },
 
         isFollowing(user) {
             console.log('user', user);
@@ -322,6 +356,7 @@ export default {
                 // Actualiza las listas desde el backend tras realizar la acción
                 await this.loadFollowers();
                 await this.loadFollowing();
+                this.isAbleToWatchProfile();
             } catch (error) {
                 console.error(this.isFollowing(user) ? 'Error unfollowing user:' : 'Error following user:', error);
             }
@@ -462,7 +497,11 @@ export default {
         },
         showWishlistMovies() {
             this.updateDisplayedMovies();
-        }
+        },
+        userData(newValue) {
+            // Actualiza isVisible cada vez que userData cambie
+            this.isVisible = !!(newValue && newValue.id);
+        },
     },
 
 
@@ -1062,7 +1101,12 @@ h2 {
 .username {
     padding-top: 3vh;
     font-size: larger;
+}
 
+.account-type {
+    padding-top: 1vh;
+    font-size: small;
+    color: #ffffff;
 }
 
 .user-image-popup {
