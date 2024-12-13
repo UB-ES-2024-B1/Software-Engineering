@@ -45,11 +45,27 @@ def get_comments_by_thread(db: Session, thread_id: int) -> List[Comment]:
     results = db.execute(statement).scalars().all()
     return results
 
+def get_comments_by_user(db:Session, user_id: int) -> List[Comment]:
+    """
+    Retrieve all comments by a specific user.
+    """
+    statement = select(Comment).where((Comment.user_id == user_id) & (Comment.reported != ReportStatus.BANNED))
+    results = db.execute(statement).scalars().all()
+    return results
+
 def get_comments_reported(db: Session) -> List[Comment]:
     """
     Retrieve all comments that have been reported.
     """
     statement = select(Comment).where(Comment.reported == ReportStatus.REPORTED)
+    results = db.execute(statement).scalars().all()
+    return results
+
+def get_comments(db: Session) -> List[Comment]:
+    """
+    Retrieve all comments.
+    """
+    statement = select(Comment)
     results = db.execute(statement).scalars().all()
     return results
 
