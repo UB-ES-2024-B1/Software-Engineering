@@ -14,7 +14,7 @@ from app.crud.comments_crud import (
     get_comments_reported,
     get_comments_banned,
     get_comments_reported_by_user,
-    get_comments_by_user
+    get_comments_by_user,
     get_reported_comments_ordered,
     delete_reported_comment
 )
