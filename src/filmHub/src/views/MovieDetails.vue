@@ -11,26 +11,7 @@
 
         <div class="small-cover">
           <!-- Imagen de la portada de la película -->
-          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
-          
-          <!-- Botón de Wishlist en la esquina superior derecha -->
-          <label class="ui-bookmark wishlist-button">
-            <input
-              type="checkbox"
-              :checked="wishedMovies.includes(bannerMovie.title)"
-              @change="toggleWishlist(bannerMovie.id)"
-              :disabled="userRatedMovies[bannerMovie.title]" 
-            />
-            <div class="bookmark" :class="{ disabled: userRatedMovies[bannerMovie.title] }">
-              <svg viewBox="0 0 32 32">
-                <g>
-                  <path
-                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
-                  ></path>
-                </g>
-              </svg>
-            </div>
-          </label>
+          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />         
 
         
           <!-- Información de la película -->
@@ -142,6 +123,27 @@
                   d="M224.6,51.9a59.5,59.5,0,0,0-43-19.9,60.5,60.5,0,0,0-44,17.6L128,59.1l-7.5-7.4C97.2,28.3,59.2,26.3,35.9,47.4a59.9,59.9,0,0,0-2.3,87l83.1,83.1a15.9,15.9,0,0,0,22.6,0l81-81C243.7,113.2,245.6,75.2,224.6,51.9Z"
                   stroke-width="20px" fill="none">
                 </path>
+              </svg>
+            </div>
+          </label>
+        </div>
+
+        <div class="wish-container"> 
+          <!-- Botón de Wishlist en la esquina superior derecha -->
+          <label class="ui-bookmark wishlist-button">
+            <input
+              type="checkbox"
+              :checked="wishedMovies.includes(bannerMovie.title)"
+              @change="toggleWishlist(bannerMovie.id)"
+              :disabled="userRatedMovies[bannerMovie.title]" 
+            />
+            <div class="bookmark" :class="{ disabled: userRatedMovies[bannerMovie.title] }">
+              <svg viewBox="0 0 32 32">
+                <g>
+                  <path
+                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                  ></path>
+                </g>
               </svg>
             </div>
           </label>
@@ -1685,7 +1687,7 @@ body {
 .star-rating-container {
   position: absolute;
   bottom: 25px;
-  right: 150px;
+  right: 125px;
   z-index: 10;
   opacity: 1;
 }
@@ -1803,6 +1805,15 @@ body {
 .radio input:checked~label svg {
   fill: #ffa723;
 }
+
+.like-container {
+  position: absolute;
+  bottom: 59px;
+  right: 100px;
+  z-index: 10;
+  opacity: 1;
+}
+
 
 .container input {
   position: absolute;
@@ -2032,20 +2043,23 @@ body {
   color: gold;
 }
 
-.ui-bookmark {
-  --icon-size: 65px;
-  --icon-secondary-color: rgb(100, 100, 100, 0.8);
-  --icon-hover-color: rgb(125, 125, 125, 0.9);
-  --icon-primary-color: rgba(0, 157, 255, 0.8);
-  --icon-circle-border: 1px solid var(--icon-primary-color);
-  --icon-circle-size: 90px;
-  --icon-anmt-duration: 0.3s;
-
-  position: absolute; /* O 'fixed' si quieres que se quede visible incluso al hacer scroll */
-  top: -8px;          /* Distancia desde la parte superior de la página */
-  left: 270px;        /* Distancia desde la parte derecha de la página */
+.wish-container {
+  position: absolute;
+  bottom: 21px;
+  right: 375px;
   z-index: 10;
-  
+  opacity: 1;
+}
+
+/* From Uiverse.io by Galahhad */ 
+.ui-bookmark {
+  --icon-size: 33px;
+  --icon-secondary-color: rgb(100, 100, 100, 1);
+  --icon-hover-color: rgba(0, 157, 255, 1);
+  --icon-primary-color: rgba(0, 157, 255, 1);
+  --icon-circle-border: 1px solid var(--icon-primary-color);
+  --icon-circle-size: 35px;
+  --icon-anmt-duration: 0.3s;
 }
 
 .ui-bookmark input {
@@ -2076,7 +2090,6 @@ body {
   -webkit-transform-origin: top;
   -ms-transform-origin: top;
   transform-origin: top;
-
 }
 
 .ui-bookmark .bookmark.disabled {
@@ -2088,31 +2101,29 @@ body {
 .bookmark::after {
   content: "";
   position: absolute;
-  width: 12px;
-  height: 12px;
-  -webkit-box-shadow: 0 90px 0 -4px var(--icon-primary-color),  /* Aumentado a 100px */
-    90px 0 0 -4px var(--icon-primary-color),                    /* Aumentado a 100px */
-    0 -90px 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -90px 0 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -70px 70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    -70px -70px 0 -4px var(--icon-primary-color),                /* Aumentado a 80px */
-    70px -70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    70px 70px 0 -4px var(--icon-primary-color);                  /* Aumentado a 80px */
-  box-shadow: 0 100px 0 -4px var(--icon-primary-color),  /* Aumentado a 100px */
-    90px 0 0 -4px var(--icon-primary-color),                    /* Aumentado a 100px */
-    0 -90px 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -90px 0 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -70px 70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    -70px -70px 0 -4px var(--icon-primary-color),                /* Aumentado a 80px */
-    70px -70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    70px 70px 0 -4px var(--icon-primary-color);                  /* Aumentado a 80px */
+  width: 10px;
+  height: 10px;
+  -webkit-box-shadow: 0 30px 0 -4px var(--icon-primary-color),
+    30px 0 0 -4px var(--icon-primary-color),
+    0 -30px 0 -4px var(--icon-primary-color),
+    -30px 0 0 -4px var(--icon-primary-color),
+    -22px 22px 0 -4px var(--icon-primary-color),
+    -22px -22px 0 -4px var(--icon-primary-color),
+    22px -22px 0 -4px var(--icon-primary-color),
+    22px 22px 0 -4px var(--icon-primary-color);
+  box-shadow: 0 30px 0 -4px var(--icon-primary-color),
+    30px 0 0 -4px var(--icon-primary-color),
+    0 -30px 0 -4px var(--icon-primary-color),
+    -30px 0 0 -4px var(--icon-primary-color),
+    -22px 22px 0 -4px var(--icon-primary-color),
+    -22px -22px 0 -4px var(--icon-primary-color),
+    22px -22px 0 -4px var(--icon-primary-color),
+    22px 22px 0 -4px var(--icon-primary-color);
   border-radius: 50%;
   -webkit-transform: scale(0);
   -ms-transform: scale(0);
   transform: scale(0);
 }
-
-
 
 .bookmark::before {
   content: "";
@@ -2238,7 +2249,7 @@ body {
     transform: scale(0);
   }
 
-  40% { 
+  40% {
     opacity: 1;
   }
 
