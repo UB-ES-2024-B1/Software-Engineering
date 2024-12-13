@@ -112,11 +112,8 @@
         </div>
         <FollowsPopup :isVisible="isPopupVisible" :title="popupTitle" @close="closePopup">
             <div v-for="user in popupList" :key="user.id" class="user-card">
-                <img :src="user.img_url || defaultImage" alt="Profile Image" class="user-image-popup" />
-                <p class="user-name">{{ user.full_name }}</p>
-                <button class="follow-btn" @click="toggleFollow(user)">
-                    {{ isFollowing(user) ? 'Unfollow' : 'Follow' }}
-                </button>
+                <img :src="user.img_url || defaultImage" alt="Profile Image" class="user-image-popup" />         
+                <p class="user-name-popup">{{ user.full_name }}</p>    
             </div>
         </FollowsPopup>
     </div>
@@ -1134,6 +1131,16 @@ h2 {
     color: rgb(255, 255, 255);
     margin-right: 10px;
 }
+
+.user-name-popup {
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+    margin-right: 10px;
+    text-decoration: none;
+    flex:1;
+}
+
 
 .follow-btn {
     background-color: #5d0d92;
