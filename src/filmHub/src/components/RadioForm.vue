@@ -1,45 +1,56 @@
 <template>
-    <div class="radio-input">
-        <label class="label">
-            <input type="radio" id="value-1" name="value-radio" value="value-1"
-                :checked="selectedValue === 'value-1'"
-                @change="updateSelection"
-            />
-            <p class="text">Add Movie by Name</p>
-        </label>
-        <label class="label">
-            <input type="radio" id="value-2" name="value-radio" value="value-2"
-                :checked="selectedValue === 'value-2'"
-                @change="updateSelection"
-            />
-            <p class="text">Add Movie by Features</p>
+    <div class="radio-input" :style="{ fontFamily: fontFamily, fontSize: fontSize }">
+        <h3 v-if="title" class="radio-title">{{ title }}</h3>
+        <label v-for="option in options" :key="option.value" class="label">
+            <input type="radio" :id="option.value" :name="name" :value="option.value"
+                :checked="selectedValue === option.value" @change="updateSelection" />
+            <p class="text">{{ option.label }}</p>
         </label>
     </div>
 </template>
 
+
+
 <script>
-export default {
+    export default {
     name: 'RadioForm',
     props: {
-        modelValue: String,
+      modelValue: String,
+      options: {
+        type: Array,
+        required: true,
+        default: () => [],
+      },
+      fontFamily: {
+        type: String,
+        default: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+      },
+      name: {
+        type: String,
+        default: 'radio-group',
+      },
+      title: {
+        type: String,
+        default: '', // Default to no title
+      },
     },
     computed: {
-        selectedValue: {
-            get() {
-                return this.modelValue;
-            },
-            set(value) {
-                this.$emit('update:modelValue', value);
-            },
+      selectedValue: {
+        get() {
+          return this.modelValue;
         },
+        set(value) {
+          this.$emit('update:modelValue', value);
+        },
+      },
     },
     methods: {
-        updateSelection(event) {
-            this.selectedValue = event.target.value;
-        },
+      updateSelection(event) {
+        this.selectedValue = event.target.value;
+      },
     },
-};
-</script>
+  };
+</script>  
 
 
 <style scoped>
@@ -123,8 +134,6 @@ export default {
 
 .radio-input .label .text {
     color: #bbbbbb;
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-weight: bold;
 }
 
 .radio-input input[type="radio"] {
@@ -166,4 +175,12 @@ export default {
         box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
     }
 }
+
+.radio-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #afadad;
+}
+
 </style>
