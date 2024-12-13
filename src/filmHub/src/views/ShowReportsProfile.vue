@@ -35,9 +35,9 @@
                           </label>
                       </div>
                       <div class="sort-row">
-                          <span>Popularity</span>
+                          <span>Status</span>
                           <label class="switch">
-                              <input type="checkbox" @change="applySwitchSorting('popularity', $event)" />
+                              <input type="checkbox" @change="applySwitchSorting('status', $event)" />
                               <span class="slider"></span>
                           </label>
                       </div>
@@ -187,7 +187,7 @@ export default {
           url = `${API_BASE_URL}/comments/reported/order_by_user`; // Ordenar por usuario
         } else if (criteria === 'date') {
           url = `${API_BASE_URL}/comments/reported/order_by_date`; // Ordenar por fecha
-        } else if (criteria === 'popularity') {
+        } else if (criteria === 'status') {
           url = `${API_BASE_URL}/comments/reported/order_by_status`; // Ordenar por popularidad
         } else {
           url = `${API_BASE_URL}/comments/reported`; // Recuperar todos los comentarios sin orden
