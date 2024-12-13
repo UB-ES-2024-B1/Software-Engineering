@@ -13,12 +13,12 @@
         <!-- Modal con los reported comments del usuario-->
         <div v-else class="modal-overlay">
           <h2>Reported Comments</h2>
-          <div v-if="reportedComments.length > 0" class="comments-list">
-            <!-- Contenedor con scroll solo para los comentarios -->
-            <div class="scrollable-comments">
-              <div v-for="(comment, index) in reportedComments" :key="index" class="comment-item">
-                <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
 
+          <!-- Si el usuario es admin podrá ver todos los comments reportados de todos los usuarios-->
+          <div v-if="isAdmin" class="admin-comments">
+            <div class="scrollable-comments">
+              <div v-for="(comment, index) in allReportedComments" :key="index" class="comment-item">
+                <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
                 <!-- Contenedor para la fecha y el badge -->
                 <div class="comment-info-container">
                   <div class="comment-date">
@@ -28,11 +28,31 @@
                     <p>{{ comment.state }}</p>
                   </div>
                 </div>
-
                 <hr />
               </div>
             </div>
           </div>
+
+          <div v-else-if="reportedComments.length > 0" class="comments-list">
+            <!-- Contenedor con scroll solo para los comentarios -->
+            <div class="scrollable-comments">
+              <div v-for="(comment, index) in reportedComments" :key="index" class="comment-item">
+                <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+                <!-- Contenedor para la fecha y el badge -->
+                <div class="comment-info-container">
+                  <div class="comment-date">
+                    <p>{{ comment.date.slice(0, 10) }}</p>
+                  </div>
+                  <div class="submitted-badge">
+                    <p>{{ comment.state }}</p>
+                  </div>
+                </div>
+                <hr />
+              </div>
+            </div>
+          </div>
+
+
           <div v-else class="no-comments">
             <p>No comments have been reported by you.</p>
           </div>
@@ -65,6 +85,8 @@ export default {
       userData: null,
       error: null,
       reportedComments: [],
+      isAdmin: null,
+      allReportedComments: [],
     }
   },
   created() {
@@ -79,9 +101,14 @@ export default {
       .get(`${API_BASE_URL}/users/email/${userEmail}`)
       .then((response) => {
         this.userData = response.data;
+        this.isAdmin = this.userData.is_admin;
 
-        // Cargar las películas valoradas y con like desde un solo endpoint
-        this.showReportedComments();
+        // Cargar comentarios reportados según el rol del usuario
+        if (this.isAdmin) {
+          this.fetchAllReportedComments();
+        } else {
+          this.showReportedComments();
+        }
       })
       .catch((error) => {
         console.error('Error al obtener los datos del usuario:', error);
@@ -89,6 +116,34 @@ export default {
       });
   },
   methods: {
+    async fetchAllReportedComments() {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/comments/reported`, {
+          headers: {
+            accept: 'application/json',
+          },
+        });
+
+        // Resolver nombres de usuario para cada comentario
+        this.allReportedComments = await Promise.all(
+          response.data.map(async (comment) => {
+            const username = await this.getUsername(comment.user_id);
+            return {
+              id: comment.id,
+              text: comment.text,
+              username, // Nombre de usuario obtenido
+              date: comment.created_at,
+              state: comment.reported,
+            };
+          })
+        );
+      } catch (error) {
+        console.error('Error fetching all reported comments:', error);
+        this.error = 'Unable to load reported comments.';
+      }
+    },
+
+
     async showReportedComments() {
       try {
         const userId = this.userData.id; // Asegúrate de tener el ID del usuario cargado
