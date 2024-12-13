@@ -36,7 +36,7 @@
                   <div class="post-header">
                     <img :src="post.user.avatar" :alt="post.user.username" class="avatar" />
                     <div class="user-info">
-                      <router-link v-if="post.user.id === userData.id" :to="{ path: `/profile` }" class="my_username">
+                      <router-link v-if="post.user.id === load_user_id()" :to="{ path: `/profile` }" class="my_username">
                         <span>{{ post.user.username }}</span>
                       </router-link>
                       <router-link
@@ -190,6 +190,13 @@ export default {
     }
   },
   methods: {
+
+    load_user_id(){
+      if(localStorage.getItem('user_id') === null || localStorage.getItem('user_id') === undefined){
+        this.$router.push('/login');
+      }
+      return localStorage.getItem('user_id');   
+    },
     handlePermisions(permision) {
       if (permision === 'only_followers') {
         alert('You must be a follower to see this user profile');
