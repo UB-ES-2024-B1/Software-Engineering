@@ -622,7 +622,7 @@ def test_get_liked_list_movies():
     response_data = response.json()
 
     # Get the full movie list
-    all_movies_response = client.get("/movies")  # Replace with your actual endpoint for getting all movies
+    all_movies_response = client.get("/movies/")  # Replace with your actual endpoint for getting all movies
     assert all_movies_response.status_code == 200
     all_movies = all_movies_response.json()
 
@@ -647,7 +647,7 @@ def test_get_wish_list_movies():
     response_data = response.json()
 
     # Get the full movie list
-    all_movies_response = client.get("/movies")  # Replace with your actual endpoint for getting all movies
+    all_movies_response = client.get("/movies/")  # Replace with your actual endpoint for getting all movies
     assert all_movies_response.status_code == 200
     all_movies = all_movies_response.json()
 
