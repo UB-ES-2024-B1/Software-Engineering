@@ -11,6 +11,8 @@ import AllMovies from '../views/AllMovies.vue';
 import AddMovies from '../views/AddMovies.vue'; // Importa el componente 
 
 import ShowReportsProfile from '@/views/ShowReportsProfile.vue';
+import SearchUsers from '@/views/SearchUsers.vue';
+import OtherProfiles from '@/views/OtherProfiles.vue';
 
 const routes = [
   {
@@ -41,6 +43,11 @@ const routes = [
     component: UserProfile,
   },
   {
+    path: '/searchUsers',
+    name: 'SearchUsers',
+    component: SearchUsers,
+  },
+  {
     path: '/edit',
     name: 'EditProfile',
     component: EditProfile,
@@ -61,6 +68,13 @@ const routes = [
     path: '/reportedComments',
     name: 'ShowReportsProfile',
     component: ShowReportsProfile,
+  },
+  
+  {
+    path: '/otherProfiles/:username', // Ruta dinámica
+    name: 'OtherProfiles',
+    component: OtherProfiles,
+    props: true, // Pasa el parámetro como "prop" al componente
   },
 
 ];
