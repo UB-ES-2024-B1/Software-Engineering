@@ -14,6 +14,8 @@ from app.crud.comments_crud import (
     get_comments_reported,
     get_comments_banned,
     get_comments_reported_by_user,
+    get_comments_by_user,
+    get_reported_comments_ordered,
     delete_reported_comment,
     ban_comment_by_id
 )
@@ -151,6 +153,52 @@ def get_banned_comments(session: Session = Depends(get_db)):
     """
     comments = get_comments_banned(session)
     return comments
+
+@router.get("/by_user/", response_model=List[Comment])
+def get_user_comments(user_id:int, session: Session = Depends(get_db)):
+    comments = get_comments_by_user(session, user_id)
+    return comments
+
+@router.get("/reported/order_by_date/", response_model=List[Comment])
+def get_reported_comments_ordered_by_date(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, ordered by the date they were reported.
+    """
+    comments = get_reported_comments_ordered(session, order_by="date")
+    return comments
+
+
+@router.get("/reported/order_by_user/", response_model=List[Comment])
+def get_reported_comments_ordered_by_user(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, grouped and ordered by the user who reported them.
+    """
+    comments = get_reported_comments_ordered(session, order_by="user")
+    return comments
+
+
+@router.get("/reported/order_by_status/", response_model=List[Comment])
+def get_reported_comments_ordered_by_status(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, grouped and ordered by their report status.
+    """
+    comments = get_reported_comments_ordered(session, order_by="status")
+    return comments
+
+@router.delete("/reported/{comment_id}/", status_code=204)
+def delete_reported_comment_endpoint(
+    comment_id: int,
+    session: Session = Depends(get_db)
+):
+    """
+    Delete a reported comment by its ID (admin only).
+    """
+    try:
+        delete_reported_comment(session, comment_id)
+        return {"message": f"Comment with ID {comment_id} successfully deleted."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 @router.put("/reported_to_banned/{comment_id}/")
 def ban_comment(
