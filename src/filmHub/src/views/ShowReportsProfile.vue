@@ -184,13 +184,13 @@ export default {
 
         // Establecer la URL según el criterio seleccionado
         if (criteria === 'user') {
-          url = `${API_BASE_URL}/comments/reported/order_by_user`; // Ordenar por usuario
+          url = `${API_BASE_URL}/comments/reported/order_by_user/`; // Ordenar por usuario
         } else if (criteria === 'date') {
-          url = `${API_BASE_URL}/comments/reported/order_by_date`; // Ordenar por fecha
+          url = `${API_BASE_URL}/comments/reported/order_by_date/`; // Ordenar por fecha
         } else if (criteria === 'status') {
-          url = `${API_BASE_URL}/comments/reported/order_by_status`; // Ordenar por popularidad
+          url = `${API_BASE_URL}/comments/reported/order_by_status/`; // Ordenar por popularidad
         } else {
-          url = `${API_BASE_URL}/comments/reported`; // Recuperar todos los comentarios sin orden
+          url = `${API_BASE_URL}/comments/reported/`; // Recuperar todos los comentarios sin orden
         }
 
         // Realizar la solicitud a la API con Axios
