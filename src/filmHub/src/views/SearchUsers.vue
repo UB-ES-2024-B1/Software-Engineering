@@ -18,7 +18,6 @@
             <select class="form-select" id="sortOptions" @change="handleSortChange">
               <option value="More Recent" selected>More Recent</option>
               <option value="Older">Older</option>
-              <option value="Followers">Followers</option>
               <option value="Rating" v-if="selectedOption === 'option1'">Rating</option>
             </select>
           </div>
@@ -37,17 +36,13 @@
                   <div class="post-header">
                     <img :src="post.user.avatar" :alt="post.user.username" class="avatar" />
                     <div class="user-info">
-                      <router-link v-if="post.user.id === userData.id" :to="{ path: `/profile` }" class="my_username">
+                      <router-link v-if="post.user.id === load_user_id()" :to="{ path: `/profile` }" class="my_username">
                         <span>{{ post.user.username }}</span>
                       </router-link>
                       <router-link
-                        v-else-if="post.user.public === 'public' || (post.user.public === 'only_followers' && isFollowing(post.user.id))"
-                        class="username" :to="{ path: `/otherProfiles/${post.user.username}` }">
+                        v-else :to="{ path: `/otherProfiles/${post.user.username}` }" class="username">
                         <span>{{ post.user.username }}</span>
                       </router-link>
-                      <span v-else class="username" @click="handlePermisions(post.user.public)">
-                        {{ post.user.username }}
-                      </span>
                       <span class="timestamp">{{ post.timestamp }}</span>
                     </div>
 
@@ -195,6 +190,13 @@ export default {
     }
   },
   methods: {
+
+    load_user_id(){
+      if(localStorage.getItem('user_id') === null || localStorage.getItem('user_id') === undefined){
+        this.$router.push('/login');
+      }
+      return localStorage.getItem('user_id');   
+    },
     handlePermisions(permision) {
       if (permision === 'only_followers') {
         alert('You must be a follower to see this user profile');
@@ -462,35 +464,44 @@ export default {
     this.originalPosts = [...this.feed];
   },
   created() {
-    this.loadFollowers();
-    this.loadFollowing();
-    this.fillPosts();
-    this.fillUsers();
 
+    const userId = localStorage.getItem('user_id');
 
-    this.feed = this.posts;
-    this.originalPosts = [...this.posts];
-    const userName = localStorage.getItem('userName');
-    if (!userName) {
-      return;
+    if (!userId) {
+      // Redirigir a la página de login si no existe user_id en el localStorage
+      this.$router.push({ path: '/login' });
     }
+    else {
+      this.loadFollowers();
+      this.loadFollowing();
+      this.fillPosts();
+      this.fillUsers();
 
-    // Solicitar datos del usuario
-    axios
-      .get(`${API_BASE_URL}/users/username/${userName}`)
-      .then((response) => {
-        this.userData = response.data;
 
-        // Verificar que userData esté disponible antes de cargar las películas valoradas
-        if (this.userData) {
-          // Cargar las películas valoradas y con like desde un solo endpoint
-          this.loadLastRatedMovies();
-        }
-      })
-      .catch((error) => {
-        console.error('Error al obtener los datos del usuario:', error);
-        this.error = 'Error fetching user data. Please try again.';
-      });
+      this.feed = this.posts;
+      this.originalPosts = [...this.posts];
+      const userName = localStorage.getItem('userName');
+      if (!userName) {
+        return;
+      }
+
+      // Solicitar datos del usuario
+      axios
+        .get(`${API_BASE_URL}/users/username/${userName}`)
+        .then((response) => {
+          this.userData = response.data;
+
+          // Verificar que userData esté disponible antes de cargar las películas valoradas
+          if (this.userData) {
+            // Cargar las películas valoradas y con like desde un solo endpoint
+            this.loadLastRatedMovies();
+          }
+        })
+        .catch((error) => {
+          console.error('Error al obtener los datos del usuario:', error);
+          this.error = 'Error fetching user data. Please try again.';
+        });
+    }
   },
 
   watch: {
@@ -601,7 +612,7 @@ export default {
   text-decoration: underline;
 }
 
-.my_username{
+.my_username {
   font-weight: bold;
   text-decoration: none;
   color: gold;
