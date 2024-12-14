@@ -9,8 +9,16 @@ app.dependency_overrides[is_admin_user] = mock_is_admin_user
 
 client = TestClient(app)
 
+# Global variables to store the movie and thread IDs
+movie_id = None
+thread_id = None
+comment_id = None
+user_id = None
+
 # Test cases for Threads endpoints
 def test_create_movie_thread():
+    global movie_id, thread_id
+
     new_movie = {
         "title": "The Lost City",
         "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
@@ -35,12 +43,14 @@ def test_create_movie_thread():
     }
 
     response = client.post("/movies/", json=new_movie)
+    movie_id = response.json()["id"]
 
     # Assert that the response status 
     assert response.status_code == 200
 
     movie_id = 1
     response = client.post(f"/comments/threads/?movie_id={movie_id}")
+    thread_id = response.json()["id"] 
 
     assert response.status_code == 200
     response_data = response.json()
@@ -48,7 +58,7 @@ def test_create_movie_thread():
     assert response_data["movie_id"] == movie_id
 
 def test_get_threads():
-    movie_id = 1
+    global movie_id
     response = client.get(f"/comments/threads/{movie_id}/")
 
     assert response.status_code == 200
@@ -57,6 +67,7 @@ def test_get_threads():
 
 # Test cases for Comments endpoints
 def test_add_comment():
+    global movie_id, thread_id, comment_id, user_id
     new_user = {
         "email": "testuser@example.com",
         "is_active": True,
@@ -73,7 +84,7 @@ def test_add_comment():
     user_id = response.json()["id"]
 
     new_comment = {
-        "thread_id": 1,
+        "thread_id": thread_id,
         "user_id": user_id,
         "text": "This is a test comment."
     }
@@ -82,12 +93,13 @@ def test_add_comment():
 
     assert response.status_code == 200
     response_data = response.json()
+    comment_id = response_data["id"] 
     assert response_data["text"] == new_comment["text"]
     assert response_data["thread_id"] == new_comment["thread_id"]
     assert response_data["user_id"] == new_comment["user_id"]
 
 def test_get_thread_comments():
-    thread_id = 1
+    global movie_id, thread_id
     response = client.get(f"/comments/threads/{thread_id}/comments/")
 
     assert response.status_code == 200
@@ -95,7 +107,7 @@ def test_get_thread_comments():
     assert isinstance(response_data, list)
 
 def test_update_comment_text():
-    comment_id = 1
+    global movie_id, thread_id, comment_id
     update_data = {"text": "Updated comment text."}
     response = client.put(f"/comments/{comment_id}/text", json=update_data)
 
@@ -104,9 +116,8 @@ def test_update_comment_text():
     assert response_data["text"] == update_data["text"]
 
 def test_update_comment_status():
-    comment_id = 1
+    global movie_id, thread_id, comment_id, user_id
     update_data = {"reported": "REPORTED"}
-    user_id = 1
     response = client.put(f"/comments/{comment_id}/status?user_id={user_id}", json=update_data)
 
     assert response.status_code == 200
@@ -114,13 +125,13 @@ def test_update_comment_status():
     assert response_data["reported"] == update_data["reported"]
 
 def test_remove_comment():
-    comment_id = 1
+    global movie_id, thread_id, comment_id
     response = client.delete(f"/comments/{comment_id}/")
 
     assert response.status_code == 204
 
 def test_remove_thread():
-    thread_id = 1
+    global movie_id, thread_id
     response = client.delete(f"/comments/threads/{thread_id}/")
 
     assert response.status_code == 204
@@ -134,7 +145,7 @@ def test_get_reported_comments():
     assert isinstance(response_data, list)
 
 def test_get_reported_comments_by_user():
-    user_id = 1
+    global user_id
     response = client.get(f"/comments/reported_by_user/{user_id}/")
 
     assert response.status_code == 200
