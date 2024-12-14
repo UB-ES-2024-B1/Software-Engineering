@@ -69,5 +69,3 @@ class TestGetGenres(unittest.TestCase):
 
         self.assertEqual(len(result), 0)
 
-if __name__ == "__main__":
-    unittest.main()

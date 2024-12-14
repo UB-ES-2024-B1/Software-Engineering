@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 from sqlmodel import create_engine, Session, SQLModel
 from app.models.comments_model import Thread, Comment, ReportStatus
 from app.models.movie_models import Movie
@@ -15,7 +16,12 @@ from app.crud.comments_crud import (
     update_comment_text,
     update_comment_status_with_user,
     delete_comment,
-    delete_thread
+    delete_thread,
+    get_comments_by_user,
+    get_comments,
+    get_reported_comments_ordered,
+    delete_reported_comment
+
 )
 
 # Initialize test database (SQLite in-memory)
@@ -84,8 +90,9 @@ class TestCommentThreadCRUD(unittest.TestCase):
         thread = create_thread(self.db, movie_id=1)
         create_comment(self.db, thread_id=thread.id, user_id=1, text="Comment 1")
         reported_comment = create_comment(self.db, thread_id=thread.id, user_id=2, text="Reported comment")
-        reported_comment.reported = ReportStatus.REPORTED
-        self.db.commit()
+        updated_comment = update_comment_status_with_user(
+            self.db, comment_id=reported_comment.id, reported=ReportStatus.REPORTED, user_id=2
+        )
         reported_comments = get_comments_reported(self.db)
         self.assertEqual(len(reported_comments), 1)
 
@@ -95,6 +102,10 @@ class TestCommentThreadCRUD(unittest.TestCase):
         deleted = delete_comment(self.db, comment_id=comment.id)
         self.assertTrue(deleted)
         self.assertIsNone(self.db.get(Comment, comment.id))
+
+    def test_delete_non_comment(self):
+        deleted = delete_comment(self.db, comment_id=-1)
+        self.assertFalse(deleted)
 
     def test_delete_thread(self):
         thread = create_thread(self.db, movie_id=1)
@@ -111,11 +122,106 @@ class TestCommentThreadCRUD(unittest.TestCase):
         )
         self.assertEqual(updated_comment.reported, ReportStatus.BANNED)
 
+    def test_update_non_comment_status_with_user(self):
+        with self.assertRaises(ValueError) as context:
+            update_comment_status_with_user(
+                self.db, comment_id=-1, reported=ReportStatus.BANNED, user_id=2
+            )
+        self.assertEqual(str(context.exception), "Comment not found")
+
     def test_get_comments_banned(self):
         thread = create_thread(self.db, movie_id=1)
         create_comment(self.db, thread_id=thread.id, user_id=1, text="Clean comment")
         banned_comment = create_comment(self.db, thread_id=thread.id, user_id=2, text="Banned comment")
-        banned_comment.reported = ReportStatus.BANNED
-        self.db.commit()
+        updated_comment = update_comment_status_with_user(
+            self.db, comment_id=banned_comment.id, reported=ReportStatus.BANNED, user_id=2
+        )
         banned_comments = get_comments_banned(self.db)
         self.assertEqual(len(banned_comments), 1)
+    
+    def test_get_comments_by_user(self):
+        thread = create_thread(self.db, movie_id=1)
+        create_comment(self.db, thread_id=thread.id, user_id=1, text="User 1 Comment 1")
+        create_comment(self.db, thread_id=thread.id, user_id=2, text="User 2 Comment 1")
+        comments = get_comments_by_user(self.db, user_id=1)
+        self.assertEqual(len(comments), 1)
+        self.assertEqual(comments[0].text, "User 1 Comment 1")
+    
+    def test_get_comments(self):
+        thread = create_thread(self.db, movie_id=1)
+        create_comment(self.db, thread_id=thread.id, user_id=1, text="Comment 1")
+        create_comment(self.db, thread_id=thread.id, user_id=2, text="Comment 2")
+        comments = get_comments(self.db)
+        self.assertEqual(len(comments), 2)
+
+    def test_get_comments_reported_with_user(self):
+        thread = create_thread(self.db, movie_id=1)
+        comment1 = create_comment(self.db, thread_id=thread.id, user_id=1, text="Reported by User 1")
+        updated_comment = update_comment_status_with_user(
+            self.db, comment_id=comment1.id, reported=ReportStatus.REPORTED, user_id=2
+        )
+        comments = get_comments_reported_with_user(self.db, user_id=1)
+        self.assertEqual(len(comments), 1)
+        self.assertEqual(comments[0].text, "Reported by User 1")
+
+    def test_get_comments_reported_by_user(self):
+        thread = create_thread(self.db, movie_id=1)
+        comment1 = create_comment(self.db, thread_id=thread.id, user_id=2, text="Comment reported by User 1")
+        updated_comment = update_comment_status_with_user(
+            self.db, comment_id=comment1.id, reported=ReportStatus.REPORTED, user_id=1
+        )
+        comments = get_comments_reported_by_user(self.db, user_id=1)
+        self.assertEqual(len(comments), 1)
+        self.assertEqual(comments[0].text, "Comment reported by User 1")
+
+    def test_get_reported_comments_ordered(self):
+        thread = create_thread(self.db, movie_id=1)
+        comment1 = create_comment(self.db, thread_id=thread.id, user_id=1, text="Reported Comment 1")
+        comment2 = create_comment(self.db, thread_id=thread.id, user_id=2, text="Reported Comment 2")
+        updated_comment = update_comment_status_with_user(
+            self.db, comment_id=comment2.id, reported=ReportStatus.BANNED, user_id=2
+        )
+        updated_comment = update_comment_status_with_user(
+            self.db, comment_id=comment1.id, reported=ReportStatus.REPORTED, user_id=1
+        )
+        comment1.created_at = datetime(2023, 1, 1, 12, 0, 0)  # Older
+        comment2.created_at = datetime(2023, 1, 2, 12, 0, 0)  # Newer
+        self.db.commit()
+        
+        # Test ordering by date (default)
+        comments = get_reported_comments_ordered(self.db, order_by="date")
+        self.assertEqual(len(comments), 2)
+        self.assertGreater(comments[0].created_at, comments[1].created_at)
+
+        # Test ordering by user
+        comments = get_reported_comments_ordered(self.db, order_by="user")
+        self.assertEqual(comments[0].user_id, 1)
+
+        # Test ordering by status
+        comments = get_reported_comments_ordered(self.db, order_by="status")
+        self.assertEqual(comments[0].reported, ReportStatus.REPORTED)
+
+    def test_delete_reported_comment(self):
+        thread = create_thread(self.db, movie_id=1)
+        reported_comment = create_comment(self.db, thread_id=thread.id, user_id=1, text="Reported Comment")
+        updated_comment = update_comment_status_with_user(
+            self.db, comment_id=reported_comment.id, reported=ReportStatus.REPORTED, user_id=1
+        )
+        deleted = delete_reported_comment(self.db, comment_id=reported_comment.id)
+        self.assertTrue(deleted)
+        self.assertIsNone(self.db.get(Comment, reported_comment.id))
+
+    def test_delete_non_reported_comment(self):
+        thread = create_thread(self.db, movie_id=1)
+        clean_comment = create_comment(self.db, thread_id=thread.id, user_id=1, text="Clean Comment")
+        updated_comment = update_comment_status_with_user(
+            self.db, comment_id=clean_comment.id, reported=ReportStatus.CLEAN, user_id=1
+        )
+        with self.assertRaises(ValueError) as context:
+            delete_reported_comment(self.db, comment_id=clean_comment.id)
+        self.assertEqual(str(context.exception), f"Comment with ID {clean_comment.id} is not reported.")
+
+    def test_delete_non_existent_comment(self):
+        with self.assertRaises(ValueError) as context:
+            delete_reported_comment(self.db, comment_id=-1)
+        self.assertEqual(str(context.exception), "Comment with ID -1 not found.")
