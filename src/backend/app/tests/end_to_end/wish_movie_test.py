@@ -40,7 +40,7 @@ def login_user(driver_setup, db_session):
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
     time.sleep(3)  # Wait for the page to load after login
     return driver
-'''
+
 def test_wish_movie_success(login_user, db_session):
     driver = login_user
     # Navigate to the movie page
@@ -210,4 +210,4 @@ def test_check_list_actualization(login_user, db_session):
     
     time.sleep(3) 
 
-    movie_crud.remove_wish_movie(db_session, user.id, 6)'''
+    movie_crud.remove_wish_movie(db_session, user.id, 6)
