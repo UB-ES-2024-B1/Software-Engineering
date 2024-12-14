@@ -13,10 +13,20 @@
         <p v-if="error" class="error-message">{{ error }}</p>
 
         <div v-else-if="userData" class="profile-content">
+
+
+          <button class="Btn" 
+          @click.prevent="openModal"
+          :class="{'premium-button': isPremium}">
+            <svg class="logoIcon" height="1em" viewBox="0 0 576 512" :class="{'gold-crown': isPremium}">
+              <path d="M309 106c11.4-7 19-19.7 19-34c0-22.1-17.9-40-40-40s-40 17.9-40 40c0 14.4 7.6 27 19 34L209.7 220.6c-9.1 18.2-32.7 23.4-48.6 10.7L72 160c5-6.7 8-15 8-24c0-22.1-17.9-40-40-40S0 113.9 0 136s17.9 40 40 40c.2 0 .5 0 .7 0L86.4 427.4c5.5 30.4 32 52.6 63 52.6H426.6c30.9 0 57.4-22.1 63-52.6L535.3 176c.2 0 .5 0 .7 0c22.1 0 40-17.9 40-40s-17.9-40-40-40s-40 17.9-40 40c0 9 3 17.3 8 24l-89.1 71.3c-15.9 12.7-39.5 7.5-48.6-10.7L309 106z"></path>
+            </svg>
+          </button> 
+
           <!-- Imagen de perfil -->
-          <div class="profile-image">
+          <div class="profile-image" :class="{ 'gold-border': isPremium }">
             <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Profile Picture" />
-          </div>
+          </div>          
 
           <div class="profile-info">
             <div class="email-div">
@@ -121,11 +131,10 @@
 
 
 <script>
-
   import HeaderPage from '@/components/HeaderPage.vue';
   import FooterComponent from '@/components/FooterComponent.vue';
   import axios from 'axios';
-  import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
+  import { API_BASE_URL } from '@/config.js';
 
   function getImagePath(image) {
     if (image && image.startsWith('http')) {
@@ -140,7 +149,6 @@
     } else {
       console.warn('No image provided');
       return '';
-
     }
   }
 
@@ -173,18 +181,14 @@
         error: null,
         profile_image: '',
         showRatedMovies: true, // Controla si se muestran las valoradas o las con like
-        showFavouriteMovies: false, // Controla la visualización de la lista de wishlist
-        showWishlistMovies: false, // Controla la visualización de la lista de wishlist
+        showFavouriteMovies: false,
+        showWishlistMovies: false,
         ratedMovies: [], // Películas valoradas
         likedMovies: [], // Películas con like
         wishedMovies: [], // Películas en la wishlist
         displayedMovies: [], // Películas que se muestran actualmente
 
-
-        //REP eliminar
-        showReportedModal: false,
-        reportedComments: [],
-
+        isPremium: false, // Inicializamos en `false` por defecto
       };
     },
     created() {
@@ -200,7 +204,10 @@
         .then((response) => {
           this.userData = response.data;
 
-          // Cargar las películas valoradas y con like desde un solo endpoint
+          // Actualizar el estado de `isPremium` desde los datos recibidos
+          this.isPremium = response.data.is_premium;
+
+          // Cargar las películas valoradas, con like y en wishlist
           this.loadMovies();
         })
         .catch((error) => {
@@ -209,8 +216,6 @@
         });
     },
     methods: {
-      
-      // Nueva función para obtener los detalles completos de una película usando el título
       async fetchMovieDetails(title) {
         try {
           const movieResponse = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
@@ -222,14 +227,12 @@
       },
 
       loadMovies() {
-
-        // Cargar las películas liked , rated y wished
+        // Cargar las películas liked, rated y wished
         axios
           .get(`${API_BASE_URL}/movies/liked_list/${this.userData.id}`)
           .then((response) => {
-            const likedMoviesTitles = response.data; // Listado de películas con like
+            const likedMoviesTitles = response.data;
 
-            // Obtener detalles completos de las películas liked
             const likedMoviesDetails = Promise.all(
               likedMoviesTitles.map(async (movieTitle) => {
                 const movieData = await this.fetchMovieDetails(movieTitle);
@@ -265,20 +268,13 @@
                       })
                     );
 
-                    // Esperamos a que todas las promesas se resuelvan
                     Promise.all([likedMoviesDetails, ratedMoviesDetails, wishedMoviesDetails])
                       .then(([likedMovies, ratedMovies, wishedMovies]) => {
-                        // Filtramos los valores nulos
                         this.likedMovies = likedMovies.filter((movie) => movie !== null);
                         this.ratedMovies = ratedMovies.filter((movie) => movie !== null);
                         this.wishedMovies = wishedMovies.filter((movie) => movie !== null);
 
-                        // Ahora actualizamos la lista mostrada
-                        this.displayedMovies = this.showRatedMovies
-                          ? this.ratedMovies
-                          : this.showFavouriteMovies
-                          ? this.likedMovies
-                          : this.wishedMovies;
+                        this.updateDisplayedMovies();
                       })
                       .catch((error) => {
                         console.error('Error al procesar las películas wished:', error);
@@ -298,73 +294,35 @@
       },
 
       toggleMovies(type) {
-        // Resetear todos los botones a false
-        this.showRatedMovies = false;
-        this.showFavouriteMovies = false;
-        this.showWishlistMovies = false;
-
-        // Activar el botón correspondiente según el tipo
-        if (type === 'rated') {
-          this.showRatedMovies = true;
-        } else if (type === 'liked') {
-          this.showFavouriteMovies = true;
-        } else if (type === 'wishlist') {
-          this.showWishlistMovies = true;
-        }
-
-        // Actualizar la lista mostrada inmediatamente después de cambiar el estado
+        this.showRatedMovies = type === 'rated';
+        this.showFavouriteMovies = type === 'liked';
+        this.showWishlistMovies = type === 'wishlist';
         this.updateDisplayedMovies();
       },
 
-
       updateDisplayedMovies() {
-        // Actualizar la lista de películas que se debe mostrar según el estado actual
-        if (this.showRatedMovies) {
-          this.displayedMovies = this.ratedMovies;
-        } else if (this.showFavouriteMovies) {
-          this.displayedMovies = this.likedMovies;
-        } else if (this.showWishlistMovies) {
-          this.displayedMovies = this.wishedMovies;
-        }
+        this.displayedMovies = this.showRatedMovies
+          ? this.ratedMovies
+          : this.showFavouriteMovies
+          ? this.likedMovies
+          : this.wishedMovies;
       },
 
-
-      removeMovie(movieId) {
-        if (this.showRatedMovies) {
-          this.unrateMovie(movieId);
-        } else if (this.showWishlistMovies) {
-          this.removeFromWishlist(movieId); // Función para eliminar de la wishlist
-        } else {
-          this.dislikeMovie(movieId);
-        }
-      },
-      // Función para hacer "unrate"
       async unrateMovie(movieId) {
         try {
-          // Enviar solicitud para "unrate" la película
           await axios.post(`${API_BASE_URL}/movies/unrate/${movieId}/${this.userData.id}`);
-          
-          // Actualizar la lista de películas valoradas (eliminando la película)
-          this.ratedMovies = this.ratedMovies.filter(movie => movie.id !== movieId);
-          this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies; // Actualizar la lista mostrada
-
-          console.log('Película descalificada correctamente');
+          this.ratedMovies = this.ratedMovies.filter((movie) => movie.id !== movieId);
+          this.updateDisplayedMovies();
         } catch (error) {
           console.error('Error al descalificar la película:', error);
         }
       },
 
-      // Función para hacer "dislike"
       async dislikeMovie(movieId) {
         try {
-          // Enviar solicitud para "dislike" la película
           await axios.post(`${API_BASE_URL}/movies/dislike/${movieId}/${this.userData.id}`);
-          
-          // Actualizar la lista de películas favoritas (eliminando la película)
-          this.likedMovies = this.likedMovies.filter(movie => movie.id !== movieId);
-          this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies; // Actualizar la lista mostrada
-
-          console.log('Película marcada como dislike correctamente');
+          this.likedMovies = this.likedMovies.filter((movie) => movie.id !== movieId);
+          this.updateDisplayedMovies();
         } catch (error) {
           console.error('Error al marcar la película como dislike:', error);
         }
@@ -373,30 +331,13 @@
       async removeFromWishlist(movieId) {
         try {
           await axios.post(`${API_BASE_URL}/movies/nowish/${movieId}/${this.userData.id}`);
-          // Actualizamos la lista de wishedMovies
           this.wishedMovies = this.wishedMovies.filter((movie) => movie.id !== movieId);
-          this.displayedMovies = this.showWishlistMovies ? this.wishedMovies : this.likedMovies; // Actualizar la lista mostrada
-          console.log('Película eliminada de la wishlist');
+          this.updateDisplayedMovies();
         } catch (error) {
           console.error('Error al eliminar la película de la wishlist:', error);
         }
       },
-
     },
-    watch: {
-      // Cuando cambie el estado de las películas, actualizamos la lista mostrada
-      showRatedMovies() {
-        this.updateDisplayedMovies();
-      },
-      showFavouriteMovies() {
-        this.updateDisplayedMovies();
-      },
-      showWishlistMovies() {
-        this.updateDisplayedMovies();
-      }
-    },
-
-
   };
 </script>
 
@@ -471,6 +412,7 @@
     align-items: center;
     padding-right: 50px;
     padding-bottom: 0px;
+
   }
   
   .profile-image img {
@@ -957,5 +899,44 @@ h2 {
   transform: translateY(0px);
   transition-duration: 0.3s;
 }
+
+
+
+.Btn {
+  position: absolute;
+  width: 45px; /* Ancho mayor para mostrar la curva más notoria */
+  height: 45px; /* Altura del botón */
+  border: none;
+  background: rgba(0, 195, 255, 0);
+  background-size: 250%;
+  background-position: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition-duration: 0.5s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.11);
+  margin-left: 124px;
+  margin-bottom: 200px;
+  border-radius: 25px;
+  cursor: default;
+
+}
+
+.logoIcon {
+  fill: blue;
+  opacity: 0;
+}
+
+
+.gold-crown {
+  fill: gold; /* Cambia el color de la corona a dorado */
+  opacity: 1;
+}
+
+.gold-border img{
+  border: 4px solid gold; /* Borde dorado */
+}
+
+
 
 </style>
