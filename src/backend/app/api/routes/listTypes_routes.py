@@ -28,7 +28,7 @@ def create_list(list_name: str, user_email: str, db: Session = Depends(get_db)):
 
 # Get a list type by user's email
 @router.get("/email/{email}", response_model=List[ListType])
-def get_list_type_by_email(user_email: str, db: Session = Depends(get_db)):
+def get_list_type_by_email(email: str, db: Session = Depends(get_db)):
     """
     Get a list type by its name and the user's email.
     :param name: The name of the list type
@@ -36,7 +36,7 @@ def get_list_type_by_email(user_email: str, db: Session = Depends(get_db)):
     :param db: Database session (injected via dependency)
     :return: ListType object or 404 if not found
     """
-    list_type = user_crud.get_user_lists_by_email(db, user_email=user_email)
+    list_type = user_crud.get_user_lists_by_email(db, user_email=email)
     if not list_type:
         raise HTTPException(status_code=404, detail="List type not found")
     return list_type
