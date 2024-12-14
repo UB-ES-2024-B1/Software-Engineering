@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
-from app.crud.user_crud import follow_user, unfollow_user, create_user, get_users, get_user, get_user_by_email, delete_user, delete_user_by_email, update_user, update_password, update_user_by_email, get_user_by_username
+from app.crud.user_crud import get_followers, get_followed_users, follow_user, unfollow_user, create_user, get_users, get_user, get_user_by_email, delete_user, delete_user_by_email, update_user, update_password, update_user_by_email, get_user_by_username
 from app.models.user_models import User, UserOut, Follow
 
 class TestUserCRUD(unittest.TestCase):
@@ -15,8 +15,17 @@ class TestUserCRUD(unittest.TestCase):
             'is_admin': False
         }
         self.user = User(**self.fake_user_data)
-        self.follower_id = 1  # Mock follower ID
-        self.followed_id = 2  # Mock followed ID
+        self.followed_user = User(id=4, full_name="Jane Smith", email="jane@example.com", hashed_password="hashed_password", is_admin=False)
+        self.follower_user = User(id=5, full_name="Mike Johnson", email="mike@example.com", hashed_password="hashed_password", is_admin=False)
+
+        # Create Follow instances for testing
+        self.follow1 = Follow(follower_id=self.follower_user.id, followed_id=self.followed_user.id)
+        self.follow2 = Follow(follower_id=self.follower_user.id, followed_id=self.user.id)
+
+        self.follower_id = 1
+        self.followed_id = 2
+
+        # Create a Follow object to mock the existing follow relationship
         self.follow = Follow(follower_id=self.follower_id, followed_id=self.followed_id)
 
     def test_create_user(self):
@@ -240,3 +249,33 @@ class TestUserCRUD(unittest.TestCase):
         # Ensure that no delete operation is performed
         self.db.delete.assert_not_called()
         self.db.commit.assert_not_called()
+
+    def test_get_followers(self):
+        """Test the get_followers function."""
+        # Mock the query to return a list of followers for a user
+        self.db.query.return_value.join.return_value.filter.return_value.all.return_value = [self.follower_user]
+        
+        # Call the function to get followers for user with id = 2
+        result = get_followers(self.db, user_id=self.followed_user.id)
+
+        # Assert that the result contains the follower user (Mike Johnson)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].full_name, "Mike Johnson")
+
+        # Ensure the query was called with correct join and filter
+        self.db.query.return_value.join.return_value.filter.return_value.all.assert_called_once()
+
+    def test_get_followed_users(self):
+        """Test the get_followed_users function."""
+        # Mock the query to return a list of followed users for a user
+        self.db.query.return_value.join.return_value.filter.return_value.all.return_value = [self.followed_user]
+        
+        # Call the function to get followed users for user with id = 3
+        result = get_followed_users(self.db, user_id=self.follower_user.id)
+
+        # Assert that the result contains the followed user (Jane Smith)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].full_name, "Jane Smith")
+
+        # Ensure the query was called with correct join and filter
+        self.db.query.return_value.join.return_value.filter.return_value.all.assert_called_once()
