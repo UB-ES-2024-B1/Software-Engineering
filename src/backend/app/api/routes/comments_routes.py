@@ -14,7 +14,11 @@ from app.crud.comments_crud import (
     get_comments_reported,
     get_comments_banned,
     get_comments_reported_by_user,
+    get_comments_by_user,
+    get_reported_comments_ordered,
+    delete_reported_comment
 )
+from app.crud import movie_crud
 from app.models.comments_model import Thread, Comment, CommentUpdateRequest, CommentReportRequest
 
   # Import the get_db function for database session management
@@ -26,6 +30,11 @@ def create_movie_thread(movie_id: int, session: Session = Depends(get_db)):
     """
     Create a new thread for a specific movie.
     """
+    movie = movie_crud.get_movie(db=session, movie_id=movie_id)
+    # If the movie does not exist, raise a 404 error
+    if movie is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    
     thread = create_thread(session, movie_id)
     if not thread:
         raise HTTPException(status_code=400, detail="Failed to create thread.")
@@ -142,3 +151,48 @@ def get_banned_comments(session: Session = Depends(get_db)):
     """
     comments = get_comments_banned(session)
     return comments
+
+@router.get("/by_user/", response_model=List[Comment])
+def get_user_comments(user_id:int, session: Session = Depends(get_db)):
+    comments = get_comments_by_user(session, user_id)
+    return comments
+
+@router.get("/reported/order_by_date/", response_model=List[Comment])
+def get_reported_comments_ordered_by_date(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, ordered by the date they were reported.
+    """
+    comments = get_reported_comments_ordered(session, order_by="date")
+    return comments
+
+
+@router.get("/reported/order_by_user/", response_model=List[Comment])
+def get_reported_comments_ordered_by_user(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, grouped and ordered by the user who reported them.
+    """
+    comments = get_reported_comments_ordered(session, order_by="user")
+    return comments
+
+
+@router.get("/reported/order_by_status/", response_model=List[Comment])
+def get_reported_comments_ordered_by_status(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
+    """
+    Retrieve all reported comments, grouped and ordered by their report status.
+    """
+    comments = get_reported_comments_ordered(session, order_by="status")
+    return comments
+
+@router.delete("/reported/{comment_id}/", status_code=204)
+def delete_reported_comment_endpoint(
+    comment_id: int,
+    session: Session = Depends(get_db)
+):
+    """
+    Delete a reported comment by its ID (admin only).
+    """
+    try:
+        delete_reported_comment(session, comment_id)
+        return {"message": f"Comment with ID {comment_id} successfully deleted."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -17,11 +17,29 @@
           <!-- Información de la película -->
           <div class="movie-info">
             <h4>{{ bannerMovie.title }}</h4>
+
+            <!-- Modificado para redireccionarlo a AllMovies según el género -->
             <div class="info-item">
-              <span class="info-title">Genres: </span> <span>{{ bannerMovie.genres.join(", ") }}</span>
+              <span class="info-title">Genres: </span> 
+              <!-- <span>{{ bannerMovie.genres.join(", ") }}</span> -->
+              <span>
+                <span v-for="(genre, index) in bannerMovie.genres" :key="index">
+                  <router-link :to="{ name: 'AllMovies', query: { genre: genre } }" class="genre-link">
+                    {{ genre }}
+                  </router-link>
+                  <span v-if="index < bannerMovie.genres.length - 1">, </span>
+                </span>
+              </span>
+
             </div>
+
+
             <div class="info-item">
-              <span class="info-title">Date: </span> <span>{{ bannerMovie.release_date }}</span>
+              <span class="info-title">Date: </span> <span>
+                <router-link :to="{ name: 'AllMovies', query: { year: bannerMovie.release_date.slice(0,4) } }" class="genre-link">
+                  {{ bannerMovie.release_date }}
+                </router-link>
+              </span>
             </div>
             <div class="info-item">
               <span class="info-title">Country: </span> <span>{{ bannerMovie.country }}</span>
@@ -153,16 +171,26 @@
         <h4 class="section-title">Cast & Crew</h4>
         <div class="cards-container">
           <!-- Card for Director (Always visible as the first item) -->
+          
           <div class="detail-card">
+            <!-- Modificado para hacer un link hacia allMovies y que se muestren las pelis del Director-->
             <h4>Director</h4>
-            <p>{{ bannerMovie.director }}</p>
+            <p>
+              <router-link :to="{ name: 'AllMovies', query: { director: bannerMovie.director } }" class="genre-link">
+                {{ bannerMovie.director }}
+              </router-link>
+            </p>
           </div>
 
           <!-- Cards for Cast, excluding the director -->
           <div v-for="(actor, index) in bannerMovie.cast" :key="actor" class="detail-card"
             v-show="index < visibleCount">
             <h4>Actor</h4>
-            <p>{{ actor }}</p>
+            <p>
+              <router-link :to="{ name: 'AllMovies', query: { actor: actor } }" class="genre-link">
+              {{ actor }}
+              </router-link>
+            </p>
           </div>
         </div>
         <!-- See More Button -->
@@ -1008,6 +1036,18 @@ async function generateRecentMovieObject(movieData) {
 
 
 <style scoped>
+.genre-link {
+  color: #3498db;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.genre-link:hover {
+  text-decoration: underline;
+}
+
+
+
 /* Estilo para comentarios */
 .comments-section {
   margin-top: 30px;

@@ -1,4 +1,6 @@
 import unittest
+import pytest
+from fastapi.exceptions import HTTPException
 from sqlmodel import Session, create_engine, SQLModel
 from app.models import Movie, MovieIn, Genre, CastMember, MovieUser, MovieGenre, MovieCast, MovieUser, Thread
 from app.crud.movie_crud import (
@@ -24,11 +26,13 @@ from app.crud.movie_crud import (
     update_movie_rating_by_id,
     remove_rate_movie,
     get_user_liked_movies,
-    get_user_rated_movies
+    get_user_rated_movies,
+    add_movie_wish,
+    wish_movie,
+    get_user_wished_movies,
+    remove_movie_wish,
+    remove_wish_movie
 )
-from fastapi import HTTPException
-import logging
-logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
 # Initialize test database (SQLite in-memory)
 DATABASE_URL = "sqlite:///:memory:"
@@ -80,6 +84,29 @@ class TestMovieCrud(unittest.TestCase):
         self.assertEqual(movie.title, "Test Movie")
         self.assertEqual(len(movie.genres), 1)
         self.assertEqual(len(movie.cast_members), 1)
+
+    def test_create_existing_movie(self):
+        # Test movie creation
+        movie_data = MovieIn(
+            title="Test Movie",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        create_movie(self.db, movie_data)
+
+        with pytest.raises(HTTPException) as exc_info:
+            create_movie(self.db, movie_data)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "A movie with this title already exists."
 
     def test_get_movies(self):
         # Test getting all movies
@@ -199,6 +226,29 @@ class TestMovieCrud(unittest.TestCase):
         fetched_movie = get_movie(self.db, movie.id)      
         self.assertEqual(fetched_movie.rating_count, 11)
 
+    def test_invalid_rate_movie(self):
+        # Test rating a movie
+        movie_data = MovieIn(
+            title="Test Movie",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+
+        with pytest.raises(HTTPException) as exc_info:
+            rate_movie(self.db, 1, movie.id, 6)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Rating must be between 0 and 5."
+        
 
     def test_like_movie(self):
         # Test liking a movie
@@ -577,6 +627,41 @@ class TestMovieCrud(unittest.TestCase):
         # Check that the movie rating has been updated correctly
         self.assertEqual(movie_after_removal.rating_count, 10)
 
+    
+    def test_remove_rate_non_existing_movie(self):
+        with pytest.raises(HTTPException) as exc_info:
+            remove_movie_rating_by_id(self.db, 9999, 1)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 404
+        assert exc_info.value.detail == "Movie not found"
+
+
+    def test_remove_rate_movie_not_rated_by_id(self):
+        # Test removing a rate from a movie by a user
+        movie_data = MovieIn(
+            title="Test Movie 4",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+        
+        
+        with pytest.raises(HTTPException) as exc_info:
+            remove_movie_rating_by_id(self.db, movie.id, 1)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "No rating to remove"
+
+
     def test_update_movie_rating_by_id(self):
         # Test updating a movie's rating by movie ID
         movie_data = MovieIn(
@@ -629,6 +714,32 @@ class TestMovieCrud(unittest.TestCase):
         movie_user_after_removal = remove_rate_movie(self.db, 1, movie.id)
         self.assertIsNone(movie_user_after_removal.rating)
 
+    def test_remove_rate_movie_not_rated(self):
+        # Test removing a rate from a movie by a user
+        movie_data = MovieIn(
+            title="Test Movie 4",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+        
+        
+        with pytest.raises(HTTPException) as exc_info:
+            remove_rate_movie(self.db, 1, movie.id)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "No rating to remove"
+
+
+
     def test_remove_movie_like(self):
         # Test removing a like from a movie by a user
         movie_data = MovieIn(
@@ -651,6 +762,37 @@ class TestMovieCrud(unittest.TestCase):
         movie_after_removal = remove_movie_like(self.db, movie.id, 1)
         self.assertEqual(movie_after_removal.likes, 5)
 
+    def test_remove_non_exixting_movie_like(self):
+        with pytest.raises(HTTPException) as exc_info:
+            remove_movie_like(self.db, 999999, 1)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 404
+        assert exc_info.value.detail == "Movie not found"
+
+    def test_remove_movie_non_liked_intern(self):
+        # Test removing a like from a movie by a user
+        movie_data = MovieIn(
+            title="Test Movie 5",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+        
+        with pytest.raises(HTTPException) as exc_info:
+            remove_movie_like(self.db, movie.id, 1)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "User hasn't liked the movie"
+
     def test_remove_like_movie(self):
         # Test removing a like from a movie by a user
         movie_data = MovieIn(
@@ -672,3 +814,154 @@ class TestMovieCrud(unittest.TestCase):
 
         movie_user_after_removal = remove_like_movie(self.db, 1, movie.id)
         self.assertFalse(movie_user_after_removal.liked)
+
+    def test_remove_movie_non_liked(self):
+        # Test removing a like from a movie by a user
+        movie_data = MovieIn(
+            title="Test Movie 5",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+        
+        with pytest.raises(HTTPException) as exc_info:
+            remove_like_movie(self.db, 1, movie.id)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "No like to remove"
+
+    def test_wish_movie(self):
+        # Test adding a new wish for a movie by a user
+        movie_data = MovieIn(
+            title="Test Movie 1",
+            description="A must-watch movie",
+            director="Famous Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=0,
+            genres=["Drama"],
+            cast_members=["Actor A"]
+        )
+        movie = create_movie(self.db, movie_data)
+
+        # Add a wish for the movie
+        movie_user = wish_movie(self.db, user_id=1, movie_id=movie.id)
+
+        # Assert the wish was added
+        assert movie_user.wished is True
+        assert movie_user.user_id == 1
+        assert movie_user.movie_id == movie.id
+
+    '''
+    # add_movie_wish and test_remove_movie_wish?
+    def test_remove_movie_wish(self):
+        # Test removing a wish from a movie by a user
+        movie_data = MovieIn(
+            title="Test Movie 1",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+
+        # User adds a wish to the movie
+        movie_user = wish_movie(self.db, 1, movie.id)
+
+        # Remove the wish
+        movie_after_removal = remove_movie_wish(self.db, movie.id, 1)
+        self.assertFalse(movie_after_removal.wished)
+    '''
+
+    def test_remove_non_existing_movie_wish(self):
+        # Test removing a wish from a non-existent movie
+        with pytest.raises(HTTPException) as exc_info:
+            remove_movie_wish(self.db, 999999, 1)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 404
+        assert exc_info.value.detail == "Movie not found"
+
+    def test_remove_movie_wish_not_wished(self):
+        # Test removing a wish from a movie that hasn't been wished by the user
+        movie_data = MovieIn(
+            title="Test Movie 2",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+
+        with pytest.raises(HTTPException) as exc_info:
+            remove_movie_wish(self.db, movie.id, 1)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "User hasn't wish the movie"
+
+    def test_remove_wish_movie(self):
+        # Test toggling the wish status off
+        movie_data = MovieIn(
+            title="Test Movie 3",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+
+        # Add a wish
+        movie_user = wish_movie(self.db, 1, movie.id)
+
+        # Remove the wish using remove_wish_movie
+        movie_user_after_removal = remove_wish_movie(self.db, 1, movie.id)
+        self.assertFalse(movie_user_after_removal.wished)
+
+    def test_remove_wish_movie_not_wished(self):
+        # Test removing a wish that doesn't exist
+        movie_data = MovieIn(
+            title="Test Movie 4",
+            description="A great movie",
+            director="Director",
+            country="Country",
+            release_date="2024-01-01",
+            rating=4.5,
+            rating_count=10,
+            likes=5,
+            genres=["Action"],
+            cast_members=["John Doe"]
+        )
+        movie = create_movie(self.db, movie_data)
+
+        with pytest.raises(HTTPException) as exc_info:
+            remove_wish_movie(self.db, 1, movie.id)
+
+        # Check the exception details
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "No wish to remove"
