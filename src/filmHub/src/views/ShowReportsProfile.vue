@@ -52,8 +52,14 @@
                     <div class="comment-date-admin">
                       <p>{{ comment.date.slice(0, 10) }}</p>
                     </div>
-                    <div class="submitted-badge-admin">
-                      <p>{{ comment.state }}</p>
+                    <!-- Si un comment esta reportado tiene que salirle al admin que esta pendiente.-->
+                    <div>
+                      <div v-if="comment.state === 'REPORTED'" class="submitted-badge-admin">
+                        <p>PENDING</p>
+                      </div>
+                      <div v-else class="banned-badge-admin">
+                        <p>{{ comment.state }}</p>
+                      </div>
                     </div>
                   </div>
                   <hr />
@@ -73,8 +79,13 @@
                     <div class="comment-date">
                       <p>{{ comment.date.slice(0, 10) }}</p>
                     </div>
-                    <div class="submitted-badge">
-                      <p>{{ comment.state }}</p>
+                    <div>
+                      <div v-if="comment.state === 'REPORTED'" class="submitted-badge">
+                        <p>SUBMITTED</p>
+                      </div>
+                      <div v-else class="banned-badge-admin">
+                        <p>RESOLVED</p>
+                      </div>
                     </div>
                   </div>
                   <hr />
@@ -440,7 +451,7 @@ export default {
 
 
 .comment-date,
-.submitted-badge {
+.submitted-badge, .banned-badge {
   display: inline-flex; /* Ambos elementos se comportan igual */
   align-items: center; /* Centrado vertical */
   justify-content: center; /* Centrado horizontal */
@@ -460,11 +471,16 @@ export default {
 }
 
 .submitted-badge {
-  background-color: #6ba76d; /* Fondo verde */
-  color: white; /* Texto blanco */
-  border: 0.5px solid white; /* Bordes blancos */
+  background-color: #bc3909;
+  color: white;
+  border: 0.5px solid white;
 }
 
+.banned-badge{
+  background-color: #248c28b7;
+  color: white;
+  border: 0.5px solid white;
+}
 
 
 
@@ -657,7 +673,7 @@ input:checked + .slider:before {
 }
 
 .comment-date-admin,
-.submitted-badge-admin {
+.submitted-badge-admin, .banned-badge-admin {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -677,7 +693,13 @@ input:checked + .slider:before {
 }
 
 .submitted-badge-admin {
-  background-color: #6ba76d;
+  background-color: #bc3909;
+  color: white;
+  border: 0.5px solid white;
+}
+
+.banned-badge-admin{
+  background-color: #248c28b7;
   color: white;
   border: 0.5px solid white;
 }
