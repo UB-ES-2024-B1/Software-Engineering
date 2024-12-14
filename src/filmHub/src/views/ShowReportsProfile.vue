@@ -55,7 +55,7 @@
                     <!-- Si un comment esta reportado tiene que salirle al admin que esta pendiente.-->
                     <div>
                       <div v-if="comment.state === 'REPORTED'" class="submitted-badge-admin">
-                        <p>PENDING</p>
+                        <p>SUBMITTED</p>
                       </div>
                       <div v-else class="banned-badge-admin">
                         <p>{{ comment.state }}</p>
@@ -81,7 +81,7 @@
                     </div>
                     <div>
                       <div v-if="comment.state === 'REPORTED'" class="submitted-badge">
-                        <p>SUBMITTED</p>
+                        <p>PENDING</p>
                       </div>
                       <div v-else class="banned-badge-admin">
                         <p>RESOLVED</p>
