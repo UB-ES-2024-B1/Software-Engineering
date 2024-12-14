@@ -366,20 +366,27 @@ export default {
 /* Caja del perfil */
 .profile-box {
   position: relative;
-  display: flex;
   flex-direction: column;
   background-color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(5px);
-  padding: 40px;
+  padding: 20px;  /* Reducido el padding para que se adapte mejor en pantallas pequeñas */
   border-radius: 10px;
-  width: 750px;
-  height: 580px;
+  width: 100%; /* Usamos el 100% del ancho disponible */
+  max-width: 1000px; /* Limita el ancho máximo */
+  min-width: 300px; /* Permite que el contenedor se haga pequeño en pantallas muy pequeñas */
+  height: auto; /* La altura se ajustará según el contenido */
+  min-height: 300px; /* Se asegura que el contenedor no se haga demasiado pequeño */
   color: white;
   z-index: 20;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  /* Mejora visual */
+  box-shadow: 0 10px 30px rgba(179, 219, 240, 0.5);
+
   border: 2px solid rgba(255, 255, 255, 0.1);
-  /* Sutileza */
+  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño del contenedor */
+  overflow: hidden; /* Evita que los elementos se salgan del contenedor */
+
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente (si es necesario) */
 }
 
 .modal-overlay {
@@ -441,6 +448,7 @@ export default {
   background-color: #2a2a2a;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
   font-size: 1rem;
   display: flex;
   justify-content: space-between; /* Distribuye espacio entre el contenido principal y el contenedor derecho */
@@ -516,18 +524,38 @@ h2 {
 }
 
 
-/* Modal para admin más ancho */
 .modal-overlay-admin {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 90%;
+  width: auto; /* Ajusta el ancho al contenido, pero no será más grande de max-width */
+  max-width: 1000px; /* Limita el ancho máximo para pantallas grandes */
+  min-width: 600px; /* Establece un ancho mínimo para que no se haga muy pequeño */
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px; /* Aumenta el padding para que no esté tan pegado */
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.8);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background-color: transparent; /* Más saturación para mayor visibilidad */
   color: white;
+  box-sizing: border-box; /* Asegura que el padding y borde no afecten el tamaño */
+  overflow: hidden; /* Evita que los elementos sobresalgan */
+  border: 0px; /* Añade borde para más visibilidad */
+}
+
+/* Media Queries para pantallas más pequeñas */
+@media (max-width: 768px) {
+  .modal-overlay-admin {
+    width: 90%; /* Ajusta al 90% del ancho de la pantalla */
+    min-width: 500px; /* Ajusta el tamaño mínimo en pantallas más pequeñas */
+    padding: 20px; /* Reduce el padding para pantallas medianas */
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay-admin {
+    width: 95%; /* Ajusta al 95% en pantallas más pequeñas */
+    min-width: 400px; /* Ancho mínimo en pantallas de muy baja resolución */
+    padding: 15px; /* Ajusta aún más el padding */
+  }
 }
 
 /* Título centrado */
@@ -536,27 +564,48 @@ h2 {
   font-weight: bold;
   text-align: center;
   margin-bottom: 20px;
+  /* Ajusta el tamaño del título para pantallas más pequeñas */
 }
 
+/* Ajuste del título en pantallas más pequeñas */
+@media (max-width: 768px) {
+  .modal-overlay-admin h2 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay-admin h2 {
+    font-size: 1.1rem;
+  }
+}
 /* Contenedor principal de admin */
 .admin-comments {
   display: flex;
   flex-direction: row;
   gap: 5px;
-  width: 120%;
+  width: auto; /* Ajusta el ancho al contenido */
+  min-width: 500px; /* Asegura que el contenedor tenga un ancho mínimo */
+  padding: 10px;
+  border-radius: 0px;
+  box-sizing: border-box; /* Asegura que padding no afecte el tamaño */
+  flex-wrap: wrap; /* Permite que los contenedores se acomoden en pantalla más pequeña */
+  border: 0px;
+
+  background-color: transparent; /* Más saturación para mayor visibilidad */
 }
 
-/* Barra vertical para ordenar */
+/* Contenedor azul más oscuro */
 .vertical-bar {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  width:20%;
+  width: 120px; /* Ancho fijo, puedes ajustarlo según el espacio */
   padding: 10px;
-  background-color:transparent;
-  border-radius: 2px ;
-  border: 0.25px solid rgba(255, 255, 255, 0.398);
+  background-color: transparent; /* Más saturación para mayor visibilidad */
+  border-radius: 0px;
+  border: 0px;
   gap: 20px;
 }
 
@@ -567,10 +616,13 @@ h2 {
   margin-bottom: 10px;
 }
 
+
 .sort-option {
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  background-color:transparent;
 }
 
 .sort-row {
@@ -581,6 +633,8 @@ h2 {
   font-size: 0.9rem;
   color: white;
   gap: 15px;
+
+  background-color: transparent;
 }
 
 .switch {
@@ -603,7 +657,7 @@ h2 {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #b8ecf3c1;
   transition: 0.4s;
   border-radius: 10px;
 }
@@ -630,16 +684,18 @@ input:checked + .slider:before {
 
 /* Contenedor para comentarios */
 .scrollable-comments-admin {
-  flex-grow: 1;
+  flex-grow: 1; /* Toma el espacio restante */
   max-height: 400px;
   overflow-y: auto;
   padding: 10px;
   border-radius: 5px;
-  background-color: #f9f9f931;
+  background-color: tr;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  border: 1px solid #ddd;
+  border: 0.20px solid #dddddd75;
+  margin-left: 10px; /* Espaciado entre contenedor azul y rosa claro */
 }
 
+/* Estilo del scrollbar */
 .scrollable-comments-admin::-webkit-scrollbar {
   width: 8px;
 }
@@ -653,9 +709,28 @@ input:checked + .slider:before {
   background: #aaa;
 }
 
+/* Media Queries para pantallas más pequeñas */
+@media (max-width: 768px) {
+  .admin-comments {
+    flex-direction: column; /* Ajuste para pantallas más pequeñas */
+    align-items: center;
+  }
+
+  .vertical-bar,
+  .scrollable-comments-admin {
+    width: 100%; /* Se ajustan al ancho completo */
+    margin: 10px 0; /* Espaciado entre los contenedores */
+  }
+
+  .vertical-bar {
+    min-width: 100%; /* Asegura que el contenedor azul ocupe todo el ancho */
+    max-width: 100%;
+  }
+}
+
 /* Estilo de cada comentario */
 .comment-item-admin {
-  width: 100%;
+  width: auto; /* El contenedor negro ocupa todo el ancho disponible */
   box-sizing: border-box;
   padding: 10px;
   border-bottom: 1px solid #eee;
@@ -663,18 +738,30 @@ input:checked + .slider:before {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   font-size: 1rem;
-  display: flex;
-  justify-content: space-between; /* Distribuye espacio entre el contenido principal y el contenedor derecho */
+  display: flex; /* Usamos flex para alinear los elementos internos horizontalmente */
+  justify-content: flex-end; /* Alineamos los elementos a la izquierda */
   align-items: center; /* Centrado vertical */
+  gap: 0; /* Aseguramos que no haya espacio entre los elementos */
+}
+
+.comment-link, .comment-info-container-admin {
+  margin: 0; /* Elimina cualquier margen entre los elementos internos */
+  padding: 0; /* Elimina padding adicional, si lo hay */
 }
 
 
-
 .comment-info-container-admin {
-  display: flex; /* Para alinear los elementos horizontalmente */
-  align-items: center; /* Asegura que estén centrados verticalmente */
-  margin-left: auto; /* Empuja este contenedor hacia la derecha */
-  gap: 10px; /* Espacio entre la fecha y el badge */
+  display: flex;
+  align-items: center;
+  margin-left: 0; /* Elimina el margen izquierdo */
+  background-color: transparent;
+  padding: 5px 10px; /* Añadimos algo de padding al contenedor azul */
+  border-radius: 4px; /* Bordes redondeados */
+}
+
+.comment-info-container-admin .date,
+.comment-info-container-admin .status {
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
 
 .comment-date-admin,
@@ -714,53 +801,38 @@ html {
 }
 
 .comment-link {
-  font-family: 'Arial', sans-serif; /* Define la fuente del texto */
-  color: #ffffffd7; /* Color del texto (gris oscuro) */
-  text-decoration: none; /* Elimina el subrayado */
-  font-size: 1.1rem; /* Tamaño de fuente ligeramente mayor */
-  padding: 5px 10px; /* Espaciado alrededor del texto */
-  border-radius: 4px; /* Bordes redondeados */
-  transition: all 0.3s ease; /* Transición suave para efectos */
-  display: inline-block; /* Asegura que se comporte como un bloque en línea */
+  font-family: 'Arial', sans-serif;
+  color: #ffffffd7;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: block; /* Cambiado a block para evitar espacios */
+  background-color: transparent;
+  
+  /* Ancho fijo para el contenedor de comentario */
+  width: 450px; /* Cambia este valor si necesitas un ancho diferente */
+  height: auto; /* Altura ajustada al contenido */
+  max-height: 300px; /* Límite máximo de altura */
+  overflow-y: auto; /* Permite desplazamiento si el contenido excede el max-height */
+  box-sizing: border-box; /* Incluye el padding dentro del tamaño total */
 }
-/* Estilo al pasar el mouse */
+
 .comment-link:hover {
   color: #fff; /* Cambia el color del texto a blanco al pasar el mouse */
-  background-color: #253a49; /* Fondo azul claro al pasar el mouse */
+  background-color: #2a4152; /* Fondo azul claro al pasar el mouse */
   text-decoration: none; /* Asegura que no haya subrayado */
 }
 
-/* Estilo al hacer clic */
 .comment-link:active {
   background-color: #2980b9; /* Fondo más oscuro al hacer clic */
 }
 
-/* Estilo para cuando el enlace está en foco (por ejemplo, cuando se navega con teclado) */
 .comment-link:focus {
   outline: 2px solid #2980b9; /* Borde azul alrededor al hacer foco */
   outline-offset: 2px; /* Asegura que el borde no quede pegado al texto */
 }
-
-/* Responsive design for smaller screens */
-@media (max-width: 768px) {
-  .modal-overlay {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .vertical-bar {
-    width: 100%;
-    height: auto;
-    margin-bottom: 20px;
-  }
-
-  .scrollable-comments-admin {
-    width: 100%;
-    margin-left: 0;
-  }
-}
-
-
 
 
 
