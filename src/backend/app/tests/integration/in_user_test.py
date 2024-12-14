@@ -1,7 +1,24 @@
 from fastapi.testclient import TestClient
 from app.main import app  # Ensure the import is correct
+from app.models import User
+from app.api.dependencies import get_current_user
 
 client = TestClient(app)
+
+
+# Mock user for authentication
+def mock_get_current_user(user_id):
+    def _mock_user():
+        return User(
+            id=user_id,
+            email="user2@example.com",
+            is_active=True,
+            is_admin=False,
+            full_name="User Two",
+        )
+    return _mock_user
+
+
 
 
 def test_create_two_users_and_get_and_delete():
@@ -167,3 +184,176 @@ def test_user_creation_retrieval_duplicate_check_and_deletion():
     # Ensure the user no longer exists
     get_deleted_response = client.get(f"/users/email/{new_user['email']}")
     assert get_deleted_response.status_code == 404  # Should return 404 Not Found
+
+def test_user_follow_and_delete():
+    # Create the first user
+    user_1 = {
+        "email": "user1@example.com",
+        "is_active": True,
+        "is_admin": False,
+        "full_name": "User One",
+        "password": "password123"
+    }
+    response_1 = client.post("/users/", json=user_1)
+    assert response_1.status_code == 201
+    user_1_data = response_1.json()
+    user_1_id = user_1_data["id"]
+
+    # Create the second user
+    user_2 = {
+        "email": "user2@example.com",
+        "is_active": True,
+        "is_admin": False,
+        "full_name": "User Two",
+        "password": "password123"
+    }
+    response_2 = client.post("/users/", json=user_2)
+    assert response_2.status_code == 201
+    user_2_data = response_2.json()
+    user_2_id = user_2_data["id"]
+
+    # Override the dependency
+    app.dependency_overrides[get_current_user] = mock_get_current_user(user_2_id)
+
+    # User 2 follows User 1
+    follow_response = client.post(f"/users/follow/{user_1_id}", headers={"Authorization": "Bearer mock-token"})
+    assert follow_response.status_code == 200
+    follow_data = follow_response.json()
+    assert follow_data["follower_id"] == user_2_id
+    assert follow_data["followed_id"] == user_1_id
+
+    # Verify User 1's followers
+    followers_response = client.get(f"/users/followers/{user_1_id}")
+    assert followers_response.status_code == 200
+    followers_data = followers_response.json()
+    assert len(followers_data) == 1
+    assert followers_data[0]["id"] == user_2_id
+    assert followers_data[0]["email"] == user_2["email"]
+
+    # Verify User 2's followed users
+    followed_response = client.get(f"/users/followed/{user_2_id}")
+    assert followed_response.status_code == 200
+    followed_data = followed_response.json()
+    assert len(followed_data) == 1
+    assert followed_data[0]["id"] == user_1_id
+    assert followed_data[0]["email"] == user_1["email"]
+
+    # Delete User 1
+    delete_user_1 = client.delete(f"/users/email/{user_1['email']}")
+    assert delete_user_1.status_code == 200
+
+    # Ensure User 1 cannot be retrieved
+    get_deleted_user_1 = client.get(f"/users/email/{user_1['email']}")
+    assert get_deleted_user_1.status_code == 404
+
+    # Delete User 2
+    delete_user_2 = client.delete(f"/users/email/{user_2['email']}")
+    assert delete_user_2.status_code == 200
+
+    # Ensure User 2 cannot be retrieved
+    get_deleted_user_2 = client.get(f"/users/email/{user_2['email']}")
+    assert get_deleted_user_2.status_code == 404
+
+
+def test_user_follow_unfollow_and_delete():
+    # Create the first user
+    user_1 = {
+        "email": "user1@example.com",
+        "is_active": True,
+        "is_admin": False,
+        "full_name": "User One",
+        "password": "password123"
+    }
+    response_1 = client.post("/users/", json=user_1)
+    assert response_1.status_code == 201
+    user_1_data = response_1.json()
+    user_1_id = user_1_data["id"]
+
+    # Create the second user
+    user_2 = {
+        "email": "user2@example.com",
+        "is_active": True,
+        "is_admin": False,
+        "full_name": "User Two",
+        "password": "password123"
+    }
+    response_2 = client.post("/users/", json=user_2)
+    assert response_2.status_code == 201
+    user_2_data = response_2.json()
+    user_2_id = user_2_data["id"]
+
+    # Override the dependency
+    app.dependency_overrides[get_current_user] = mock_get_current_user(user_2_id)
+
+    # User 2 follows User 1
+    follow_response = client.post(f"/users/follow/{user_1_id}", headers={"Authorization": "Bearer mock-token"})
+    assert follow_response.status_code == 200
+    follow_data = follow_response.json()
+    assert follow_data["follower_id"] == user_2_id
+    assert follow_data["followed_id"] == user_1_id
+
+    response = client.post(f"/users/unfollow/{user_1_id}", headers={"Authorization": "Bearer mock-token"})
+
+    # Verify response status
+    assert response.status_code == 200
+
+    # Verify the structure of the response
+    response_data = response.json()
+    assert response_data["message"] == "Unfollowed successfully"
+
+    # Delete User 1
+    delete_user_1 = client.delete(f"/users/email/{user_1['email']}")
+    assert delete_user_1.status_code == 200
+
+    # Ensure User 1 cannot be retrieved
+    get_deleted_user_1 = client.get(f"/users/email/{user_1['email']}")
+    assert get_deleted_user_1.status_code == 404
+
+    # Delete User 2
+    delete_user_2 = client.delete(f"/users/email/{user_2['email']}")
+    assert delete_user_2.status_code == 200
+
+    # Ensure User 2 cannot be retrieved
+    get_deleted_user_2 = client.get(f"/users/email/{user_2['email']}")
+    assert get_deleted_user_2.status_code == 404
+
+def test_follow_unfollow_non_existent_users_and_delete():
+    user_1 = {
+        "email": "user1@example.com",
+        "is_active": True,
+        "is_admin": False,
+        "full_name": "User One",
+        "password": "password123"
+    }
+    response_1 = client.post("/users/", json=user_1)
+    assert response_1.status_code == 201
+    user_1_data = response_1.json()
+    user_1_id = user_1_data["id"]
+
+    # Override the dependency
+    app.dependency_overrides[get_current_user] = mock_get_current_user(user_1_id)
+
+    # Try to follow a non-existent user
+    non_existent_user_id = 9999  # Arbitrary non-existent user ID
+    follow_response = client.post(f"/users/follow/{non_existent_user_id}", headers={"Authorization": "Bearer mock-token"})
+    assert follow_response.status_code == 404  # Expect 404 Not Found
+
+    # Try to unfollow a non-existent user
+    unfollow_response = client.post(f"/users/unfollow/{non_existent_user_id}")
+    assert unfollow_response.status_code == 500  # Expect 500 Not Found
+
+    # Try to get followers of a non-existent user
+    followers_response = client.get(f"/users/followers/{non_existent_user_id}")
+    assert followers_response.status_code == 404  # Expect 404 Not Found
+
+    # Try to get followed users of a non-existent user
+    followed_response = client.get(f"/users/followed/{non_existent_user_id}")
+    assert followed_response.status_code == 404  # Expect 404 Not Found
+
+    # Delete User 1
+    delete_user_1 = client.delete(f"/users/email/{user_1['email']}")
+    assert delete_user_1.status_code == 200
+
+    # Ensure User 1 cannot be retrieved
+    get_deleted_user_1 = client.get(f"/users/email/{user_1['email']}")
+    assert get_deleted_user_1.status_code == 404
