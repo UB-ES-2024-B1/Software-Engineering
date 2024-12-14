@@ -224,6 +224,7 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
     result = db.execute(statement).first()
     movie = result[0] if result else None
     if movie:
+        print(movie.id)
         delete_thread(db, movie.id)
         db.delete(movie)
         db.commit()

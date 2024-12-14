@@ -99,7 +99,7 @@ class TestCommentThreadCRUD(unittest.TestCase):
     def test_delete_thread(self):
         thread = create_thread(self.db, movie_id=1)
         create_comment(self.db, thread_id=thread.id, user_id=1, text="Comment in thread")
-        deleted = delete_thread(self.db, thread_id=thread.id)
+        deleted = delete_thread(self.db, movie_id=thread.id)
         self.assertTrue(deleted)
         self.assertIsNone(self.db.get(Thread, thread.id))
 
