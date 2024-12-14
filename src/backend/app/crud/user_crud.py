@@ -119,27 +119,36 @@ def get_followers(db: Session, user_id: int) -> list:
     """
     Get followers for a user.
     """
-    return db.query(User).join(Follow, Follow.follower_id == User.id).filter(Follow.followed_id == user_id).all()
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        return db.query(User).join(Follow, Follow.follower_id == User.id).filter(Follow.followed_id == user_id).all()
+    return None
 
 def get_followed_users(db: Session, user_id: int) -> list:
     """
     Get followed users for a user.
     """
-    return db.query(User).join(Follow, Follow.followed_id == User.id).filter(Follow.follower_id == user_id).all()
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        return db.query(User).join(Follow, Follow.followed_id == User.id).filter(Follow.follower_id == user_id).all()
+    return None
 
 
 # Función para seguir a un usuario
 def follow_user(db: Session, follower_id: int, followed_id: int) -> Follow:
-    # Verificar si ya existe un seguimiento
-    existing_follow = db.query(Follow).filter(Follow.follower_id == follower_id, Follow.followed_id == followed_id).first()
-    if existing_follow:
-        return existing_follow  # Si ya existe, devolverlo en lugar de crear uno nuevo
-    else:
-        follow = Follow(follower_id=follower_id, followed_id=followed_id)
-        db.add(follow)
-        db.commit()
-        db.refresh(follow)
-        return follow
+    user = db.query(User).filter(User.id == followed_id).first()
+    if user:
+        # Verificar si ya existe un seguimiento
+        existing_follow = db.query(Follow).filter(Follow.follower_id == follower_id, Follow.followed_id == followed_id).first()
+        if existing_follow:
+            return existing_follow  # Si ya existe, devolverlo en lugar de crear uno nuevo
+        else:
+            follow = Follow(follower_id=follower_id, followed_id=followed_id)
+            db.add(follow)
+            db.commit()
+            db.refresh(follow)
+            return follow
+    return None
 
 # Función para dejar de seguir a un usuario
 def unfollow_user(db: Session, follower_id: int, followed_id: int) -> bool:
