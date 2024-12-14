@@ -52,13 +52,13 @@
                     <div class="comment-date-admin">
                       <p>{{ comment.date.slice(0, 10) }}</p>
                     </div>
-                    <!-- Si un comment esta reportado tiene que salirle al admin que esta pendiente.-->
+                    <!-- Si un comment esta reportado tiene que salirle al admin que esta pendiente. Si esta banneado tiene que salir resolved.-->
                     <div>
                       <div v-if="comment.state === 'REPORTED'" class="submitted-badge-admin">
-                        <p>SUBMITTED</p>
+                        <p>PENDING</p>
                       </div>
                       <div v-else class="banned-badge-admin">
-                        <p>{{ comment.state }}</p>
+                        <p>RESOLVED</p>
                       </div>
                     </div>
                   </div>
@@ -81,10 +81,10 @@
                     </div>
                     <div>
                       <div v-if="comment.state === 'REPORTED'" class="submitted-badge">
-                        <p>PENDING</p>
+                        <p>SUBMITTED</p>
                       </div>
                       <div v-else class="banned-badge-admin">
-                        <p>RESOLVED</p>
+                        <p>{{ comment.state }}</p>
                       </div>
                     </div>
                   </div>
@@ -312,9 +312,8 @@ export default {
   }
 
 }
-
-
 </script>
+
 
 <style scoped>
 .profile-page {
