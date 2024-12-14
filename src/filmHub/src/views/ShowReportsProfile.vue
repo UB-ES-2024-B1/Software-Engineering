@@ -46,7 +46,12 @@
 
               <div class="scrollable-comments-admin">
                 <div v-for="(comment, index) in allReportedComments" :key="index" class="comment-item-admin">
-                  <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+
+                  <!-- Para linkear con la pelicula en la que se encuentra el comentario -->
+                  <router-link :to="`/movie/${comment.movie_id}#comments-section`" class="comment-link">
+                    <p><strong>{{ comment.username }}:</strong> {{ comment.text }}</p>
+                  </router-link>
+
                   <!-- Contenedor para la fecha y el badge -->
                   <div class="comment-info-container-admin">
                     <div class="comment-date-admin">
@@ -257,6 +262,7 @@ export default {
               username, // Nombre de usuario obtenido
               date: comment.created_at,
               state: comment.reported,
+              movie_id: comment.thread_id,
             };
           })
         );
@@ -701,6 +707,10 @@ input:checked + .slider:before {
   background-color: #248c28b7;
   color: white;
   border: 0.5px solid white;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 

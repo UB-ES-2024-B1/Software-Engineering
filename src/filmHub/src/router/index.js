@@ -82,6 +82,18 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return {
+        el: to.hash, // Selecciona el elemento con el id del hash
+        behavior: 'smooth', // Habilita el desplazamiento suave
+      };
+    } else if (savedPosition) {
+      return savedPosition; // Vuelve a la posición previa al navegar hacia atrás
+    } else {
+      return { top: 0 }; // Vuelve al inicio si no hay hash
+    }
+  }
 });
 
 
