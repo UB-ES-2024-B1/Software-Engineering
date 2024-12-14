@@ -110,25 +110,25 @@
 </template>
 
 <script>
-  import axios from 'axios'; // Asegúrate de importar axios
-  
-  export default {
+import axios from 'axios';
+
+export default {
   name: 'HeaderPage',
   props: {
     isOpaque: {
       type: Boolean,
-      default: false, // Por defecto, el header será transparente
+      default: false,
     },
   },
   data() {
     return {
       searchInput: "",
       scrolled: false,
-      isAuthenticated: !!localStorage.getItem('token'), // Estado de autenticación
-      isModalOpen: localStorage.getItem('isModalOpen') === 'true', // Usamos localStorage para guardar el estado
+      isAuthenticated: !!localStorage.getItem('token'),
+      isModalOpen: localStorage.getItem('isModalOpen') === 'true',
       isUpgradeModalOpen: localStorage.getItem('isUpgradeModalOpen') === 'true',
       isDowngradeModalOpen: localStorage.getItem('isDowngradeModalOpen') === 'true',
-      isPremium: localStorage.getItem('isPremium') === 'true', // Verificamos si es premium
+      isPremium: false, // Lo inicializamos a falso y lo actualizamos desde el backend
     };
   },
   computed: {
@@ -144,6 +144,25 @@
     },
   },
   methods: {
+    async fetchUserData() {
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) {
+        console.error('Usuario no autenticado');
+        return;
+      }
+
+      try {
+        const response = await axios.get(`/users/email/${userEmail}`);
+        if (response.status === 200) {
+          const userData = response.data;
+          this.isPremium = userData.is_premium; // Actualizamos el estado
+        } else {
+          console.error('Error al obtener los datos del usuario:', response.data);
+        }
+      } catch (error) {
+        console.error('Error de red al obtener los datos del usuario:', error);
+      }
+    },
     searchMovies() {
       if (this.searchInput) {
         this.$router.push({ path: '/movies', query: { search: this.searchInput } });
@@ -159,87 +178,80 @@
       localStorage.removeItem('userImg');
       localStorage.removeItem('userName');
       localStorage.removeItem('user_id');
-      localStorage.removeItem('isPremium'); // Elimina el estado premium también
       this.isAuthenticated = false;
+      this.isPremium = false; // Restablecemos el estado
       window.dispatchEvent(new Event('storage'));
       this.$router.push('/');
     },
     openModal() {
       this.isModalOpen = true;
-      localStorage.setItem('isModalOpen', 'true'); // Guardamos en localStorage
+      localStorage.setItem('isModalOpen', 'true');
     },
     closeModal() {
       this.isModalOpen = false;
-      localStorage.setItem('isModalOpen', 'false'); // Guardamos en localStorage
+      localStorage.setItem('isModalOpen', 'false');
     },
     closeUpgradeModal() {
       this.isUpgradeModalOpen = false;
-      localStorage.setItem('isUpgradeModalOpen', 'false'); // Guardamos en localStorage
+      localStorage.setItem('isUpgradeModalOpen', 'false');
     },
     closeDowngradeModal() {
       this.isDowngradeModalOpen = false;
-      localStorage.setItem('isDowngradeModalOpen', 'false'); // Guardamos en localStorage
+      localStorage.setItem('isDowngradeModalOpen', 'false');
     },
     async confirmPremium() {
       const userEmail = localStorage.getItem('userEmail');
-      
       if (!userEmail) {
         this.$router.push('/login');
         return;
       }
-  
+
       try {
         const response = await axios.put(`/users/upgrade_premium/${userEmail}`);
-        
         if (response.status === 200) {
-          this.isPremium = true; // Actualizamos el estado a premium
-          localStorage.setItem('isPremium', 'true');
+          this.isPremium = true;
           this.isUpgradeModalOpen = true;
-          localStorage.setItem('isUpgradeModalOpen', 'true'); // Guardamos en localStorage
+          localStorage.setItem('isUpgradeModalOpen', 'true');
         } else {
           console.error('Error al actualizar a Premium:', response.data);
-          alert('Error al actualizar a Premium');
         }
       } catch (error) {
         console.error('Error de red:', error);
-        alert('Error al conectar con el servidor');
       }
-  
+
       this.closeModal();
     },
     async confirmDowngrade() {
       const userEmail = localStorage.getItem('userEmail');
-      
       if (!userEmail) {
         this.$router.push('/login');
         return;
       }
-  
+
       try {
         const response = await axios.put(`/users/downgrade_premium/${userEmail}`);
-        
         if (response.status === 200) {
-          this.isPremium = false; // Actualizamos el estado a no premium
-          localStorage.setItem('isPremium', 'false');
+          this.isPremium = false;
           this.isDowngradeModalOpen = true;
-          localStorage.setItem('isDowngradeModalOpen', 'true'); // Guardamos en localStorage
+          localStorage.setItem('isDowngradeModalOpen', 'true');
         } else {
           console.error('Error al cancelar Premium:', response.data);
-          alert('Error al cancelar Premium');
         }
       } catch (error) {
         console.error('Error de red:', error);
-        alert('Error al conectar con el servidor');
       }
 
       this.closeModal();
     },
   },
-  mounted() {
+  async mounted() {
     window.addEventListener('scroll', this.handleScroll);
     this.isAuthenticated = !!localStorage.getItem('token');
 
-    // Si el estado de los modales está en localStorage, los cargamos
+    if (this.isAuthenticated) {
+      await this.fetchUserData(); // Obtenemos la información del usuario al montar
+    }
+
     if (localStorage.getItem('isModalOpen') === 'true') {
       this.isModalOpen = true;
     }
@@ -254,9 +266,6 @@
     window.removeEventListener('scroll', this.handleScroll);
   },
 };
-
-
-
 </script>
 
   
