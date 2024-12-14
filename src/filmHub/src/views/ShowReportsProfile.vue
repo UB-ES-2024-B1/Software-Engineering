@@ -713,6 +713,33 @@ html {
   scroll-behavior: smooth;
 }
 
+.comment-link {
+  font-family: 'Arial', sans-serif; /* Define la fuente del texto */
+  color: #ffffffd7; /* Color del texto (gris oscuro) */
+  text-decoration: none; /* Elimina el subrayado */
+  font-size: 1.1rem; /* Tamaño de fuente ligeramente mayor */
+  padding: 5px 10px; /* Espaciado alrededor del texto */
+  border-radius: 4px; /* Bordes redondeados */
+  transition: all 0.3s ease; /* Transición suave para efectos */
+  display: inline-block; /* Asegura que se comporte como un bloque en línea */
+}
+/* Estilo al pasar el mouse */
+.comment-link:hover {
+  color: #fff; /* Cambia el color del texto a blanco al pasar el mouse */
+  background-color: #253a49; /* Fondo azul claro al pasar el mouse */
+  text-decoration: none; /* Asegura que no haya subrayado */
+}
+
+/* Estilo al hacer clic */
+.comment-link:active {
+  background-color: #2980b9; /* Fondo más oscuro al hacer clic */
+}
+
+/* Estilo para cuando el enlace está en foco (por ejemplo, cuando se navega con teclado) */
+.comment-link:focus {
+  outline: 2px solid #2980b9; /* Borde azul alrededor al hacer foco */
+  outline-offset: 2px; /* Asegura que el borde no quede pegado al texto */
+}
 
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
