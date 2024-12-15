@@ -20,7 +20,9 @@ from app.crud.comments_crud import (
     get_comments_by_user,
     get_comments,
     get_reported_comments_ordered,
-    delete_reported_comment
+    delete_reported_comment,
+    ban_comment_by_id,
+    clean_comment_by_id
 
 )
 
@@ -225,3 +227,46 @@ class TestCommentThreadCRUD(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             delete_reported_comment(self.db, comment_id=-1)
         self.assertEqual(str(context.exception), "Comment with ID -1 not found.")
+
+    
+    def test_ban_comment_by_id(self):
+        
+        thread = create_thread(self.db, movie_id=1)
+        reported_comment = create_comment(self.db, thread_id=thread.id, user_id=1, text="Reported Comment")
+
+        # Ban the comment
+        banned_comment = ban_comment_by_id(self.db, comment_id=reported_comment.id)
+
+        # Ensure the comment was found and banned
+        self.assertIsNotNone(banned_comment)
+        self.assertEqual(banned_comment.reported, ReportStatus.BANNED)
+
+    def test_ban_non_existent_comment(self):
+        # Attempt to ban a comment that doesn't exist
+        banned_comment = ban_comment_by_id(self.db, comment_id=-1)
+
+        # Ensure the return value is None since the comment does not exist
+        self.assertIsNone(banned_comment)
+
+    def test_clean_comment_by_id(self):
+        
+        thread = create_thread(self.db, movie_id=1)
+        reported_comment = create_comment(self.db, thread_id=thread.id, user_id=1, text="Reported Comment")
+
+        # First, ban the comment
+        banned_comment = ban_comment_by_id(self.db, comment_id=reported_comment.id)
+        self.assertEqual(banned_comment.reported, ReportStatus.BANNED)
+
+        # Now clean the banned comment
+        cleaned_comment = clean_comment_by_id(self.db, comment_id=reported_comment.id)
+
+        # Ensure the comment's status is now CLEAN
+        self.assertIsNotNone(cleaned_comment)
+        self.assertEqual(cleaned_comment.reported, ReportStatus.CLEAN)
+
+    def test_clean_non_existent_comment(self):
+        # Attempt to clean a comment that doesn't exist
+        cleaned_comment = clean_comment_by_id(self.db, comment_id=-1)
+
+        # Ensure the return value is None since the comment does not exist
+        self.assertIsNone(cleaned_comment)
