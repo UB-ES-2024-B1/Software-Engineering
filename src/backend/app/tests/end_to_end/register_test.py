@@ -17,6 +17,7 @@ def driver_setup():
     chrome_options = Options()
     chrome_options.add_argument("--headless") 
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
 
     # Initialize the WebDriver with options
     driver = webdriver.Chrome(

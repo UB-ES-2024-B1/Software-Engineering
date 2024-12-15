@@ -7,6 +7,8 @@ import time
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal
 from app.crud import movie_crud, user_crud, comments_crud
+from app.models.comments_model import ReportStatus
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -17,6 +19,8 @@ def driver_setup():
     chrome_options = Options()
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     driver.maximize_window()
     driver.get("http://localhost:8080/login")
@@ -40,7 +44,7 @@ def login_user(driver_setup, db_session):
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
     time.sleep(2)  # Wait for the page to load after login
     return driver
-'''
+
 def test_comment_movie_success(login_user, db_session):
     driver = login_user
     # Navigate to the movie page
@@ -210,13 +214,13 @@ def test_wishing_logged_out_user(driver_setup, db_session):
     # Assert that the success message contains the expected text
     assert "You need to log in or register to access this feature." in success_message.text, "The alert message was not displayed correctly."
 
-'''
+
 
 def test_report_comment_success(login_user, db_session):
     driver = login_user
 
     # Navigate to the movie page
-    driver.get("http://localhost:8080/movie/1")  # Change this URL to the correct movie page URL
+    driver.get("http://localhost:8080/movie/3")  # Change this URL to the correct movie page URL
     time.sleep(3)
 
     # Scroll to the comments section
@@ -224,10 +228,15 @@ def test_report_comment_success(login_user, db_session):
     driver.execute_script("arguments[0].scrollIntoView(true);", comments_section)
     time.sleep(3)  # Allow time for animation if any
 
+    # Identify the comment you want to report (you can choose any comment here, like the first one)
+    comment = driver.find_element(By.CSS_SELECTOR, ".comment-item p")  # Modify the selector if needed
+    comment_text_user = comment.text  # Get the text of the comment
+
     # Identify a comment that can be reported
     report_comment_btn = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CLASS_NAME, "report-comment-btn"))
     )
+    time.sleep(3)
     
     # Click the "Report Comment" button
     report_comment_btn.click()
@@ -241,7 +250,7 @@ def test_report_comment_success(login_user, db_session):
     confirm_report_btn = driver.find_element(By.XPATH, "//button[text()='Yes']")
     confirm_report_btn.click()
 
-    # Wait for the success message after deletion
+    # Wait for the success message after reported
     success_message = WebDriverWait(driver, 10).until(
         EC.visibility_of_element_located((By.CLASS_NAME, "alert-modal"))
     )
@@ -255,7 +264,7 @@ def test_report_comment_success(login_user, db_session):
 
     # Validate in the database if the comment was reported
     user = user_crud.get_user_by_email(db_session, "user2@example.com")
-    thread = comments_crud.get_threads_by_movie(db_session, 1)
+    thread = comments_crud.get_threads_by_movie(db_session, 3)
     comments = comments_crud.get_comments_by_thread(db_session, thread[0].id)
     comments_reported = comments_crud.get_comments_reported_by_user(db_session, user.id)
     
@@ -283,6 +292,7 @@ def test_report_comment_success(login_user, db_session):
     report_comment_btn = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.CLASS_NAME, "report-comments-btn"))
     )
+    time.sleep(3)
 
     report_comment_btn.click()
     
@@ -292,6 +302,64 @@ def test_report_comment_success(login_user, db_session):
     assert "reportedComments" in driver.current_url, "User was not redirected to reportedComments page."
 
     
-    
+    # Wait for the reported comments list to load
+    reported_comments_section = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "scrollable-comments-admin"))
+    )
 
-    
+    # Retrieve all reported comments visible on the page
+    reported_comments = driver.find_elements(By.CLASS_NAME, "scrollable-comments-admin")
+
+    # Assert that at least one comment is visible
+    assert len(reported_comments) > 0, "No reported comments are displayed on the page."
+
+    # Verify that the reported comment is present by checking its text
+    reported_comment_texts = [comment.find_element(By.CSS_SELECTOR, ".comment-link p").text for comment in reported_comments]
+
+    # Assert that the reported comment text is displayed on the page
+    assert any(comment_text == comment_text_user for comment_text in reported_comment_texts), \
+        f"The reported comment '{comment_text_user}' is not displayed on the page."
+
+    # Iterate over each reported comment
+    for reported_comment in reported_comments:
+        # Get the text of the comment for verification
+        reported_comment_text = reported_comment.find_element(By.CSS_SELECTOR, ".comment-link p").text
+
+        # Check if this is the reported comment we want to clear
+        if reported_comment_text == comment_text_user:  # Match with the text of the reported comment
+            # Click the dropdown to select a new state
+            dropdown_button = reported_comment.find_element(By.CLASS_NAME, "dropdown-button-reported")
+            dropdown_button.click()
+
+            # Wait for the dropdown menu to appear
+            WebDriverWait(driver, 3).until(
+                EC.visibility_of_element_located((By.CLASS_NAME, "dropdown-menu"))
+            )
+
+            # Find and click the "CLEAN" option in the dropdown menu
+            clear_option = driver.find_element(By.XPATH, "//li[text()='CLEAN']")
+            clear_option.click()
+
+            # Optionally, handle confirmation modal if needed
+            confirmation_modal = WebDriverWait(driver, 3).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "confirmation-modal"))
+            )
+            confirm_clear_btn = confirmation_modal.find_element(By.CLASS_NAME, "confirm-btn")
+            confirm_clear_btn.click()
+
+            # Handle the alert and check the text
+            WebDriverWait(driver, 20).until(EC.alert_is_present())  # Wait for alert to appear
+            alert = driver.switch_to.alert  # Switch to the alert
+            alert_text = alert.text  # Get the alert text
+            assert alert_text == "Comment status updated successfully.", f"Unexpected alert text: {alert_text}"
+            alert.accept()  # Close the alert
+
+            # Verify if the comment state is changed to 'CLEAN' or appropriate
+            WebDriverWait(driver, 10).until(
+                EC.text_to_be_present_in_element(
+                    (By.CLASS_NAME, "comment-item-admin"),
+                    "CLEAN"
+                )
+            )
+
+            break  # Exit after handling the matched comment
