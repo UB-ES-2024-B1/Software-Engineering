@@ -106,7 +106,7 @@
                       <div v-if="comment.state === 'REPORTED'" class="submitted-badge">
                         <p>SUBMITTED</p>
                       </div>
-                      <div v-else class="banned-badge-admin">
+                      <div v-else class="banned-badge">
                         <p>{{ comment.state }}</p>
                       </div>
                     </div>
@@ -491,55 +491,7 @@ export default {
   align-items: center; /* Centra verticalmente (si es necesario) */
 }
 
-.modal-overlay {
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-}
 
-.comments-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* Contenedor con scroll exclusivo para los comentarios */
-.scrollable-comments {
-  max-height: 400px;
-  /* Limita la altura visible a unos 6 comentarios (ajusta según el diseño). */
-  overflow-y: auto;
-  /* Habilita el desplazamiento vertical. */
-  padding-right: 10px;
-  /* Espacio para evitar superposición con la barra de desplazamiento. */
-  border: 1px solid #ddd;
-  /* Opcional: borde para resaltar el área. */
-  width: 80%;
-  padding: 10px;
-  /* Añade espacio interno alrededor del contenido. */
-  border-radius: 5px;
-  /* Bordes redondeados. */
-  background-color: #f9f9f931;
-  /* Fondo claro para destacar los comentarios. */
-  box-sizing: border-box;
-  /* Asegura que `padding` no afecte al ancho/altura total. */
-}
-
-.scrollable-comments::-webkit-scrollbar {
-  width: 8px;
-  /* Ancho de la barra de desplazamiento. */
-}
-
-.scrollable-comments::-webkit-scrollbar-thumb {
-  background: #ccc;
-  /* Color de la barra de desplazamiento. */
-  border-radius: 4px;
-}
-
-.scrollable-comments::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
-  /* Color al pasar el cursor por la barra. */
-}
 
 /* Cada comentario dentro de su propio bloque */
 .comment-item {
@@ -555,13 +507,6 @@ export default {
   display: inline-flex;
   justify-content: center; /* Distribuye espacio entre el contenido principal y el contenedor derecho */
   align-items: center; /* Centrado vertical */
-}
-
-.comment-info-container {
-  display: flex; /* Para alinear los elementos horizontalmente */
-  align-items: center; /* Asegura que estén centrados verticalmente */
-  margin-left: auto; /* Empuja este contenedor hacia la derecha */
-  gap: 10px; /* Espacio entre la fecha y el badge */
 }
 
 
@@ -586,13 +531,13 @@ export default {
 }
 
 .submitted-badge {
-  background-color: #bc3909;
+  background-color: #8fa405;
   color: white;
   border: 0.5px solid white;
 }
 
 .banned-badge{
-  background-color: #248c28b7;
+  background-color: #a61b1b;
   color: white;
   border: 0.5px solid white;
 }
@@ -626,7 +571,7 @@ h2 {
 }
 
 
-.modal-overlay-admin {
+.modal-overlay-admin, .modal-overlay {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -645,7 +590,7 @@ h2 {
 
 /* Media Queries para pantallas más pequeñas */
 @media (max-width: 768px) {
-  .modal-overlay-admin {
+  .modal-overlay-admi, .modal-overlay {
     width: 90%; /* Ajusta al 90% del ancho de la pantalla */
     min-width: 500px; /* Ajusta el tamaño mínimo en pantallas más pequeñas */
     padding: 20px; /* Reduce el padding para pantallas medianas */
@@ -653,7 +598,7 @@ h2 {
 }
 
 @media (max-width: 480px) {
-  .modal-overlay-admin {
+  .modal-overlay-admin, .modal-overlay {
     width: 95%; /* Ajusta al 95% en pantallas más pequeñas */
     min-width: 400px; /* Ancho mínimo en pantallas de muy baja resolución */
     padding: 15px; /* Ajusta aún más el padding */
@@ -661,7 +606,7 @@ h2 {
 }
 
 /* Título centrado */
-.modal-overlay-admin h2 {
+.modal-overlay-admin h2, .main-content h2 {
   font-size: 1.5rem;
   font-weight: bold;
   text-align: center;
@@ -671,18 +616,18 @@ h2 {
 
 /* Ajuste del título en pantallas más pequeñas */
 @media (max-width: 768px) {
-  .modal-overlay-admin h2 {
+  .modal-overlay-admin h2, .main-content h2 {
     font-size: 1.3rem;
   }
 }
 
 @media (max-width: 480px) {
-  .modal-overlay-admin h2 {
+  .modal-overlay-admin h2, .main-content h2 {
     font-size: 1.1rem;
   }
 }
 /* Contenedor principal de admin */
-.admin-comments {
+.admin-comments, .comments-list{
   display: flex;
   flex-direction: row;
   gap: 5px;
@@ -785,7 +730,7 @@ input:checked + .slider:before {
 }
 
 /* Contenedor para comentarios */
-.scrollable-comments-admin {
+.scrollable-comments-admin, .scrollable-comments {
   flex-grow: 1; /* Toma el espacio restante */
   max-height: 400px;
   overflow-y: auto;
@@ -798,28 +743,31 @@ input:checked + .slider:before {
 }
 
 /* Estilo del scrollbar */
-.scrollable-comments-admin::-webkit-scrollbar {
+.scrollable-comments-admin::-webkit-scrollbar, 
+.scrollable-comments::-webkit-scrollbar {
   width: 8px;
 }
 
-.scrollable-comments-admin::-webkit-scrollbar-thumb {
+.scrollable-comments-admin::-webkit-scrollbar-thumb, 
+.scrollable-comments::-webkit-scrollbar-thumb  {
   background: #ccc;
   border-radius: 4px;
 }
 
-.scrollable-comments-admin::-webkit-scrollbar-thumb:hover {
+.scrollable-comments-admin::-webkit-scrollbar-thumb:hover,
+.scrollable-comments::-webkit-scrollbar-thumb:hover {
   background: #aaa;
 }
 
 /* Media Queries para pantallas más pequeñas */
 @media (max-width: 768px) {
-  .admin-comments {
+  .admin-comments, .comments-list {
     flex-direction: column; /* Ajuste para pantallas más pequeñas */
     align-items: center;
   }
 
   .vertical-bar,
-  .scrollable-comments-admin {
+  .scrollable-comments-admin, .scrollable-comments {
     width: 100%; /* Se ajustan al ancho completo */
     margin: 10px 0; /* Espaciado entre los contenedores */
   }
@@ -850,7 +798,7 @@ input:checked + .slider:before {
 }
 
 @media screen and (max-width: 768px) {
-  .comment-info-container-admin {
+  .comment-info-container-admin, .comment-info-container  {
     flex-wrap: wrap; /* Hacer que los elementos bajen de línea si no caben */
   }
 
@@ -873,13 +821,13 @@ input:checked + .slider:before {
   }
 }
 
-.comment-link, .comment-info-container-admin {
+.comment-link, .comment-info-container-admin, .comment-info-container {
   margin: 0; /* Elimina cualquier margen entre los elementos internos */
   padding: 0; /* Elimina padding adicional, si lo hay */
 }
 
 
-.comment-info-container-admin {
+.comment-info-container-admin, .comment-info-container {
   display: flex; /* Usamos flexbox para alinear los elementos horizontalmente */
   align-items: center; /* Alineamos verticalmente los elementos */
   justify-content: flex-end; /* Alinea todos los elementos al final (a la derecha) */
@@ -894,7 +842,9 @@ input:checked + .slider:before {
 }
 
 .comment-info-container-admin .date,
-.comment-info-container-admin .status {
+.comment-info-container-admin .status,
+.comment-info-container .date,
+.comment-info-container .status {
   white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
 
