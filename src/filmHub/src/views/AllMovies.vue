@@ -183,7 +183,7 @@ export default {
     methods: {
         async fetchGenres() {
             try {
-                const url = `${API_BASE_URL}/genres`;
+                const url = `${API_BASE_URL}/genres/`;
                 const response = await axios.get(url);
                 this.genres = response.data;
                 console.log("Fetched genres:", this.genres);

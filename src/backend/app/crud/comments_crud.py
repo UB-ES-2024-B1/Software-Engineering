@@ -245,9 +245,6 @@ def delete_reported_comment(session: Session, comment_id: int) -> bool:
     session.commit()
     return True
 
-    db.commit()  # Commit after deleting all threads and associated comments
-    return True
-
 def ban_comment_by_id(db: Session, comment_id: int):
     # Busca el comentario
     comment = db.query(Comment).filter_by(id=comment_id).first()
@@ -259,34 +256,13 @@ def ban_comment_by_id(db: Session, comment_id: int):
     db.commit()
     return comment
 
-def delete_reported_comment(session: Session, comment_id: int) -> bool:
-    """
-    Delete a reported comment by its ID.
-
-    Args:
-        session (Session): The database session.
-        comment_id (int): The ID of the comment to be deleted.
-
-    Returns:
-        bool: True if the comment was successfully deleted, False otherwise.
-
-    Raises:
-        ValueError: If the comment does not exist or is not reported.
-    """
-    # Retrieve the comment by ID
-    comment = session.get(Comment, comment_id)
-    
+def clean_comment_by_id(db: Session, comment_id: int):
+    # Busca el comentario
+    comment = db.query(Comment).filter_by(id=comment_id).first()
     if not comment:
-        raise ValueError(f"Comment with ID {comment_id} not found.")
-
-    if comment.reported == ReportStatus.CLEAN:
-        raise ValueError(f"Comment with ID {comment_id} is not reported.")
-
-    # Delete related records in CommentReportedBy
-    session.query(CommentReportedBy).filter(CommentReportedBy.comment_id == comment_id).delete()
-
-    # Proceed to delete the comment
-    session.delete(comment)
-    session.commit()
-    return True
-
+        return None
+    
+    # Actualiza el estado del comentario a "BANNED"
+    comment.reported = "CLEAN"
+    db.commit()
+    return comment
