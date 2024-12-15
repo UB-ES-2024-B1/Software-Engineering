@@ -17,8 +17,8 @@
             required
           />
           <div class="modal-buttons">
-            <button type="button" @click="closeModal" class="cancel-btn">Cancel</button>
             <button type="submit" class="create-btn">Create List</button>
+            <button type="button" @click="closeModal" class="cancel-btn">Cancel</button>
           </div>
         </form>
       </div>
@@ -37,6 +37,17 @@
       <div class="modal-content-premium">
         <p>This feature is only available for Premium accounts.</p>
         <button @click="closePremiumModal">Ok</button>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div v-if="showDeleteModal" class="modal-overlay">
+      <div class="modal-content">
+        <p>Are you sure you want to delete the list "{{ listToDelete }}"?</p>
+        <div class="modal-buttons">
+          <button @click="confirmDelete" class="create-btn">Yes</button>
+          <button @click="closeDeleteModal" class="cancel-btn">Cancel</button>
+        </div>
       </div>
     </div>
     
@@ -132,11 +143,11 @@
               @click="selectList(list.name)"
             >
               {{ list.name }}
-              <!-- Botón de eliminar en cada lista -->
-              <span class="delete-button-list" @click.stop="deleteList(list.name)"></span>
+              <!-- Botón de eliminar que abre el modal -->
+              <span class="delete-button-list" @click.stop="openDeleteModal(list.name)"></span>
             </button>
           </div>
-
+        
           <!-- Botón de agregar nueva lista, siempre visible -->
           <button class="add-new-list-btn" @click="openAddListModal">
             <svg class="add-icon" viewBox="0 0 24 24" width="16" height="16">
@@ -152,6 +163,7 @@
             Add New
           </button>
         </div>
+        
       </div>
 
       
@@ -278,6 +290,8 @@
         userLists: [], 
         showLimitModal: false,
         showPremiumModal: false,  // Para mostrar el modal de error
+        showDeleteModal: false,
+        listToDelete: null,
 
       };
     },
@@ -628,26 +642,43 @@
 
       async deleteList(listName) {
         try {
-          // Asegúrate de obtener el correo del usuario desde el almacenamiento local
           const userEmail = localStorage.getItem('userEmail');
-          
           if (!userEmail) {
             console.error('No user email found');
             return;
           }
 
-          // Realiza la solicitud DELETE al endpoint del servidor
+          // Realiza la solicitud DELETE al servidor
           await axios.delete(`${API_BASE_URL}/list-type/${userEmail}/${listName}`);
-          this.$router.go(); // Recarga solo si estás en UserProfile
+          this.$router.go(); // Recarga si estás en UserProfile
 
-          // Eliminar la lista de `userLists` en el frontend
+          // Actualiza las listas en el frontend
           this.userLists = this.userLists.filter(list => list.name !== listName);
 
-          console.log(`La lista "${listName}" ha sido eliminada exitosamente.`);
+          console.log(`List "${listName}" deleted successfully.`);
         } catch (error) {
-          console.error('Error al eliminar la lista:', error);
-          alert('Hubo un error al eliminar la lista. Por favor, inténtalo de nuevo.');
+          console.error('Error deleting the list:', error);
+          alert('An error occurred while deleting the list. Please try again.');
         }
+      },
+
+      openDeleteModal(listName) {
+        this.listToDelete = listName; // Guarda la lista seleccionada
+        this.showDeleteModal = true; // Muestra el modal
+      },
+      
+      // Cerrar el modal
+      closeDeleteModal() {
+        this.listToDelete = null; // Limpia la lista seleccionada
+        this.showDeleteModal = false; // Oculta el modal
+      },
+      
+      // Confirmar eliminación de la lista
+      async confirmDelete() {
+        if (this.listToDelete) {
+          await this.deleteList(this.listToDelete); // Llama al método de eliminar
+        }
+        this.closeDeleteModal(); // Cierra el modal después de eliminar
       },
       
     },
@@ -1572,10 +1603,6 @@ margin-left: 0;
 .modal-content-premium button:hover {
   background-color: #0056b3;
 }
-
-
-
-
 
 
 </style>
