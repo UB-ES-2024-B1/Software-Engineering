@@ -1,7 +1,8 @@
 # backend/app/crud/user_crud.py
 from sqlalchemy.orm import Session
-from app.models.user_models import User, UserOut,Follow
-
+from app.models.user_models import User, UserOut,Follow, ListType, MovieList
+from app.models.movie_models import Movie
+from typing import List
 
 # Function to create a user
 def create_user(db: Session, full_name: str, email: str, hashed_password: str, is_admin: bool =False, is_premium: bool = False) -> UserOut:

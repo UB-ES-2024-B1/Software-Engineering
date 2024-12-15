@@ -61,15 +61,6 @@
         <p v-if="error" class="error-message">{{ error }}</p>
 
         <div v-else-if="userData" class="profile-content">
-
-          <button class="Btn" 
-          @click.prevent="openModal"
-          :class="{'premium-button': isPremium}">
-            <svg class="logoIcon" height="1em" viewBox="0 0 576 512" :class="{'gold-crown': isPremium}">
-              <path d="M309 106c11.4-7 19-19.7 19-34c0-22.1-17.9-40-40-40s-40 17.9-40 40c0 14.4 7.6 27 19 34L209.7 220.6c-9.1 18.2-32.7 23.4-48.6 10.7L72 160c5-6.7 8-15 8-24c0-22.1-17.9-40-40-40S0 113.9 0 136s17.9 40 40 40c.2 0 .5 0 .7 0L86.4 427.4c5.5 30.4 32 52.6 63 52.6H426.6c30.9 0 57.4-22.1 63-52.6L535.3 176c.2 0 .5 0 .7 0c22.1 0 40-17.9 40-40s-17.9-40-40-40s-40 17.9-40 40c0 9 3 17.3 8 24l-89.1 71.3c-15.9 12.7-39.5 7.5-48.6-10.7L309 106z"></path>
-            </svg>
-          </button>
-
           <!-- Imagen de perfil -->
           <div class="profile-image">
             <div class="profile-image-image">
@@ -138,28 +129,26 @@
     </div>
 
     <!-- Sección de películas (liked o rated) -->
-    <div class="movies-section" ref="ratedMoviesSection">
+    <div class="movies-section">
       <!-- Nueva capa de overlay -->
       <div class="movies-overlay"></div>
 
       <div class="movies-header">
         <!-- Botones predeterminados -->
-        <div class="default-buttons"></div>
-        <button :class="{ active: activeList === 'rated' }" @click="toggleMovies('rated')">
-          Rated Movies
-        </button>
-
-        <button :class="{ active: activeList === 'liked' }" @click="toggleMovies('liked')">
-          Favourite Movies
-        </button>
-
-        <button :class="{ active: activeList === 'wishlist' }" @click="toggleMovies('wishlist')">
-          Wishlist Movies
-        </button>
-      </div>
-
-      <!-- Botones de listas personalizadas -->
-      <div class="dynamic-buttons">
+        <div class="default-buttons">
+          <button :class="{ active: activeList === 'rated' }" @click="toggleMovies('rated')">
+            Rated Movies
+          </button>
+          <button :class="{ active: activeList === 'liked' }" @click="toggleMovies('liked')">
+            Favourite Movies
+          </button>
+          <button :class="{ active: activeList === 'wishlist' }" @click="toggleMovies('wishlist')">
+            Wishlist Movies
+          </button>
+        </div>
+      
+        <!-- Botones de listas personalizadas -->
+        <div class="dynamic-buttons">
           <!-- Mostrar solo las listas dinámicas si el usuario es premium -->
           <div v-if="isPremium">
             <button
@@ -193,45 +182,46 @@
         
       </div>
 
+      
       <div class="movies-list">
         <!-- Lista de películas -->
         <div class="movie-item" v-for="movie in displayedMovies" :key="movie.title">
           <router-link :to="`/movie/${movie.id}`">
             <img :src="movie.smallImage" :alt="movie.title" class="movie-poster" />
           </router-link>
-
+        
           <div class="rating-likes-cover">
             <!-- Rating -->
             <div class="rating">
               <img src="@/assets/star.png" alt="Rating" class="icon" />
               <span>{{ movie.rating.toFixed(1) }}</span>
             </div>
-
+        
             <!-- Likes -->
             <div class="likes">
               <img src="@/assets/like.png" alt="Like" class="icon" />
               <span>{{ movie.likes }}</span>
             </div>
           </div>
-
+    
           <!-- User Rating -->
           <div v-if="activeList === 'rated'" class="user-rating">
             <img src="@/assets/star.png" alt="Rating" class="icon" />
             <span>{{ movie.userRating }}</span>
           </div>
 
-          <!-- Botón para eliminar película  -->
+          
+            <!-- Botón para eliminar película  -->
           <button class="delete-button" @click="removeMovie(movie.id)">
             <svg class="delete-svgIcon" viewBox="0 0 448 512">
-              <path
-                d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z">
-              </path>
+              <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path>
             </svg>
           </button>
 
         </div>
-      </div>
+      </div>   
     </div>
+
     <!-- Aquí va el componente del popup -->
     <FollowsPopup :isVisible="isPopupVisible" :title="popupTitle" @close="closePopup">
       <div v-for="user in popupList" :key="user.id" class="user-card">
@@ -245,87 +235,78 @@
       </div>
     </FollowsPopup>
 
-
     <FooterComponent />
   </div>
 </template>
 
 
+
 <script>
+  import HeaderPage from '@/components/HeaderPage.vue';
+  import FooterComponent from '@/components/FooterComponent.vue';
+  import FollowsPopup from '@/components/FollowsPopup.vue';
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config.js';
 
-
-import HeaderPage from '@/components/HeaderPage.vue';
-import FooterComponent from '@/components/FooterComponent.vue';
-import FollowsPopup from '@/components/FollowsPopup.vue';
-
-import axios from 'axios';
-import { API_BASE_URL } from '@/config.js'; // Asegúrate de tener la URL base aquí
-
-function getImagePath(image) {
-  if (image && image.startsWith('http')) {
-    return image;
-  } else if (image) {
-    try {
-      return require(`@/assets/${image}`);
-    } catch (error) {
-      console.error(`Error loading local image: ${image}`, error);
+  function getImagePath(image) {
+    if (image && image.startsWith('http')) {
+      return image;
+    } else if (image) {
+      try {
+        return require(`@/assets/${image}`);
+      } catch (error) {
+        console.error(`Error loading local image: ${image}`, error);
+        return '';
+      }
+    } else {
+      console.warn('No image provided');
       return '';
+
     }
-  } else {
-    console.warn('No image provided');
-    return '';
-
   }
-}
 
-async function generateMovieObject(movieData, userRating = null) {
-  const movieObject = {
-    id: movieData.id,
-    image: getImagePath(movieData.image[1]),
-    smallImage: getImagePath(movieData.image[0]),
-    title: movieData.title,
-    description: movieData.description,
-    rating: movieData.rating,
-    likes: movieData.likes,
-    genre: movieData.genres.map((genre) => genre.type).join(', '),
-    releaseDate: movieData.release_date.substring(0, 4),
-    userRating: userRating, // Agregamos el rating del usuario, si existe
-  };
-  if (userRating !== null) {
+  async function generateMovieObject(movieData, userRating = null) {
+    const movieObject = {
+      id: movieData.id,
+      image: getImagePath(movieData.image[1]),
+      smallImage: getImagePath(movieData.image[0]),
+      title: movieData.title,
+      description: movieData.description,
+      rating: movieData.rating,
+      likes: movieData.likes,
+      genre: movieData.genres.map((genre) => genre.type).join(', '),
+      releaseDate: movieData.release_date.substring(0, 4),
+    };
+
+    if (userRating !== null) {
       movieObject.userRating = userRating; // Solo se agrega si está presente
     }
 
-  return movieObject;
-}
+    return movieObject;
+  }
 
-export default {
-  name: 'UserProfile',
-  components: {
-    HeaderPage,
-    FooterComponent,
-    FollowsPopup,
-  },
-  data() {
-    return {
-      userData: null,
-      error: null,
-      profile_image: '',
-      activeList: 'rated',
-      showRatedMovies: true, // Controla si se muestran las valoradas o las con like
-      showFavouriteMovies: false, // Controla la visualización de la lista de wishlist
-      showWishlistMovies: false, // Controla la visualización de la lista de wishlist
-      ratedMovies: [], // Películas valoradas
-      likedMovies: [], // Películas con like
-      wishedMovies: [], // Películas en la wishlist
-      displayedMovies: [], // Películas que se muestran actualmente
-      followers: [], // Lista de seguidores
-      following: [], // Lista de seguidos
-      isPopupVisible: false,
-      popupTitle: '',
-      popupList: [],
-      defaultImage: require('@/assets/foto_perfil.png'), // Ruta a una imagen por defecto
 
-      isPremium: false, // Inicializamos en `false` por defecto
+  export default {
+    name: 'UserProfile',
+    components: {
+      HeaderPage,
+      FooterComponent,
+      FollowsPopup,
+    },
+    data() {
+      return {
+        userData: null,
+        error: null,
+        profile_image: '',
+        activeList: 'rated',
+        showRatedMovies: true, // Controla si se muestran las valoradas o las con like
+        showFavouriteMovies: false,
+        showWishlistMovies: false,
+        ratedMovies: [], // Películas valoradas
+        likedMovies: [], // Películas con like
+        wishedMovies: [], // Películas en la wishlist
+        displayedMovies: [], // Películas que se muestran actualmente
+        isPremium: false, // Inicializamos en `false` por defecto
 
         // Datos para el modal
         showModal: false,
@@ -341,281 +322,257 @@ export default {
         showDeleteModal: false,
         listToDelete: null,
 
-      //REP eliminar
-      showReportedModal: false,
-      reportedComments: [],
+        followers: [], // Lista de seguidores
+        following: [], // Lista de seguidos
+        isPopupVisible: false,
+        popupTitle: '',
+        popupList: [],
+        defaultImage: require('@/assets/foto_perfil.png'), // Ruta a una imagen por defecto
 
-    };
-  },
-  created() {
-    const userEmail = localStorage.getItem('userEmail');
-    if (!userEmail) {
-      this.$router.push('/login');
-      return;
-    }
+        //REP eliminar
+        showReportedModal: false,
+        reportedComments: [],
 
-    // Solicitar datos del usuario
-    axios
-      .get(`${API_BASE_URL}/users/email/${userEmail}`)
-      .then((response) => {
-        this.userData = response.data;
 
-         // Actualizar el estado de `isPremium` desde los datos recibidos
-         this.isPremium = response.data.is_premium;
-
-        // Cargar las películas valoradas, con like y en wishlist
-        // Cargar las películas valoradas y con like desde un solo endpoint
-        this.loadMovies();
-        this.loadLists();
-      })
-      .catch((error) => {
-        console.error('Error al obtener los datos del usuario:', error);
-        this.error = 'Error fetching user data. Please try again.';
-      });
-
-    // Cargar la lista de seguidores
-    this.loadFollowers();
-    this.loadFollowing();
-  },
-  methods: {
-
-    isAdmin(isAdmin) {
-      if(isAdmin){
-        return 'Admin';
-      }
-      else{
-        return 'User';
-      }
+      };
     },
-    accountType(accType){
-      if(accType === 'public'){
-        return 'Public';
-      }
-      else if(accType === 'private'){ 
-        return 'Private';
+    created() {
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) {
+        this.$router.push('/login');
+        return;
       }
 
-      return 'Only Followers';
-    },
-
-    scrollToRatedMovies() {
-      this.toggleMovies('rated'); // Cambiar a la vista de Rated Movies
-      this.$nextTick(() => {
-        const ratedSection = this.$refs.ratedMoviesSection;
-        if (ratedSection) {
-          ratedSection.scrollIntoView({ behavior: 'smooth' }); // Desplazamiento suave
-        }
-      });
-    },
-    isFollowing(user) {
-      return this.following.some(followingUser => followingUser.id === user.id);
-    },
-
-    openPopup(type) {
-      if (type === 'followers') {
-        this.popupTitle = 'Followers';
-        this.popupList = this.followers;
-      } else if (type === 'following') {
-        this.popupTitle = 'Following';
-        this.popupList = this.following;
-      }
-      this.isPopupVisible = true;
-    },
-    closePopup() {
-      this.isPopupVisible = false;
-    },
-    async toggleFollow(user) {
-
-      const url = `${API_BASE_URL}/users/${this.isFollowing(user) ? 'unfollow' : 'follow'}/${user.id}`;
-      const token = localStorage.getItem('token');
-
-      try {
-        await axios.post(
-          url,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: 'application/json',
-            },
-          }
-        );
-
-        this.loadFollowing(); // Recarga la lista para reflejar los cambios
-        this.loadFollowers(); // Recarga la lista para reflejar los cambios
-
-
-
-      } catch (error) {
-        console.error(this.isFollowing(user) ? 'Error unfollowing user:' : 'Error following user:', error);
-      }
-
-    },
-
-    // Nueva función para obtener los detalles completos de una película usando el título
-    async fetchMovieDetails(title) {
-      try {
-        const movieResponse = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
-        return movieResponse.data; // Devuelve los detalles completos de la película
-      } catch (error) {
-        console.error(`Error al obtener detalles de la película "${title}":`, error);
-        return null; // Retorna null si hay un error
-      }
-    },
-
-    async loadFollowers() {
-      // Obtener la lista de seguidores
-      const url = `${API_BASE_URL}/users/followers/${localStorage.getItem('user_id')}`;
-
-      // Make the GET request
-      axios.get(url, {
-        headers: {
-          'accept': 'application/json'
-        }
-      })
-        .then(response => {
-          // Handle the response
-          this.followers = response.data;
-          if (this.popupTitle === 'Followers') {
-            this.popupList = this.followers;
-          }
-          else {
-            this.popupList = this.following;
-          }
-
-        })
-        .catch(error => {
-          // Handle the error
-          console.error('Error occurred:', error);
-        });
-
-    },
-
-    async loadFollowing() {
-      // Obtener la lista de seguidos
-      const url = `${API_BASE_URL}/users/followed/${localStorage.getItem('user_id')}`;
-
-      // Make the GET request
-      axios.get(url, {
-        headers: {
-          'accept': 'application/json'
-        }
-      })
-        .then(response => {
-          // Handle the response
-          this.following = response.data;
-          if (this.popupTitle === 'Following') {
-            this.popupList = this.following;
-          }
-          else {
-            this.popupList = this.followers;
-          }
-
-
-        })
-        .catch(error => {
-          // Handle the error
-          console.error('Error occurred:', error);
-        });
-
-    },
-
-    loadMovies() {
-
-      // Cargar las películas liked , rated y wished
+      // Solicitar datos del usuario
       axios
-        .get(`${API_BASE_URL}/movies/liked_list/${this.userData.id}`)
+        .get(`${API_BASE_URL}/users/email/${userEmail}`)
         .then((response) => {
-          const likedMoviesTitles = response.data; // Listado de películas con like
+          this.userData = response.data;
 
-          // Obtener detalles completos de las películas liked
-          const likedMoviesDetails = Promise.all(
-            likedMoviesTitles.map(async (movieTitle) => {
-              const movieData = await this.fetchMovieDetails(movieTitle);
-              return movieData ? generateMovieObject(movieData) : null;
-            })
-          );
+          // Actualizar el estado de `isPremium` desde los datos recibidos
+          this.isPremium = response.data.is_premium;
 
-          // Obtener las películas valoradas
-          axios
-            .get(`${API_BASE_URL}/movies/rated_list/${this.userData.id}`)
-            .then((response) => {
-              const ratedMoviesList = response.data;
-
-              const ratedMoviesDetails = Promise.all(
-                ratedMoviesList.map(async (movie) => {
-                  const movieData = await this.fetchMovieDetails(movie.title);
-                  return movieData
-                    ? generateMovieObject(movieData, movie.rating)
-                    : null;
-                })
-              );
-
-              // Obtener las películas wishlist
-              axios
-                .get(`${API_BASE_URL}/movies/wished_list/${this.userData.id}`)
-                .then((response) => {
-                  const wishedMoviesList = response.data;
-
-                  const wishedMoviesDetails = Promise.all(
-                    wishedMoviesList.map(async (movieTitle) => {
-                      const movieData = await this.fetchMovieDetails(movieTitle);
-                      return movieData ? generateMovieObject(movieData) : null;
-                    })
-                  );
-
-                  // Esperamos a que todas las promesas se resuelvan
-                  Promise.all([likedMoviesDetails, ratedMoviesDetails, wishedMoviesDetails])
-                    .then(([likedMovies, ratedMovies, wishedMovies]) => {
-                      // Filtramos los valores nulos
-                      this.likedMovies = likedMovies.filter((movie) => movie !== null);
-                      this.ratedMovies = ratedMovies.filter((movie) => movie !== null);
-                      this.wishedMovies = wishedMovies.filter((movie) => movie !== null);
-
-                      this.updateDisplayedMovies();
-                    })
-                    .catch((error) => {
-                      console.error('Error al procesar las películas wished:', error);
-                    });
-                })
-                .catch((error) => {
-                  console.error('Error al obtener las películas wished:', error);
-                });
-            })
-            .catch((error) => {
-              console.error('Error al obtener las películas rated:', error);
-            });
+          // Cargar las películas valoradas, con like y en wishlist
+          this.loadMovies();
+          this.loadLists();
         })
         .catch((error) => {
-          console.error('Error al obtener las películas liked:', error);
+          console.error('Error al obtener los datos del usuario:', error);
+          this.error = 'Error fetching user data. Please try again.';
         });
+
+      // Cargar la lista de seguidores
+      this.loadFollowers();
+      this.loadFollowing();
     },
+    methods: {
 
-    toggleMovies(type) {
-        this.activeList = type; // Actualizamos la lista activa
-
-        // Actualizamos las variables para las listas predeterminadas
-        this.showRatedMovies = type === 'rated';
-        this.showFavouriteMovies = type === 'liked';
-        this.showWishlistMovies = type === 'wishlist';
-
-        // Actualizamos las películas mostradas
-        switch (type) {
-          case 'rated':
-            this.displayedMovies = this.ratedMovies;
-            break;
-          case 'liked':
-            this.displayedMovies = this.likedMovies;
-            break;
-          case 'wishlist':
-            this.displayedMovies = this.wishedMovies;
-            break;
-          default:
-            console.warn('Tipo de lista desconocido:', type);
+      isAdmin(isAdmin) {
+        if(isAdmin){
+          return 'Admin';
+        }
+        else{
+          return 'User';
         }
       },
 
-    loadLists() {
+      accountType(accType){
+        if(accType === 'public'){
+          return 'Public';
+        }
+        else if(accType === 'private'){ 
+          return 'Private';
+        }
+
+        return 'Only Followers';
+      },
+
+      scrollToRatedMovies() {
+        this.toggleMovies('rated'); // Cambiar a la vista de Rated Movies
+        this.$nextTick(() => {
+          const ratedSection = this.$refs.ratedMoviesSection;
+          if (ratedSection) {
+            ratedSection.scrollIntoView({ behavior: 'smooth' }); // Desplazamiento suave
+          }
+        });
+      },
+
+      isFollowing(user) {
+        return this.following.some(followingUser => followingUser.id === user.id);
+      },
+
+      openPopup(type) {
+        if (type === 'followers') {
+          this.popupTitle = 'Followers';
+          this.popupList = this.followers;
+        } else if (type === 'following') {
+          this.popupTitle = 'Following';
+          this.popupList = this.following;
+        }
+        this.isPopupVisible = true;
+      },
+
+      closePopup() {
+        this.isPopupVisible = false;
+      },
+
+      async toggleFollow(user) {
+        const url = `${API_BASE_URL}/users/${this.isFollowing(user) ? 'unfollow' : 'follow'}/${user.id}`;
+        const token = localStorage.getItem('token');
+        try {
+          await axios.post(
+            url,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+              },
+            }
+          );
+          this.loadFollowing(); // Recarga la lista para reflejar los cambios
+          this.loadFollowers(); // Recarga la lista para reflejar los cambios
+        } catch (error) {
+          console.error(this.isFollowing(user) ? 'Error unfollowing user:' : 'Error following user:', error);
+        }
+      },
+
+      async fetchMovieDetails(title) {
+        try {
+          const movieResponse = await axios.get(`${API_BASE_URL}/movies/title/${title}`);
+          return movieResponse.data; // Devuelve los detalles completos de la película
+        } catch (error) {
+          console.error(`Error al obtener detalles de la película "${title}":`, error);
+          return null; // Retorna null si hay un error
+        }
+      },
+
+      async loadFollowers() {
+        // Obtener la lista de seguidores
+        const url = `${API_BASE_URL}/users/followers/${localStorage.getItem('user_id')}`;
+
+        // Make the GET request
+        axios.get(url, {
+          headers: {
+            'accept': 'application/json'
+          }
+        })
+          .then(response => {
+            // Handle the response
+            this.followers = response.data;
+            if (this.popupTitle === 'Followers') {
+              this.popupList = this.followers;
+            }
+            else {
+              this.popupList = this.following;
+            }
+
+          })
+          .catch(error => {
+            // Handle the error
+            console.error('Error occurred:', error);
+          });
+
+      },
+
+      async loadFollowing() {
+        // Obtener la lista de seguidos
+        const url = `${API_BASE_URL}/users/followed/${localStorage.getItem('user_id')}`;
+
+        // Make the GET request
+        axios.get(url, {
+          headers: {
+            'accept': 'application/json'
+          }
+        })
+          .then(response => {
+            // Handle the response
+            this.following = response.data;
+            if (this.popupTitle === 'Following') {
+              this.popupList = this.following;
+            }
+            else {
+              this.popupList = this.followers;
+            }
+
+
+          })
+          .catch(error => {
+            // Handle the error
+            console.error('Error occurred:', error);
+          });
+
+      },
+
+
+      loadMovies() {
+        // Cargar las películas liked, rated y wished
+        axios
+          .get(`${API_BASE_URL}/movies/liked_list/${this.userData.id}`)
+          .then((response) => {
+            const likedMoviesTitles = response.data;
+
+            const likedMoviesDetails = Promise.all(
+              likedMoviesTitles.map(async (movieTitle) => {
+                const movieData = await this.fetchMovieDetails(movieTitle);
+                return movieData ? generateMovieObject(movieData) : null;
+              })
+            );
+
+            // Obtener las películas valoradas
+            axios
+              .get(`${API_BASE_URL}/movies/rated_list/${this.userData.id}`)
+              .then((response) => {
+                const ratedMoviesList = response.data;
+
+                const ratedMoviesDetails = Promise.all(
+                  ratedMoviesList.map(async (movie) => {
+                    const movieData = await this.fetchMovieDetails(movie.title);
+                    return movieData
+                      ? generateMovieObject(movieData, movie.rating)
+                      : null;
+                  })
+                );
+
+                // Obtener las películas wishlist
+                axios
+                  .get(`${API_BASE_URL}/movies/wished_list/${this.userData.id}`)
+                  .then((response) => {
+                    const wishedMoviesList = response.data;
+
+                    const wishedMoviesDetails = Promise.all(
+                      wishedMoviesList.map(async (movieTitle) => {
+                        const movieData = await this.fetchMovieDetails(movieTitle);
+                        return movieData ? generateMovieObject(movieData) : null;
+                      })
+                    );
+
+                    Promise.all([likedMoviesDetails, ratedMoviesDetails, wishedMoviesDetails])
+                      .then(([likedMovies, ratedMovies, wishedMovies]) => {
+                        this.likedMovies = likedMovies.filter((movie) => movie !== null);
+                        this.ratedMovies = ratedMovies.filter((movie) => movie !== null);
+                        this.wishedMovies = wishedMovies.filter((movie) => movie !== null);
+
+                        this.updateDisplayedMovies();
+                      })
+                      .catch((error) => {
+                        console.error('Error al procesar las películas wished:', error);
+                      });
+                  })
+                  .catch((error) => {
+                    console.error('Error al obtener las películas wished:', error);
+                  });
+              })
+              .catch((error) => {
+                console.error('Error al obtener las películas rated:', error);
+              });
+          })
+          .catch((error) => {
+            console.error('Error al obtener las películas liked:', error);
+          });
+      },
+
+      loadLists() {
         if (!this.userData) {
           console.error('Error: No se han cargado los datos del usuario.');
           return;
@@ -649,6 +606,31 @@ export default {
       },
 
 
+      toggleMovies(type) {
+        this.activeList = type; // Actualizamos la lista activa
+
+        // Actualizamos las variables para las listas predeterminadas
+        this.showRatedMovies = type === 'rated';
+        this.showFavouriteMovies = type === 'liked';
+        this.showWishlistMovies = type === 'wishlist';
+
+        // Actualizamos las películas mostradas
+        switch (type) {
+          case 'rated':
+            this.displayedMovies = this.ratedMovies;
+            break;
+          case 'liked':
+            this.displayedMovies = this.likedMovies;
+            break;
+          case 'wishlist':
+            this.displayedMovies = this.wishedMovies;
+            break;
+          default:
+            console.warn('Tipo de lista desconocido:', type);
+        }
+      },
+
+
       updateDisplayedMovies() {
         this.displayedMovies = this.showRatedMovies
           ? this.ratedMovies
@@ -678,47 +660,37 @@ export default {
         }
       },
 
-    // Función para hacer "unrate"
-    async unrateMovie(movieId) {
-      try {
-        // Enviar solicitud para "unrate" la película
-        await axios.post(`${API_BASE_URL}/movies/unrate/${movieId}/${this.userData.id}`);
+      async unrateMovie(movieId) {
+        try {
+          await axios.post(`${API_BASE_URL}/movies/unrate/${movieId}/${this.userData.id}`);
+          this.ratedMovies = this.ratedMovies.filter((movie) => movie.id !== movieId);
+          this.updateDisplayedMovies();
+        } catch (error) {
+          console.error('Error al descalificar la película:', error);
+        }
+      },
 
-        // Actualizar la lista de películas valoradas (eliminando la película)
-        this.ratedMovies = this.ratedMovies.filter(movie => movie.id !== movieId);
-        this.updateDisplayedMovies();
-      } catch (error) {
-        console.error('Error disqualifying the movie:', error);
-      }
-    },
+      async dislikeMovie(movieId) {
+        try {
+          await axios.post(`${API_BASE_URL}/movies/dislike/${movieId}/${this.userData.id}`);
+          this.likedMovies = this.likedMovies.filter((movie) => movie.id !== movieId);
+          this.updateDisplayedMovies();
+        } catch (error) {
+          console.error('Error al marcar la película como dislike:', error);
+        }
+      },
 
-    // Función para hacer "dislike"
-    async dislikeMovie(movieId) {
-      try {
-        // Enviar solicitud para "dislike" la película
-        await axios.post(`${API_BASE_URL}/movies/dislike/${movieId}/${this.userData.id}`);
+      async removeFromWishlist(movieId) {
+        try {
+          await axios.post(`${API_BASE_URL}/movies/nowish/${movieId}/${this.userData.id}`);
+          this.wishedMovies = this.wishedMovies.filter((movie) => movie.id !== movieId);
+          this.updateDisplayedMovies();
+        } catch (error) {
+          console.error('Error al eliminar la película de la wishlist:', error);
+        }
+      },
 
-        // Actualizar la lista de películas favoritas (eliminando la película)
-        this.likedMovies = this.likedMovies.filter(movie => movie.id !== movieId);
-        this.updateDisplayedMovies();
-      } catch (error) {
-        console.error('Error al marcar la película como dislike:', error);
-      }
-    },
-
-    async removeFromWishlist(movieId) {
-      try {
-        await axios.post(`${API_BASE_URL}/movies/nowish/${movieId}/${this.userData.id}`);
-        // Actualizamos la lista de wishedMovies
-        this.wishedMovies = this.wishedMovies.filter((movie) => movie.id !== movieId);
-        this.updateDisplayedMovies();
-      } catch (error) {
-        console.error('Error al eliminar la película de la wishlist:', error);
-      }
-    },
-
-  },
-  async removeMovieFromDynamicList(movieId) {
+      async removeMovieFromDynamicList(movieId) {
         try {
           // Llamada al endpoint para eliminar de la lista activa
           const response = await axios.delete(
@@ -883,187 +855,191 @@ export default {
         this.closeDeleteModal(); // Cierra el modal después de eliminar
       },
       
-    }
+    },
+
+
+  };
 </script>
 
 
 
 
 <style scoped>
-/* Estilo general de la página */
-.profile-page {
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  background-image: url('@/assets/fondo_login.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: -1;
-}
-
-/* Capa negra con opacidad */
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1;
-}
-
-
-/* Contenedor principal */
-.main-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80vh;
-  padding: 20px;
-  z-index: 10;
-}
-
-/* Caja del perfil */
-.profile-box {
-  position: relative;
-  flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
-  padding: 20px;  /* Reducido el padding para que se adapte mejor en pantallas pequeñas */
-  border-radius: 10px;
-  width: 100%; /* Usamos el 100% del ancho disponible */
-  max-width: 1000px; /* Limita el ancho máximo */
-  min-width: 300px; /* Permite que el contenedor se haga pequeño en pantallas muy pequeñas */
-  height: auto; /* La altura se ajustará según el contenido */
-  min-height: 300px; /* Se asegura que el contenedor no se haga demasiado pequeño */
-  color: white;
-  z-index: 20;
-  box-shadow: 0 10px 30px rgba(179, 219, 240, 0.5);
-
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño del contenedor */
-  overflow: hidden; /* Evita que los elementos se salgan del contenedor */
-
-  display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center; /* Centra verticalmente (si es necesario) */
-}
-
-/* Contenido del perfil (imagen + info) */
-.profile-content {
-  display: flex; /* Disposición horizontal de los contenedores en pantallas grandes */
-  flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea si es necesario */
-  gap: 0px; /* Espacio entre los elementos */
-  box-sizing: border-box;
-  width: 100%;
-
-  background-color: transparent;
-}
-
-/* Estilo de la imagen de perfil */
-.profile-image {
-  flex: 1; /* Ocupa la mitad del contenedor */
-  min-width: 250px; /* Ancho mínimo para la imagen */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column; /* Apilar los elementos de arriba hacia abajo */
-  padding-right: 50px;
-  background-color: transparent;
-  position: relative; /* Necesario para el posicionamiento absoluto dentro */
-  width: 100%;
-  gap: 0px;  
-}
-.profile-image-image {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%; /* Asegura que la imagen ocupe todo el ancho de su contenedor */
-  flex: 0 0 65%; /* El contenedor de la imagen ocupa el 65% del espacio de profile-image */
-  margin-bottom: 10px;
-
-  background-color: transparent;
-}
-
-.profile-image-image img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 0px solid white;
-  object-fit: cover;
-}
-
-.extra-info {
-  display: flex;
-  justify-content: space-evenly; /* Distribuye los elementos horizontalmente */
-  align-items: center; /* Centra los elementos verticalmente */
-  flex: 0 0 35%; /* El contenedor extra-info ocupa el 35% restante del espacio */
-  padding: 2vh;
-  background-color: transparent;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.info-follow {
-  width: 25%; /* Los elementos de info-follow ocupan un 25% del espacio cada uno */
-  height: 9vh;
-  padding: 2vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 20px;
-  background: rgba(0, 0, 0, 0.8);
-  background: linear-gradient(135deg, rgb(48, 47, 47), rgba(0, 0, 0, 0.8));
-  border-radius: 10%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  transition: transform 0.3s ease;
+  /* Estilo general de la página */
+  .profile-page {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-image: url('@/assets/fondo_login.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+  }
   
-}
+  /* Capa negra con opacidad */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+  
+  
+  /* Contenedor principal */
+  .main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    padding: 20px;
+    z-index: 10;
+  }
+  
+  /* Caja del perfil */
+  .profile-box {
+    position: relative;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    padding: 20px;  /* Reducido el padding para que se adapte mejor en pantallas pequeñas */
+    border-radius: 10px;
+    width: 100%; /* Usamos el 100% del ancho disponible */
+    max-width: 1000px; /* Limita el ancho máximo */
+    min-width: 300px; /* Permite que el contenedor se haga pequeño en pantallas muy pequeñas */
+    height: auto; /* La altura se ajustará según el contenido */
+    min-height: 300px; /* Se asegura que el contenedor no se haga demasiado pequeño */
+    color: white;
+    z-index: 20;
+    box-shadow: 0 10px 30px rgba(179, 219, 240, 0.5);
 
-.info-follow:hover {
-  transform: scale3d(1.1, 1.1, 1.1);
-}
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box; /* Asegura que el padding no afecte el tamaño del contenedor */
+    overflow: hidden; /* Evita que los elementos se salgan del contenedor */
+
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente (si es necesario) */
+  }
+  
+  /* Contenido del perfil (imagen + info) */
+  .profile-content {
+    display: flex; /* Disposición horizontal de los contenedores en pantallas grandes */
+    flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea si es necesario */
+    gap: 0px; /* Espacio entre los elementos */
+    box-sizing: border-box;
+    width: 100%;
+
+    background-color: transparent;
+  }
+  
+  /* Estilo de la imagen de perfil */
+  .profile-image {
+    flex: 1; /* Ocupa la mitad del contenedor */
+    min-width: 250px; /* Ancho mínimo para la imagen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Apilar los elementos de arriba hacia abajo */
+    padding-right: 50px;
+    background-color: transparent;
+    position: relative; /* Necesario para el posicionamiento absoluto dentro */
+    width: 100%;
+    gap: 0px;  
+  }
+  
+  .profile-image-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Asegura que la imagen ocupe todo el ancho de su contenedor */
+    flex: 0 0 65%; /* El contenedor de la imagen ocupa el 65% del espacio de profile-image */
+    margin-bottom: 10px;
+
+    background-color: transparent;
+  }
+
+  .profile-image-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 0px solid white;
+    object-fit: cover;
+  }
+
+  .extra-info {
+    display: flex;
+    justify-content: space-evenly; /* Distribuye los elementos horizontalmente */
+    align-items: center; /* Centra los elementos verticalmente */
+    flex: 0 0 35%; /* El contenedor extra-info ocupa el 35% restante del espacio */
+    padding: 2vh;
+    background-color: transparent;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .info-follow {
+    width: 25%; /* Los elementos de info-follow ocupan un 25% del espacio cada uno */
+    height: 9vh;
+    padding: 2vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 20px;
+    background: rgba(0, 0, 0, 0.8);
+    background: linear-gradient(135deg, rgb(48, 47, 47), rgba(0, 0, 0, 0.8));
+    border-radius: 10%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    
+  }
+
+  .info-follow:hover {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
 
 
-.profile-image img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 0px solid white;
-  object-fit: cover;
-}
+  .profile-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 0px solid white;
+    object-fit: cover;
+  }
+  
+  /* Estilo de la información del perfil */
+  .profile-info {
+    flex: 1; /* Ocupa la mitad del contenedor */
+    min-width: 250px; /* Ancho mínimo para la información */
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 20px;
+    text-align: center;
 
-/* Estilo de la información del perfil */
-.profile-info {
-  flex: 1; /* Ocupa la mitad del contenedor */
-  min-width: 250px; /* Ancho mínimo para la información */
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  gap: 20px;
-  text-align: center;
+    background-color: transparent;
+  }
 
-  background-color: transparent;
-}
-
-.profile-info p {
-  margin-bottom: 60px;
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-.profile-info strong {
-  font-weight: bold;
-  color: #ffffff;
-}
-
-.profile-info span {
-  display: block;
-  color: #dcdcdc;
-  font-size: 16px;
-}
+  .profile-info p {
+    margin-bottom: 60px;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  
+  .profile-info strong {
+    font-weight: bold;
+    color: #ffffff;
+  }
+  
+  .profile-info span {
+    display: block;
+    color: #dcdcdc;
+    font-size: 16px;
+  }
 
 /* Fondo del modal */
 /* Fondo del modal */
@@ -1071,7 +1047,7 @@ export default {
   width: 100%;
   align-items: center;
   justify-content: space-between;
-
+  
 }
 
 /* Contenido del modal */
@@ -1100,8 +1076,7 @@ h2 {
   font-size: 1.5em;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 15px;
-  /* Separación con los comentarios */
+  margin-bottom: 15px; /* Separación con los comentarios */
 }
 
 /* Lista de comentarios */
@@ -1185,8 +1160,7 @@ h2 {
 }
 
 .close-modal-btn:hover {
-  background-color: #d32f2f;
-  /* Cambiar color al pasar el mouse */
+  background-color: #d32f2f; /* Cambiar color al pasar el mouse */
 }
 
 
@@ -1195,9 +1169,9 @@ h2 {
 
 
 
-
-/* Botones de acción */
-.add-btn,
+  
+  /* Botones de acción */
+  .add-btn,
 .modify-btn,
 .report-comments-btn {
   width: 150px;
@@ -1214,7 +1188,7 @@ h2 {
   text-align: center;
   background-color: #0f0f0f;
 }
-
+  
 .btns-div {
   display: flex;
   justify-content: center;
@@ -1247,40 +1221,61 @@ h2 {
 }
 
 .movies-header {
-  position: absolute;
-  top: px;
-  /* 20px desde la parte superior */
-  right: 363px;
-  /* 20px desde la izquierda */
-  display: flex;
-  /* Los botones en fila */
-  margin: 0 auto;
   position: relative;
+  display: flex;
+  top: px; /* 20px desde la parte superior */
+  margin: 0 auto;
   margin-top: 20px;
   z-index: 5;
-
+  align-items: left; /* Alinea los botones verticalmente */
 }
 
-/* Estilo base de los botones */
-.movies-header button {
+.default-buttons {
+  display: flex;
+  gap: 0px;
+  margin-right: 0px; /* Espacio entre los botones predeterminados y los nuevos */
+  align-items: center; /* Alinea los botones verticalmente */
+  max-width: 500px;  /* Cambia este valor según el tamaño que desees */
+  flex-shrink: 0; /* Esto evita que los botones se reduzcan de tamaño */
+}
+
+.default-buttons button {
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.2);
-  /* Fondo inicial transparente */
-  color: white;
-  /* Texto blanco por defecto */
+  background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
+  color: white; /* Texto blanco por defecto */
   border: none;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   border-bottom: 2px solid transparent;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.3s ease;
-  /* Suavizar transiciones */
-  margin-right: 2px;
-  /* Separación entre botones */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Sombra sutil */
+  transition: all 0.3s ease; /* Suavizar transiciones */
+  margin-right: 2px; /* Separación entre botones */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }
+
+.add-new-list-btn {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
+  color: white; /* Texto blanco por defecto */
+  border: none;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease; /* Suavizar transiciones */
+  margin-right: 2px; /* Separación entre botones */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+/* Efecto hover */
+.add-new-list-btn:hover {
+  background: #95e06f; /* Azul más claro cuando se pasa el ratón */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más intensa para el hover */
+  transform: translateY(-2px); /* Eleva el botón al pasar el ratón */
+}
+
 
 /* El último botón no tiene margen derecho */
 .movies-header button:last-child {
@@ -1293,41 +1288,28 @@ h2 {
 
 /* Estilo para el botón activo */
 .movies-header button.active {
-  background: #4a90e2;
-  /* Azul más fuerte para el fondo */
-  color: white;
-  /* Texto blanco para mejor contraste */
+  background: #4a90e2; /* Azul más fuerte para el fondo */
+  color: white; /* Texto blanco para mejor contraste */
   border-bottom: none;
   position: relative;
-  z-index: 10;
-  /* Asegura que el botón activo se quede encima de los demás */
-  box-shadow: 0 0 20px rgba(74, 144, 226, 0.8), 0 0 15px rgba(0, 0, 0, 0.3);
-  /* Sombra azulada */
-  transform: translateY(-4px);
-  /* Eleva el botón ligeramente */
-  text-shadow: 0 0 10px rgba(74, 144, 226, 0.8), 0 0 20px rgba(74, 144, 226, 0.8), 0 0 40px rgba(74, 144, 226, 1);
-  /* Resplandor azul */
+  z-index: 10; /* Asegura que el botón activo se quede encima de los demás */
+  box-shadow: 0 0 20px rgba(74, 144, 226, 0.8), 0 0 15px rgba(0, 0, 0, 0.3); /* Sombra azulada */
+  transform: translateY(-4px); /* Eleva el botón ligeramente */
+  text-shadow: 0 0 10px rgba(74, 144, 226, 0.8), 0 0 20px rgba(74, 144, 226, 0.8), 0 0 40px rgba(74, 144, 226, 1); /* Resplandor azul */
 }
 
 /* Efecto hover */
-.movies-header button:hover {
-  background: #6fa3e0;
-  /* Azul más claro cuando se pasa el ratón */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  /* Sombra más intensa para el hover */
-  transform: translateY(-2px);
-  /* Eleva el botón al pasar el ratón */
+.default-buttons button:hover {
+  background: #6fa3e0; /* Azul más claro cuando se pasa el ratón */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más intensa para el hover */
+  transform: translateY(-2px); /* Eleva el botón al pasar el ratón */
 }
 
 .movies-header button.active:hover {
-  background: #3879c0;
-  /* Azul aún más oscuro para hover cuando está activo */
-  box-shadow: 0 0 30px rgba(74, 144, 226, 1), 0 0 40px rgba(0, 0, 0, 0.4);
-  /* Brillo más fuerte */
-  transform: translateY(-6px);
-  /* Aumenta el efecto de elevación */
-  text-shadow: 0 0 15px rgba(74, 144, 226, 1), 0 0 30px rgba(74, 144, 226, 1), 0 0 50px rgba(74, 144, 226, 1);
-  /* Brillo azul más intenso */
+  background: #3879c0; /* Azul aún más oscuro para hover cuando está activo */
+  box-shadow: 0 0 30px rgba(74, 144, 226, 1), 0 0 40px rgba(0, 0, 0, 0.4); /* Brillo más fuerte */
+  transform: translateY(-6px); /* Aumenta el efecto de elevación */
+  text-shadow: 0 0 15px rgba(74, 144, 226, 1), 0 0 30px rgba(74, 144, 226, 1), 0 0 50px rgba(74, 144, 226, 1); /* Brillo azul más intenso */
 }
 
 /* Estilos para el contenedor de botones personalizados (listas nuevas) */
@@ -1370,7 +1352,7 @@ margin-left: 0;
 }
 
 
-
+  
 /* Contenedor de la lista de películas */
 .movies-list {
   display: grid;
@@ -1381,13 +1363,14 @@ margin-left: 0;
   min-height: 375px;
   padding: 15px;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.2);
+  background:rgba(255, 255, 255, 0.2);
   border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
   z-index: 5;
 }
 
 .movie-item {
-  position: relative;
+  position: relative; 
   width: 250px;
   height: 350px;
   display: flex;
@@ -1453,49 +1436,27 @@ margin-left: 0;
 
 /* Media Queries */
 @media (max-width: 768px) {
-  
+  .profile-box {
+    width: 90%;
+    height: auto;
+    padding: 20px;
+  }
 
   .profile-content {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 10px; 
   }
 
-  .profile-image {
-    width: 80%; /* Ocupa el 80% en pantallas más pequeñas */
-    min-width: 120px;
-    padding-right: 20px;
-  }
-
-  .profile-info {
-    width: 80%; /* Ocupa el 80% en pantallas más pequeñas */
-    min-width: 150px;
-    
+  .profile-image img {
+    width: 120px;
+    height: 120px;
   }
 
   .btns-div {
-    position: static; /* Cambiar de absoluto a normal para que no se solape */
-    display: flex;
-    justify-content: center;
+    flex-direction: column;
     gap: 10px;
-    margin-top: 20px; /* Separar botones de los otros contenedores */
-  }
-  .btns-div {
-    width: 80%; /* Ocupa el 80% en pantallas pequeñas */
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px; /* Separar botones de los otros contenedores */
-    margin-bottom: 20px; /* Asegurar que haya espacio en la parte inferior */
-  }
-  .btns-div {
-    display: flex;
-    flex-direction: row; /* Los botones estarán en fila */
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px; /* Espacio entre los botones y el contenido superior */
-    margin-bottom: 20px; /* Asegura que haya espacio en la parte inferior */
+    bottom: 1rem;
   }
 
   .movies-list {
@@ -1523,20 +1484,12 @@ margin-left: 0;
     padding: 5px;
     font-size: 12px;
   }
-  .extra-info {
-    flex-direction: column; /* Los items se apilan verticalmente en pantallas pequeñas */
-    align-items: center; /* Centra los items */
-    padding: 5vh 2vw; /* Ajuste del padding para pantallas pequeñas */
-  }
-
-  .info-follow {
-    width: 80%; /* Los items ocupan el 80% del contenedor en pantallas pequeñas */
-    margin-bottom: 10px; /* Espacio entre los elementos */
-  }
 }
 
 @media (max-width: 480px) {
-  
+  .profile-box {
+    padding: 10px;
+  }
 
   .movies-header button {
     padding: 8px 15px;
@@ -1623,60 +1576,6 @@ margin-left: 0;
   transition-duration: 0.3s;
 }
 
-
-.user-image-popup {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.user-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: none;
-  border-radius: 8px;
-  background-color: #0f0f0f;
-}
-
-.user-name {
-  flex: 1;
-  font-size: 16px;
-  font-weight: bold;
-  color: rgb(255, 255, 255);
-  margin-right: 10px;
-}
-
-.user-name-popup {
-    font-size: 16px;
-    font-weight: bold;
-    color: rgb(255, 255, 255);
-    margin-right: 10px;
-    text-decoration: none;
-    flex:1;
-    
-}
-
-.user-name-popup:hover {
-    text-decoration: underline;
-}
-
-
-.follow-btn {
-  background-color: #5d0d92;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.follow-btn:hover {
-  background-color: #2d0349;
-}
 
 
 .Btn {
@@ -1963,4 +1862,60 @@ margin-left: 0;
 .modal-content-premium button:hover {
   background-color: #0056b3;
 }
+
+.user-image-popup {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0f0f0f;
+}
+
+.user-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: bold;
+  color: rgb(255, 255, 255);
+  margin-right: 10px;
+}
+
+.user-name-popup {
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+    margin-right: 10px;
+    text-decoration: none;
+    flex:1;
+    
+}
+
+.user-name-popup:hover {
+    text-decoration: underline;
+}
+
+
+.follow-btn {
+  background-color: #5d0d92;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.follow-btn:hover {
+  background-color: #2d0349;
+}
+
+
 </style>
