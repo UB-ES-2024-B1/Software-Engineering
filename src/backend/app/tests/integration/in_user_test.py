@@ -2,9 +2,14 @@ from fastapi.testclient import TestClient
 from app.main import app  # Ensure the import is correct
 from app.models import User
 from app.api.dependencies import get_current_user
-
+from app.api.routes.user_routes import is_admin_user
 client = TestClient(app)
 
+
+
+# Simulate an admin user being authenticated
+def mock_is_admin_user():
+        return True  
 
 # Mock user for authentication
 def mock_get_current_user(user_id):
@@ -357,3 +362,157 @@ def test_follow_unfollow_non_existent_users_and_delete():
     # Ensure User 1 cannot be retrieved
     get_deleted_user_1 = client.get(f"/users/email/{user_1['email']}")
     assert get_deleted_user_1.status_code == 404
+
+
+def test_create_user_add_movie_and_manage_list():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
+    # Create a premium user
+    premium_user = {
+        "email": "premiumuser@example.com",
+        "is_active": True,
+        "is_premium": True,
+        "full_name": "Premium User",
+        "password": "password123"
+    }
+    client.post("/users/", json=premium_user)
+
+    # Create a movie
+    new_movie = {
+        "title": "The Lost City",
+        "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
+        "director": "Sarah Connors",
+        "country": "United States",
+        "release_date": "2024-10-26",
+        "rating": 4.2,
+        "rating_count": 12500,
+        "likes": 5200,
+        "genres": ["Adventure", "Thriller"],
+        "cast_members": ["John Doe", "Jane Smith", "Mike Johnson"],
+        "image": [],
+        "trailer": ""
+    }
+    movie_response = client.post("/movies/", json=new_movie)
+    assert movie_response.status_code == 200
+
+    # Create a list for the user
+    list_type_data = {"name": "Watch Later"}
+    response = client.post(f"/list-type/{premium_user['email']}/{list_type_data['name']}")
+    assert response.status_code == 201
+    assert response.json()["name"] == list_type_data["name"]
+
+    # Add the movie to the list
+    movie_data = movie_response.json()
+    response2 = client.post(f"/list-type/add-movie/{premium_user['email']}/{list_type_data['name']}/{movie_data['id']}")
+    assert response2.status_code == 200
+    assert response2.json()["movie_id"] == movie_data['id']
+
+    # Get the list by its name and check the movie
+    response3 = client.get(f"/list-type/movies/{premium_user['email']}/{list_type_data['name']}")
+    assert response3.status_code == 200
+    assert response3.json() == ["The Lost City"]  # Movie should be in the list
+
+    # Get the user's list with movies
+    response4 = client.get(f"/list-type/get-lists-with-movies/{premium_user['email']}")
+    assert response4.status_code == 200
+    lists_with_movies = response4.json()
+    assert len(lists_with_movies) == 1
+    assert lists_with_movies[0]["list_name"] == "Watch Later"
+    assert len(lists_with_movies[0]["movies"]) == 1
+    assert lists_with_movies[0]["movies"][0]["title"] == "The Lost City"
+
+    # Remove the movie from the list
+    response5 = client.delete(f"/list-type/remove-movie/{premium_user['email']}/{list_type_data['name']}/{movie_data['id']}")
+    assert response5.status_code == 200
+    assert response5.json() == {"detail": f"Movie ID {movie_data['id']} removed from list '{list_type_data['name']}'."}
+
+    # Delete the list
+    response6 = client.delete(f"/list-type/{premium_user['email']}/{list_type_data['name']}")
+    assert response6.status_code == 200
+    assert response6.json() == {"detail": f"List '{list_type_data['name']}' deleted successfully."}
+
+    # Delete the user
+    response7 = client.delete(f"/users/email/{premium_user['email']}")
+    assert response7.status_code == 200
+
+    # Delete the movie
+    response8 = client.delete(f"/movies/title/{new_movie['title']}")
+    assert response8.status_code == 200
+
+def test_non_premium_user_try_create_list_and_movie_operations():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
+    # Create a non-premium user
+    non_premium_user = {
+        "email": "nonpremiumuser@example.com",
+        "is_active": True,
+        "is_premium": False,
+        "full_name": "Non-Premium User",
+        "password": "password123"
+    }
+    client.post("/users/", json=non_premium_user)
+
+    # Create a movie
+    new_movie = {
+        "title": "The Lost City",
+        "description": "A renowned archaeologist stumbles upon a hidden city filled with secrets, leading to a thrilling adventure across uncharted lands.",
+        "director": "Sarah Connors",
+        "country": "United States",
+        "release_date": "2024-10-26",
+        "rating": 4.2,
+        "rating_count": 12500,
+        "likes": 5200,
+        "genres": ["Adventure", "Thriller"],
+        "cast_members": ["John Doe", "Jane Smith", "Mike Johnson"],
+        "image": [],
+        "trailer": ""
+    }
+    movie_response = client.post("/movies/", json=new_movie)
+    assert movie_response.status_code == 200
+
+    # Non-premium user tries to create a list
+    list_type_data = {"name": "Watch Later"}
+    response = client.post(f"/list-type/{non_premium_user['email']}/{list_type_data['name']}")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "User not found or unable to create list"
+
+    # Step 4: Delete the non-premium user
+    response2 = client.delete(f"/users/email/{non_premium_user['email']}")
+    assert response2.status_code == 200
+
+    # Create a premium user
+    premium_user = {
+        "email": "premiumuser@example.com",
+        "is_active": True,
+        "is_premium": True,
+        "full_name": "Premium User",
+        "password": "password123"
+    }
+    client.post("/users/", json=premium_user)
+
+    # Create a list with the premium user
+    list_type_data = {"name": "Watch Later"}
+    response3 = client.post(f"/list-type/{premium_user['email']}/{list_type_data['name']}")
+    assert response3.status_code == 201
+    assert response3.json()["name"] == list_type_data["name"]
+
+    # Try to add a movie that doesn't exist to the list
+    response4 = client.post(f"/list-type/add-movie/{premium_user['email']}/{list_type_data['name']}/9999")
+    assert response4.status_code == 404
+    assert response4.json() == {"detail": "Movie not found"}
+
+    # Try to add the movie to a non-existing list
+    response5 = client.post(f"/list-type/add-movie/{premium_user['email']}/NonExistentList/{movie_response.json()['id']}")
+    assert response5.status_code == 404
+    assert response5.json() == {"detail": "List not found"}
+
+    # Delete the list
+    response6 = client.delete(f"/list-type/{premium_user['email']}/{list_type_data['name']}")
+    assert response6.status_code == 200
+    assert response6.json() == {"detail": f"List '{list_type_data['name']}' deleted successfully."}
+
+    # Delete the movie
+    response7 = client.delete(f"/movies/title/{new_movie['title']}")
+    assert response7.status_code == 200
+
+    # Delete the premium user
+    response8 = client.delete(f"/users/email/{premium_user['email']}")
+    assert response8.status_code == 200
