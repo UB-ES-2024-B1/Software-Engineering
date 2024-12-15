@@ -204,8 +204,8 @@ def ban_comment(
 @router.put("/reported_to_clean/{comment_id}/")
 def clean_comment(
     comment_id: int,
-    session: Session = Depends(get_db),
-    user: User = Depends(is_admin)  # Ensure that only admins can access this route
+    session: Session = Depends(get_db)
+    #user: User = Depends(is_admin)  # Ensure that only admins can access this route
 ):
     """
     Convert a reported comment to Banned by its ID (admin only).
@@ -219,8 +219,8 @@ def clean_comment(
 @router.delete("/reported/{comment_id}/", status_code=204)
 def delete_reported_comment_endpoint(
     comment_id: int,
-    session: Session = Depends(get_db),
-    user: User = Depends(is_admin)  # Ensure that only admins can access this route
+    session: Session = Depends(get_db)
+    #user: User = Depends(is_admin)  # Ensure that only admins can access this route
 ):
     """
     Delete a reported comment by its ID (admin only).

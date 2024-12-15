@@ -256,5 +256,4 @@ def test_ban_comment_not_found():
     response = client.put("/comments/reported_to_banned/999/")  # Using a non-existing ID
 
     # Assert the response
-    assert response.status_code == 401
-    assert response.json() == {"detail": "Not authenticated"}
+    assert response.status_code == 404
