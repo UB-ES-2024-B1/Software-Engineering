@@ -65,7 +65,7 @@
                       <div class="dropdown">
                         <button class="dropdown-button" @click="toggleDropdown(index)">{{ comment.state}}</button>
                         <ul v-if="dropdowns[index]" class="dropdown-menu">
-                          <li v-for="possibleState in possibleCommentsSates" :key="possibleState"  @click="selectState(possibleState)"
+                          <li v-for="possibleState in possibleCommentsSates" :key="possibleState"  @click="handleChangeOfState(possibleState, index, comment.id)"
                               class="dropdown-item">
                                 {{possibleState }}
                           </li>
@@ -76,9 +76,9 @@
 
                   <!-- Modal de Confirmación -->
                   <div v-if="showConfirmation && selectedIndex === index" class="confirmation-modal">
-                    <p>Are you sure you want to mark this comment as {{ selectedOption }}?</p>
-                    <button @click="applyStateChange(index)" class="confirm-btn">Yes</button>
-                    <button @click="cancelStateChange" class="cancel-btn">No</button>
+                    <p>Are you sure you want to mark this comment as {{ selectedState }}?</p>
+                    <button @click="selectState(comment.id)" class="confirm-btn">Yes</button>
+                    <button @click="cancelChangeOfState" class="cancel-btn">No</button>
                   </div>
 
                   <hr />
@@ -153,7 +153,6 @@ export default {
       cancelTokenSource: null, // Para manejar la cancelación de solicitudes
 
       showConfirmation: false, // Modal de confirmación visible
-      selectedOption: '', // Opción seleccionada (CLEAN o BANNED)
       selectedIndex: null, // Índice del comentario que se está actualizando
 
       dropdowns: {} ,
@@ -339,6 +338,18 @@ export default {
     },
 
 
+    handleChangeOfState(state, index, commentId) {
+      console.log(`Selected state: ${state}, of the comment : ${commentId}`);
+      this.showConfirmation = true;
+      this.selectedIndex = index;
+      this.selectedState = state;
+      this.dropdowns[index] = false;
+    },
+    cancelChangeOfState(){
+      this.selectedIndex = null;
+      this.selectedState = '';
+      this.showConfirmation = false;
+    },
     initializeDropdowns() {
       // Llenar dropdowns con 'false' para cada comentario
       this.allReportedComments.forEach((_, index) => {
@@ -348,14 +359,35 @@ export default {
     toggleDropdown(index) {
       this.dropdowns[index] = !this.dropdowns[index];
     },
-    selectState(state, index) {
-      console.log(`Selected state: ${state}`);
-      this.selectedState = state;
-      this.dropdowns[index] = false;
-      //metode per aplicar el canvi d'estat (canviar i fer servir endpoint per fer el put)
-      this.allReportedComments[index].state = state;
+    async selectState(commentId) {
+      
+      //metode per aplicar el canvi d'estat 
+      let endpoint = '';
+      if (this.selectedState === 'BANNED') {
+        endpoint = `${API_BASE_URL}/commets/reported_to_banned/${commentId}`;
+      } else if (this.selectedState === 'CLEAN') {
+        endpoint = `${API_BASE_URL}/commets/reported_to_clean/${commentId}`;
+      }
+
+      try {
+        // Realizar la solicitud PUT al endpoint del backend
+        await axios.put(endpoint, null, {
+          headers: {
+            accept: 'application/json',
+          },
+        });
+
+        console.log(`Estado del comentario con ID ${commentId} actualizado a:`);
+      } catch (error) {
+        console.error('Error al actualizar el estado del comentario:', error);
+        // Revertir el estado local si la solicitud falla
+        alert('Error al actualizar el estado. Intenta nuevamente.');
+      }
+
+      this.cancelChangeOfState();
 
     },
+
     handleClickOutside(event) {
       const dropdownsElements = document.querySelectorAll('.dropdown');
       let clickInsideDropdown = false;
@@ -1017,5 +1049,18 @@ html {
     background-color: #f0f0f0;
 }
 
+.confirmation-modal{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  text-align: center;
+}
 
 </style>
