@@ -5,13 +5,14 @@ from app.api.routes.user_routes import is_admin_user
 # Simulate an admin user being authenticated
 def mock_is_admin_user():
         return True  
-app.dependency_overrides[is_admin_user] = mock_is_admin_user
+
 
 
 client = TestClient(app)
 
 # Test to create, get by ID, get by name, and delete a movie
 def test_create_get_delete_movie():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
     # Create a new movie
     new_movie = {
         "title": "The Forgotten Kingdom",
@@ -84,6 +85,7 @@ def test_create_get_delete_movie():
 
 # Test to create an invalid movie, get by name and ID for non-existent movies, and delete a non-existent movie
 def test_create_get_delete_invalid_movie():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
     invalid_movie = {
         "title": "The Lost Temple",  # Title is provided, but missing description, director, etc.
         "rating": 4.5,
@@ -162,6 +164,7 @@ def test_create_get_delete_invalid_movie():
 
 # Test to create, get, update, and delete a movie
 def test_create_get_update_delete_movie():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
     # Create a movie
     new_movie = {
         "title": "The Lost City",
@@ -268,6 +271,7 @@ def test_create_get_update_delete_movie():
 
 # Test to create a couple of movies, get by one genre and by a list of genres, check genres, and delete movies
 def test_create_and_get_movies_by_genre():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
     # Create the first movie with genres
     movie_1 = {
         "title": "The Lost City",
@@ -376,6 +380,7 @@ def test_create_and_get_movies_by_genre():
 
 # Test create a movie, get by release year, and delete the movie
 def test_create_get_and_delete_movie_by_year():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
     # Create a movie with a specific release year
     movie_data = {
         "title": "Future Wars",
@@ -418,6 +423,7 @@ def test_create_get_and_delete_movie_by_year():
 
 # Test create movies, get by invalid genre and list of invalid genres, and delete the movies
 def test_create_get_invalid_genres_and_delete():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
     # Create two movies with specific genres
     movie_data_1 = {
         "title": "The Space Odyssey",
@@ -484,6 +490,8 @@ def test_create_get_invalid_genres_and_delete():
 
 # Test create a movie, get by invalid release year, and delete the movie
 def test_create_get_invalid_year_and_delete():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
+
     # Create a movie with a specific release year
     movie_data = {
         "title": "The Future Vision",
@@ -523,6 +531,7 @@ def test_create_get_invalid_year_and_delete():
 
 # Test to create 6 movies, get related movies for one, and delete all movies
 def test_create_get_related_movies_and_delete():
+    app.dependency_overrides[is_admin_user] = mock_is_admin_user
     # Movie data for 6 movies
     movie_data = [
         {
