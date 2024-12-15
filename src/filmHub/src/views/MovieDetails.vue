@@ -2,6 +2,32 @@
   <div class="home-page">
     <HeaderPage /> <!-- Componente HeaderPage -->
 
+    <!-- Modal de aviso si no es premium -->
+    <div v-if="showRegisterModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>This feature is only available for Registered accounts.</p>
+        <router-link to="/login">
+          <button @click="closeRegisterModal">Ok</button>
+        </router-link>
+      </div>
+    </div>
+
+    <!-- Modal de aviso no hay listas creadas -->
+    <div v-if="showNoListModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>You have not created any lists yet.</p>
+        <button @click="closeNoListModal">Ok</button>
+      </div>
+    </div>
+
+    <!-- Modal de aviso pelicula anadida -->
+    <div v-if="showMovieAddedModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>Movie successfully added to the list!</p>
+        <button @click="closeMovieAddedModal">Ok</button>
+      </div>
+    </div>
+
     <!-- Banner -->
     <section class="banner" v-if="bannerMovie">
       <div class="carousel-inner">
@@ -508,6 +534,10 @@ export default {
 
       showModal: false,  // Inicialmente, el modal está oculto
       userLists: [], // Las listas del usuario
+
+      showRegisterModal: false,
+      showNoListModal: false,
+      showMovieAddedModal: false,
     };
   },
   computed: {
@@ -818,8 +848,7 @@ export default {
     async saveRating(rating) {
       try {
         if (!this.userId) { // Verifica si el userId está disponible
-          alert('You must log in to rate a movie.'); // Muestra advertencia
-          this.$router.push('/login');
+          this.showRegisterModal = true;
           return; // Salir del método
         }
 
@@ -871,8 +900,7 @@ export default {
     async toggleLike(movieId) {
       try {
         if (!this.userId) { // Verifica si el userId está disponible
-          alert('You must log in to give like a movie.'); // Muestra advertencia
-          this.$router.push('/login');
+          this.showRegisterModal = true;
           return; // Salir del método
         }
 
@@ -907,8 +935,7 @@ export default {
     async toggleWishlist(movieId) {
         try {
           if (!this.userId) { // Verifica si el userId está disponible
-            alert('You must log in to add to your wishlist.'); // Muestra advertencia
-            this.$router.push('/login');
+            this.showRegisterModal = true;
             return; // Salir del método
           }
 
@@ -1010,8 +1037,7 @@ export default {
         try {
           if (!this.userId) { 
             // Verifica si el userId está disponible
-            alert('You must log in to add to your wishlist.'); // Muestra advertencia
-            this.$router.push('/login'); // Redirige a la página de login
+            this.showRegisterModal = true;
             return; // Salir del método
           }
 
@@ -1019,7 +1045,7 @@ export default {
 
           if (this.userLists.length === 0) {
             // Si no hay listas creadas
-            alert('You have not created any lists yet.'); // Muestra un mensaje en inglés
+            this.showNoListModal = true; // Muestra un mensaje en inglés
             return; // Salir del método
           }
 
@@ -1049,11 +1075,23 @@ export default {
           if (response.status === 200) {
             console.log('Movie added to list successfully.');
             this.showModal = false; // Cerrar el modal después de añadir la película
-            alert('Movie successfully added to the list!');
+            this.showMovieAddedModal = true;
           }
         } catch (error) {
           console.error('Error adding movie to list:', error.response?.data || error.message);
         }
+      },
+
+      closeRegisterModal() {
+        this.showRegisterModal = false;  // Cerrar el modal de error
+      },
+
+      closeNoListModal() {
+        this.showNoListModal = false;  // Cerrar el modal de error
+      },
+
+      closeMovieAddedModal() {
+        this.showMovieAddedModal = false;  // Cerrar el modal de error
       },
 
 
@@ -2534,6 +2572,49 @@ body {
 
 .cancel-btn:hover {
   background-color: #e53835bc;
+}
+
+
+
+/* Estilos del modal de error */
+.modal-premium {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo translúcido */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-content-premium {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+}
+
+.modal-content-premium p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color:white;
+}
+
+.modal-content-premium button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-content-premium button:hover {
+  background-color: #0056b3;
 }
 
 </style>

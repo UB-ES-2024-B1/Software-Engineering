@@ -35,7 +35,7 @@
 
       <div>
         <!-- Botón Premium que abre el modal -->
-        <router-link v-if="isAuthenticated && $route.path !== '/profile' && $route.path !== '/edit'" to="#">
+        <router-link v-if="isAuthenticated" to="#">
           <button class="Btn" 
           @click.prevent="openModal"
           :class="{'premium-button': isPremium}">
@@ -51,7 +51,7 @@
           <div class="modal-content">
             <h2>UPGRADE TO PREMIUM</h2>
             <ul class="no-bullet">
-              <li>"Unlock the ability to create and manage custom lists for your favorite movies!"</li>
+              <li>Unlock the ability to create and manage custom lists for your favorite movies!</li>
             </ul>
             <div class="modal-buttons">
               <button @click="confirmPremium">Upgrade</button>
@@ -208,6 +208,9 @@ export default {
 
       try {
         const response = await axios.put(`/users/upgrade_premium/${userEmail}`);
+        if (this.$route.name === 'UserProfile') {
+          this.$router.go(); // Recarga solo si estás en UserProfile
+        }
         if (response.status === 200) {
           this.isPremium = true;
           this.isUpgradeModalOpen = true;
@@ -230,6 +233,9 @@ export default {
 
       try {
         const response = await axios.put(`/users/downgrade_premium/${userEmail}`);
+        if (this.$route.name === 'UserProfile') {
+          this.$router.go(); // Recarga solo si estás en UserProfile
+        }
         if (response.status === 200) {
           this.isPremium = false;
           this.isDowngradeModalOpen = true;

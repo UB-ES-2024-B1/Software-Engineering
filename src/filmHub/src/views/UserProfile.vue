@@ -39,6 +39,7 @@
         <button @click="closePremiumModal">Ok</button>
       </div>
     </div>
+    
 
     <div class="overlay"></div>
 
@@ -176,10 +177,11 @@
           </div>
     
           <!-- User Rating -->
-          <div v-if="showRatedMovies" class="user-rating">
+          <div v-if="activeList === 'rated'" class="user-rating">
             <img src="@/assets/star.png" alt="Rating" class="icon" />
             <span>{{ movie.userRating }}</span>
-          </div> 
+          </div>
+
           
             <!-- Botón para eliminar película  -->
           <button class="delete-button" @click="removeMovie(movie.id)">
@@ -522,7 +524,14 @@
 
       openAddListModal() {
         if (this.isPremium) {
-          this.showModal = true; // Mostrar el modal
+          if (this.userLists.length >= 3) {
+          // Si ya hay 3 listas, muestra el modal de error
+          this.showLimitModal = true;
+          this.closeModal();
+          return;
+          }else{
+            this.showModal = true; // Mostrar el modal
+          }
         } else {
           this.showPremiumModal = true; // Mostrar el modal si no es premium
         }
@@ -534,13 +543,6 @@
       },
 
       async createNewList() {
-
-        if (this.userLists.length >= 3) {
-        // Si ya hay 3 listas, muestra el modal de error
-        this.showLimitModal = true;
-        this.closeModal();
-        return;
-        }
 
         if (this.newListName.trim() === '') {
           alert('Please enter a valid list name.');
