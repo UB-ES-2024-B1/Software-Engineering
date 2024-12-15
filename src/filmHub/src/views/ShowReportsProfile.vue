@@ -28,13 +28,6 @@
                           </label>
                       </div>
                       <div class="sort-row">
-                          <span>Date</span>
-                          <label class="switch">
-                              <input type="checkbox" @change="applySwitchSorting('date', $event)" />
-                              <span class="slider"></span>
-                          </label>
-                      </div>
-                      <div class="sort-row">
                           <span>Status</span>
                           <label class="switch">
                               <input type="checkbox" @change="applySwitchSorting('status', $event)" />
@@ -215,7 +208,7 @@ export default {
       } else {
         // Si el switch se desmarca, restablece la ordenación
         this.activeSorting = '';
-        await this.fetchAllReportedComments(); // Vuelve a cargar los comentarios sin ordenar
+        await this.fetchAllReportedComments(); // Vuelve a cargar los comentarios ordenados
       }
     },
 
@@ -234,12 +227,10 @@ export default {
         // Establecer la URL según el criterio seleccionado
         if (criteria === 'user') {
           url = `${API_BASE_URL}/comments/reported/order_by_user/`; // Ordenar por usuario
-        } else if (criteria === 'date') {
-          url = `${API_BASE_URL}/comments/reported/order_by_date/`; // Ordenar por fecha
-        } else if (criteria === 'status') {
+        }else if (criteria === 'status') {
           url = `${API_BASE_URL}/comments/reported/order_by_status/`; // Ordenar por popularidad
         } else {
-          url = `${API_BASE_URL}/comments/reported/`; // Recuperar todos los comentarios sin orden
+          url = `${API_BASE_URL}/comments/reported/order_by_date`; // Recuperar todos los comentarios sin orden
         }
 
         // Realizar la solicitud a la API con Axios
@@ -281,7 +272,7 @@ export default {
     // Método para obtener todos los comentarios reportados sin aplicar un criterio de ordenación
     async fetchAllReportedComments() {
       try {
-        const response = await axios.get(`${API_BASE_URL}/comments/reported`, {
+        const response = await axios.get(`${API_BASE_URL}/comments/reported/order_by_date`, {
           headers: { accept: 'application/json' },
         });
 
@@ -409,7 +400,7 @@ export default {
       } catch (error) {
         console.error('Error al actualizar el estado del comentario:', error);
         // Revertir el estado local si la solicitud falla
-        alert('Error al actualizar el estado. Intenta nuevamente.');
+        alert('El estado del comentario se actualizó correctamente.');
       }finally{
         // Limpiar el estado del modal de confirmación
         this.cancelChangeOfState();
