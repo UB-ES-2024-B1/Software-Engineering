@@ -58,16 +58,17 @@
                       <p>{{ comment.date.slice(0, 10) }}</p>
                     </div>
 
-
-
                     <section class="horizontal-bar">
-                      <!-- Botón desplegable para "REPORT" -->
+                      <!-- Botón desplegable -->
                       <div class="dropdown">
+                        
                         <button :class=
                           "{'dropdown-button-reported': comment.state === 'REPORTED', 
                           'dropdown-button-clean': comment.state === 'CLEAN', 
-                          'dropdown-button-banned': comment.state === 'BANNED'}" 
+                          'dropdown-button-banned': comment.state === 'BANNED'}"
+                          :disabled="comment.state !== 'REPORTED'" 
                           @click="toggleDropdown(index)">{{ comment.state}}</button>
+                          
                         <ul v-if="dropdowns[index]" class="dropdown-menu">
                           <li v-for="possibleState in possibleCommentsSates" :key="possibleState"  @click="handleChangeOfState(possibleState, index, comment.id)"
                               class="dropdown-item">
@@ -80,9 +81,16 @@
 
                   <!-- Modal de Confirmación -->
                   <div v-if="showConfirmation && selectedIndex === index" class="confirmation-modal">
-                    <p>Are you sure you want to mark this comment as {{ selectedState }}?</p>
-                    <button @click="selectState(comment.id)" class="confirm-btn">Yes</button>
-                    <button @click="cancelChangeOfState" class="cancel-btn">No</button>
+                    <div v-if="selectedState === comment.state">
+                      <p>The state is not going to be modified since you have picked the state {{ selectedState }}, 
+                        and this comment is already in this state</p>
+                      <button @click="cancelChangeOfState" class="cancel-btn">Cancel</button>
+                    </div>
+                    <div v-else>
+                      <p>Are you sure you want to mark this comment as {{ selectedState }}?</p>
+                      <button @click="selectState(comment.id)" class="confirm-btn">Yes</button>
+                      <button @click="cancelChangeOfState" class="cancel-btn">No</button>
+                    </div>
                   </div>
 
                   <hr />
@@ -436,6 +444,11 @@ export default {
   background-position: center;
   background-repeat: no-repeat;
   z-index: -1;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .overlay {
