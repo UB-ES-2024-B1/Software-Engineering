@@ -2,16 +2,6 @@
   <div class="home-page">
     <HeaderPage /> <!-- Componente HeaderPage -->
 
-    <!-- Modal de aviso si no es premium -->
-    <div v-if="showRegisterModal" class="modal-premium">
-      <div class="modal-content-premium">
-        <p>This feature is only available for Registered accounts.</p>
-        <router-link to="/login">
-          <button @click="closeRegisterModal">Ok</button>
-        </router-link>
-      </div>
-    </div>
-
     <!-- Modal de aviso no hay listas creadas -->
     <div v-if="showNoListModal" class="modal-premium">
       <div class="modal-content-premium">
@@ -565,8 +555,7 @@ export default {
 
       showModal: false,  // Inicialmente, el modal está oculto
       userLists: [], // Las listas del usuario
-
-      showRegisterModal: false,
+      
       showNoListModal: false,
       showMovieAddedModal: false,
     };
@@ -897,7 +886,7 @@ export default {
     async saveRating(rating) {
       try {
         if (!this.userId) { // Verifica si el userId está disponible
-          this.showRegisterModal = true;
+          this.$router.push('/login');
           return; // Salir del método
         }
 
@@ -949,7 +938,7 @@ export default {
     async toggleLike(movieId) {
       try {
         if (!this.userId) { // Verifica si el userId está disponible
-          this.showRegisterModal = true;
+          this.$router.push('/login');
           return; // Salir del método
         }
 
@@ -984,7 +973,7 @@ export default {
     async toggleWishlist(movieId) {
         try {
           if (!this.userId) { // Verifica si el userId está disponible
-            this.showRegisterModal = true;
+            this.$router.push('/login');
             return; // Salir del método
           }
 
@@ -1086,7 +1075,7 @@ export default {
         try {
           if (!this.userId) { 
             // Verifica si el userId está disponible
-            this.showRegisterModal = true;
+            this.$router.push('/login');
             return; // Salir del método
           }
 
@@ -1129,10 +1118,6 @@ export default {
         } catch (error) {
           console.error('Error adding movie to list:', error.response?.data || error.message);
         }
-      },
-
-      closeRegisterModal() {
-        this.showRegisterModal = false;  // Cerrar el modal de error
       },
 
       closeNoListModal() {
@@ -1227,13 +1212,14 @@ async function generateRecentMovieObject(movieData) {
 
 <style scoped>
 .genre-link {
-  color: #3498db;
   text-decoration: none;
   cursor: pointer;
+  color: inherit;
 }
 
 .genre-link:hover {
   text-decoration: underline;
+  color: white; 
 }
 
 
