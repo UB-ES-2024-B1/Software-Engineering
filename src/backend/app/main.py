@@ -16,6 +16,7 @@ async def lifespan(app: FastAPI):
     with next(get_db()) as db:
         init_movie_db.add_initial_genres(db)
         init_movie_db.init_db_movies(db)
+        init_movie_db.init_db_comments(db)
     yield
     print("Shutting down")
     app.state.db.close()

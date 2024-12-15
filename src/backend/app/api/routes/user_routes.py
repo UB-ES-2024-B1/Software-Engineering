@@ -5,10 +5,11 @@ from app.db.database import SessionLocal  # Import the SessionLocal from databas
 from app.crud import user_crud
 from app.api.dependencies import *  # Import the get_db function
 from app.models import (
-    User, UserOut, UserCreate,UserUpdate
+    User, UserOut, UserCreate,UserUpdate,FollowOut,ProfileVisibility
 )
 from scripts.upload import eliminar_imagen, subir_imagen_desde_archivo
 from typing import List, Optional
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -108,6 +109,25 @@ def read_user_mail(user_email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+@router.get("/username/{username}", response_model=UserOut)
+def read_user(username: str, db: Session = Depends(get_db)):
+    """
+    Get a user by their ID.
+    :param user_id: The ID of the user
+    :param db: Database session (injected via dependency)
+    :return: User object or 404 if not found
+    """
+    user = user_crud.get_user_by_username(db, username)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.isPublic == False:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have enough permission to do this action."
+        )
+    return user
+
 # Route to delete a user by ID
 @router.delete("/id/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
@@ -145,6 +165,7 @@ def update_user_by_id(
     is_active: Optional[bool] = Form(None),
     is_admin: Optional[bool] = Form(None),
     img: Optional[UploadFile] = File(None),
+    isPublic:Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -177,10 +198,12 @@ def update_user_by_id(
         update_data["is_active"] = is_active
     if is_admin is not None:
         update_data["is_admin"] = is_admin
+    if isPublic is not None:
+        update_data["isPublic"] = isPublic
 
 
     # If an image is uploaded, process it
-    if img:
+    if img is not None or img =='string':
         try:
             if existing_user.img_public_id and existing_user.img_public_id != "imagenes-perfil/profile-circle":
                 # If there is an existing image, delete it from Cloudinary
@@ -211,6 +234,7 @@ def update_user_by_email(
     is_active: Optional[bool] = Form(None),
     is_admin: Optional[bool] = Form(None),
     img: Optional[UploadFile] = File(None),
+    isPublic:Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -240,9 +264,11 @@ def update_user_by_email(
         update_data["is_active"] = is_active
     if is_admin is not None:
         update_data["is_admin"] = is_admin
+    if isPublic is not None:
+        update_data["isPublic"] = isPublic
 
     # If an image is uploaded, process it
-    if img:
+    if img is not None or img =='string':
         try:
             if existing_user.img_public_id and existing_user.img_public_id != "imagenes-perfil/profile-circle":
                 # If there is an existing image, delete it from Cloudinary
@@ -278,6 +304,40 @@ def is_admin_user(current_user: User = Depends(get_current_user)) -> bool:
         )
     return True
 
+
+@router.get("/followers/{user_id}", response_model=List[UserOut])
+def get_followers(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
+    followers = user_crud.get_followers(db, user_id)
+    if followers ==None:
+        raise HTTPException(status_code=404, detail="User not found or has no followers")
+    return followers
+
+@router.get("/followed/{user_id}", response_model=List[UserOut])
+def get_followed_users(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
+    followed_users = user_crud.get_followed_users(db, user_id)
+    if followed_users ==None:
+        raise HTTPException(status_code=404, detail="User not foundç")
+    return followed_users
+
+@router.post("/follow/{user_id}", response_model=FollowOut)
+def follow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    follow = user_crud.follow_user(db, current_user.id, user_id)
+    return follow
+
+
+# Endpoint para dejar de seguir a un usuario
+@router.post("/unfollow/{user_id}", response_model=FollowOut)
+def unfollow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    try:
+        success = user_crud.unfollow_user(db, follower_id=current_user.id, followed_id=user_id)  # Cambio 1 por el ID del usuario autenticado
+        if not success:
+            raise HTTPException(status_code=400, detail="Unable to unfollow user")
+        return JSONResponse(status_code=200, content={"message": "Unfollowed successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 # Endpoint to upgrade a user to premium
 @router.put("/upgrade_premium/{user_email}", response_model=UserOut)
 def upgrade_user_to_premium(user_email: str, db: Session = Depends(get_db)):
@@ -303,4 +363,8 @@ def downgrade_user_to_premium(user_email: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+
+
 

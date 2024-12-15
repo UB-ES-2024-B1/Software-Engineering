@@ -1,0 +1,674 @@
+[
+    {
+        "movie_id": 1,
+        "comments": [
+            {
+                "user_id": 1,
+                "comment": "Avatar 2 is a visual masterpiece with breathtaking effects and a compelling story. James Cameron delivers once again."
+                
+            },
+            {
+                "user_id": 2,
+                "comment": "Avatar 2 continues the adventure with stunning visuals and deeper exploration of the world of Pandora."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 1,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 2,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 2,
+        "comments": [
+            {
+                "user_id": 3,
+                "comment": "Dune Part Two promises epic battle scenes and the continuation of a grand story. I’m looking forward to it!"
+                
+            },
+            {
+                "user_id": 4,
+                "comment": "Dune Part Two looks to be an exciting follow-up with a deeper dive into the lore. The visuals are stunning."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 3,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 4,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 3,
+        "comments": [
+            {
+                "user_id": 5,
+                "comment": "Black Panther: Wakanda Forever is a powerful tribute to Chadwick Boseman. The performances are stellar."
+                
+            },
+            {
+                "user_id": 6,
+                "comment": "Black Panther: Wakanda Forever is a fitting continuation of the story. It’s emotional and visually stunning."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 5,
+                "rating": 4.0,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 6,
+                "rating": 4.5,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 4,
+        "comments": [
+            {
+                "user_id": 1,
+                "comment": "Top Gun: Maverick is a thrilling ride with stunning aerial sequences. Tom Cruise is still the best."
+                
+            },
+            {
+                "user_id": 2,
+                "comment": "Top Gun: Maverick brings back the nostalgia of the original with exciting new scenes. The visuals are breathtaking."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 1,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 2,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 5,
+        "comments": [
+            {
+                "user_id": 3,
+                "comment": "F9: The Fast Saga delivers the usual high-octane action. It’s fast, fun, and entertaining."
+                
+            },
+            {
+                "user_id": 4,
+                "comment": "F9: The Fast Saga keeps the adrenaline pumping with incredible car stunts. A great addition to the franchise."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 3,
+                "rating": 4.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 4,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 29,
+        "comments": [
+            {
+                "user_id": 6,
+                "comment": "Bad Boys: Ride or Die is a high-octane action film with great performances and explosive action scenes. Martin Lawrence and Will Smith show they still have the chemistry from the original movies."
+                
+            },
+            {
+                "user_id": 1,
+                "comment": "Bad Boys: Ride or Die delivers on the promise of action-packed fun. The humor and camaraderie between the leads make it a joy to watch."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 6,
+                "rating": 4.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 1,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 28,
+        "comments": [
+            {
+                "user_id": 2,
+                "comment": "Cars 3 delivers a solid story about redemption and growing up. The animation is top-notch and the characters remain as lovable as ever."
+                
+            },
+            {
+                "user_id": 3,
+                "comment": "Cars 3 brings nostalgia with a modern twist. It’s an emotional ride that offers good storytelling and a message about facing your fears."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 2,
+                "rating": 4.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 3,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 27,
+        "comments": [
+            {
+                "user_id": 4,
+                "comment": "Jurassic World: Fallen Kingdom is thrilling with plenty of action and visual effects. The storyline continues to evolve, making it an entertaining watch."
+                
+            },
+            {
+                "user_id": 5,
+                "comment": "Jurassic World: Fallen Kingdom delivers exactly what fans want: dino action and adventure. Chris Pratt and Bryce Dallas Howard are great as usual."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 4,
+                "rating": 4,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 5,
+                "rating": 4.5,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 26,
+        "comments": [
+            {
+                "user_id": 6,
+                "comment": "Incredibles 2 continues the family adventure with action-packed scenes and a heartfelt storyline. It’s a fun, emotional ride for all ages."
+               
+            },
+            {
+                "user_id": 1,
+                "comment": "Incredibles 2 brings back the nostalgia with a modern twist. The animation is top-notch and the story is engaging."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 6,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 1,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 25,
+        "comments": [
+            {
+                "user_id": 2,
+                "comment": "Coco is a heartwarming story about family, tradition, and chasing dreams. The animation is beautiful, and the music is unforgettable."
+                
+            },
+            {
+                "user_id": 4,
+                "comment": "Coco is a visually stunning film with a touching story. It’s one of Pixar’s best, capturing the essence of Mexican culture."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 2,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 4,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 24,
+        "comments": [
+            {
+                "user_id": 3,
+                "comment": "The Hunger Games: The Ballad of Songbirds and Snakes explores the origins of the franchise with an interesting twist. It’s a darker, more mature take on the world of Panem."
+                
+            },
+            {
+                "user_id": 5,
+                "comment": "The Hunger Games: The Ballad of Songbirds and Snakes offers a new perspective on the story. The performances are strong, and the visual effects are top-notch."        
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 3,
+                "rating": 4.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 5,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 23,
+        "comments": [
+            {
+                "user_id": 1,
+                "comment": "Bohemian Rhapsody captures the essence of Queen’s journey with powerful performances and iconic music. A must-watch for music fans."
+                
+            },
+            {
+                "user_id": 2,
+                "comment": "Bohemian Rhapsody is a tribute to Queen with great music and an emotional story. Rami Malek’s performance is outstanding."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 1,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 2,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 22,
+        "comments": [
+            {
+                "user_id": 6,
+                "comment": "Jumanji: The Next Level is a fun, action-packed adventure with humor and excitement. Dwayne Johnson and Kevin Hart bring their A-game."         
+            },
+            {
+                "user_id": 3,
+                "comment": "Jumanji: The Next Level is an entertaining sequel that delivers laughs and action. The cast chemistry is top-notch."
+                
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 6,
+                "rating": 4.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 3,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 21,
+        "comments": [
+            {
+                "user_id": 4,
+                "comment": "Oppenheimer is a thought-provoking biographical drama that explores the moral implications of scientific discovery. Cillian Murphy gives a powerful performance."
+            },
+            {
+                "user_id": 5,
+                "comment": "Oppenheimer is a deep dive into the life of a complex historical figure. The storytelling is compelling, and the performances are top-notch."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 4,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 5,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 20,
+        "comments": [
+            {
+                "user_id": 2,
+                "comment": "Dunkirk is a masterful war film that combines intense action with emotional depth. Christopher Nolan does it again."
+            },
+            {
+                "user_id": 4,
+                "comment": "Dunkirk is a visceral, immersive experience. The direction and sound design are top-notch."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 2,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 4,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 19,
+        "comments": [
+            {
+                "user_id": 3,
+                "comment": "Toy Story 4 delivers on nostalgia while introducing new characters that add fresh energy to the series. The animation and story are top-notch."
+            },
+            {
+                "user_id": 5,
+                "comment": "Toy Story 4 is a joy to watch. The story is heartwarming and the animation is top-notch. A timeless classic."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 3,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 5,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 18,
+        "comments": [
+            {
+                "user_id": 1,
+                "comment": "Ratatouille is a delightful film with a charming story and lovable characters. The animation is top-notch and the humor is spot-on."
+            },
+            {
+                "user_id": 6,
+                "comment": "Ratatouille is a masterful animated film that combines humor, heart, and culinary charm. A true Pixar classic."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 1,
+                "rating": 4.5,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 6,
+                "rating": 5.0,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 17,
+        "comments": [
+            {
+                "user_id": 4,
+                "comment": "Bullet Train is a high-speed thrill ride with a star-studded cast. The action and humor hit all the right notes."
+            },
+            {
+                "user_id": 5,
+                "comment": "Bullet Train offers a unique take on the action genre with a mix of humor and suspense. Brad Pitt shines in his role."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 4,
+                "rating": 4.0,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 5,
+                "rating": 4.5,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 16,
+        "comments": [
+            {
+                "user_id": 2,
+                "comment": "Uncharted brings the video game adventure to the big screen with a fun, action-packed story. Tom Holland and Mark Wahlberg make a great team."
+            },
+            {
+                "user_id": 6,
+                "comment": "Uncharted is a high-energy adventure that captures the essence of the video game. The performances are solid."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 2,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 6,
+                "rating": 4.0,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 155,
+        "comments": [
+            {
+                "user_id": 1,
+                "comment": "Napoleon is an epic historical drama with powerful performances and breathtaking battle sequences. It’s a must-watch for history buffs."
+            },
+            {
+                "user_id": 3,
+                "comment": "Napoleon is a grand historical film that delves into the complexities of one of history’s most famous military leaders."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 1,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 3,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 14,
+        "comments": [
+            {
+                "user_id": 5,
+                "comment": "The Fall Guy is a fun action film with a great mix of humor and thrills. Ryan Gosling and Emily Blunt make a great pair."
+            },
+            {
+                "user_id": 6,
+                "comment": "The Fall Guy offers a refreshing take on the action genre. The performances are strong and the action is well-executed."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 5,
+                "rating": 4.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 6,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    },
+    {
+        "movie_id": 13,
+        "comments": [
+            {
+                "user_id": 3,
+                "comment": "Furiosa: A Mad Max Saga promises a thrilling ride with action-packed sequences and a strong female lead. It’s bound to be a high-octane adventure."
+            },
+            {
+                "user_id": 1,
+                "comment": "Furiosa: A Mad Max Saga looks like it will deliver on its promise of thrilling action and a compelling story. Can’t wait to see more."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 3,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 1,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 12,
+        "comments": [
+            {
+                "user_id": 4,
+                "comment": "Inception is a mind-bending thriller that keeps you on the edge of your seat. Christopher Nolan’s direction is masterful."
+            },
+            {
+                "user_id": 2,
+                "comment": "Inception is a visual and intellectual feast. The story is complex and the performances are top-notch."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 4,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            },
+            {
+                "user_id": 2,
+                "rating": 5.0,
+                "liked": true,
+                "wished": false
+            }
+        ]
+    },
+    {
+        "movie_id": 11,
+        "comments": [
+            {
+                "user_id": 6,
+                "comment": "The Meg offers a thrilling and fun monster movie experience. Jason Statham and the giant shark make a great team."
+            },
+            {
+                "user_id": 5,
+                "comment": "The Meg delivers exactly what you’d expect: lots of action and excitement with a big, scary shark."
+            }
+        ],
+        "ratings": [
+            {
+                "user_id": 6,
+                "rating": 4.0,
+                "liked": true,
+                "wished": false
+            },
+            {
+                "user_id": 5,
+                "rating": 4.5,
+                "liked": true,
+                "wished": true
+            }
+        ]
+    }
+]

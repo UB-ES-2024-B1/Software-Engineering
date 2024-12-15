@@ -37,36 +37,35 @@
 
         <div class="small-cover">
           <!-- Imagen de la portada de la película -->
-          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
-          
-          <!-- Botón de Wishlist en la esquina superior derecha -->
-          <label class="ui-bookmark wishlist-button">
-            <input
-              type="checkbox"
-              :checked="wishedMovies.includes(bannerMovie.title)"
-              @change="toggleWishlist(bannerMovie.id)"
-              :disabled="userRatedMovies[bannerMovie.title]" 
-            />
-            <div class="bookmark" :class="{ disabled: userRatedMovies[bannerMovie.title] }">
-              <svg viewBox="0 0 32 32">
-                <g>
-                  <path
-                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
-                  ></path>
-                </g>
-              </svg>
-            </div>
-          </label>
+          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />         
 
         
           <!-- Información de la película -->
           <div class="movie-info">
             <h4>{{ bannerMovie.title }}</h4>
+
+            <!-- Modificado para redireccionarlo a AllMovies según el género -->
             <div class="info-item">
-              <span class="info-title">Genres: </span> <span>{{ bannerMovie.genres.join(", ") }}</span>
+              <span class="info-title">Genres: </span> 
+              <!-- <span>{{ bannerMovie.genres.join(", ") }}</span> -->
+              <span>
+                <span v-for="(genre, index) in bannerMovie.genres" :key="index">
+                  <router-link :to="{ name: 'AllMovies', query: { genre: genre } }" class="genre-link">
+                    {{ genre }}
+                  </router-link>
+                  <span v-if="index < bannerMovie.genres.length - 1">, </span>
+                </span>
+              </span>
+
             </div>
+
+
             <div class="info-item">
-              <span class="info-title">Date: </span> <span>{{ bannerMovie.release_date }}</span>
+              <span class="info-title">Date: </span> <span>
+                <router-link :to="{ name: 'AllMovies', query: { year: bannerMovie.release_date.slice(0,4) } }" class="genre-link">
+                  {{ bannerMovie.release_date }}
+                </router-link>
+              </span>
             </div>
             <div class="info-item">
               <span class="info-title">Country: </span> <span>{{ bannerMovie.country }}</span>
@@ -201,6 +200,27 @@
           </label>
         </div>
 
+        <div class="wish-container"> 
+          <!-- Botón de Wishlist en la esquina superior derecha -->
+          <label class="ui-bookmark wishlist-button">
+            <input
+              type="checkbox"
+              :checked="wishedMovies.includes(bannerMovie.title)"
+              @change="toggleWishlist(bannerMovie.id)"
+              :disabled="userRatedMovies[bannerMovie.title]" 
+            />
+            <div class="bookmark" :class="{ disabled: userRatedMovies[bannerMovie.title] }">
+              <svg viewBox="0 0 32 32">
+                <g>
+                  <path
+                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                  ></path>
+                </g>
+              </svg>
+            </div>
+          </label>
+        </div>
+
 
       </div>
     </section>
@@ -223,16 +243,26 @@
         <h4 class="section-title">Cast & Crew</h4>
         <div class="cards-container">
           <!-- Card for Director (Always visible as the first item) -->
+          
           <div class="detail-card">
+            <!-- Modificado para hacer un link hacia allMovies y que se muestren las pelis del Director-->
             <h4>Director</h4>
-            <p>{{ bannerMovie.director }}</p>
+            <p>
+              <router-link :to="{ name: 'AllMovies', query: { director: bannerMovie.director } }" class="genre-link">
+                {{ bannerMovie.director }}
+              </router-link>
+            </p>
           </div>
 
           <!-- Cards for Cast, excluding the director -->
           <div v-for="(actor, index) in bannerMovie.cast" :key="actor" class="detail-card"
             v-show="index < visibleCount">
             <h4>Actor</h4>
-            <p>{{ actor }}</p>
+            <p>
+              <router-link :to="{ name: 'AllMovies', query: { actor: actor } }" class="genre-link">
+              {{ actor }}
+              </router-link>
+            </p>
           </div>
         </div>
         <!-- See More Button -->
@@ -264,7 +294,8 @@
 
 
     <!-- Sección del foro de comentarios -->
-    <section class="comments-section">
+     <!-- He afegit un id per linkejar els reported comments de l'admin-->
+    <section id="comments-section" class="comments-section">
       <div v-if="bannerMovie">
         <h4 class="section-title">Comments</h4>
         <div class="comments-container">
@@ -822,6 +853,19 @@ export default {
         console.error('Error retrieving related movies:', error);
       }
     },
+
+    scrollToHash() {
+      const hash = this.$route.hash; // Obtén el hash de la URL
+      if (hash) {
+        this.$nextTick(() => {
+          const element = document.querySelector(hash); // Selecciona el elemento por su ID
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' }); // Desplaza suavemente
+          }
+        });
+      }
+    },
+
     async loadMovieData(movieId) {
       try {
         await this.fetchBannerMovie(movieId); // Cargar la película del banner
@@ -838,7 +882,12 @@ export default {
             this.rating = 0;
           }
 
-          this.scrollToTop();
+          if(this.scrollToHash()){
+            this.scrollToHash()
+          }else{
+            this.scrollToTop();
+          }
+          
         }
       } catch (error) {
         console.error('Error loading movie data:', error);
@@ -1103,14 +1152,17 @@ export default {
     },
   },
   mounted() {
+    
     if (this.userId) {
       this.loadUserPreferences().then(() => {
         // Cargar datos de la película después de cargar las preferencias
         this.loadMovieData(this.$route.params.id);
+        this.scrollToHash(); // Desplazarse al hash si existe
       });
     } else {
       console.warn('User ID not found in localStorage.');
       this.loadMovieData(this.$route.params.id);
+      this.scrollToHash(); // Desplazarse al hash si existe
     }
   },
   watch: {
@@ -1174,6 +1226,18 @@ async function generateRecentMovieObject(movieData) {
 
 
 <style scoped>
+.genre-link {
+  color: #3498db;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.genre-link:hover {
+  text-decoration: underline;
+}
+
+
+
 /* Estilo para comentarios */
 .comments-section {
   margin-top: 30px;
@@ -1813,7 +1877,7 @@ body {
 .star-rating-container {
   position: absolute;
   bottom: 25px;
-  right: 150px;
+  right: 125px;
   z-index: 10;
   opacity: 1;
 }
@@ -1931,6 +1995,15 @@ body {
 .radio input:checked~label svg {
   fill: #ffa723;
 }
+
+.like-container {
+  position: absolute;
+  bottom: 59px;
+  right: 100px;
+  z-index: 10;
+  opacity: 1;
+}
+
 
 .container input {
   position: absolute;
@@ -2160,20 +2233,23 @@ body {
   color: gold;
 }
 
-.ui-bookmark {
-  --icon-size: 65px;
-  --icon-secondary-color: rgb(100, 100, 100, 0.8);
-  --icon-hover-color: rgb(125, 125, 125, 0.9);
-  --icon-primary-color: rgba(0, 157, 255, 0.8);
-  --icon-circle-border: 1px solid var(--icon-primary-color);
-  --icon-circle-size: 90px;
-  --icon-anmt-duration: 0.3s;
-
-  position: absolute; /* O 'fixed' si quieres que se quede visible incluso al hacer scroll */
-  top: -8px;          /* Distancia desde la parte superior de la página */
-  left: 270px;        /* Distancia desde la parte derecha de la página */
+.wish-container {
+  position: absolute;
+  bottom: 21px;
+  right: 375px;
   z-index: 10;
-  
+  opacity: 1;
+}
+
+/* From Uiverse.io by Galahhad */ 
+.ui-bookmark {
+  --icon-size: 33px;
+  --icon-secondary-color: rgb(100, 100, 100, 1);
+  --icon-hover-color: rgba(0, 157, 255, 1);
+  --icon-primary-color: rgba(0, 157, 255, 1);
+  --icon-circle-border: 1px solid var(--icon-primary-color);
+  --icon-circle-size: 35px;
+  --icon-anmt-duration: 0.3s;
 }
 
 .ui-bookmark input {
@@ -2204,7 +2280,6 @@ body {
   -webkit-transform-origin: top;
   -ms-transform-origin: top;
   transform-origin: top;
-
 }
 
 .ui-bookmark .bookmark.disabled {
@@ -2216,31 +2291,29 @@ body {
 .bookmark::after {
   content: "";
   position: absolute;
-  width: 12px;
-  height: 12px;
-  -webkit-box-shadow: 0 90px 0 -4px var(--icon-primary-color),  /* Aumentado a 100px */
-    90px 0 0 -4px var(--icon-primary-color),                    /* Aumentado a 100px */
-    0 -90px 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -90px 0 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -70px 70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    -70px -70px 0 -4px var(--icon-primary-color),                /* Aumentado a 80px */
-    70px -70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    70px 70px 0 -4px var(--icon-primary-color);                  /* Aumentado a 80px */
-  box-shadow: 0 100px 0 -4px var(--icon-primary-color),  /* Aumentado a 100px */
-    90px 0 0 -4px var(--icon-primary-color),                    /* Aumentado a 100px */
-    0 -90px 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -90px 0 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -70px 70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    -70px -70px 0 -4px var(--icon-primary-color),                /* Aumentado a 80px */
-    70px -70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    70px 70px 0 -4px var(--icon-primary-color);                  /* Aumentado a 80px */
+  width: 10px;
+  height: 10px;
+  -webkit-box-shadow: 0 30px 0 -4px var(--icon-primary-color),
+    30px 0 0 -4px var(--icon-primary-color),
+    0 -30px 0 -4px var(--icon-primary-color),
+    -30px 0 0 -4px var(--icon-primary-color),
+    -22px 22px 0 -4px var(--icon-primary-color),
+    -22px -22px 0 -4px var(--icon-primary-color),
+    22px -22px 0 -4px var(--icon-primary-color),
+    22px 22px 0 -4px var(--icon-primary-color);
+  box-shadow: 0 30px 0 -4px var(--icon-primary-color),
+    30px 0 0 -4px var(--icon-primary-color),
+    0 -30px 0 -4px var(--icon-primary-color),
+    -30px 0 0 -4px var(--icon-primary-color),
+    -22px 22px 0 -4px var(--icon-primary-color),
+    -22px -22px 0 -4px var(--icon-primary-color),
+    22px -22px 0 -4px var(--icon-primary-color),
+    22px 22px 0 -4px var(--icon-primary-color);
   border-radius: 50%;
   -webkit-transform: scale(0);
   -ms-transform: scale(0);
   transform: scale(0);
 }
-
-
 
 .bookmark::before {
   content: "";
@@ -2366,7 +2439,7 @@ body {
     transform: scale(0);
   }
 
-  40% { 
+  40% {
     opacity: 1;
   }
 
