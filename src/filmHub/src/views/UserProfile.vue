@@ -739,6 +739,7 @@ export default {
   flex-direction: column;
   padding: 1rem;
   gap: 20px;
+  text-align: center;
 
   background-color: transparent;
 }
@@ -915,7 +916,7 @@ h2 {
   justify-content: center;
   gap: 1rem;
   background-color: yellow;
-  margin-top: 20px; /* Espacio entre los botones y los otros contenedores */
+  margin-top: 60px; /* Espacio entre los botones y los otros contenedores */
   width: 100%; /* Ocupa todo el ancho disponible */
   box-sizing: border-box;
 
