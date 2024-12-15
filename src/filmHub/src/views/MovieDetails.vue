@@ -2,6 +2,32 @@
   <div class="home-page">
     <HeaderPage /> <!-- Componente HeaderPage -->
 
+    <!-- Modal de aviso si no es premium -->
+    <div v-if="showRegisterModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>This feature is only available for Registered accounts.</p>
+        <router-link to="/login">
+          <button @click="closeRegisterModal">Ok</button>
+        </router-link>
+      </div>
+    </div>
+
+    <!-- Modal de aviso no hay listas creadas -->
+    <div v-if="showNoListModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>You have not created any lists yet.</p>
+        <button @click="closeNoListModal">Ok</button>
+      </div>
+    </div>
+
+    <!-- Modal de aviso pelicula anadida -->
+    <div v-if="showMovieAddedModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>Movie successfully added to the list!</p>
+        <button @click="closeMovieAddedModal">Ok</button>
+      </div>
+    </div>
+
     <!-- Banner -->
     <section class="banner" v-if="bannerMovie">
       <div class="carousel-inner">
@@ -55,6 +81,52 @@
                 <span>{{ bannerMovie.likes }}</span>
               </div>
             </div>
+
+            <div tabindex="0" class="plusButton">
+              <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+                <g mask="url(#mask0_21_345)">
+                  <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Botón para abrir el modal -->
+            <div tabindex="0" class="plusButton" @click="showAddToListModal">
+              <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+                <g mask="url(#mask0_21_345)">
+                  <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Modal para seleccionar la lista -->
+            <div v-if="showModal" class="modal">
+              <div class="modal-content">
+                <h3>Add Movie to Lists:</h3>
+                <ul>
+                  <!-- Mostrar las listas del usuario -->
+                  <li v-for="(list, index) in userLists" :key="index" class="list-item">
+                    <div class="list-item-content">
+                      <span class="list-name">{{ list.list_name }}</span>
+                      <button type="button" @click="addMovieToList(list.list_name)" class="list-btn">
+                        <svg class="add-icon" viewBox="0 0 24 24" width="16" height="16">
+                          <path
+                            d="M12 5v14m-7-7h14"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            fill="none"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+                <button type="button" @click="showModal = false" class="cancel-btn">Cancel</button>
+              </div>
+            </div>
+
           </div>
         </div>
         
@@ -243,8 +315,6 @@
               <button @click="toggleAddingComment" class="cancel-btn">Cancel</button>
             </div>
           </div>
-
-
 
         </div>
       </div>
@@ -443,6 +513,7 @@ export default {
       visibleCount: 9, // Inicialmente mostrar hasta 9 elementos
       showAll: false, // Para alternar entre mostrar todos los elementos o no
       userId: parseInt(localStorage.getItem('user_id')), // ID del usuario
+      userEmail: localStorage.getItem('userEmail'),
       rating: 0, // Valoración inicial
       userRatedMovies: {}, // Almacenará las películas valoradas por el usuario
       likedMovies: [], // Almacena las películas que el usuario ha marcado como "like"
@@ -460,6 +531,13 @@ export default {
 
       showReportConfirm: false, //controla confirmación de denuncia de comentario
       commentToReport: null,
+
+      showModal: false,  // Inicialmente, el modal está oculto
+      userLists: [], // Las listas del usuario
+
+      showRegisterModal: false,
+      showNoListModal: false,
+      showMovieAddedModal: false,
     };
   },
   computed: {
@@ -770,8 +848,7 @@ export default {
     async saveRating(rating) {
       try {
         if (!this.userId) { // Verifica si el userId está disponible
-          alert('You must log in to rate a movie.'); // Muestra advertencia
-          this.$router.push('/login');
+          this.showRegisterModal = true;
           return; // Salir del método
         }
 
@@ -823,8 +900,7 @@ export default {
     async toggleLike(movieId) {
       try {
         if (!this.userId) { // Verifica si el userId está disponible
-          alert('You must log in to give like a movie.'); // Muestra advertencia
-          this.$router.push('/login');
+          this.showRegisterModal = true;
           return; // Salir del método
         }
 
@@ -859,8 +935,7 @@ export default {
     async toggleWishlist(movieId) {
         try {
           if (!this.userId) { // Verifica si el userId está disponible
-            alert('You must log in to add to your wishlist.'); // Muestra advertencia
-            this.$router.push('/login');
+            this.showRegisterModal = true;
             return; // Salir del método
           }
 
@@ -926,6 +1001,99 @@ export default {
           console.error('Error loading user preferences:', error.response?.data || error.message);
         }
       },
+
+      async loadUserLists() {
+        try {
+          const userEmail = this.userEmail;
+
+          if (!userEmail) {
+            alert('No se ha encontrado el correo electrónico del usuario.');
+            return;
+          }
+
+          const endpoint = `${API_BASE_URL}/list-type/get-lists-with-movies/${encodeURIComponent(userEmail)}`;
+          const response = await axios.get(endpoint);
+
+          // Verifica qué se devuelve en la respuesta
+          console.log('Respuesta de la API:', response);
+
+          if (response.status === 200) {
+            // Accede directamente a la respuesta de las listas
+            if (response.data && Array.isArray(response.data)) {
+              this.userLists = response.data; // Asigna las listas directamente si son un array
+              console.log('Listas asignadas:', this.userLists);
+            } else {
+              console.error('Las listas no están en el formato esperado');
+            }
+          } else {
+            console.error('Error: La respuesta no es 200');
+          }
+        } catch (error) {
+          console.error('Error al obtener las listas del usuario:', error);
+        }
+      },
+
+      async showAddToListModal() {
+        try {
+          if (!this.userId) { 
+            // Verifica si el userId está disponible
+            this.showRegisterModal = true;
+            return; // Salir del método
+          }
+
+          await this.loadUserLists(); // Cargar las listas del usuario
+
+          if (this.userLists.length === 0) {
+            // Si no hay listas creadas
+            this.showNoListModal = true; // Muestra un mensaje en inglés
+            return; // Salir del método
+          }
+
+          // Mostrar modal con las listas si hay al menos una lista
+          this.showModal = true; // Hacer visible el modal
+        } catch (error) {
+          console.error('Error loading user lists for modal:', error);
+        }
+      },
+
+
+      async addMovieToList(listName) {
+
+        try {
+          const userEmail = this.userEmail;
+
+          if (!userEmail) {
+            alert('No se ha encontrado el correo electrónico del usuario.');
+            return;
+          }
+
+          const movieId = this.bannerMovie.id;
+          const endpoint = `${API_BASE_URL}/list-type/add-movie/${encodeURIComponent(userEmail)}/${listName}/${movieId}`;
+          
+          const response = await axios.post(endpoint);
+          
+          if (response.status === 200) {
+            console.log('Movie added to list successfully.');
+            this.showModal = false; // Cerrar el modal después de añadir la película
+            this.showMovieAddedModal = true;
+          }
+        } catch (error) {
+          console.error('Error adding movie to list:', error.response?.data || error.message);
+        }
+      },
+
+      closeRegisterModal() {
+        this.showRegisterModal = false;  // Cerrar el modal de error
+      },
+
+      closeNoListModal() {
+        this.showNoListModal = false;  // Cerrar el modal de error
+      },
+
+      closeMovieAddedModal() {
+        this.showMovieAddedModal = false;  // Cerrar el modal de error
+      },
+
 
     scrollToTop() {
       window.scrollTo({
@@ -2233,6 +2401,220 @@ body {
 /* Sin hover ni interacción */
 .wishlist-indicator:hover {
   cursor: default;
+}
+
+
+
+.plusButton {
+  /* Config start */
+  --plus_sideLength: 2rem;
+  --plus_topRightTriangleSideLength: 0.9rem;
+  /* Config end */
+  position: absolute;
+  bottom: 2vh;
+  left: 70.5vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
+  width: var(--plus_sideLength);
+  height: var(--plus_sideLength);
+  background-color: rgb(0,0,0,0);
+  overflow: hidden;
+  position: absolute;
+  border-radius: 25%;
+}
+
+.plusButton::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-width: 0 var(--plus_topRightTriangleSideLength) var(--plus_topRightTriangleSideLength) 0;
+  border-style: solid;
+  border-color: transparent white transparent transparent;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.2s;
+}
+
+.plusButton:hover {
+  cursor: pointer;
+}
+
+.plusButton:hover::before {
+  --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+}
+
+.plusButton:focus-visible::before {
+  --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+}
+
+.plusButton>.plusIcon {
+  fill: white;
+  width: calc(var(--plus_sideLength) * 0.7);
+  height: calc(var(--plus_sideLength) * 0.7);
+  z-index: 1;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.2s;
+}
+
+.plusButton:hover>.plusIcon {
+  fill: black;
+  transform: rotate(180deg);
+}
+
+.plusButton:focus-visible>.plusIcon {
+  fill: black;
+  transform: rotate(180deg);
+}
+
+
+
+/* Estilo para el modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.modal-content li {
+  margin: 10px 0;
+}
+
+.modal-content {
+  padding: 20px;
+}
+
+.list-item {
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between; /* Espacia los elementos a los extremos */
+  align-items: center;
+}
+
+.list-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Alinea nombre de lista y botón en los extremos */
+  width: 100%; /* Hace que ocupe todo el espacio disponible */
+}
+
+.list-name {
+  font-weight: bold; /* Para destacar el nombre de la lista */
+  margin-right: 5px; /* Espacio entre el nombre de la lista y el botón */
+  margin-left: 25px;
+  margin-top: 10px;
+}
+
+.list-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+  background-color: #4CAF50;
+  border-radius: 25%;
+  margin-right: 30px;
+  display: flex;  /* Flexbox para centrar el contenido */
+  justify-content: center;  /* Centra el ícono horizontalmente */
+  align-items: center;   /* Centra el ícono verticalmente */
+}
+
+/* Estilos para el contenedor del icono */
+.add-icon {
+  width: 20px;   /* Cambia el tamaño del icono */
+  height: 20px;  /* Cambia el tamaño del icono */
+  fill: #ffffff; /* Cambia el color de relleno del icono */
+  transition: fill 0.3s ease; /* Añade una transición suave al color */
+  color: #ffffff;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Modificación de color del icono cuando el usuario pasa el ratón por encima del botón */
+.list-btn:hover .add-icon {
+  fill: #4caf4fbf; /* Cambia el color cuando el ratón pasa sobre el botón */
+}
+
+.list-btn:hover {
+  background-color: #45a049;
+}
+
+
+
+.cancel-btn {
+  background-color: #f44336; /* Rojo para cancelar */
+  color: white;
+  border: none;
+}
+
+.cancel-btn:hover {
+  background-color: #e53835bc;
+}
+
+
+
+/* Estilos del modal de error */
+.modal-premium {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo translúcido */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-content-premium {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+}
+
+.modal-content-premium p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color:white;
+}
+
+.modal-content-premium button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-content-premium button:hover {
+  background-color: #0056b3;
 }
 
 </style>

@@ -309,6 +309,10 @@ def delete_list_by_name(db: Session, user_email: str, list_name: str):
     ).first()
 
     if list_type:
+        # Eliminar manualmente las filas relacionadas en MovieList
+        related_movies = db.query(MovieList).filter(MovieList.list_type_id == list_type.id).all()
+        for movie_list in related_movies:
+            db.delete(movie_list)
         db.delete(list_type)
         db.commit()
 
