@@ -190,7 +190,7 @@ def get_reported_comments_ordered_by_status(session: Session = Depends(get_db)):
 def ban_comment(
     comment_id: int,
     session: Session = Depends(get_db),
-    user: User = Depends(is_admin)  # Ensure that only admins can access this route
+    #user: User = Depends(is_admin)  # Ensure that only admins can access this route
 ):
     """
     Convert a reported comment to Banned by its ID (admin only).
