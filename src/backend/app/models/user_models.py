@@ -20,6 +20,7 @@ class UserBase(SQLModel):
     img_url: Union[str, None] = None  # Optional SRT link
     img_public_id: Union[str, None] = None  # Optional public ID
     isPublic: str = ProfileVisibility.PUBLIC  # Profile visibility using enum
+    is_premium: bool = False
 
 # The link between movie and movie for rating
 class MovieUser(SQLModel, table=True):
@@ -34,6 +35,30 @@ class Follow(SQLModel, table=True):
     follower_id: int = Field(foreign_key="user.id", primary_key=True)
     followed_id: int = Field(foreign_key="user.id", primary_key=True)
     
+
+# Tables to create the new relationship for list of movies of a premium user
+# MovieList is the many-to-many relation table between movies and listtypes
+class MovieList(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    list_type_id: Optional[int] = Field(default=None, foreign_key="listtype.id")  # Links to ListType
+    movie_id: Optional[int] = Field(default=None, foreign_key="movie.id")  # Links to Movie
+
+    # Relationships
+    list_type: "ListType" = Relationship(back_populates="movies")
+    movie: "Movie" = Relationship(back_populates="list_types")
+
+# The ListType model that links to Movie through MovieList
+class ListType(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)  # The name of the list type
+    created_by_user_email: str = Field(index=True)  # Store the unique email here
+    # Define ForeignKey reference to User
+    user_id: int = Field(foreign_key="user.id")  # Assuming the User model uses 'email' as primary key
+
+    # Relationships to MovieList
+    movies: List["MovieList"] = Relationship(back_populates="list_type")
+    user: "User" = Relationship(back_populates="list_types")
+
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
     
@@ -43,7 +68,8 @@ class User(UserBase, table=True):
     # Establish relationship with movies
     movies: List["Movie"] = Relationship(back_populates="users", link_model=MovieUser)
 
-
+    # Relationships to list type
+    list_types: List["ListType"] = Relationship(back_populates="user")
     followers: List["User"] = Relationship(
         sa_relationship_kwargs={
             "secondary": Follow.__table__,
