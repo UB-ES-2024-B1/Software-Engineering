@@ -63,7 +63,11 @@
                     <section class="horizontal-bar">
                       <!-- Botón desplegable para "REPORT" -->
                       <div class="dropdown">
-                        <button class="dropdown-button" @click="toggleDropdown(index)">{{ comment.state}}</button>
+                        <button :class=
+                          "{'dropdown-button-reported': comment.state === 'REPORTED', 
+                          'dropdown-button-clean': comment.state === 'CLEAN', 
+                          'dropdown-button-banned': comment.state === 'BANNED'}" 
+                          @click="toggleDropdown(index)">{{ comment.state}}</button>
                         <ul v-if="dropdowns[index]" class="dropdown-menu">
                           <li v-for="possibleState in possibleCommentsSates" :key="possibleState"  @click="handleChangeOfState(possibleState, index, comment.id)"
                               class="dropdown-item">
@@ -365,8 +369,10 @@ export default {
       let endpoint = '';
       if (this.selectedState === 'BANNED') {
         endpoint = `${API_BASE_URL}/commets/reported_to_banned/${commentId}`;
+        //Eliminarlo de la peli en la que esta el comentario cuando se bannea
       } else if (this.selectedState === 'CLEAN') {
         endpoint = `${API_BASE_URL}/commets/reported_to_clean/${commentId}`;
+        //Eliminarlo de los comentarios reportados cunado se establece como clean.
       }
 
       try {
@@ -539,15 +545,15 @@ export default {
 .comment-item {
   width: 100%;
   box-sizing: border-box;
-  padding: 10px;
+  padding: 5px 10px;
   border-bottom: 1px solid #eee;
   background-color: #2a2a2a;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
-  font-size: 1rem;
-  display: flex;
-  justify-content: space-between; /* Distribuye espacio entre el contenido principal y el contenedor derecho */
+  font-size: 0.875rem;
+  display: inline-flex;
+  justify-content: center; /* Distribuye espacio entre el contenido principal y el contenedor derecho */
   align-items: center; /* Centrado vertical */
 }
 
@@ -839,6 +845,33 @@ input:checked + .slider:before {
   align-items: center; /* Centrado vertical */
   gap: 0; /* Aseguramos que no haya espacio entre los elementos */
 }
+.comment-item-admin:hover .dropdown-menu {
+  display: block; /* Hacer que el dropdown se muestre correctamente */
+}
+
+@media screen and (max-width: 768px) {
+  .comment-info-container-admin {
+    flex-wrap: wrap; /* Hacer que los elementos bajen de línea si no caben */
+  }
+
+  .dropdown-menu {
+    position: static; /* Hacer que el dropdown ocupe espacio si la pantalla es pequeña */
+    width: 100%;
+    margin-top: 0;
+    box-shadow: none; /* Quitar sombra para un diseño más limpio */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .dropdown-button-banned, .dropdown-button-clean, .dropdown-button-reported {
+    width: 100%; /* Asegurar que el botón ocupe todo el ancho disponible en pantallas pequeñas */
+    text-align: center;
+  }
+
+  .dropdown-menu {
+    width: 100%; /* Ajustar ancho completo en pantallas pequeñas */
+  }
+}
 
 .comment-link, .comment-info-container-admin {
   margin: 0; /* Elimina cualquier margen entre los elementos internos */
@@ -847,12 +880,17 @@ input:checked + .slider:before {
 
 
 .comment-info-container-admin {
-  display: flex;
-  align-items: center;
-  margin-left: 0; /* Elimina el margen izquierdo */
+  display: flex; /* Usamos flexbox para alinear los elementos horizontalmente */
+  align-items: center; /* Alineamos verticalmente los elementos */
+  justify-content: flex-end; /* Alinea todos los elementos al final (a la derecha) */
+  gap: 10px; /* Espacio entre los elementos */
+  padding: 5px 10px; /* Padding dentro del contenedor */
   background-color: transparent;
-  padding: 5px 10px; /* Añadimos algo de padding al contenedor azul */
-  border-radius: 4px; /* Bordes redondeados */
+  border-radius: 4px;
+  box-sizing: border-box; /* Incluye padding y borde en el cálculo del tamaño */
+  width: auto; /* El ancho se adapta al contenido de los elementos internos */
+  flex-shrink: 0; /* No permite que los elementos internos se encojan */
+
 }
 
 .comment-info-container-admin .date,
@@ -860,24 +898,32 @@ input:checked + .slider:before {
   white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
 
-.comment-date-admin,
+.comment-date-admin, .dropdown-button-reported,
+.dropdown-button-banned, .dropdown-button-clean,
 .submitted-badge-admin, .banned-badge-admin, .comment-state {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 0.875rem;
+  align-items: center; /* Centrado vertical de los elementos */
+  justify-content: center; /* Centrado horizontal de los elementos */
+  padding: 5px 10px; /* Ajustamos el padding para que todos tengan el mismo tamaño */
+  border-radius: 5px; /* Bordes redondeados */
+  font-size: 0.875rem; /* Tamaño de fuente consistente */
   font-weight: bold;
   text-transform: uppercase;
-  height: auto;
-  min-width: 80px;
+  height: 40px; /* Altura consistente para todos los elementos */
+  min-width: 80px; /* Ancho mínimo para todos los elementos */
+  text-align: center; /* Alineación del texto */
+  
 }
 
 .comment-date-admin {
   background-color: transparent;
   color: white;
   border: 0.5px solid white;
+}
+.horizontal-bar {
+  position: relative; /* Posicionar el dropdown relativo a este contenedor */
+  display: inline-flex;
+  align-items: center;
 }
 
 .submitted-badge-admin {
@@ -931,55 +977,56 @@ html {
 }
 
 /* Contenedor principal del dropdown */
-.dropdown-container {
-  position: relative;
-  display: inline-block;
-}
 
 /* Botón principal del dropdown */
-.dropdown-button {
-  background-color: #2a4152;
-  color: white;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.dropdown-button-reported,
+.dropdown-button-banned,
+.dropdown-button-clean {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.875rem;
   font-weight: bold;
   text-transform: uppercase;
+  height: 40px;
+  min-width: 80px;
   text-align: center;
-}
-.dropdown-button:hover {
-  background-color: #45a049;
+  transition: background-color 0.3s;
 }
 
-/* Contenido del dropdown (inicialmente oculto) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  z-index: 1;
-  border-radius: 5px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+.dropdown-button-reported {
+  background-color: #8fa405;
+  color: rgb(255, 255, 255);
+  border: none;
+  cursor: pointer;
 }
 
-/* Estilo para los enlaces dentro del dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  border-radius: 5px;
+.dropdown-button-clean {
+  background-color: #148625;
+  color: rgb(255, 255, 255);
+  border: none;
+  cursor: pointer;
 }
 
-/* Estilo cuando se pasa el ratón sobre un enlace */
-.dropdown-content a:hover {
-  background-color: #ddd;
+.dropdown-button-banned {
+  background-color: #a61b1b;
+  color: rgb(255, 255, 255);
+  border: none;
+  cursor: pointer;
 }
 
-/* Mostrar el contenido del dropdown cuando el ratón está sobre el botón */
-.dropdown:hover .dropdown-content {
-  display: block;
+/* Hover Effects */
+.dropdown-button-reported:hover,
+.dropdown-button-clean:hover,
+.dropdown-button-banned:hover {
+  background-color: #7497a7;
+}
+
+
+.dropdown {
+  position: relative; /* Necesario para que el dropdown-menu se posicione relativo a este contenedor */
 }
 
 /* Modal de confirmación */
@@ -1018,35 +1065,45 @@ html {
 }
 
 .dropdown-menu {
-    max-height: 10rem;
-    overflow-y: auto;
-    position: absolute;
-    top: 100%;
-    /* Muestra el menú debajo del botón */
-    left: 0;
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    margin-top: 5px;
-    z-index: 1000;
-    list-style: none;
-    padding: 10px 0;
-    display: flex;
-    flex-direction: column;
+  position: absolute;
+  top: 100%; /* Mostrar justo debajo del botón */
+  left: 0;
+  background-color: hsl(216, 19%, 36%);
+  color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  margin-top: 5px;
+  z-index: 1000;
+  list-style: none;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  width: 100%; /* El ancho es igual al del contenedor del comentario */
+  max-width: 100%; /* Para que no se salga del contenedor */
+}
+.dropdown-menu.responsive {
+  width: 100%; /* Ajustar al ancho del contenedor padre si es necesario */
 }
 
 
 .dropdown-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px; /* Asegura que el tamaño del item sea igual al del botón */
 }
 
 .dropdown-item:hover {
-    background-color: #f0f0f0;
+  background-color: hsl(216, 60%, 77%);
 }
 
 .confirmation-modal{
