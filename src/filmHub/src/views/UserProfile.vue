@@ -15,7 +15,9 @@
         <div v-else-if="userData" class="profile-content">
           <!-- Imagen de perfil -->
           <div class="profile-image">
-            <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Profile Picture" />
+            <div class="profile-image-image">
+              <img :src="userData.img_url || require('@/assets/foto_perfil.png')" alt="Profile Picture" />
+            </div>
             <div class="extra-info">
 
               <div class="info-follow" @click="scrollToRatedMovies()">
@@ -621,49 +623,86 @@ export default {
 /* Caja del perfil */
 .profile-box {
   position: relative;
-  display: flex;
   flex-direction: column;
   background-color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(5px);
-  padding: 40px;
+  padding: 20px;  /* Reducido el padding para que se adapte mejor en pantallas pequeñas */
   border-radius: 10px;
-  width: 60vw;
-  height: 45vh;
+  width: 100%; /* Usamos el 100% del ancho disponible */
+  max-width: 1000px; /* Limita el ancho máximo */
+  min-width: 300px; /* Permite que el contenedor se haga pequeño en pantallas muy pequeñas */
+  height: auto; /* La altura se ajustará según el contenido */
+  min-height: 300px; /* Se asegura que el contenedor no se haga demasiado pequeño */
   color: white;
   z-index: 20;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  /* Mejora visual */
+  box-shadow: 0 10px 30px rgba(179, 219, 240, 0.5);
+
   border: 2px solid rgba(255, 255, 255, 0.1);
-  /* Sutileza */
+  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño del contenedor */
+  overflow: hidden; /* Evita que los elementos se salgan del contenedor */
+
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente (si es necesario) */
 }
 
 /* Contenido del perfil (imagen + info) */
 .profile-content {
-  display: flex;
+  display: flex; /* Disposición horizontal de los contenedores en pantallas grandes */
+  flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea si es necesario */
+  gap: 0px; /* Espacio entre los elementos */
+  box-sizing: border-box;
   width: 100%;
-  align-items: center;
-  justify-content: space-between;
+
+  background-color: transparent;
 }
 
 /* Estilo de la imagen de perfil */
 .profile-image {
-  flex: 1;
+  flex: 1; /* Ocupa la mitad del contenedor */
+  min-width: 250px; /* Ancho mínimo para la imagen */
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column; /* Apilar los elementos de arriba hacia abajo */
   padding-right: 50px;
-  padding-bottom: 0px;
-  flex-direction: column;
+  background-color: transparent;
+  position: relative; /* Necesario para el posicionamiento absoluto dentro */
+  width: 100%;
+  gap: 0px;  
+}
+.profile-image-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Asegura que la imagen ocupe todo el ancho de su contenedor */
+  flex: 0 0 65%; /* El contenedor de la imagen ocupa el 65% del espacio de profile-image */
+  margin-bottom: 10px;
+
+  background-color: transparent;
+}
+
+.profile-image-image img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 0px solid white;
+  object-fit: cover;
 }
 
 .extra-info {
   display: flex;
+  justify-content: space-evenly; /* Distribuye los elementos horizontalmente */
+  align-items: center; /* Centra los elementos verticalmente */
+  flex: 0 0 35%; /* El contenedor extra-info ocupa el 35% restante del espacio */
   padding: 2vh;
-  padding-top: 5vh;
+  background-color: transparent;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .info-follow {
-  width: 6vw;
+  width: 25%; /* Los elementos de info-follow ocupan un 25% del espacio cada uno */
   height: 9vh;
   padding: 2vh;
   display: flex;
@@ -676,6 +715,7 @@ export default {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   cursor: pointer;
   transition: transform 0.3s ease;
+  
 }
 
 .info-follow:hover {
@@ -693,11 +733,14 @@ export default {
 
 /* Estilo de la información del perfil */
 .profile-info {
-  flex: 1;
+  flex: 1; /* Ocupa la mitad del contenedor */
+  min-width: 250px; /* Ancho mínimo para la información */
   display: flex;
   flex-direction: column;
   padding: 1rem;
   gap: 20px;
+
+  background-color: transparent;
 }
 
 .profile-info p {
@@ -864,15 +907,19 @@ h2 {
   font-weight: bold;
   transition: background 0.3s ease;
   text-align: center;
-  /* Asegura que el texto está centrado */
+  background-color: #0f0f0f;
 }
 
 .btns-div {
-  position: absolute;
   display: flex;
-  bottom: 2rem;
-  right: 2rem;
+  justify-content: center;
   gap: 1rem;
+  background-color: yellow;
+  margin-top: 20px; /* Espacio entre los botones y los otros contenedores */
+  width: 100%; /* Ocupa todo el ancho disponible */
+  box-sizing: border-box;
+
+  background-color: transparent;
 }
 
 .modify-btn:hover,
@@ -1060,27 +1107,49 @@ h2 {
 
 /* Media Queries */
 @media (max-width: 768px) {
-  .profile-box {
-    width: 90%;
-    height: auto;
-    padding: 20px;
-  }
+  
 
   .profile-content {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 10px; 
   }
 
-  .profile-image img {
-    width: 120px;
-    height: 120px;
+  .profile-image {
+    width: 80%; /* Ocupa el 80% en pantallas más pequeñas */
+    min-width: 120px;
+    padding-right: 20px;
+  }
+
+  .profile-info {
+    width: 80%; /* Ocupa el 80% en pantallas más pequeñas */
+    min-width: 150px;
+    
   }
 
   .btns-div {
-    flex-direction: column;
+    position: static; /* Cambiar de absoluto a normal para que no se solape */
+    display: flex;
+    justify-content: center;
     gap: 10px;
-    bottom: 1rem;
+    margin-top: 20px; /* Separar botones de los otros contenedores */
+  }
+  .btns-div {
+    width: 80%; /* Ocupa el 80% en pantallas pequeñas */
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px; /* Separar botones de los otros contenedores */
+    margin-bottom: 20px; /* Asegurar que haya espacio en la parte inferior */
+  }
+  .btns-div {
+    display: flex;
+    flex-direction: row; /* Los botones estarán en fila */
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px; /* Espacio entre los botones y el contenido superior */
+    margin-bottom: 20px; /* Asegura que haya espacio en la parte inferior */
   }
 
   .movies-list {
@@ -1108,12 +1177,20 @@ h2 {
     padding: 5px;
     font-size: 12px;
   }
+  .extra-info {
+    flex-direction: column; /* Los items se apilan verticalmente en pantallas pequeñas */
+    align-items: center; /* Centra los items */
+    padding: 5vh 2vw; /* Ajuste del padding para pantallas pequeñas */
+  }
+
+  .info-follow {
+    width: 80%; /* Los items ocupan el 80% del contenedor en pantallas pequeñas */
+    margin-bottom: 10px; /* Espacio entre los elementos */
+  }
 }
 
 @media (max-width: 480px) {
-  .profile-box {
-    padding: 10px;
-  }
+  
 
   .movies-header button {
     padding: 8px 15px;
