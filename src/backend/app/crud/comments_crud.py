@@ -244,3 +244,25 @@ def delete_reported_comment(session: Session, comment_id: int) -> bool:
     session.delete(comment)
     session.commit()
     return True
+
+def ban_comment_by_id(db: Session, comment_id: int):
+    # Busca el comentario
+    comment = db.query(Comment).filter_by(id=comment_id).first()
+    if not comment:
+        return None
+    
+    # Actualiza el estado del comentario a "BANNED"
+    comment.reported = "BANNED"
+    db.commit()
+    return comment
+
+def clean_comment_by_id(db: Session, comment_id: int):
+    # Busca el comentario
+    comment = db.query(Comment).filter_by(id=comment_id).first()
+    if not comment:
+        return None
+    
+    # Actualiza el estado del comentario a "BANNED"
+    comment.reported = "CLEAN"
+    db.commit()
+    return comment
