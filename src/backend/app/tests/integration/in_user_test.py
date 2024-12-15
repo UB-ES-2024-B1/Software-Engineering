@@ -11,7 +11,7 @@ def mock_get_current_user(user_id):
     def _mock_user():
         return User(
             id=user_id,
-            email="user2@example.com",
+            email="user2test@example.com",
             is_active=True,
             is_admin=False,
             full_name="User Two",
@@ -188,7 +188,7 @@ def test_user_creation_retrieval_duplicate_check_and_deletion():
 def test_user_follow_and_delete():
     # Create the first user
     user_1 = {
-        "email": "user1@example.com",
+        "email": "user1test@example.com",
         "is_active": True,
         "is_admin": False,
         "full_name": "User One",
@@ -201,7 +201,7 @@ def test_user_follow_and_delete():
 
     # Create the second user
     user_2 = {
-        "email": "user2@example.com",
+        "email": "user2test@example.com",
         "is_active": True,
         "is_admin": False,
         "full_name": "User Two",
@@ -258,7 +258,7 @@ def test_user_follow_and_delete():
 def test_user_follow_unfollow_and_delete():
     # Create the first user
     user_1 = {
-        "email": "user1@example.com",
+        "email": "user1test@example.com",
         "is_active": True,
         "is_admin": False,
         "full_name": "User One",
@@ -271,7 +271,7 @@ def test_user_follow_unfollow_and_delete():
 
     # Create the second user
     user_2 = {
-        "email": "user2@example.com",
+        "email": "user2test@example.com",
         "is_active": True,
         "is_admin": False,
         "full_name": "User Two",
@@ -319,7 +319,7 @@ def test_user_follow_unfollow_and_delete():
 
 def test_follow_unfollow_non_existent_users_and_delete():
     user_1 = {
-        "email": "user1@example.com",
+        "email": "user1test@example.com",
         "is_active": True,
         "is_admin": False,
         "full_name": "User One",

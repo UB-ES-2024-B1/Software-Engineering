@@ -189,7 +189,7 @@ def test_delete_comment_movie_success(login_user, db_session):
     assert not matches, f"Found matching comment for user_id={user.id} and text='{comment_text}'"
 
 
-def test_wishing_logged_out_user(driver_setup, db_session):
+def test_comment_logged_out_user(driver_setup, db_session):
     driver = driver_setup
     # Navigate to the movie page without logging in
     driver.get("http://localhost:8080/movie/3")
