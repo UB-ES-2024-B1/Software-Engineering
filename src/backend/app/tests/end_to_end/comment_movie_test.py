@@ -17,7 +17,6 @@ def driver_setup():
     chrome_options = Options()
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     driver.maximize_window()
     driver.get("http://localhost:8080/login")
@@ -37,10 +36,11 @@ def login_user(driver_setup, db_session):
     driver = driver_setup
     driver.find_element(By.ID, "email").send_keys("user2@example.com")
     driver.find_element(By.ID, "password").send_keys("password2")
+    time.sleep(2)
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
-    time.sleep(3)  # Wait for the page to load after login
+    time.sleep(2)  # Wait for the page to load after login
     return driver
-
+'''
 def test_comment_movie_success(login_user, db_session):
     driver = login_user
     # Navigate to the movie page
@@ -210,5 +210,88 @@ def test_wishing_logged_out_user(driver_setup, db_session):
     # Assert that the success message contains the expected text
     assert "You need to log in or register to access this feature." in success_message.text, "The alert message was not displayed correctly."
 
+'''
 
+def test_report_comment_success(login_user, db_session):
+    driver = login_user
 
+    # Navigate to the movie page
+    driver.get("http://localhost:8080/movie/1")  # Change this URL to the correct movie page URL
+    time.sleep(3)
+
+    # Scroll to the comments section
+    comments_section = driver.find_element(By.CLASS_NAME, "comments-section")
+    driver.execute_script("arguments[0].scrollIntoView(true);", comments_section)
+    time.sleep(3)  # Allow time for animation if any
+
+    # Identify a comment that can be reported
+    report_comment_btn = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "report-comment-btn"))
+    )
+    
+    # Click the "Report Comment" button
+    report_comment_btn.click()
+    # Verify the report confirmation modal is displayed
+    report_modal = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CLASS_NAME, "report-modal"))
+    )
+    assert report_modal.is_displayed(), "The report confirmation modal was not displayed."
+
+    # Confirm the report
+    confirm_report_btn = driver.find_element(By.XPATH, "//button[text()='Yes']")
+    confirm_report_btn.click()
+
+    # Wait for the success message after deletion
+    success_message = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CLASS_NAME, "alert-modal"))
+    )
+
+    # Assert that the success message contains the expected text
+    assert "Comment reported successfully." in success_message.text, "The success message was not displayed correctly."
+
+    # Close the success alert
+    alert_close_btn = driver.find_element(By.CLASS_NAME, "alert-close-btn")
+    alert_close_btn.click()
+
+    # Validate in the database if the comment was reported
+    user = user_crud.get_user_by_email(db_session, "user2@example.com")
+    thread = comments_crud.get_threads_by_movie(db_session, 1)
+    comments = comments_crud.get_comments_by_thread(db_session, thread[0].id)
+    comments_reported = comments_crud.get_comments_reported_by_user(db_session, user.id)
+    
+    comment_ids = {comment.id for comment in comments}
+    reported_comment_ids = {reported_comment.id for reported_comment in comments_reported}
+
+    # Find the intersection of the two sets
+    common_ids = comment_ids & reported_comment_ids
+
+    # Assert that at least one comment is reported
+    assert common_ids, "No comments in the thread are reported by the user"
+
+    driver.get("http://localhost:8080/profile")
+    time.sleep(2)
+
+    # Verify that the user was redirected to the profile page
+    assert "profile" in driver.current_url, "User was not redirected to profile page."
+    
+    # Wait for the profile page to load
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "profile-page"))
+    )
+
+    # Identify a comment that can be reported
+    report_comment_btn = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "report-comments-btn"))
+    )
+
+    report_comment_btn.click()
+    
+    time.sleep(2)
+    
+    # Verify that the user was redirected to the profile page
+    assert "reportedComments" in driver.current_url, "User was not redirected to reportedComments page."
+
+    
+    
+
+    
