@@ -57,16 +57,30 @@
                     <div class="comment-date-admin">
                       <p>{{ comment.date.slice(0, 10) }}</p>
                     </div>
-                    <!-- Si un comment esta reportado tiene que salirle al admin que esta pendiente. Si esta banneado tiene que salir resolved.-->
-                    <div>
-                      <div v-if="comment.state === 'REPORTED'" class="submitted-badge-admin">
-                        <p>PENDING</p>
+
+
+
+                    <section class="horizontal-bar">
+                      <!-- Botón desplegable para "REPORT" -->
+                      <div class="dropdown">
+                        <button class="dropdown-button" @click="toggleDropdown(index)">{{ comment.state}}</button>
+                        <ul v-if="dropdowns[index]" class="dropdown-menu">
+                          <li v-for="possibleState in possibleCommentsSates" :key="possibleState"  @click="selectState(possibleState)"
+                              class="dropdown-item">
+                                {{possibleState }}
+                          </li>
+                        </ul>
                       </div>
-                      <div v-else class="banned-badge-admin">
-                        <p>RESOLVED</p>
-                      </div>
-                    </div>
+                    </section>
                   </div>
+
+                  <!-- Modal de Confirmación -->
+                  <div v-if="showConfirmation && selectedIndex === index" class="confirmation-modal">
+                    <p>Are you sure you want to mark this comment as {{ selectedOption }}?</p>
+                    <button @click="applyStateChange(index)" class="confirm-btn">Yes</button>
+                    <button @click="cancelStateChange" class="cancel-btn">No</button>
+                  </div>
+
                   <hr />
                 </div>
               </div>
@@ -137,6 +151,14 @@ export default {
       activeSorting: '', // Para almacenar el criterio activo de ordenación
       selectedYear: '',  // Para almacenar el año seleccionado si corresponde
       cancelTokenSource: null, // Para manejar la cancelación de solicitudes
+
+      showConfirmation: false, // Modal de confirmación visible
+      selectedOption: '', // Opción seleccionada (CLEAN o BANNED)
+      selectedIndex: null, // Índice del comentario que se está actualizando
+
+      dropdowns: {} ,
+      selectedState: '',
+      possibleCommentsSates: ['CLEAN','REPORTED', 'BANNED' ],
     }
   },
   created() {
@@ -315,7 +337,49 @@ export default {
         return 'Unknown User';
       }
     },
-  }
+
+
+    initializeDropdowns() {
+      // Llenar dropdowns con 'false' para cada comentario
+      this.allReportedComments.forEach((_, index) => {
+        this.dropdowns[index] = false;
+      });
+    },
+    toggleDropdown(index) {
+      this.dropdowns[index] = !this.dropdowns[index];
+    },
+    selectState(state, index) {
+      console.log(`Selected state: ${state}`);
+      this.selectedState = state;
+      this.dropdowns[index] = false;
+      //metode per aplicar el canvi d'estat (canviar i fer servir endpoint per fer el put)
+      this.allReportedComments[index].state = state;
+
+    },
+    handleClickOutside(event) {
+      const dropdownsElements = document.querySelectorAll('.dropdown');
+      let clickInsideDropdown = false;
+
+      dropdownsElements.forEach((dropdown) => {
+        if (dropdown.contains(event.target)) {
+          clickInsideDropdown = true;
+        }
+      });
+
+      // Si el clic es fuera de todos los dropdowns, ciérralos todos
+      if (!clickInsideDropdown) {
+        this.dropdowns = {};
+      }
+    },
+  },
+
+  async mounted() {
+    document.addEventListener('click', this.handleClickOutside);
+    this.initializeDropdowns();
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+  },
 
 }
 </script>
@@ -765,7 +829,7 @@ input:checked + .slider:before {
 }
 
 .comment-date-admin,
-.submitted-badge-admin, .banned-badge-admin {
+.submitted-badge-admin, .banned-badge-admin, .comment-state {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -834,7 +898,124 @@ html {
   outline-offset: 2px; /* Asegura que el borde no quede pegado al texto */
 }
 
+/* Contenedor principal del dropdown */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
 
+/* Botón principal del dropdown */
+.dropdown-button {
+  background-color: #2a4152;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+}
+.dropdown-button:hover {
+  background-color: #45a049;
+}
+
+/* Contenido del dropdown (inicialmente oculto) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  z-index: 1;
+  border-radius: 5px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo para los enlaces dentro del dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  border-radius: 5px;
+}
+
+/* Estilo cuando se pasa el ratón sobre un enlace */
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+/* Mostrar el contenido del dropdown cuando el ratón está sobre el botón */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Modal de confirmación */
+.confirmation-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  z-index: 2000;
+}
+
+.confirm-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.cancel-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.dropdown-menu {
+    max-height: 10rem;
+    overflow-y: auto;
+    position: absolute;
+    top: 100%;
+    /* Muestra el menú debajo del botón */
+    left: 0;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    margin-top: 5px;
+    z-index: 1000;
+    list-style: none;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
 
 
 </style>
