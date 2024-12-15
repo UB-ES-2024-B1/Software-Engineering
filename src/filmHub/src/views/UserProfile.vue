@@ -4,8 +4,6 @@
 
     <div class="overlay"></div>
 
-
-
     <div class="main-content">
       <div class="shadow-overlay"></div>
       <div class="profile-box">
@@ -14,14 +12,13 @@
 
         <div v-else-if="userData" class="profile-content">
 
-
           <button class="Btn" 
           @click.prevent="openModal"
           :class="{'premium-button': isPremium}">
             <svg class="logoIcon" height="1em" viewBox="0 0 576 512" :class="{'gold-crown': isPremium}">
               <path d="M309 106c11.4-7 19-19.7 19-34c0-22.1-17.9-40-40-40s-40 17.9-40 40c0 14.4 7.6 27 19 34L209.7 220.6c-9.1 18.2-32.7 23.4-48.6 10.7L72 160c5-6.7 8-15 8-24c0-22.1-17.9-40-40-40S0 113.9 0 136s17.9 40 40 40c.2 0 .5 0 .7 0L86.4 427.4c5.5 30.4 32 52.6 63 52.6H426.6c30.9 0 57.4-22.1 63-52.6L535.3 176c.2 0 .5 0 .7 0c22.1 0 40-17.9 40-40s-17.9-40-40-40s-40 17.9-40 40c0 9 3 17.3 8 24l-89.1 71.3c-15.9 12.7-39.5 7.5-48.6-10.7L309 106z"></path>
             </svg>
-          </button> 
+          </button>
 
           <!-- Imagen de perfil -->
           <div class="profile-image" :class="{ 'gold-border': isPremium }">
@@ -69,19 +66,77 @@
     <div class="movies-section">
       <!-- Nueva capa de overlay -->
       <div class="movies-overlay"></div>
-    
+
       <div class="movies-header">
-        <button :class="{ active: showRatedMovies }" @click="toggleMovies('rated')">
-          Rated Movies
-        </button>
+        <!-- Botones predeterminados -->
+        <div class="default-buttons">
+          <button :class="{ active: activeList === 'rated' }" @click="toggleMovies('rated')">
+            Rated Movies
+          </button>
+          <button :class="{ active: activeList === 'liked' }" @click="toggleMovies('liked')">
+            Favourite Movies
+          </button>
+          <button :class="{ active: activeList === 'wishlist' }" @click="toggleMovies('wishlist')">
+            Wishlist Movies
+          </button>
+        </div>
       
-        <button :class="{ active: showFavouriteMovies }" @click="toggleMovies('liked')">
-          Favourite Movies
-        </button>
+        <!-- Botón para agregar una nueva lista -->
+        <div class="add-button">
+          <button class="add-new-list-btn" @click="openAddListModal">
+            <svg class="add-icon" viewBox="0 0 24 24" width="16" height="16">
+              <path
+                d="M12 5v14m-7-7h14"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Add New
+          </button>
+        </div>
       
-        <button :class="{ active: showWishlistMovies }" @click="toggleMovies('wishlist')">
-          Wishlist Movies
-        </button>
+        <!-- Botones de listas personalizadas -->
+        <div class="list-container">
+          <button
+            v-for="(list, index) in userLists"
+            :key="index"
+            class="list-button"
+            :class="{ active: activeList === list.name }"
+            @click="selectList(list.name)"
+          >
+            {{ list.name }}
+            <span class="delete-button-list" @click.stop="deleteList(list.name)"></span>
+          </button>
+        </div>
+      </div>
+      
+      
+      
+      
+
+
+      <!-- Modal para agregar nueva lista -->
+      <div v-if="showModal" class="modal-overlay">
+        <div class="modal-content">
+          <h2>Create New List</h2>
+          <form @submit.prevent="createNewList">
+            <label for="list-name">List Name</label>
+            <input
+              id="list-name"
+              type="text"
+              v-model="newListName"
+              placeholder="Enter list name"
+              required
+            />
+            <div class="modal-buttons">
+              <button type="button" @click="closeModal" class="cancel-btn">Cancel</button>
+              <button type="submit" class="create-btn">Create List</button>
+            </div>
+          </form>
+        </div>
       </div>
     
       <div class="movies-list">
@@ -119,13 +174,14 @@
           </button>
 
         </div>
-      </div>      
+      </div>   
     </div>
     
 
     <FooterComponent />
   </div>
 </template>
+
 
 
 
@@ -163,11 +219,15 @@
       likes: movieData.likes,
       genre: movieData.genres.map((genre) => genre.type).join(', '),
       releaseDate: movieData.release_date.substring(0, 4),
-      userRating: userRating, // Agregamos el rating del usuario, si existe
     };
+
+    if (userRating !== null) {
+      movieObject.userRating = userRating; // Solo se agrega si está presente
+    }
 
     return movieObject;
   }
+
 
   export default {
     name: 'UserProfile',
@@ -180,6 +240,7 @@
         userData: null,
         error: null,
         profile_image: '',
+        activeList: 'rated',
         showRatedMovies: true, // Controla si se muestran las valoradas o las con like
         showFavouriteMovies: false,
         showWishlistMovies: false,
@@ -187,8 +248,18 @@
         likedMovies: [], // Películas con like
         wishedMovies: [], // Películas en la wishlist
         displayedMovies: [], // Películas que se muestran actualmente
-
         isPremium: false, // Inicializamos en `false` por defecto
+
+        // Datos para el modal
+        showModal: false,
+        newListName: '', // Nombre de la nueva lista
+
+        // Listas predeterminadas (no deben añadirse a `userLists`).
+        defaultLists: ['Rated', 'Favourite', 'Wishlist'], 
+
+        // Aquí irán las listas creadas por el usuario.
+        userLists: [], 
+
       };
     },
     created() {
@@ -209,6 +280,7 @@
 
           // Cargar las películas valoradas, con like y en wishlist
           this.loadMovies();
+          this.loadLists();
         })
         .catch((error) => {
           console.error('Error al obtener los datos del usuario:', error);
@@ -293,12 +365,64 @@
           });
       },
 
+      loadLists() {
+        if (!this.userData) {
+          console.error('Error: No se han cargado los datos del usuario.');
+          return;
+        }
+
+        console.log('Email enviado al backend:', this.userData.email); // Añadido para depuración
+
+        axios
+          .get(`${API_BASE_URL}/list-type/email/${this.userData.email}`)
+          .then((response) => {
+            console.log('Listas obtenidas del backend:', response.data);
+            
+            // Listas creadas por el usuario obtenidas del backend
+            const userCreatedLists = response.data.map((list) => ({
+              name: list.name,
+              id: list.id,
+            }));
+
+            // Aseguramos que `userLists` contenga solo una copia de las listas predeterminadas
+            const defaultLists = [
+            ];
+            // Actualizamos `userLists` fusionando listas predeterminadas con las del backend
+            this.userLists = [
+              ...defaultLists, // Listas predeterminadas
+              ...userCreatedLists, // Listas del backend
+            ];
+          })
+          .catch((error) => {
+            console.error('Error al obtener las listas del usuario:', error);
+          });
+      },
+
+
       toggleMovies(type) {
+        this.activeList = type; // Actualizamos la lista activa
+
+        // Actualizamos las variables para las listas predeterminadas
         this.showRatedMovies = type === 'rated';
         this.showFavouriteMovies = type === 'liked';
         this.showWishlistMovies = type === 'wishlist';
-        this.updateDisplayedMovies();
+
+        // Actualizamos las películas mostradas
+        switch (type) {
+          case 'rated':
+            this.displayedMovies = this.ratedMovies;
+            break;
+          case 'liked':
+            this.displayedMovies = this.likedMovies;
+            break;
+          case 'wishlist':
+            this.displayedMovies = this.wishedMovies;
+            break;
+          default:
+            console.warn('Tipo de lista desconocido:', type);
+        }
       },
+
 
       updateDisplayedMovies() {
         this.displayedMovies = this.showRatedMovies
@@ -307,6 +431,29 @@
           ? this.likedMovies
           : this.wishedMovies;
       },
+
+      removeMovie(movieId) {
+        switch (this.activeList) {
+          case 'rated':
+            this.unrateMovie(movieId);
+            break;
+          case 'liked':
+            this.dislikeMovie(movieId);
+            break;
+          case 'wishlist':
+            this.removeFromWishlist(movieId);
+            break;
+          default:
+            // Si es una lista personalizada
+            if (this.userLists.some(list => list.name === this.activeList)) {
+              this.removeMovieFromDynamicList(movieId);
+            } else {
+              console.warn('Lista activa no reconocida.');
+            }
+        }
+      },
+
+
 
       async unrateMovie(movieId) {
         try {
@@ -337,7 +484,135 @@
           console.error('Error al eliminar la película de la wishlist:', error);
         }
       },
+
+      async removeMovieFromDynamicList(movieId) {
+        try {
+          // Llamada al endpoint para eliminar de la lista activa
+          const response = await axios.delete(
+            `${API_BASE_URL}/list-type/remove-movie/${this.userData.email}/${this.activeList}/${movieId}`
+          );
+
+          if (response.status === 200) {
+            // Actualizar las películas de la lista activa
+            this.displayedMovies = this.displayedMovies.filter(movie => movie.id !== movieId);
+          } else {
+            alert('No se pudo eliminar la película. Inténtalo de nuevo.');
+          }
+        } catch (error) {
+          console.error(`Error al eliminar la película "${movieId}" de la lista "${this.activeList}":`, error);
+          alert('Hubo un error al intentar eliminar la película.');
+        }
+      },
+
+
+      openAddListModal() {
+        this.showModal = true; // Mostrar el modal
+      },
+
+      closeModal() {
+        this.showModal = false; // Cerrar el modal
+        this.newListName = ''; // Limpiar el campo de texto
+      },
+
+      async createNewList() {
+        if (this.newListName.trim() === '') {
+          alert('Please enter a valid list name.');
+          return;
+        }
+
+        const listExists = this.userLists.some(
+          (list) => list.name.toLowerCase() === this.newListName.toLowerCase()
+        );
+        if (listExists) {
+          alert('A list with this name already exists.');
+          return;
+        }
+
+        try {
+          const response = await axios.post(
+            `${API_BASE_URL}/list-type/${this.userData.email}/${this.newListName.trim()}`
+          );
+
+          this.userLists.push({
+            name: this.newListName.trim(),
+            id: response.data.id,
+          });
+
+          this.newListName = '';
+          this.closeModal();
+        } catch (error) {
+          console.error('Error al crear la nueva lista:', error);
+          alert('There was an error creating the list. Please try again.');
+        }
+      },    
+
+      async loadMoviesFromList(listName) {
+        try {
+          const userEmail = localStorage.getItem('userEmail');
+          if (!userEmail) {
+            console.error('User email not found');
+            return;
+          }
+
+          const response = await axios.get(`${API_BASE_URL}/list-type/movies/${userEmail}/${listName}`);
+
+          // Suponiendo que la respuesta contiene una lista de películas
+          const movies = response.data.map(movie => generateMovieObject(movie));
+
+          // Actualizar las películas mostradas según la lista seleccionada
+          this.displayedMovies = movies;
+        } catch (error) {
+          console.error('Error al cargar las películas de la lista:', error);
+        }
+      },
+
+      // Método para manejar la selección de una lista
+      async selectList(listName) {
+        this.activeList = listName; // Actualiza la lista activa a la nueva lista personalizada
+
+        try {
+          const response = await axios.get(
+            `${API_BASE_URL}/list-type/movies/${this.userData.email}/${listName}`
+          );
+
+          this.displayedMovies = await Promise.all(
+            response.data.map(async (movieTitle) => {
+              const movieData = await this.fetchMovieDetails(movieTitle);
+              return movieData ? generateMovieObject(movieData) : null;
+            })
+          ).then((movies) => movies.filter((movie) => movie !== null));
+        } catch (error) {
+          console.error(`Error al cargar las películas de la lista "${listName}":`, error);
+          alert('Hubo un error al cargar las películas de esta lista. Por favor, inténtalo de nuevo.');
+        }
+      },
+
+      async deleteList(listName) {
+        try {
+          // Asegúrate de obtener el correo del usuario desde el almacenamiento local
+          const userEmail = localStorage.getItem('userEmail');
+          
+          if (!userEmail) {
+            console.error('No user email found');
+            return;
+          }
+
+          // Realiza la solicitud DELETE al endpoint del servidor
+          await axios.delete(`${API_BASE_URL}/list-type/${userEmail}/${listName}`);
+
+          // Eliminar la lista de `userLists` en el frontend
+          this.userLists = this.userLists.filter(list => list.name !== listName);
+
+          console.log(`La lista "${listName}" ha sido eliminada exitosamente.`);
+        } catch (error) {
+          console.error('Error al eliminar la lista:', error);
+          alert('Hubo un error al eliminar la lista. Por favor, inténtalo de nuevo.');
+        }
+      },
+      
     },
+
+
   };
 </script>
 
@@ -588,47 +863,50 @@ h2 {
   text-align: center;       /* Asegura que el texto está centrado */
 }
   
-  .btns-div {
-    position: absolute;
-    display: flex;
-    bottom: 2rem;
-    right: 2rem;
-    gap: 1rem;
-  }
-  
-  .modify-btn:hover,
-  .report-comments-btn:hover,
-  .add-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-  
-  /* Nueva sección de películas */
-  .movies-section {
-    margin-top: 0px;
-    padding-top: 20px;
-    background-color: #121212;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    z-index: 10;
-  }
-  
-  .movies-header {
-    position: absolute;
-    top: px; /* 20px desde la parte superior */
-    right: 363px; /* 20px desde la izquierda */
-    display: flex; /* Los botones en fila */
-    margin: 0 auto;
-    position: relative;
-    margin-top: 20px;
-    z-index: 5;
-
+.btns-div {
+  position: absolute;
+  display: flex;
+  bottom: 2rem;
+  right: 2rem;
+  gap: 1rem;
 }
 
-/* Estilo base de los botones */
-.movies-header button {
+.modify-btn:hover,
+.report-comments-btn:hover,
+.add-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Nueva sección de películas */
+.movies-section {
+  margin-top: 0px;
+  padding-top: 20px;
+  background-color: #121212;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+}
+
+.movies-header {
+  position: absolute;
+  top: px; /* 20px desde la parte superior */
+  right: 296px; /* 20px desde la izquierda */
+  display: flex; /* Los botones en fila */
+  margin: 0 auto;
+  position: relative;
+  margin-top: 20px;
+  z-index: 5;
+}
+
+.default-buttons {
+  display: flex;
+  margin-right: 0px; /* Espacio entre los botones predeterminados y los nuevos */
+}
+
+.default-buttons button {
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
   color: white; /* Texto blanco por defecto */
@@ -643,9 +921,36 @@ h2 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }
 
+.add-button button {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
+  color: white; /* Texto blanco por defecto */
+  border: none;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease; /* Suavizar transiciones */
+  margin-right: 2px; /* Separación entre botones */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+/* Efecto hover */
+.add-button button:hover {
+  background: #95e06f; /* Azul más claro cuando se pasa el ratón */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más intensa para el hover */
+  transform: translateY(-2px); /* Eleva el botón al pasar el ratón */
+}
+
+
 /* El último botón no tiene margen derecho */
 .movies-header button:last-child {
-  margin-right: 0;
+  margin-right: 2px;
+}
+
+.movies-header button:first-child {
+  margin-left: 10px;
 }
 
 /* Estilo para el botón activo */
@@ -661,13 +966,12 @@ h2 {
 }
 
 /* Efecto hover */
-.movies-header button:hover {
+.default-buttons button:hover {
   background: #6fa3e0; /* Azul más claro cuando se pasa el ratón */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más intensa para el hover */
   transform: translateY(-2px); /* Eleva el botón al pasar el ratón */
 }
 
-/* Agregar un enfoque visual más fuerte al pasar el ratón sobre el botón activo */
 .movies-header button.active:hover {
   background: #3879c0; /* Azul aún más oscuro para hover cuando está activo */
   box-shadow: 0 0 30px rgba(74, 144, 226, 1), 0 0 40px rgba(0, 0, 0, 0.4); /* Brillo más fuerte */
@@ -675,160 +979,181 @@ h2 {
   text-shadow: 0 0 15px rgba(74, 144, 226, 1), 0 0 30px rgba(74, 144, 226, 1), 0 0 50px rgba(74, 144, 226, 1); /* Brillo azul más intenso */
 }
 
+/* Estilos para el contenedor de botones personalizados (listas nuevas) */
+
+.list-button {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
+  color: white; /* Texto blanco por defecto */
+  border: none;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease; /* Suavizar transiciones */
+  margin-right: 2px; /* Separación entre botones */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+/* Asegura que el primer botón de la lista no se mueva */
+.list-container button:first-child {
+  margin-left: 0;
+}
 
 
   
-  /* Contenedor de la lista de películas */
-  .movies-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 55px;
-    width: 100%;
-    max-width: 1200px;
-    min-height: 375px;
-    padding: 15px;
-    box-sizing: border-box;
-    background:rgba(255, 255, 255, 0.2);
-    border-top-right-radius: 30px;
-    z-index: 5;
+/* Contenedor de la lista de películas */
+.movies-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 55px;
+  width: 100%;
+  max-width: 1200px;
+  min-height: 375px;
+  padding: 15px;
+  box-sizing: border-box;
+  background:rgba(255, 255, 255, 0.2);
+  border-top-right-radius: 30px;
+  z-index: 5;
+}
+
+.movie-item {
+  position: relative; 
+  width: 250px;
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 20px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.movie-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.movie-poster {
+  width: 250px !important;
+  height: 350px !important;
+  border-radius: 20px !important;
+  opacity: 1;
+}
+
+.rating-likes-cover {
+  position: absolute;
+  top: 295px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  z-index: 5;
+}
+
+.user-rating {
+  position: absolute;
+  bottom: 295px;
+  left: 10px;
+  background-color: rgba(0, 255, 0, 0.3);
+  border: 1px solid green;
+  backdrop-filter: blur(5px);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  gap: 1px;
+  align-items: center;
+  z-index: 5;
+  font-weight: bold;
+}
+
+.icon {
+  width: 20px !important;
+  /* Ajusta el tamaño según tus necesidades */
+  height: 20px !important;
+  margin-right: 5px;
+  /* Espacio entre la imagen y el número */
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .profile-box {
+    width: 90%;
+    height: auto;
+    padding: 20px;
   }
-  
-  .movie-item {
-    position: relative; 
-    width: 250px;
-    height: 350px;
-    display: flex;
+
+  .profile-content {
     flex-direction: column;
     align-items: center;
-    border-radius: 20px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    position: relative;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  .movie-item:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-  }
-  
-  .movie-poster {
-    width: 250px !important;
-    height: 350px !important;
-    border-radius: 20px !important;
-    opacity: 1;
-  }
-  
-  .rating-likes-cover {
-    position: absolute;
-    top: 295px;
-    left: 10px;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    z-index: 5;
-  }
-  
-  .user-rating {
-    position: absolute;
-    bottom: 295px;
-    left: 10px;
-    background-color: rgba(0, 255, 0, 0.3);
-    border: 1px solid green;
-    backdrop-filter: blur(5px);
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    display: flex;
-    gap: 1px;
-    align-items: center;
-    z-index: 5;
-    font-weight: bold;
+    text-align: center;
   }
 
-  .icon {
-    width: 20px !important;
-    /* Ajusta el tamaño según tus necesidades */
-    height: 20px !important;
-    margin-right: 5px;
-    /* Espacio entre la imagen y el número */
+  .profile-image img {
+    width: 120px;
+    height: 120px;
   }
-  
-  /* Media Queries */
-  @media (max-width: 768px) {
-    .profile-box {
-      width: 90%;
-      height: auto;
-      padding: 20px;
-    }
-  
-    .profile-content {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-  
-    .profile-image img {
-      width: 120px;
-      height: 120px;
-    }
-  
-    .btns-div {
-      flex-direction: column;
-      gap: 10px;
-      bottom: 1rem;
-    }
-  
-    .movies-list {
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 20px;
-    }
-  
-    .movie-item {
-      width: 150px;
-      height: 225px;
-    }
-  
-    .movie-poster {
-      height: 225px !important;
-    }
-  
-    .rating-likes-cover {
-      top: 180px;
-      padding: 5px;
-      font-size: 12px;
-    }
-  
-    .user-rating {
-      bottom: 180px;
-      padding: 5px;
-      font-size: 12px;
-    }
+
+  .btns-div {
+    flex-direction: column;
+    gap: 10px;
+    bottom: 1rem;
   }
-  
-  @media (max-width: 480px) {
-    .profile-box {
-      padding: 10px;
-    }
-  
-    .movies-header button {
-      padding: 8px 15px;
-      font-size: 12px;
-    }
-  
-    .movie-item {
-      width: 120px;
-      height: 180px;
-    }
-  
-    .movie-poster {
-      height: 180px !important;
-    }
+
+  .movies-list {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
   }
+
+  .movie-item {
+    width: 150px;
+    height: 225px;
+  }
+
+  .movie-poster {
+    height: 225px !important;
+  }
+
+  .rating-likes-cover {
+    top: 180px;
+    padding: 5px;
+    font-size: 12px;
+  }
+
+  .user-rating {
+    bottom: 180px;
+    padding: 5px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-box {
+    padding: 10px;
+  }
+
+  .movies-header button {
+    padding: 8px 15px;
+    font-size: 12px;
+  }
+
+  .movie-item {
+    width: 120px;
+    height: 180px;
+  }
+
+  .movie-poster {
+    height: 180px !important;
+  }
+}
 
 
 
@@ -934,8 +1259,168 @@ h2 {
 }
 
 .gold-border img{
-  border: 4px solid gold; /* Borde dorado */
+  border: 0px solid gold; /* Borde dorado */
 }
+
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal-content {
+  background-color: #1c1c1c;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 100%;
+}
+
+.modal-content h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-content label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.modal-content input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+}
+
+.modal-content input:focus {
+  border-color: #4CAF50;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.cancel-btn,
+.create-btn {
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: #f44336; /* Rojo para cancelar */
+  color: white;
+  border: none;
+}
+
+.cancel-btn:hover {
+  background-color: #e53935;
+}
+
+.create-btn {
+  background-color: #4CAF50; /* Verde para crear lista */
+  color: white;
+  border: none;
+}
+
+.create-btn:hover {
+  background-color: #45a049;
+}
+
+
+
+.list-button {
+  position: relative; /* Necesario para posicionar el botón de eliminar */
+  background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
+  color: white; /* Texto blanco por defecto */
+  border: none;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease; /* Suavizar transiciones */
+  margin-right: 2px; /* Separación entre botones */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+
+.list-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.delete-button-list {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(255, 0, 0, 0.5);
+  border: none;
+  border-radius: 2px;
+  width: 10px;
+  height: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Inicialmente, la cruz no es visible */
+.delete-button-list::after {
+  content: ''; /* La cruz se genera con este pseudo-elemento */
+  width: 8px;
+  height: 1.5px;
+  background-color: transparent;
+  position: absolute;
+  transform: rotate(45deg);
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.delete-button-list::before {
+  content: '';
+  width: 8px;
+  height: 1.5px;
+  background-color: transparent;
+  position: absolute;
+  transform: rotate(-45deg);
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Hover: Cambia el color de fondo y muestra la cruz */
+.delete-button-list:hover {
+  background-color: rgba(255, 0, 0, 1);
+}
+
+.delete-button-list:hover::after,
+.delete-button-list:hover::before {
+  background-color: white;
+}
+
+
+
 
 
 

@@ -55,6 +55,40 @@
                 <span>{{ bannerMovie.likes }}</span>
               </div>
             </div>
+
+            <div tabindex="0" class="plusButton">
+              <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+                <g mask="url(#mask0_21_345)">
+                  <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Botón para abrir el modal -->
+            <div tabindex="0" class="plusButton" @click="showAddToListModal">
+              <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+                <g mask="url(#mask0_21_345)">
+                  <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Modal para seleccionar la lista -->
+            <div v-if="showModal" class="modal">
+              <div class="modal-content">
+                <h3>Add Movie to List</h3>
+                <ul>
+                  <!-- Mostrar las listas del usuario -->
+                  <li v-for="(list, index) in userLists" :key="index">
+                    <button @click="addMovieToList(list.list_name)">
+                      Add to {{ list.list_name }}
+                    </button>
+                  </li>
+                </ul>
+                <button @click="showModal = false">Close</button>
+              </div>
+            </div>
+
           </div>
         </div>
         
@@ -243,8 +277,6 @@
               <button @click="toggleAddingComment" class="cancel-btn">Cancel</button>
             </div>
           </div>
-
-
 
         </div>
       </div>
@@ -443,6 +475,7 @@ export default {
       visibleCount: 9, // Inicialmente mostrar hasta 9 elementos
       showAll: false, // Para alternar entre mostrar todos los elementos o no
       userId: parseInt(localStorage.getItem('user_id')), // ID del usuario
+      userEmail: localStorage.getItem('userEmail'),
       rating: 0, // Valoración inicial
       userRatedMovies: {}, // Almacenará las películas valoradas por el usuario
       likedMovies: [], // Almacena las películas que el usuario ha marcado como "like"
@@ -460,6 +493,9 @@ export default {
 
       showReportConfirm: false, //controla confirmación de denuncia de comentario
       commentToReport: null,
+
+      showModal: false,  // Inicialmente, el modal está oculto
+      userLists: [], // Las listas del usuario
     };
   },
   computed: {
@@ -926,6 +962,79 @@ export default {
           console.error('Error loading user preferences:', error.response?.data || error.message);
         }
       },
+
+      async loadUserLists() {
+        try {
+          const userEmail = this.userEmail;
+
+          if (!userEmail) {
+            alert('No se ha encontrado el correo electrónico del usuario.');
+            return;
+          }
+
+          const endpoint = `${API_BASE_URL}/list-type/get-lists-with-movies/${encodeURIComponent(userEmail)}`;
+          const response = await axios.get(endpoint);
+
+          // Verifica qué se devuelve en la respuesta
+          console.log('Respuesta de la API:', response);
+
+          if (response.status === 200) {
+            // Accede directamente a la respuesta de las listas
+            if (response.data && Array.isArray(response.data)) {
+              this.userLists = response.data; // Asigna las listas directamente si son un array
+              console.log('Listas asignadas:', this.userLists);
+            } else {
+              console.error('Las listas no están en el formato esperado');
+            }
+          } else {
+            console.error('Error: La respuesta no es 200');
+          }
+        } catch (error) {
+          console.error('Error al obtener las listas del usuario:', error);
+        }
+      },
+
+
+
+
+
+      async showAddToListModal() {
+        try {
+          await this.loadUserLists(); // Cargar las listas del usuario
+
+          // Mostrar modal con las listas (puedes utilizar un modal o una lista desplegable)
+          // Supongamos que tienes un modal donde se muestran las listas
+          this.showModal = true; // Hacer visible el modal
+        } catch (error) {
+          console.error('Error loading user lists for modal:', error);
+        }
+      },
+
+      async addMovieToList(listName) {
+
+        try {
+          const userEmail = this.userEmail;
+
+          if (!userEmail) {
+            alert('No se ha encontrado el correo electrónico del usuario.');
+            return;
+          }
+
+          const movieId = this.bannerMovie.id;
+          const endpoint = `${API_BASE_URL}/list-type/add-movie/${encodeURIComponent(userEmail)}/${listName}/${movieId}`;
+          
+          const response = await axios.post(endpoint);
+          
+          if (response.status === 200) {
+            console.log('Movie added to list successfully.');
+            this.showModal = false; // Cerrar el modal después de añadir la película
+            alert('Movie successfully added to the list!');
+          }
+        } catch (error) {
+          console.error('Error adding movie to list:', error.response?.data || error.message);
+        }
+      },
+
 
     scrollToTop() {
       window.scrollTo({
@@ -2234,5 +2343,123 @@ body {
 .wishlist-indicator:hover {
   cursor: default;
 }
+
+
+
+.plusButton {
+  /* Config start */
+  --plus_sideLength: 2rem;
+  --plus_topRightTriangleSideLength: 0.9rem;
+  /* Config end */
+  position: absolute;
+  bottom: 2vh;
+  left: 70.5vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
+  width: var(--plus_sideLength);
+  height: var(--plus_sideLength);
+  background-color: rgb(0,0,0,0);
+  overflow: hidden;
+  position: absolute;
+  border-radius: 25%;
+}
+
+.plusButton::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-width: 0 var(--plus_topRightTriangleSideLength) var(--plus_topRightTriangleSideLength) 0;
+  border-style: solid;
+  border-color: transparent white transparent transparent;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.2s;
+}
+
+.plusButton:hover {
+  cursor: pointer;
+}
+
+.plusButton:hover::before {
+  --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+}
+
+.plusButton:focus-visible::before {
+  --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+}
+
+.plusButton>.plusIcon {
+  fill: white;
+  width: calc(var(--plus_sideLength) * 0.7);
+  height: calc(var(--plus_sideLength) * 0.7);
+  z-index: 1;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.2s;
+}
+
+.plusButton:hover>.plusIcon {
+  fill: black;
+  transform: rotate(180deg);
+}
+
+.plusButton:focus-visible>.plusIcon {
+  fill: black;
+  transform: rotate(180deg);
+}
+
+
+
+/* Estilo para el modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.modal-content li {
+  margin: 10px 0;
+}
+
+.modal-content button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.modal-content button:hover {
+  background-color: #45a049;
+}
+
+.modal-content .close-btn {
+  background-color: #f44336;
+}
+
 
 </style>
