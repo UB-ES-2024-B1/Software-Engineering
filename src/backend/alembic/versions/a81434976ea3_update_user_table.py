@@ -31,6 +31,7 @@ def upgrade() -> None:
     sa.Column('img_url', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('img_public_id', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('isPublic', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('is_premium', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
