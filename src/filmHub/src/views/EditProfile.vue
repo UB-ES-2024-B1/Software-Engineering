@@ -235,22 +235,28 @@ export default {
 }
 
 .profile-box {
+  position: relative;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  padding: 20px;  /* Reducido el padding para que se adapte mejor en pantallas pequeñas */
+  border-radius: 10px;
+  width: 100%; /* Usamos el 100% del ancho disponible */
+  max-width: 600px; /* Limita el ancho máximo */
+  min-width: 300px; /* Permite que el contenedor se haga pequeño en pantallas muy pequeñas */
+  height: auto; /* La altura se ajustará según el contenido */
+  min-height: 300px; /* Se asegura que el contenedor no se haga demasiado pequeño */
+  color: white;
+  z-index: 20;
+  box-shadow: 0 10px 30px rgba(179, 219, 240, 0.5);
 
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    padding: 40px;
-    border-radius: 10px;
-    width: 750px;
-    height: 550px;
-    color: white;
-    z-index: 20;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Mejora visual */
-    border: 2px solid rgba(255, 255, 255, 0.1); /* Sutileza */
-    margin-bottom: 146px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño del contenedor */
+  overflow: hidden; /* Evita que los elementos se salgan del contenedor */
 
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente (si es necesario) */
 }
 
 
