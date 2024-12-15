@@ -222,7 +222,8 @@
 
 
     <!-- Sección del foro de comentarios -->
-    <section class="comments-section">
+     <!-- He afegit un id per linkejar els reported comments de l'admin-->
+    <section id="comments-section" class="comments-section">
       <div v-if="bannerMovie">
         <h4 class="section-title">Comments</h4>
         <div class="comments-container">
@@ -774,6 +775,19 @@ export default {
         console.error('Error retrieving related movies:', error);
       }
     },
+
+    scrollToHash() {
+      const hash = this.$route.hash; // Obtén el hash de la URL
+      if (hash) {
+        this.$nextTick(() => {
+          const element = document.querySelector(hash); // Selecciona el elemento por su ID
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' }); // Desplaza suavemente
+          }
+        });
+      }
+    },
+
     async loadMovieData(movieId) {
       try {
         await this.fetchBannerMovie(movieId); // Cargar la película del banner
@@ -790,7 +804,12 @@ export default {
             this.rating = 0;
           }
 
-          this.scrollToTop();
+          if(this.scrollToHash()){
+            this.scrollToHash()
+          }else{
+            this.scrollToTop();
+          }
+          
         }
       } catch (error) {
         console.error('Error loading movie data:', error);
@@ -965,14 +984,17 @@ export default {
     },
   },
   mounted() {
+    
     if (this.userId) {
       this.loadUserPreferences().then(() => {
         // Cargar datos de la película después de cargar las preferencias
         this.loadMovieData(this.$route.params.id);
+        this.scrollToHash(); // Desplazarse al hash si existe
       });
     } else {
       console.warn('User ID not found in localStorage.');
       this.loadMovieData(this.$route.params.id);
+      this.scrollToHash(); // Desplazarse al hash si existe
     }
   },
   watch: {
