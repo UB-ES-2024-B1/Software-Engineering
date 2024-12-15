@@ -14,16 +14,26 @@ class TestUserCRUD(unittest.TestCase):
             'hashed_password': 'hashed_password',
             'is_admin': False
         }
-        self.user = User(**self.fake_user_data)
-        self.followed_user = User(id=4, full_name="Jane Smith", email="jane@example.com", hashed_password="hashed_password", is_admin=False)
-        self.follower_user = User(id=5, full_name="Mike Johnson", email="mike@example.com", hashed_password="hashed_password", is_admin=False)
+        self.followed_user = User(**self.fake_user_data)
+        self.fake_user_data2 = {            
+            'id':'21',
+            'full_name': 'John Doe2',
+            'email': 'john2@example.com',
+            'hashed_password': 'hashed_password',
+            'is_admin': False
+        }
+        self.follower_user = User(**self.fake_user_data2)
+        self.fake_user_data3 = {
+            'id':'20',
+            'full_name': 'John Doe3',
+            'email': 'john3@example.com',
+            'hashed_password': 'hashed_password',
+            'is_admin': False
+        }
+        self.user3 = User(**self.fake_user_data3)
 
-        # Create Follow instances for testing
-        self.follow1 = Follow(follower_id=self.follower_user.id, followed_id=self.followed_user.id)
-        self.follow2 = Follow(follower_id=self.follower_user.id, followed_id=self.user.id)
-
-        self.follower_id = 1
-        self.followed_id = 2
+        self.follower_id = self.follower_user.id  
+        self.followed_id = self.followed_user.id
 
         # Create a Follow object to mock the existing follow relationship
         self.follow = Follow(follower_id=self.follower_id, followed_id=self.followed_id)
@@ -32,17 +42,17 @@ class TestUserCRUD(unittest.TestCase):
         """Test the create_user function."""
         self.db.add.return_value = None
         self.db.commit.return_value = None
-        self.db.refresh.return_value = self.user
+        self.db.refresh.return_value = self.followed_user
 
         result = create_user(self.db, **self.fake_user_data)
-
+        
         self.assertEqual(result.full_name, 'John Doe')
         self.db.add.assert_called_once()
         self.db.commit.assert_called_once()
 
     def test_get_users(self):
         """Test the get_users function."""
-        self.db.query.return_value.offset.return_value.limit.return_value.all.return_value = [self.user]
+        self.db.query.return_value.offset.return_value.limit.return_value.all.return_value = [self.followed_user]
 
         result = get_users(self.db, skip=0, limit=10)
 
@@ -51,34 +61,34 @@ class TestUserCRUD(unittest.TestCase):
 
     def test_get_user(self):
         """Test the get_user function."""
-        self.db.query.return_value.filter.return_value.first.return_value = self.user
+        self.db.query.return_value.filter.return_value.first.return_value = self.followed_user
 
         result = get_user(self.db, user_id=1)
 
-        self.assertEqual(result, self.user)
+        self.assertEqual(result, self.followed_user)
         self.db.query.return_value.filter.return_value.first.assert_called_once()
 
     def test_get_user_by_email(self):
         """Test the get_user_by_email function."""
-        self.db.query.return_value.filter.return_value.first.return_value = self.user
+        self.db.query.return_value.filter.return_value.first.return_value = self.followed_user
 
         result = get_user_by_email(self.db, email="john@example.com")
 
-        self.assertEqual(result, self.user)
+        self.assertEqual(result, self.followed_user)
         self.db.query.return_value.filter.return_value.first.assert_called_once()
 
     def test_get_user_by_username(self):
         """Test the get_user_by_email function."""
-        self.db.query.return_value.filter.return_value.first.return_value = self.user
+        self.db.query.return_value.filter.return_value.first.return_value = self.followed_user
 
         result = get_user_by_username(self.db, "John Doe")
 
-        self.assertEqual(result, self.user)
+        self.assertEqual(result, self.followed_user)
         self.db.query.return_value.filter.return_value.first.assert_called_once()
 
     def test_delete_user(self):
         """Test the delete_user function."""
-        self.db.query.return_value.filter.return_value.first.return_value = self.user
+        self.db.query.return_value.filter.return_value.first.return_value = self.followed_user
         self.db.delete.return_value = None
         self.db.commit.return_value = None
 
@@ -98,7 +108,7 @@ class TestUserCRUD(unittest.TestCase):
 
     def test_delete_user_by_email(self):
         """Test the delete_user_by_email function."""
-        self.db.query.return_value.filter.return_value.first.return_value = self.user
+        self.db.query.return_value.filter.return_value.first.return_value = self.followed_user
         self.db.delete.return_value = None
         self.db.commit.return_value = None
 
@@ -119,9 +129,9 @@ class TestUserCRUD(unittest.TestCase):
 
     def test_update_user(self):
         """Test the update_user function."""
-        self.db.query.return_value.filter.return_value.first.return_value = self.user
+        self.db.query.return_value.filter.return_value.first.return_value = self.followed_user
         self.db.commit.return_value = None
-        self.db.refresh.return_value = self.user
+        self.db.refresh.return_value = self.followed_user
 
         user_data = {'full_name': 'Jane Doe'}
         updated_user = update_user(self.db, user_id=1, user_data=user_data)
@@ -142,9 +152,9 @@ class TestUserCRUD(unittest.TestCase):
 
     def test_update_password(self):
         """Test the update_password function."""
-        self.db.query.return_value.filter.return_value.first.return_value = self.user
+        self.db.query.return_value.filter.return_value.first.return_value = self.followed_user
         self.db.commit.return_value = None
-        self.db.refresh.return_value = self.user
+        self.db.refresh.return_value = self.followed_user
 
         new_password = 'new_hashed_password'
         updated_user = update_password(self.db, user_id=1, new_password=new_password)
@@ -165,9 +175,9 @@ class TestUserCRUD(unittest.TestCase):
 
     def test_update_user_by_email(self):
         """Test the update_user_by_email function."""
-        self.db.query.return_value.filter.return_value.first.return_value = self.user
+        self.db.query.return_value.filter.return_value.first.return_value = self.followed_user
         self.db.commit.return_value = None
-        self.db.refresh.return_value = self.user
+        self.db.refresh.return_value = self.followed_user
 
         user_data = {'full_name': 'Updated Name'}
         updated_user = update_user_by_email(self.db, email="john@example.com", user_data=user_data)
@@ -188,20 +198,42 @@ class TestUserCRUD(unittest.TestCase):
 
     def test_follow_user(self):
         """Test the follow_user function when the follow relationship doesn't exist."""
-        # Mock the case where no existing follow exists between the user
-        self.db.query.return_value.filter.return_value.first.return_value = None
+        # Mock the query for the User table to return self.user3
+        self.db.query.return_value.filter.return_value.first.side_effect = [
+            self.user3,  # First query for the User table returns the user
+            None         # Second query for the Follow table returns None
+        ]
+
+        # Mock the Follow object creation
+        new_follow = Follow(follower_id=self.follower_id, followed_id=self.user3.id)
+        self.db.refresh.return_value = new_follow  # Simulate refresh returning the new Follow object
 
         # Call the function to follow the user
-        result = follow_user(self.db, self.follower_id, self.followed_id)
-
-        # Assert the result is a new Follow object
+        result = follow_user(self.db, self.follower_id, self.user3.id)
+        
+        # Assert the result is the existing Follow object
+        self.assertEqual(result.followed_id, self.user3.id)
         self.assertEqual(result.follower_id, self.follower_id)
-        self.assertEqual(result.followed_id, self.followed_id)
 
-        # Ensure the database interactions are called correctly
-        self.db.add.assert_called_once_with(result)
+        # Ensure the new Follow object was added, committed, and refreshed
+        self.db.add.assert_called_once_with(new_follow)
         self.db.commit.assert_called_once()
-        self.db.refresh.assert_called_once()
+        self.db.refresh.assert_called_once_with(new_follow)
+
+    def test_follow_non_user(self):
+        """Test the follow_user function when the follow relationship doesn't exist."""
+
+        # Simulate the followed user not existing in the database (this should return None)
+        self.db.query.return_value.filter.return_value.first.return_value = None  # No followed user found
+        
+        # Try to follow the user (the function should return None since the followed user doesn't exist)
+        result = follow_user(self.db, self.follower_id, 99999)
+        
+        # Assert that the result is None, as the followed user does not exist
+        self.assertIsNone(result)  # Make sure the result is None
+        
+        # Ensure that db.query was called with the expected followed_id to check user existence
+        self.db.query.return_value.filter.return_value.first.assert_called_with()
 
     def test_follow_user_existing(self):
         """Test the follow_user function when the follow relationship already exists."""
@@ -258,12 +290,27 @@ class TestUserCRUD(unittest.TestCase):
         # Call the function to get followers for user with id = 2
         result = get_followers(self.db, user_id=self.followed_user.id)
 
-        # Assert that the result contains the follower user (Mike Johnson)
+        # Assert that the result contains the follower user (John Doe2)
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].full_name, "Mike Johnson")
+        self.assertEqual(result[0].full_name, "John Doe2")
 
         # Ensure the query was called with correct join and filter
         self.db.query.return_value.join.return_value.filter.return_value.all.assert_called_once()
+
+    def test_get_followers_non_user(self):
+        """Test the get_followers function when the follow user doesn't exist."""
+
+        # Simulate the followed user not existing in the database (this should return None)
+        self.db.query.return_value.filter.return_value.first.return_value = None  # No followed user found
+        
+        # Try to follow the user (the function should return None since the followed user doesn't exist)
+        result = get_followers(self.db, 99999)
+        
+        # Assert that the result is None, as the followed user does not exist
+        self.assertIsNone(result)  # Make sure the result is None
+        
+        # Ensure that db.query was called with the expected followed_id to check user existence
+        self.db.query.return_value.filter.return_value.first.assert_called_with()
 
     def test_get_followed_users(self):
         """Test the get_followed_users function."""
@@ -273,9 +320,24 @@ class TestUserCRUD(unittest.TestCase):
         # Call the function to get followed users for user with id = 3
         result = get_followed_users(self.db, user_id=self.follower_user.id)
 
-        # Assert that the result contains the followed user (Jane Smith)
+        # Assert that the result contains the followed user (John Doe)
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].full_name, "Jane Smith")
+        self.assertEqual(result[0].full_name, "John Doe")
 
         # Ensure the query was called with correct join and filter
         self.db.query.return_value.join.return_value.filter.return_value.all.assert_called_once()
+
+    def test_get_followed_non_user(self):
+        """Test the get_followers function when the follow user doesn't exist."""
+
+        # Simulate the followed user not existing in the database (this should return None)
+        self.db.query.return_value.filter.return_value.first.return_value = None  # No followed user found
+        
+        # Try to follow the user (the function should return None since the followed user doesn't exist)
+        result = get_followed_users(self.db, 99999)
+        
+        # Assert that the result is None, as the followed user does not exist
+        self.assertIsNone(result)  # Make sure the result is None
+        
+        # Ensure that db.query was called with the expected followed_id to check user existence
+        self.db.query.return_value.filter.return_value.first.assert_called_with()
