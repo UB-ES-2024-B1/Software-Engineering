@@ -530,9 +530,9 @@ export default {
         this.ratedMovies = this.ratedMovies.filter(movie => movie.id !== movieId);
         this.displayedMovies = this.showRatedMovies ? this.ratedMovies : this.likedMovies; // Actualizar la lista mostrada
 
-        console.log('Película descalificada correctamente');
+        console.log('Correctly disqualified movie');
       } catch (error) {
-        console.error('Error al descalificar la película:', error);
+        console.error('Error disqualifying the movie:', error);
       }
     },
 

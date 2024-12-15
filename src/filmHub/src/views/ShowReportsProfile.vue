@@ -393,14 +393,14 @@ export default {
           this.allReportedComments[updatedCommentIndex].state = this.selectedState;
         }
 
-        console.log(`Estado del comentario con ID ${commentId} actualizado a: ${this.selectedState}`);
+        console.log(`Comment status with ID ${commentId} updated to: ${this.selectedState}`);
 
-        alert('El estado del comentario se actualizó correctamente.');
+        alert('Comment status updated successfully.');
 
       } catch (error) {
-        console.error('Error al actualizar el estado del comentario:', error);
+        console.error('Error updating comment status:', error);
         // Revertir el estado local si la solicitud falla
-        alert('El estado del comentario se actualizó correctamente.');
+        alert('Comment status updated successfully.');
       }finally{
         // Limpiar el estado del modal de confirmación
         this.cancelChangeOfState();
