@@ -2,6 +2,44 @@
   <div class="profile-page">
     <HeaderPage />
 
+    <!-- Modal para agregar nueva lista -->
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Create New List</h2>
+        <form @submit.prevent="createNewList">
+          <label for="list-name">List Name</label>
+          <input
+            id="list-name"
+            type="text"
+            v-model="newListName"
+            maxlength="16" 
+            placeholder="Enter list name"
+            required
+          />
+          <div class="modal-buttons">
+            <button type="button" @click="closeModal" class="cancel-btn">Cancel</button>
+            <button type="submit" class="create-btn">Create List</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal to show error when the limit of 3 lists is exceeded -->
+    <div v-if="showLimitModal" class="modal-limit-overlay">
+      <div class="modal-limit">
+        <p>You have exceeded the maximum limit of 3 lists. Please delete a list to add a new one.</p>
+        <button @click="closeLimitModal">Ok</button>
+      </div>
+    </div>
+
+    <!-- Modal de aviso si no es premium -->
+    <div v-if="showPremiumModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>This feature is only available for Premium accounts.</p>
+        <button @click="closePremiumModal">Ok</button>
+      </div>
+    </div>
+
     <div class="overlay"></div>
 
     <div class="main-content">
@@ -81,8 +119,24 @@
           </button>
         </div>
       
-        <!-- Botón para agregar una nueva lista -->
-        <div class="add-button">
+        <!-- Botones de listas personalizadas -->
+        <div class="dynamic-buttons">
+          <!-- Mostrar solo las listas dinámicas si el usuario es premium -->
+          <div v-if="isPremium">
+            <button
+              v-for="(list, index) in userLists"
+              :key="index"
+              class="dynamic-button"
+              :class="{ active: activeList === list.name }"
+              @click="selectList(list.name)"
+            >
+              {{ list.name }}
+              <!-- Botón de eliminar en cada lista -->
+              <span class="delete-button-list" @click.stop="deleteList(list.name)"></span>
+            </button>
+          </div>
+
+          <!-- Botón de agregar nueva lista, siempre visible -->
           <button class="add-new-list-btn" @click="openAddListModal">
             <svg class="add-icon" viewBox="0 0 24 24" width="16" height="16">
               <path
@@ -97,48 +151,9 @@
             Add New
           </button>
         </div>
-      
-        <!-- Botones de listas personalizadas -->
-        <div class="list-container">
-          <button
-            v-for="(list, index) in userLists"
-            :key="index"
-            class="list-button"
-            :class="{ active: activeList === list.name }"
-            @click="selectList(list.name)"
-          >
-            {{ list.name }}
-            <span class="delete-button-list" @click.stop="deleteList(list.name)"></span>
-          </button>
-        </div>
       </div>
-      
-      
-      
-      
 
-
-      <!-- Modal para agregar nueva lista -->
-      <div v-if="showModal" class="modal-overlay">
-        <div class="modal-content">
-          <h2>Create New List</h2>
-          <form @submit.prevent="createNewList">
-            <label for="list-name">List Name</label>
-            <input
-              id="list-name"
-              type="text"
-              v-model="newListName"
-              placeholder="Enter list name"
-              required
-            />
-            <div class="modal-buttons">
-              <button type="button" @click="closeModal" class="cancel-btn">Cancel</button>
-              <button type="submit" class="create-btn">Create List</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    
+      
       <div class="movies-list">
         <!-- Lista de películas -->
         <div class="movie-item" v-for="movie in displayedMovies" :key="movie.title">
@@ -259,6 +274,8 @@
 
         // Aquí irán las listas creadas por el usuario.
         userLists: [], 
+        showLimitModal: false,
+        showPremiumModal: false,  // Para mostrar el modal de error
 
       };
     },
@@ -453,8 +470,6 @@
         }
       },
 
-
-
       async unrateMovie(movieId) {
         try {
           await axios.post(`${API_BASE_URL}/movies/unrate/${movieId}/${this.userData.id}`);
@@ -506,7 +521,11 @@
 
 
       openAddListModal() {
-        this.showModal = true; // Mostrar el modal
+        if (this.isPremium) {
+          this.showModal = true; // Mostrar el modal
+        } else {
+          this.showPremiumModal = true; // Mostrar el modal si no es premium
+        }
       },
 
       closeModal() {
@@ -515,6 +534,14 @@
       },
 
       async createNewList() {
+
+        if (this.userLists.length >= 3) {
+        // Si ya hay 3 listas, muestra el modal de error
+        this.showLimitModal = true;
+        this.closeModal();
+        return;
+        }
+
         if (this.newListName.trim() === '') {
           alert('Please enter a valid list name.');
           return;
@@ -544,7 +571,17 @@
           console.error('Error al crear la nueva lista:', error);
           alert('There was an error creating the list. Please try again.');
         }
-      },    
+      },   
+
+          // Función para cerrar el modal de error
+      closeLimitModal() {
+        this.showLimitModal = false;  // Cerrar el modal de error
+      },
+
+      closePremiumModal() {
+        this.showPremiumModal = false;  // Cerrar el modal de error
+      },
+      
 
       async loadMoviesFromList(listName) {
         try {
@@ -891,19 +928,22 @@ h2 {
 }
 
 .movies-header {
-  position: absolute;
-  top: px; /* 20px desde la parte superior */
-  right: 296px; /* 20px desde la izquierda */
-  display: flex; /* Los botones en fila */
-  margin: 0 auto;
   position: relative;
+  display: flex;
+  top: px; /* 20px desde la parte superior */
+  margin: 0 auto;
   margin-top: 20px;
   z-index: 5;
+  align-items: left; /* Alinea los botones verticalmente */
 }
 
 .default-buttons {
   display: flex;
+  gap: 0px;
   margin-right: 0px; /* Espacio entre los botones predeterminados y los nuevos */
+  align-items: center; /* Alinea los botones verticalmente */
+  max-width: 500px;  /* Cambia este valor según el tamaño que desees */
+  flex-shrink: 0; /* Esto evita que los botones se reduzcan de tamaño */
 }
 
 .default-buttons button {
@@ -921,7 +961,7 @@ h2 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }
 
-.add-button button {
+.add-new-list-btn {
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
   color: white; /* Texto blanco por defecto */
@@ -937,7 +977,7 @@ h2 {
 }
 
 /* Efecto hover */
-.add-button button:hover {
+.add-new-list-btn:hover {
   background: #95e06f; /* Azul más claro cuando se pasa el ratón */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más intensa para el hover */
   transform: translateY(-2px); /* Eleva el botón al pasar el ratón */
@@ -950,7 +990,7 @@ h2 {
 }
 
 .movies-header button:first-child {
-  margin-left: 10px;
+  margin-left: 0px;
 }
 
 /* Estilo para el botón activo */
@@ -981,24 +1021,41 @@ h2 {
 
 /* Estilos para el contenedor de botones personalizados (listas nuevas) */
 
-.list-button {
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
-  color: white; /* Texto blanco por defecto */
-  border: none;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease; /* Suavizar transiciones */
-  margin-right: 2px; /* Separación entre botones */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+.dynamic-buttons {
+
+display: flex;
+gap: 0px; /* Espacio entre los botones dinámicos */
+align-items: center; /* Alinea los botones verticalmente */
+margin-left: 0px; /* Empuja los botones dinámicos hacia la derecha */
+flex-wrap: nowrap;  /* Asegura que no haya salto de línea entre los botones */
+}
+
+.dynamic-button {
+
+position: relative; /* Necesario para posicionar el botón de eliminar */
+background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
+color: white; /* Texto blanco por defecto */
+border: none;
+border-top-left-radius: 12px;
+border-top-right-radius: 12px;
+border-bottom: 2px solid transparent;
+cursor: pointer;
+font-weight: bold;
+transition: all 0.3s ease; /* Suavizar transiciones */
+margin-right: 2px; /* Separación entre botones */
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+padding: 10px 20px;
+}
+
+.dynamic-button:hover {
+background: #6fa3e0; /* Azul más claro cuando se pasa el ratón */
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más intensa para el hover */
+transform: translateY(-2px); /* Eleva el botón al pasar el ratón */
 }
 
 /* Asegura que el primer botón de la lista no se mueva */
-.list-container button:first-child {
-  margin-left: 0;
+.dynamic-buttons button:last-child {
+margin-left: 0;
 }
 
 
@@ -1015,6 +1072,7 @@ h2 {
   box-sizing: border-box;
   background:rgba(255, 255, 255, 0.2);
   border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
   z-index: 5;
 }
 
@@ -1351,27 +1409,6 @@ h2 {
 }
 
 
-
-.list-button {
-  position: relative; /* Necesario para posicionar el botón de eliminar */
-  background: rgba(255, 255, 255, 0.2); /* Fondo inicial transparente */
-  color: white; /* Texto blanco por defecto */
-  border: none;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease; /* Suavizar transiciones */
-  margin-right: 2px; /* Separación entre botones */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-}
-
-
-.list-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
 .delete-button-list {
   position: absolute;
   top: 5px;
@@ -1417,6 +1454,120 @@ h2 {
 .delete-button-list:hover::after,
 .delete-button-list:hover::before {
   background-color: white;
+}
+
+/* Estilos para el botón de eliminar (oculto por defecto) */
+.dynamic-button .delete-button-list {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: rgb(255, 0, 0, 0.5);
+  border-radius: 25%;
+  cursor: pointer;
+  opacity: 0; /* Lo ocultamos por defecto */
+  transition: opacity 0.3s ease; /* Transición suave */
+}
+
+/* Cuando el ratón pase por encima de la lista, el botón de eliminar aparecerá */
+.dynamic-button:hover .delete-button-list {
+  opacity: 1; /* Lo hacemos visible */
+}
+
+/* Estilo del contorno para el botón de eliminar */
+.delete-button-list::before {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+  line-height: 20px;
+}
+
+
+
+/* Estilos del modal de error */
+.modal-limit-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo translúcido */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-limit {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+}
+
+.modal-limit p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color:white;
+}
+
+.modal-limit button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-limit button:hover {
+  background-color: #0056b3;
+}
+
+
+
+/* Estilos del modal de error */
+.modal-premium {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo translúcido */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-content-premium {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+}
+
+.modal-content-premium p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color:white;
+}
+
+.modal-content-premium button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-content-premium button:hover {
+  background-color: #0056b3;
 }
 
 

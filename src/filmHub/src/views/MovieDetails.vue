@@ -76,16 +76,28 @@
             <!-- Modal para seleccionar la lista -->
             <div v-if="showModal" class="modal">
               <div class="modal-content">
-                <h3>Add Movie to List</h3>
+                <h3>Add Movie to Lists:</h3>
                 <ul>
                   <!-- Mostrar las listas del usuario -->
-                  <li v-for="(list, index) in userLists" :key="index">
-                    <button @click="addMovieToList(list.list_name)">
-                      Add to {{ list.list_name }}
-                    </button>
+                  <li v-for="(list, index) in userLists" :key="index" class="list-item">
+                    <div class="list-item-content">
+                      <span class="list-name">{{ list.list_name }}</span>
+                      <button type="button" @click="addMovieToList(list.list_name)" class="list-btn">
+                        <svg class="add-icon" viewBox="0 0 24 24" width="16" height="16">
+                          <path
+                            d="M12 5v14m-7-7h14"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            fill="none"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </li>
                 </ul>
-                <button @click="showModal = false">Close</button>
+                <button type="button" @click="showModal = false" class="cancel-btn">Cancel</button>
               </div>
             </div>
 
@@ -994,21 +1006,30 @@ export default {
         }
       },
 
-
-
-
-
       async showAddToListModal() {
         try {
+          if (!this.userId) { 
+            // Verifica si el userId está disponible
+            alert('You must log in to add to your wishlist.'); // Muestra advertencia
+            this.$router.push('/login'); // Redirige a la página de login
+            return; // Salir del método
+          }
+
           await this.loadUserLists(); // Cargar las listas del usuario
 
-          // Mostrar modal con las listas (puedes utilizar un modal o una lista desplegable)
-          // Supongamos que tienes un modal donde se muestran las listas
+          if (this.userLists.length === 0) {
+            // Si no hay listas creadas
+            alert('You have not created any lists yet.'); // Muestra un mensaje en inglés
+            return; // Salir del método
+          }
+
+          // Mostrar modal con las listas si hay al menos una lista
           this.showModal = true; // Hacer visible el modal
         } catch (error) {
           console.error('Error loading user lists for modal:', error);
         }
       },
+
 
       async addMovieToList(listName) {
 
@@ -2428,7 +2449,7 @@ body {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: #1c1c1c;
   padding: 20px;
   border-radius: 8px;
   width: 300px;
@@ -2444,22 +2465,75 @@ body {
   margin: 10px 0;
 }
 
-.modal-content button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 5px;
+.modal-content {
+  padding: 20px;
 }
 
-.modal-content button:hover {
+.list-item {
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between; /* Espacia los elementos a los extremos */
+  align-items: center;
+}
+
+.list-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Alinea nombre de lista y botón en los extremos */
+  width: 100%; /* Hace que ocupe todo el espacio disponible */
+}
+
+.list-name {
+  font-weight: bold; /* Para destacar el nombre de la lista */
+  margin-right: 5px; /* Espacio entre el nombre de la lista y el botón */
+  margin-left: 25px;
+  margin-top: 10px;
+}
+
+.list-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+  background-color: #4CAF50;
+  border-radius: 25%;
+  margin-right: 30px;
+  display: flex;  /* Flexbox para centrar el contenido */
+  justify-content: center;  /* Centra el ícono horizontalmente */
+  align-items: center;   /* Centra el ícono verticalmente */
+}
+
+/* Estilos para el contenedor del icono */
+.add-icon {
+  width: 20px;   /* Cambia el tamaño del icono */
+  height: 20px;  /* Cambia el tamaño del icono */
+  fill: #ffffff; /* Cambia el color de relleno del icono */
+  transition: fill 0.3s ease; /* Añade una transición suave al color */
+  color: #ffffff;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Modificación de color del icono cuando el usuario pasa el ratón por encima del botón */
+.list-btn:hover .add-icon {
+  fill: #4caf4fbf; /* Cambia el color cuando el ratón pasa sobre el botón */
+}
+
+.list-btn:hover {
   background-color: #45a049;
 }
 
-.modal-content .close-btn {
-  background-color: #f44336;
+
+
+.cancel-btn {
+  background-color: #f44336; /* Rojo para cancelar */
+  color: white;
+  border: none;
 }
 
+.cancel-btn:hover {
+  background-color: #e53835bc;
+}
 
 </style>
