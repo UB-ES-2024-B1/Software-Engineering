@@ -638,6 +638,7 @@
 
           // Realiza la solicitud DELETE al endpoint del servidor
           await axios.delete(`${API_BASE_URL}/list-type/${userEmail}/${listName}`);
+          this.$router.go(); // Recarga solo si estás en UserProfile
 
           // Eliminar la lista de `userLists` en el frontend
           this.userLists = this.userLists.filter(list => list.name !== listName);
