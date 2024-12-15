@@ -1,5 +1,6 @@
 # backend/app/crud/user_crud.py
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from app.models.user_models import User, UserOut,Follow, ListType, MovieList
 from app.models.movie_models import Movie
 from typing import List

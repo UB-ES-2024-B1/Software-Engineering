@@ -1,16 +1,13 @@
 # backend/app/crud/movie_crud.py
-from sqlmodel import Session, select
+from sqlmodel import Session, select, extract
 from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, Genre, CastMember, MovieGenre, MovieCast, MovieUser, Comment, User) 
 from typing import List
 from fastapi import File, UploadFile, HTTPException
-from sqlalchemy.sql import func, case, extract
-from sqlalchemy.orm import aliased
+from sqlalchemy.sql import func
 from app.api.routes.comments_routes import create_thread, delete_thread
 from datetime import datetime, timezone
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import SQLAlchemyError
 from app.crud.user_crud import delete_movie_links
-
+from sqlalchemy import desc, case
 
 
 
@@ -227,7 +224,6 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
     result = db.execute(statement).first()
     movie = result[0] if result else None
     if movie:
-        print(movie.id)
         delete_thread(db, movie.id)
         delete_movie_links(db, movie.id)
         db.delete(movie)
