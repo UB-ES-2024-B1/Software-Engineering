@@ -371,35 +371,49 @@ export default {
     toggleDropdown(index) {
       this.dropdowns[index] = !this.dropdowns[index];
     },
+
     async selectState(commentId) {
-      
-      //metode per aplicar el canvi d'estat 
-      let endpoint = '';
-      if (this.selectedState === 'BANNED') {
-        endpoint = `${API_BASE_URL}/commets/reported_to_banned/${commentId}`;
-        //Eliminarlo de la peli en la que esta el comentario cuando se bannea
-      } else if (this.selectedState === 'CLEAN') {
-        endpoint = `${API_BASE_URL}/commets/reported_to_clean/${commentId}`;
-        //Eliminarlo de los comentarios reportados cunado se establece como clean.
-      }
-
       try {
-        // Realizar la solicitud PUT al endpoint del backend
-        await axios.put(endpoint, null, {
-          headers: {
-            accept: 'application/json',
-          },
-        });
+        
+        let endpoint ;
+        if (this.selectedState === 'BANNED') {
+          endpoint = `${API_BASE_URL}/comments/reported_to_banned/${commentId}/`;
+          //Eliminarlo de la peli en la que esta el comentario cuando se bannea
+        } else if (this.selectedState === 'CLEAN') {
+          endpoint = `${API_BASE_URL}/comments/reported_to_clean/${commentId}/`;
+          //Eliminarlo de los comentarios reportados cunado se establece como clean.
+        }else{
+          throw new Error('Estado seleccionado inválido.');
+        }
 
-        console.log(`Estado del comentario con ID ${commentId} actualizado a:`);
+        // Realizar la solicitud PUT al endpoint con los mismos encabezados que en otros métodos
+        await axios.put(
+          endpoint,
+          {}, // El cuerpo puede estar vacío
+          {
+            headers: {
+              accept: 'application/json', // Mismo encabezado que en tus métodos funcionales
+            },
+          }
+        );
+        // Actualizar el estado local del comentario inmediatamente
+        const updatedCommentIndex = this.allReportedComments.findIndex(comment => comment.id === commentId);
+        if (updatedCommentIndex !== -1) {
+          this.allReportedComments[updatedCommentIndex].state = this.selectedState;
+        }
+
+        console.log(`Estado del comentario con ID ${commentId} actualizado a: ${this.selectedState}`);
+
+        alert('El estado del comentario se actualizó correctamente.');
+
       } catch (error) {
         console.error('Error al actualizar el estado del comentario:', error);
         // Revertir el estado local si la solicitud falla
         alert('Error al actualizar el estado. Intenta nuevamente.');
+      }finally{
+        // Limpiar el estado del modal de confirmación
+        this.cancelChangeOfState();
       }
-
-      this.cancelChangeOfState();
-
     },
 
     handleClickOutside(event) {
