@@ -317,8 +317,9 @@ def test_report_comment_success(login_user, db_session):
     reported_comment_texts = [comment.find_element(By.CSS_SELECTOR, ".comment-link p").text for comment in reported_comments]
 
     # Assert that the reported comment text is displayed on the page
-    assert any(comment_text == comment_text_user for comment_text in reported_comment_texts), \
-        f"The reported comment '{comment_text_user}' is not displayed on the page."
+    index_of_first_space = comment_text_user.find(" ")
+    modified_string = comment_text_user[:index_of_first_space] + ":" + comment_text_user[index_of_first_space:]
+    assert any(comment_text == modified_string for comment_text in reported_comment_texts),  f"The reported comment '{modified_string}' is not displayed on the page."
 
     # Iterate over each reported comment
     for reported_comment in reported_comments:
@@ -326,7 +327,7 @@ def test_report_comment_success(login_user, db_session):
         reported_comment_text = reported_comment.find_element(By.CSS_SELECTOR, ".comment-link p").text
 
         # Check if this is the reported comment we want to clear
-        if reported_comment_text == comment_text_user:  # Match with the text of the reported comment
+        if reported_comment_text == modified_string:  # Match with the text of the reported comment
             # Click the dropdown to select a new state
             dropdown_button = reported_comment.find_element(By.CLASS_NAME, "dropdown-button-reported")
             dropdown_button.click()
