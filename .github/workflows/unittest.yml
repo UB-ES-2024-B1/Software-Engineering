@@ -20,20 +20,21 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt          
-          pip install pytest-cov
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
 
       - name: Apply database migrations
         working-directory: src/backend
         run: alembic upgrade head
 
-      - name: Run tests
-        working-directory: src/backend
-        run: python -m unittest discover app/crud/tests
-
-      - name: Coverage      
+      - name: Run tests with coverage
         working-directory: src/backend
         run: |
-          pytest --cov=app/crud --cov-report=xml .\app\crud\tests\
-          coverage report -m
-        
+          pytest --cov=app/crud --cov-report=xml --cov-report=term-missing app/crud/tests
+
+      - name: Upload coverage report (optional)
+        if: success()  # Only upload if tests pass
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: src/backend/coverage.xml
