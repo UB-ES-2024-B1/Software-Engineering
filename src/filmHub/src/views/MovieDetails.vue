@@ -27,16 +27,16 @@
 
         <div class="small-cover">
           <!-- Imagen de la portada de la película -->
-          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />         
+          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
 
-        
+
           <!-- Información de la película -->
           <div class="movie-info">
             <h4>{{ bannerMovie.title }}</h4>
 
             <!-- Modificado para redireccionarlo a AllMovies según el género -->
             <div class="info-item">
-              <span class="info-title">Genres: </span> 
+              <span class="info-title">Genres: </span>
               <!-- <span>{{ bannerMovie.genres.join(", ") }}</span> -->
               <span>
                 <span v-for="(genre, index) in bannerMovie.genres" :key="index">
@@ -52,7 +52,8 @@
 
             <div class="info-item">
               <span class="info-title">Date: </span> <span>
-                <router-link :to="{ name: 'AllMovies', query: { year: bannerMovie.release_date.slice(0,4) } }" class="genre-link">
+                <router-link :to="{ name: 'AllMovies', query: { year: bannerMovie.release_date.slice(0, 4) } }"
+                  class="genre-link">
                   {{ bannerMovie.release_date }}
                 </router-link>
               </span>
@@ -99,14 +100,8 @@
                       <span class="list-name">{{ list.list_name }}</span>
                       <button type="button" @click="addMovieToList(list.list_name)" class="list-btn">
                         <svg class="add-icon" viewBox="0 0 24 24" width="16" height="16">
-                          <path
-                            d="M12 5v14m-7-7h14"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
+                          <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                       </button>
                     </div>
@@ -118,7 +113,7 @@
 
           </div>
         </div>
-        
+
 
 
         <!-- Aquí agregamos las estrellas de votación -->
@@ -190,21 +185,17 @@
           </label>
         </div>
 
-        <div class="wish-container"> 
+        <div class="wish-container">
           <!-- Botón de Wishlist en la esquina superior derecha -->
           <label class="ui-bookmark wishlist-button">
-            <input
-              type="checkbox"
-              :checked="wishedMovies.includes(bannerMovie.title)"
-              @change="toggleWishlist(bannerMovie.id)"
-              :disabled="userRatedMovies[bannerMovie.title]" 
-            />
+            <input type="checkbox" :checked="wishedMovies.includes(bannerMovie.title)"
+              @change="toggleWishlist(bannerMovie.id)" :disabled="userRatedMovies[bannerMovie.title]" />
             <div class="bookmark" :class="{ disabled: userRatedMovies[bannerMovie.title] }">
               <svg viewBox="0 0 32 32">
                 <g>
                   <path
-                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
-                  ></path>
+                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z">
+                  </path>
                 </g>
               </svg>
             </div>
@@ -233,7 +224,7 @@
         <h4 class="section-title">Cast & Crew</h4>
         <div class="cards-container">
           <!-- Card for Director (Always visible as the first item) -->
-          
+
           <div class="detail-card">
             <!-- Modificado para hacer un link hacia allMovies y que se muestren las pelis del Director-->
             <h4>Director</h4>
@@ -250,7 +241,7 @@
             <h4>Actor</h4>
             <p>
               <router-link :to="{ name: 'AllMovies', query: { actor: actor } }" class="genre-link">
-              {{ actor }}
+                {{ actor }}
               </router-link>
             </p>
           </div>
@@ -284,7 +275,7 @@
 
 
     <!-- Sección del foro de comentarios -->
-     <!-- He afegit un id per linkejar els reported comments de l'admin-->
+    <!-- He afegit un id per linkejar els reported comments de l'admin-->
     <section id="comments-section" class="comments-section">
       <div v-if="bannerMovie">
         <h4 class="section-title">Comments</h4>
@@ -295,9 +286,14 @@
             <div v-for="(comment, index) in comments" :key="index" class="comment-item">
               <!-- Apply a gold class if the comment is from the logged-in user -->
               <p>
-                <strong :class="{ 'gold-username': comment.user === userId }">{{ comment.username
-                  }}</strong>: {{
-                    comment.text }}
+                <router-link v-if="comment.user === userId" :to="{ path: `/profile` }" class="my_username">
+                  <strong :class="{ 'gold-username': comment.user === userId }">{{ comment.username }}</strong>
+                </router-link>
+                <router-link v-else :to="{ path: `/otherProfiles/${comment.username}` }" class="username">
+                  <strong :class="{ 'gold-username': comment.user === userId }">{{ comment.username }}</strong>
+                </router-link>
+                {{ comment.text }}
+
               </p>
               <!-- Button to delete the comment only visible to the logged-in user -->
               <button v-if="comment.user === userId" class="delete-comment-btn"
@@ -305,8 +301,7 @@
 
               <div class="comment-actions">
                 <!-- Botón para contestar el comentario de otro usuario-->
-                <button v-if="comment.user !== userId" class="reply-comment-btn"
-                  @click="handleReply(comment.username)">
+                <button v-if="comment.user !== userId" class="reply-comment-btn" @click="handleReply(comment.username)">
                   ↩️
                 </button>
 
@@ -314,8 +309,7 @@
                 <span class="vertical-separator" v-if="comment.user !== userId"></span>
 
                 <!-- Botón para reportar el comentario de otro usuario-->
-                <button v-if="comment.user !== userId" class="report-comment-btn"
-                  @click="handleReport(comment)">
+                <button v-if="comment.user !== userId" class="report-comment-btn" @click="handleReport(comment)">
                   🚩
                 </button>
               </div>
@@ -386,8 +380,8 @@
                   <svg viewBox="0 0 32 32" class="wishlist-icon">
                     <g>
                       <path
-                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
-                      ></path>
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z">
+                      </path>
                     </g>
                   </svg>
                 </div>
@@ -416,8 +410,8 @@
                   <svg viewBox="0 0 32 32" class="wishlist-icon">
                     <g>
                       <path
-                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
-                      ></path>
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z">
+                      </path>
                     </g>
                   </svg>
                 </div>
@@ -445,8 +439,8 @@
                   <svg viewBox="0 0 32 32" class="wishlist-icon">
                     <g>
                       <path
-                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
-                      ></path>
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z">
+                      </path>
                     </g>
                   </svg>
                 </div>
@@ -474,8 +468,8 @@
                   <svg viewBox="0 0 32 32" class="wishlist-icon">
                     <g>
                       <path
-                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
-                      ></path>
+                        d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z">
+                      </path>
                     </g>
                   </svg>
                 </div>
@@ -555,7 +549,7 @@ export default {
 
       showModal: false,  // Inicialmente, el modal está oculto
       userLists: [], // Las listas del usuario
-      
+
       showNoListModal: false,
       showMovieAddedModal: false,
     };
@@ -566,6 +560,13 @@ export default {
     },
   },
   methods: {
+
+    load_user_id() {
+      if (localStorage.getItem('user_id') === null || localStorage.getItem('user_id') === undefined) {
+        this.$router.push('/login');
+      }
+      return localStorage.getItem('user_id');
+    },
 
     async fetchComments() {
       console.log('Fetching comments for movie:', this.bannerMovie.id);
@@ -871,12 +872,12 @@ export default {
             this.rating = 0;
           }
 
-          if(this.scrollToHash()){
+          if (this.scrollToHash()) {
             this.scrollToHash()
-          }else{
+          } else {
             this.scrollToTop();
           }
-          
+
         }
       } catch (error) {
         console.error('Error loading movie data:', error);
@@ -971,162 +972,162 @@ export default {
     },
 
     async toggleWishlist(movieId) {
-        try {
-          if (!this.userId) { // Verifica si el userId está disponible
-            this.$router.push('/login');
-            return; // Salir del método
-          }
-
-          // Verificar si la película ya está valorada
-          if (this.userRatedMovies[this.bannerMovie.title]) {
-            alert('No puedes añadir una película valorada a tu wishlist.');
-            return; // Salir antes de cualquier otro cambio
-          }
-
-          // Verificar si la película ya está en wishedMovies
-          const isWished = this.wishedMovies.includes(this.bannerMovie.title);
-
-          // Evitar cambios visuales hasta que la base de datos responda
-          const response = await axios.post(isWished
-            ? `${API_BASE_URL}/movies/nowish/${movieId}/${this.userId}`
-            : `${API_BASE_URL}/movies/wish/${movieId}/${this.userId}`
-          );
-
-          if (response.status === 200) {
-            console.log(isWished ? 'Movie removed from wishlist.' : 'Movie added to wishlist.');
-
-            // Actualizar el estado local sólo si la respuesta es exitosa
-            if (isWished) {
-              this.wishedMovies = this.wishedMovies.filter(title => title !== this.bannerMovie.title);
-            } else {
-              this.wishedMovies.push(this.bannerMovie.title);
-            }
-          }
-        } catch (error) {
-          console.error('Error toggling wishlist:', error.response?.data || error.message);
+      try {
+        if (!this.userId) { // Verifica si el userId está disponible
+          this.$router.push('/login');
+          return; // Salir del método
         }
-      },
 
-      async loadUserPreferences() {
-        try {
-          if (!this.userId) {
-            console.error('User ID not found.');
-            return;
-          }
-          const endpoint = `${API_BASE_URL}/movies/liked_rated_and_wished_list/${this.userId}`;
-          const response = await axios.get(endpoint);
-
-          const data = response.data;
-
-          // Procesar películas valoradas
-          const ratedMovies = {};
-          if (data.rated_movies) {
-            data.rated_movies.forEach((movie) => {
-              ratedMovies[movie.title] = movie.rating;
-            });
-          }
-          this.userRatedMovies = ratedMovies;
-
-          // Procesar películas con like
-          this.likedMovies = data.liked_movies || [];
-
-          // Procesar películas en la wishlist
-          this.wishedMovies = data.wished_movies || [];
-
-          console.log('Wished Movies:', this.wishedMovies);
-
-        } catch (error) {
-          console.error('Error loading user preferences:', error.response?.data || error.message);
+        // Verificar si la película ya está valorada
+        if (this.userRatedMovies[this.bannerMovie.title]) {
+          alert('No puedes añadir una película valorada a tu wishlist.');
+          return; // Salir antes de cualquier otro cambio
         }
-      },
 
-      async loadUserLists() {
-        try {
-          const userEmail = this.userEmail;
+        // Verificar si la película ya está en wishedMovies
+        const isWished = this.wishedMovies.includes(this.bannerMovie.title);
 
-          if (!userEmail) {
-            alert('No se ha encontrado el correo electrónico del usuario.');
-            return;
-          }
+        // Evitar cambios visuales hasta que la base de datos responda
+        const response = await axios.post(isWished
+          ? `${API_BASE_URL}/movies/nowish/${movieId}/${this.userId}`
+          : `${API_BASE_URL}/movies/wish/${movieId}/${this.userId}`
+        );
 
-          const endpoint = `${API_BASE_URL}/list-type/get-lists-with-movies/${encodeURIComponent(userEmail)}`;
-          const response = await axios.get(endpoint);
+        if (response.status === 200) {
+          console.log(isWished ? 'Movie removed from wishlist.' : 'Movie added to wishlist.');
 
-          // Verifica qué se devuelve en la respuesta
-          console.log('Respuesta de la API:', response);
-
-          if (response.status === 200) {
-            // Accede directamente a la respuesta de las listas
-            if (response.data && Array.isArray(response.data)) {
-              this.userLists = response.data; // Asigna las listas directamente si son un array
-              console.log('Listas asignadas:', this.userLists);
-            } else {
-              console.error('Las listas no están en el formato esperado');
-            }
+          // Actualizar el estado local sólo si la respuesta es exitosa
+          if (isWished) {
+            this.wishedMovies = this.wishedMovies.filter(title => title !== this.bannerMovie.title);
           } else {
-            console.error('Error: La respuesta no es 200');
+            this.wishedMovies.push(this.bannerMovie.title);
           }
-        } catch (error) {
-          console.error('Error al obtener las listas del usuario:', error);
         }
-      },
+      } catch (error) {
+        console.error('Error toggling wishlist:', error.response?.data || error.message);
+      }
+    },
 
-      async showAddToListModal() {
-        try {
-          if (!this.userId) { 
-            // Verifica si el userId está disponible
-            this.$router.push('/login');
-            return; // Salir del método
-          }
-
-          await this.loadUserLists(); // Cargar las listas del usuario
-
-          if (this.userLists.length === 0) {
-            // Si no hay listas creadas
-            this.showNoListModal = true; // Muestra un mensaje en inglés
-            return; // Salir del método
-          }
-
-          // Mostrar modal con las listas si hay al menos una lista
-          this.showModal = true; // Hacer visible el modal
-        } catch (error) {
-          console.error('Error loading user lists for modal:', error);
+    async loadUserPreferences() {
+      try {
+        if (!this.userId) {
+          console.error('User ID not found.');
+          return;
         }
-      },
+        const endpoint = `${API_BASE_URL}/movies/liked_rated_and_wished_list/${this.userId}`;
+        const response = await axios.get(endpoint);
 
+        const data = response.data;
 
-      async addMovieToList(listName) {
-
-        try {
-          const userEmail = this.userEmail;
-
-          if (!userEmail) {
-            alert('No se ha encontrado el correo electrónico del usuario.');
-            return;
-          }
-
-          const movieId = this.bannerMovie.id;
-          const endpoint = `${API_BASE_URL}/list-type/add-movie/${encodeURIComponent(userEmail)}/${listName}/${movieId}`;
-          
-          const response = await axios.post(endpoint);
-          
-          if (response.status === 200) {
-            console.log('Movie added to list successfully.');
-            this.showModal = false; // Cerrar el modal después de añadir la película
-            this.showMovieAddedModal = true;
-          }
-        } catch (error) {
-          console.error('Error adding movie to list:', error.response?.data || error.message);
+        // Procesar películas valoradas
+        const ratedMovies = {};
+        if (data.rated_movies) {
+          data.rated_movies.forEach((movie) => {
+            ratedMovies[movie.title] = movie.rating;
+          });
         }
-      },
+        this.userRatedMovies = ratedMovies;
 
-      closeNoListModal() {
-        this.showNoListModal = false;  // Cerrar el modal de error
-      },
+        // Procesar películas con like
+        this.likedMovies = data.liked_movies || [];
 
-      closeMovieAddedModal() {
-        this.showMovieAddedModal = false;  // Cerrar el modal de error
-      },
+        // Procesar películas en la wishlist
+        this.wishedMovies = data.wished_movies || [];
+
+        console.log('Wished Movies:', this.wishedMovies);
+
+      } catch (error) {
+        console.error('Error loading user preferences:', error.response?.data || error.message);
+      }
+    },
+
+    async loadUserLists() {
+      try {
+        const userEmail = this.userEmail;
+
+        if (!userEmail) {
+          alert('No se ha encontrado el correo electrónico del usuario.');
+          return;
+        }
+
+        const endpoint = `${API_BASE_URL}/list-type/get-lists-with-movies/${encodeURIComponent(userEmail)}`;
+        const response = await axios.get(endpoint);
+
+        // Verifica qué se devuelve en la respuesta
+        console.log('Respuesta de la API:', response);
+
+        if (response.status === 200) {
+          // Accede directamente a la respuesta de las listas
+          if (response.data && Array.isArray(response.data)) {
+            this.userLists = response.data; // Asigna las listas directamente si son un array
+            console.log('Listas asignadas:', this.userLists);
+          } else {
+            console.error('Las listas no están en el formato esperado');
+          }
+        } else {
+          console.error('Error: La respuesta no es 200');
+        }
+      } catch (error) {
+        console.error('Error al obtener las listas del usuario:', error);
+      }
+    },
+
+    async showAddToListModal() {
+      try {
+        if (!this.userId) {
+          // Verifica si el userId está disponible
+          this.$router.push('/login');
+          return; // Salir del método
+        }
+
+        await this.loadUserLists(); // Cargar las listas del usuario
+
+        if (this.userLists.length === 0) {
+          // Si no hay listas creadas
+          this.showNoListModal = true; // Muestra un mensaje en inglés
+          return; // Salir del método
+        }
+
+        // Mostrar modal con las listas si hay al menos una lista
+        this.showModal = true; // Hacer visible el modal
+      } catch (error) {
+        console.error('Error loading user lists for modal:', error);
+      }
+    },
+
+
+    async addMovieToList(listName) {
+
+      try {
+        const userEmail = this.userEmail;
+
+        if (!userEmail) {
+          alert('No se ha encontrado el correo electrónico del usuario.');
+          return;
+        }
+
+        const movieId = this.bannerMovie.id;
+        const endpoint = `${API_BASE_URL}/list-type/add-movie/${encodeURIComponent(userEmail)}/${listName}/${movieId}`;
+
+        const response = await axios.post(endpoint);
+
+        if (response.status === 200) {
+          console.log('Movie added to list successfully.');
+          this.showModal = false; // Cerrar el modal después de añadir la película
+          this.showMovieAddedModal = true;
+        }
+      } catch (error) {
+        console.error('Error adding movie to list:', error.response?.data || error.message);
+      }
+    },
+
+    closeNoListModal() {
+      this.showNoListModal = false;  // Cerrar el modal de error
+    },
+
+    closeMovieAddedModal() {
+      this.showMovieAddedModal = false;  // Cerrar el modal de error
+    },
 
 
     scrollToTop() {
@@ -1137,7 +1138,7 @@ export default {
     },
   },
   mounted() {
-    
+
     if (this.userId) {
       this.loadUserPreferences().then(() => {
         // Cargar datos de la película después de cargar las preferencias
@@ -1219,7 +1220,7 @@ async function generateRecentMovieObject(movieData) {
 
 .genre-link:hover {
   text-decoration: underline;
-  color: white; 
+  color: white;
 }
 
 
@@ -1236,13 +1237,14 @@ async function generateRecentMovieObject(movieData) {
 /* Título de la sección */
 .section-title {
   font-size: 1.5rem;
-  margin-bottom: 15px;
+  margin-bottom: 5vh;
   text-align: center;
   color: #f5f5f5;
 }
 
 /* Contenedor de comentarios */
 .comments-container {
+  margin-top:5vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1302,7 +1304,7 @@ async function generateRecentMovieObject(movieData) {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   font-size: 1rem;
-
+  margin-bottom: 1vh;
   /* Para colocar el icono de la basurita a la derecha */
   display: flex;
   /* Activa la flexbox */
@@ -2227,7 +2229,7 @@ body {
   opacity: 1;
 }
 
-/* From Uiverse.io by Galahhad */ 
+/* From Uiverse.io by Galahhad */
 .ui-bookmark {
   --icon-size: 33px;
   --icon-secondary-color: rgb(100, 100, 100, 1);
@@ -2269,9 +2271,12 @@ body {
 }
 
 .ui-bookmark .bookmark.disabled {
-  pointer-events: none; /* Deshabilita cualquier interacción */
-  opacity: 0; /* Visualmente más claro para indicar que está deshabilitado */
-  cursor: not-allowed; /* Cambia el cursor para reforzar que no se puede interactuar */
+  pointer-events: none;
+  /* Deshabilita cualquier interacción */
+  opacity: 0;
+  /* Visualmente más claro para indicar que está deshabilitado */
+  cursor: not-allowed;
+  /* Cambia el cursor para reforzar que no se puede interactuar */
 }
 
 .bookmark::after {
@@ -2315,16 +2320,14 @@ body {
   fill: var(--icon-hover-color);
 }
 
-.ui-bookmark input:checked + .bookmark::after {
-  -webkit-animation: circles var(--icon-anmt-duration)
-    cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  animation: circles var(--icon-anmt-duration)
-    cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+.ui-bookmark input:checked+.bookmark::after {
+  -webkit-animation: circles var(--icon-anmt-duration) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: circles var(--icon-anmt-duration) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   -webkit-animation-delay: var(--icon-anmt-duration);
   animation-delay: var(--icon-anmt-duration);
 }
 
-.ui-bookmark input:checked + .bookmark {
+.ui-bookmark input:checked+.bookmark {
   fill: var(--icon-primary-color);
   -webkit-animation: bookmark var(--icon-anmt-duration) forwards;
   animation: bookmark var(--icon-anmt-duration) forwards;
@@ -2333,11 +2336,9 @@ body {
   transition-delay: 0.3s;
 }
 
-.ui-bookmark input:checked + .bookmark::before {
-  -webkit-animation: circle var(--icon-anmt-duration)
-    cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  animation: circle var(--icon-anmt-duration)
-    cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+.ui-bookmark input:checked+.bookmark::before {
+  -webkit-animation: circle var(--icon-anmt-duration) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: circle var(--icon-anmt-duration) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   -webkit-animation-delay: var(--icon-anmt-duration);
   animation-delay: var(--icon-anmt-duration);
 }
@@ -2443,17 +2444,20 @@ body {
   position: absolute;
   top: -5px;
   right: 20px;
-  display: flex; /* Centra el SVG si hay paddings */
+  display: flex;
+  /* Centra el SVG si hay paddings */
   align-items: center;
   justify-content: center;
 }
 
 /* Escalar el icono */
 .wishlist-icon {
-  width: 40px; /* Aumenta el tamaño del icono */
+  width: 40px;
+  /* Aumenta el tamaño del icono */
   height: 40px;
-  fill: #007bff; 
-  opacity: 0.8;/* Azul para indicar que está en wishlist */
+  fill: #007bff;
+  opacity: 0.8;
+  /* Azul para indicar que está en wishlist */
 
 }
 
@@ -2478,7 +2482,7 @@ body {
   border: 1px solid white;
   width: var(--plus_sideLength);
   height: var(--plus_sideLength);
-  background-color: rgb(0,0,0,0);
+  background-color: rgb(0, 0, 0, 0);
   overflow: hidden;
   position: absolute;
   border-radius: 25%;
@@ -2538,7 +2542,8 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+  background: rgba(0, 0, 0, 0.5);
+  /* Fondo semi-transparente */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2569,20 +2574,25 @@ body {
 .list-item {
   margin: 5px 0;
   display: flex;
-  justify-content: space-between; /* Espacia los elementos a los extremos */
+  justify-content: space-between;
+  /* Espacia los elementos a los extremos */
   align-items: center;
 }
 
 .list-item-content {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Alinea nombre de lista y botón en los extremos */
-  width: 100%; /* Hace que ocupe todo el espacio disponible */
+  justify-content: space-between;
+  /* Alinea nombre de lista y botón en los extremos */
+  width: 100%;
+  /* Hace que ocupe todo el espacio disponible */
 }
 
 .list-name {
-  font-weight: bold; /* Para destacar el nombre de la lista */
-  margin-right: 5px; /* Espacio entre el nombre de la lista y el botón */
+  font-weight: bold;
+  /* Para destacar el nombre de la lista */
+  margin-right: 5px;
+  /* Espacio entre el nombre de la lista y el botón */
   margin-left: 25px;
   margin-top: 10px;
 }
@@ -2596,17 +2606,24 @@ body {
   background-color: #4CAF50;
   border-radius: 25%;
   margin-right: 30px;
-  display: flex;  /* Flexbox para centrar el contenido */
-  justify-content: center;  /* Centra el ícono horizontalmente */
-  align-items: center;   /* Centra el ícono verticalmente */
+  display: flex;
+  /* Flexbox para centrar el contenido */
+  justify-content: center;
+  /* Centra el ícono horizontalmente */
+  align-items: center;
+  /* Centra el ícono verticalmente */
 }
 
 /* Estilos para el contenedor del icono */
 .add-icon {
-  width: 20px;   /* Cambia el tamaño del icono */
-  height: 20px;  /* Cambia el tamaño del icono */
-  fill: #ffffff; /* Cambia el color de relleno del icono */
-  transition: fill 0.3s ease; /* Añade una transición suave al color */
+  width: 20px;
+  /* Cambia el tamaño del icono */
+  height: 20px;
+  /* Cambia el tamaño del icono */
+  fill: #ffffff;
+  /* Cambia el color de relleno del icono */
+  transition: fill 0.3s ease;
+  /* Añade una transición suave al color */
   color: #ffffff;
   justify-content: center;
   font-weight: bold;
@@ -2614,7 +2631,8 @@ body {
 
 /* Modificación de color del icono cuando el usuario pasa el ratón por encima del botón */
 .list-btn:hover .add-icon {
-  fill: #4caf4fbf; /* Cambia el color cuando el ratón pasa sobre el botón */
+  fill: #4caf4fbf;
+  /* Cambia el color cuando el ratón pasa sobre el botón */
 }
 
 .list-btn:hover {
@@ -2624,7 +2642,8 @@ body {
 
 
 .cancel-btn {
-  background-color: #f44336; /* Rojo para cancelar */
+  background-color: #f44336;
+  /* Rojo para cancelar */
   color: white;
   border: none;
 }
@@ -2642,7 +2661,8 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo translúcido */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Fondo translúcido */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2660,7 +2680,7 @@ body {
 .modal-content-premium p {
   margin-bottom: 20px;
   font-size: 16px;
-  color:white;
+  color: white;
 }
 
 .modal-content-premium button {
@@ -2676,4 +2696,15 @@ body {
   background-color: #0056b3;
 }
 
+.my_username,
+.username {
+  text-decoration: none;
+  color: white;
+}
+
+.my_username:hover,
+.username:hover {
+  text-decoration: underline;
+  color: white;
+}
 </style>

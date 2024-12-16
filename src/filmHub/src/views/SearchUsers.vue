@@ -374,6 +374,9 @@ export default {
 
 
     async toggleFollow(post) {
+      if(localStorage.getItem('user_id') === null || localStorage.getItem('user_id') === undefined){
+        this.$router.push('/login');
+      }
       const isCurrentlyFollowing = this.isFollowing(post.user.id);
       const url = `${API_BASE_URL}/users/${isCurrentlyFollowing ? 'unfollow' : 'follow'}/${post.user.id}`;
       const token = localStorage.getItem('token');

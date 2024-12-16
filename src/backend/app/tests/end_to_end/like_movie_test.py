@@ -17,6 +17,8 @@ def driver_setup():
     chrome_options = Options()
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     driver.maximize_window()
     driver.get("http://localhost:8080/login")
@@ -43,7 +45,7 @@ def login_user(driver_setup, db_session):
 def test_like_movie_success(login_user, db_session):
     driver = login_user
     # Navigate to the movie page
-    driver.get("http://localhost:8080/movie/2")  # Change this URL to the movie page URL
+    driver.get("http://localhost:8080/movie/2")  
     time.sleep(3)
 
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "like-toggle")))  # Wait for the liking option
@@ -73,7 +75,7 @@ def test_like_movie_success(login_user, db_session):
 def test_non_like_movie_success(login_user, db_session):
     driver = login_user
     # Navigate to the movie page
-    driver.get("http://localhost:8080/movie/3")  # Change this URL to the movie page URL
+    driver.get("http://localhost:8080/movie/3")  
     time.sleep(3)
 
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "like-toggle")))  # Wait for the liking option

@@ -657,3 +657,117 @@ def test_create_movie_user_comment_report_and_get_comment_status():
     # Ensure the user is deleted
     get_response1_after_delete = client.get(f"/users/email/{new_user2['email']}")
     assert get_response1_after_delete.status_code == 404
+
+def test_two_users_report_each_other_comments():
+    # Create two admin users
+    user1_data = {
+        "email": "admin1@example.com",
+        "is_active": True,
+        "is_admin": True,
+        "full_name": "Admin User 1",
+        "password": "password123"
+    }
+    user2_data = {
+        "email": "admin2@example.com",
+        "is_active": True,
+        "is_admin": True,
+        "full_name": "Admin User 2",
+        "password": "password123"
+    }
+
+    user1_response = client.post("/users/", json=user1_data)
+    assert user1_response.status_code == 201
+    user1_id = user1_response.json()["id"]
+
+    user2_response = client.post("/users/", json=user2_data)
+    assert user2_response.status_code == 201
+    user2_id = user2_response.json()["id"]
+
+    # Create a movie
+    movie_data = {
+        "title": "Test film",
+        "description": "An epic journey of survival as two worlds collide.",
+        "director": "Chris Nolan",
+        "country": "United States",
+        "release_date": "2025-06-12",
+        "rating": 4.8,
+        "rating_count": 25000,
+        "likes": 8000,
+        "genres": ["Action", "Sci-Fi"],
+        "cast_members": ["Actor A", "Actor B"],
+        "image": [],
+        "trailer": ""
+    }
+
+    movie_response = client.post("/movies/", json=movie_data)
+    assert movie_response.status_code == 200
+    movie_id = movie_response.json()["id"]
+
+    # Create a thread for the movie
+    thread_response = client.post(f"/comments/threads/?movie_id={movie_id}")
+    assert thread_response.status_code == 200
+    thread_id = thread_response.json()["id"]
+
+    # Both users add comments
+    comment1_data = {
+        "thread_id": thread_id,
+        "user_id": user1_id,
+        "text": "Great movie! Loved it."
+    }
+    comment2_data = {
+        "thread_id": thread_id,
+        "user_id": user2_id,
+        "text": "Not my cup of tea."
+    }
+
+    comment1_response = client.post(f"/comments/?thread_id={thread_id}&user_id={user1_id}&text={comment1_data['text']}")
+    assert comment1_response.status_code == 200
+    comment1_id = comment1_response.json()["id"]
+
+    comment2_response = client.post(f"/comments/?thread_id={thread_id}&user_id={user2_id}&text={comment2_data['text']}")
+    assert comment2_response.status_code == 200
+    comment2_id = comment2_response.json()["id"]
+
+    # Each user reports the other user's comment
+    report1_data = {"reported": "REPORTED"}
+    report2_data = {"reported": "REPORTED"}
+
+    report1_response = client.put(f"/comments/{comment2_id}/status?user_id={user1_id}", json=report1_data)
+    assert report1_response.status_code == 200
+    assert report1_response.json()["reported"] == report1_data["reported"]
+
+    report2_response = client.put(f"/comments/{comment1_id}/status?user_id={user2_id}", json=report2_data)
+    assert report2_response.status_code == 200
+    assert report2_response.json()["reported"] == report2_data["reported"]
+
+    # Get reported comments ordered by date, user, and status
+    reported_by_date_response = client.get("/comments/reported/order_by_date/")
+    assert reported_by_date_response.status_code == 200
+    assert isinstance(reported_by_date_response.json(), list)
+
+    reported_by_user_response = client.get("/comments/reported/order_by_user/")
+    assert reported_by_user_response.status_code == 200
+    assert isinstance(reported_by_user_response.json(), list)
+
+    reported_by_status_response = client.get("/comments/reported/order_by_status/")
+    assert reported_by_status_response.status_code == 200
+    assert isinstance(reported_by_status_response.json(), list)
+    
+    # DELETE the comment
+    response8 = client.delete(f"/comments/{comment1_id}")
+    assert response8.status_code == 204  # Assert comment deletion successful
+
+    # DELETE the comment
+    response8 = client.delete(f"/comments/{comment2_id}")
+    assert response8.status_code == 204  # Assert comment deletion successful
+
+    # Delete the movie
+    delete_movie_response = client.delete(f"/movies/title/Test film")
+    assert delete_movie_response.status_code == 200
+
+    # Delete both users
+    delete_user1_response = client.delete(f"/users/email/{user1_data['email']}")
+    assert delete_user1_response.status_code == 200
+
+    delete_user2_response = client.delete(f"/users/email/{user2_data['email']}")
+    assert delete_user2_response.status_code == 200
