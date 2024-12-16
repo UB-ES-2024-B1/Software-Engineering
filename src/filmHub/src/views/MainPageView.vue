@@ -610,7 +610,7 @@ body {
 
 .carousel-control-prev {
   z-index: 20;
-  /* Aumenta el z-index para que estén encima de la imagen de portada */
+  /* Aumenta el z-index para que estén por encima de la imagen de portada */
   top: 24px;
   width: 50px;
   height: 375px;

@@ -2471,7 +2471,7 @@ body {
   /* Config end */
   position: absolute;
   bottom: 2vh;
-  left: 70.5vh;
+  left: 62%;
   display: flex;
   justify-content: center;
   align-items: center;

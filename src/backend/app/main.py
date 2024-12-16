@@ -26,8 +26,8 @@ app = FastAPI(lifespan=lifespan)
 # Habilitar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permitir peticiones desde este origen
-    #allow_origins=["https://filmhub-frontend.azurewebsites.net"],
+    #allow_origins=["http://localhost:8080"],  # Permitir peticiones desde este origen
+    allow_origins=["https://filmhub.azurewebsites.net"],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers

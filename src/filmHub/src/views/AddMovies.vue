@@ -179,8 +179,8 @@ export default {
             directorError: "",
             numMoviesError: "",
             radioOptions: [
-                { label: 'Name', value: 'option1' },
-                { label: 'Features', value: 'option2' },// Newer
+                { label: 'Name', value: 'value-1' },
+                { label: 'Features', value: 'value-2' },// Newer
             ],
 
         };
