@@ -48,7 +48,7 @@ def login_user(driver_setup, db_session):
 def test_follow_user_success(login_user, db_session):
     driver = login_user
     # Navigate to the movie page
-    driver.get("http://localhost:8080/searchUsers")  # Change this URL to the movie page URL
+    driver.get("http://localhost:8080/searchUsers") 
     time.sleep(3)
 
 
