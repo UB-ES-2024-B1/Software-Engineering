@@ -174,7 +174,10 @@ export default {
             activeSorting: '', // Almacena el criterio de orden activo (rating, year, popularity)
             wishedMovies: [], // Lista de películas deseadas
             userId: localStorage.getItem('user_id'), // ID del usuario
-            
+
+            //Para mostrar desde movie details
+            selectedDirector: null, //Para mostrar las peliculas por Director
+            selectedActor: null,
         };
     },
     methods: {
@@ -254,6 +257,42 @@ export default {
                 this.applySorting(''); 
             }
         },
+
+        async filterMoviesByDirector(movies, directorName) {
+            try {
+                // Filtrar las películas por el nombre del director
+                let directorMovies = [];
+                for (const movie of movies){
+                    if (movie.director === directorName){
+                        directorMovies.push(movie);
+                    }
+                }
+                return directorMovies;
+            } catch (error) {
+                console.error("Error filtering movies by director:", error);
+                return [];
+            }
+        },
+
+        async filterMoviesByActor(movies, actorName) {
+            try {
+                // Filtrar las películas por el nombre del actor
+                let actorMovies = [];
+                for (const movie of movies){
+                    for (const actor of movie.cast_members){
+                        if (actor.name === actorName){
+                            actorMovies.push(movie);
+                        }
+                    }
+                }
+                return actorMovies;
+            } catch (error) {
+                console.error("Error filtering movies by director:", error);
+                return [];
+            }
+        },
+
+        
         async applySorting(criteria, resetSelectedYear = false) {
             try {
                 let url;
@@ -265,9 +304,11 @@ export default {
                 if (this.cancelTokenSource) {
                     this.cancelTokenSource.cancel("Operation canceled due to new request.");
                 }
-
                 this.cancelTokenSource = axios.CancelToken.source();
-                if (criteria === 'rating') {
+
+                if ((criteria === 'director' && this.selectedDirector) || (criteria === 'actor' && this.selectedActor)){
+                    url = `${API_BASE_URL}/movies`;
+                }else if (criteria === 'rating') {
                     url = `${API_BASE_URL}/movies/sorted/rating`;
                 } else if (criteria === 'year') {
                     if (this.selectedYear) {
@@ -292,6 +333,14 @@ export default {
 
                 let movies = response.data;
 
+                if (criteria === 'director'){
+                    // Filtra las películas por director
+                    movies = await this.filterMoviesByDirector(movies, this.selectedDirector);
+                }else if(criteria === 'actor'){
+                    movies = await this.filterMoviesByActor(movies, this.selectedActor);
+                }
+
+
                 if (criteria === 'year') {
                     // Invertir el orden si estamos ordenando por año
                     movies = movies.reverse(); // Aquí invertimos el array
@@ -306,6 +355,8 @@ export default {
                 this.sortedMovies = this.chunkMovies(processedMovies, 5);
 
                 console.log(`Movies filtered by ${criteria}:`, this.sortedMovies);
+            
+
             } catch (error) {
                 if (axios.isCancel(error)) {
                     console.log("Previous request canceled:", error.message);
@@ -350,6 +401,8 @@ export default {
         const searchQuery = this.$route.query.search;
         const sortByYear = this.$route.query.sortByYear;
         const sortByRate = this.$route.query.sortByRate;
+        const directorName = this.$route.query.director;
+        const actorName = this.$route.query.actor;
 
         if (searchQuery) {
             this.applySorting('search');
@@ -357,7 +410,11 @@ export default {
             this.applySorting('year');
         } else if (sortByRate) {
             this.applySorting('rating');
-        } else {
+        } else if (directorName) {
+            this.applySorting('director');
+        }else if (actorName) {
+            this.applySorting('actor');
+        }else {
             this.applySorting('');
         }
         await this.fetchGenres();
@@ -404,6 +461,51 @@ export default {
                 this.applySorting('popularity');
             }
         },
+        '$route.query.genre': {
+            immediate: true,
+            handler(newGenre) {
+                if (newGenre) {
+                    this.selectedGenre = newGenre;
+                    this.$nextTick(() => {
+                        this.applySorting('genre'); // Aplicar filtro solo después de actualizar selectedGenre
+                    });
+                }
+            },
+        },
+        '$route.query.year': {
+            immediate: true,
+            handler(newYear) {
+                if (newYear) {
+                    this.selectedYear = newYear;
+                    this.$nextTick(() => {
+                        this.applySorting('year'); // Aplicar filtro solo después de actualizar selectedYear
+                    });
+                }
+            },
+        },
+        '$route.query.director': {
+            immediate: true,
+            handler(newDirector) {
+            if (newDirector) {
+                console.log(`Filtering by director: ${newDirector}`);
+                this.selectedDirector = newDirector;
+                this.applySorting('director');
+            }
+            },
+        },
+        '$route.query.actor': {
+            immediate: true,
+            handler(newActor) {
+            if (newActor) {
+                console.log(`Filtering by director: ${newActor}`);
+                this.selectedActor = newActor;
+                this.applySorting('actor');
+            }
+            },
+        },
+
+
+
     },
 };
 </script>
@@ -415,6 +517,7 @@ export default {
 
 
 <style scoped>
+
 .horizontal-bar {
     position: fixed;
     top: 70px;

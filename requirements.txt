@@ -13,3 +13,5 @@ python-jose
 firebase-admin
 requests
 cloudinary
+selenium
+webdriver_manager

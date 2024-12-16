@@ -6,18 +6,9 @@ from app.core.security import authenticate_user
 from app.core.jwt import decode_token
 from app.crud import user_crud
 from app.models import User
-from app.api.routes import user_routes
 from typing import Generator  # Import Generator from typing
 from app.db.database import SessionLocal
-
-# Dependency to get a new database session for each request
-def get_db():
-    db = SessionLocal()  # Open a new session
-    try:
-        yield db  # Yield the session to be used by the route handler
-    finally:
-        db.close()  # Ensure the session is closed after the request is done
-
+from app.api.db_utils import get_db
 
 # Configuración de OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login/")
@@ -31,5 +22,16 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
+def is_admin(user: User = Depends(get_current_user)) -> User:
+    """
+    Check if the current user is an admin.
+    """
+    if not user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this resource",
         )
     return user

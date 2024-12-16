@@ -11,6 +11,8 @@ import AllMovies from '../views/AllMovies.vue';
 import AddMovies from '../views/AddMovies.vue'; // Importa el componente 
 
 import ShowReportsProfile from '@/views/ShowReportsProfile.vue';
+import SearchUsers from '@/views/SearchUsers.vue';
+import OtherProfiles from '@/views/OtherProfiles.vue';
 
 const routes = [
   {
@@ -41,6 +43,11 @@ const routes = [
     component: UserProfile,
   },
   {
+    path: '/searchUsers',
+    name: 'SearchUsers',
+    component: SearchUsers,
+  },
+  {
     path: '/edit',
     name: 'EditProfile',
     component: EditProfile,
@@ -62,12 +69,31 @@ const routes = [
     name: 'ShowReportsProfile',
     component: ShowReportsProfile,
   },
+  
+  {
+    path: '/otherProfiles/:username', // Ruta dinámica
+    name: 'OtherProfiles',
+    component: OtherProfiles,
+    props: true, // Pasa el parámetro como "prop" al componente
+  },
 
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return {
+        el: to.hash, // Selecciona el elemento con el id del hash
+        behavior: 'smooth', // Habilita el desplazamiento suave
+      };
+    } else if (savedPosition) {
+      return savedPosition; // Vuelve a la posición previa al navegar hacia atrás
+    } else {
+      return { top: 0 }; // Vuelve al inicio si no hay hash
+    }
+  }
 });
 
 

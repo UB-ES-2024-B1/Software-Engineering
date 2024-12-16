@@ -5,10 +5,11 @@ from app.db.database import SessionLocal  # Import the SessionLocal from databas
 from app.crud import user_crud
 from app.api.dependencies import *  # Import the get_db function
 from app.models import (
-    User, UserOut, UserCreate,UserUpdate
+    User, UserOut, UserCreate,UserUpdate,FollowOut,ProfileVisibility
 )
 from scripts.upload import eliminar_imagen, subir_imagen_desde_archivo
 from typing import List, Optional
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -25,12 +26,12 @@ def init_db():
     if len(user_crud.get_users(db)) == 0:
         # Crear 6 usuarios
         initial_users = [
-            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle"},
-            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle"},
-            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle"},
-            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle"},
-            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle"},
-            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle"},
+            {"email": "user1@example.com", "is_admin": True, "full_name": "User1", "password": "password1", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": True},
+            {"email": "user2@example.com", "is_admin": True, "full_name": "User2", "password": "password2", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": True},
+            {"email": "user3@example.com", "is_admin": True, "full_name": "User3", "password": "password3", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": True},
+            {"email": "user4@example.com", "is_admin": True, "full_name": "User4", "password": "password4", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": True},
+            {"email": "user5@example.com", "is_admin": True, "full_name": "User5", "password": "password5", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": False},
+            {"email": "user6@example.com", "is_admin": True, "full_name": "User6", "password": "password6", "img_url": "https://res.cloudinary.com/dt2flsyai/image/upload/v1732536167/imagenes-perfil/profile-circle.svg", "img_public_id": "imagenes-perfil/profile-circle", "is_premium": False},
         ]
         # Insertar usuarios en la base de datos
         for user_data in initial_users:
@@ -39,7 +40,8 @@ def init_db():
                 full_name=user_data.get("full_name"),
                 email=user_data.get("email"),
                 hashed_password=pwd_context.hash(user_data.get("password")),
-                is_admin=user_data.get("is_admin")
+                is_admin=user_data.get("is_admin"),
+                is_premium=user_data.get("is_premium")
             )
     db.close()  # Cerrar la sesión
     
@@ -61,7 +63,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     hashed_password = pwd_context.hash(user.password)
 
     # Call the CRUD operation to create the user in the database
-    new_user = user_crud.create_user(db, full_name=user.full_name, email=user.email, hashed_password=hashed_password)
+    new_user = user_crud.create_user(db, full_name=user.full_name, email=user.email, hashed_password=hashed_password, is_premium=user.is_premium)
     return new_user
 
 # Route to get all users
@@ -95,7 +97,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return user
 
 @router.get("/email/{user_email}", response_model=UserOut)
-def read_user(user_email: str, db: Session = Depends(get_db)):
+def read_user_mail(user_email: str, db: Session = Depends(get_db)):
     """
     Get a user by their ID.
     :param user_id: The ID of the user
@@ -105,6 +107,25 @@ def read_user(user_email: str, db: Session = Depends(get_db)):
     user = user_crud.get_user_by_email(db, user_email)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@router.get("/username/{username}", response_model=UserOut)
+def read_user(username: str, db: Session = Depends(get_db)):
+    """
+    Get a user by their ID.
+    :param user_id: The ID of the user
+    :param db: Database session (injected via dependency)
+    :return: User object or 404 if not found
+    """
+    user = user_crud.get_user_by_username(db, username)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.isPublic == False:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have enough permission to do this action."
+        )
     return user
 
 # Route to delete a user by ID
@@ -123,7 +144,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 # Route to delete a user by email
 @router.delete("/email/{user_email}")
-def delete_user(user_email: str, db: Session = Depends(get_db)):
+def delete_user_mail(user_email: str, db: Session = Depends(get_db)):
     """
     Delete a user by their ID.
     :param user_id: The ID of the user to delete
@@ -144,6 +165,7 @@ def update_user_by_id(
     is_active: Optional[bool] = Form(None),
     is_admin: Optional[bool] = Form(None),
     img: Optional[UploadFile] = File(None),
+    isPublic:Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -176,10 +198,12 @@ def update_user_by_id(
         update_data["is_active"] = is_active
     if is_admin is not None:
         update_data["is_admin"] = is_admin
+    if isPublic is not None:
+        update_data["isPublic"] = isPublic
 
 
     # If an image is uploaded, process it
-    if img:
+    if img is not None or img =='string':
         try:
             if existing_user.img_public_id and existing_user.img_public_id != "imagenes-perfil/profile-circle":
                 # If there is an existing image, delete it from Cloudinary
@@ -210,6 +234,7 @@ def update_user_by_email(
     is_active: Optional[bool] = Form(None),
     is_admin: Optional[bool] = Form(None),
     img: Optional[UploadFile] = File(None),
+    isPublic:Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -239,9 +264,11 @@ def update_user_by_email(
         update_data["is_active"] = is_active
     if is_admin is not None:
         update_data["is_admin"] = is_admin
+    if isPublic is not None:
+        update_data["isPublic"] = isPublic
 
     # If an image is uploaded, process it
-    if img:
+    if img is not None or img =='string':
         try:
             if existing_user.img_public_id and existing_user.img_public_id != "imagenes-perfil/profile-circle":
                 # If there is an existing image, delete it from Cloudinary
@@ -260,8 +287,7 @@ def update_user_by_email(
     updated_user = user_crud.update_user(db, existing_user.id, update_data)
 
     if not updated_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
+        raise HTTPException(status_code=404, detail="User not found")   
     return updated_user
 
 def is_admin_user(current_user: User = Depends(get_current_user)) -> bool:
@@ -277,3 +303,68 @@ def is_admin_user(current_user: User = Depends(get_current_user)) -> bool:
             detail="You don't have enough permission to do this action."
         )
     return True
+
+
+@router.get("/followers/{user_id}", response_model=List[UserOut])
+def get_followers(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
+    followers = user_crud.get_followers(db, user_id)
+    if followers ==None:
+        raise HTTPException(status_code=404, detail="User not found or has no followers")
+    return followers
+
+@router.get("/followed/{user_id}", response_model=List[UserOut])
+def get_followed_users(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
+    followed_users = user_crud.get_followed_users(db, user_id)
+    if followed_users ==None:
+        raise HTTPException(status_code=404, detail="User not foundç")
+    return followed_users
+
+@router.post("/follow/{user_id}", response_model=FollowOut)
+def follow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    follow = user_crud.follow_user(db, current_user.id, user_id)
+    return follow
+
+
+# Endpoint para dejar de seguir a un usuario
+@router.post("/unfollow/{user_id}", response_model=FollowOut)
+def unfollow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    try:
+        success = user_crud.unfollow_user(db, follower_id=current_user.id, followed_id=user_id)  # Cambio 1 por el ID del usuario autenticado
+        if not success:
+            raise HTTPException(status_code=400, detail="Unable to unfollow user")
+        return JSONResponse(status_code=200, content={"message": "Unfollowed successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# Endpoint to upgrade a user to premium
+@router.put("/upgrade_premium/{user_email}", response_model=UserOut)
+def upgrade_user_to_premium(user_email: str, db: Session = Depends(get_db)):
+    """
+    Upgrade a user to premium by email.
+
+    :param user_email: email of the current user
+    """
+    user = user_crud.upgrade_to_premium_by_email(db, user_email=user_email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+# Endpoint to downgrade a user to premium
+@router.put("/downgrade_premium/{user_email}", response_model=UserOut)
+def downgrade_user_to_premium(user_email: str, db: Session = Depends(get_db)):
+    """
+    Downgrade a user to premium by email.
+
+    :param user_email: email of the current user
+    """
+    user = user_crud.downgrade_to_premium_by_email(db, user_email=user_email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+
+
+

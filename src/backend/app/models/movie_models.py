@@ -1,12 +1,12 @@
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import date
 from typing import Optional, List, Union
-from sqlalchemy import Column
+from sqlalchemy import Column, Float
 from sqlalchemy.dialects.postgresql import JSON
 
 from app.models.comments_model import Thread
 
-from app.models.user_models import *
+from app.models.user_models import User, MovieUser
 
 
 # Association table for the many-to-many relationship
@@ -37,7 +37,7 @@ class MovieBase(SQLModel):
     director: Optional[str] = None
     country: Optional[str] = None
     release_date: Optional[date] = None
-    rating: Optional[float] = Field(default=0, ge=0, le=5)  # Rating between 0 and 5
+    rating: Optional[float] = Field(default=0, sa_column=Column(Float), ge=0, le=5)  # Rating between 0 and 5
     rating_count: Optional[int] = Field(default=0) 
     likes: Optional[int] = Field(default=0) 
     image: Optional[List[str]] = Field(default=None, sa_column=Column(JSON))
@@ -56,8 +56,9 @@ class Movie(MovieBase, table=True):
     cast_members: List["CastMember"] = Relationship(back_populates='movies', link_model=MovieCast)
     threads: List[Thread] = Relationship()  # Relationship to comments
     users: List["User"] = Relationship(back_populates="movies", link_model=MovieUser)
-
-
+    # Relationship to MovieList
+    list_types: List["MovieList"] = Relationship(back_populates="movie")
+    
 # Model for response from the API
 class MovieOut(MovieBase):
     id: int

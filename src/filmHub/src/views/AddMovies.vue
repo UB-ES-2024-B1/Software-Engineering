@@ -7,13 +7,15 @@
             <!-- Use flexbox to place RadioForm to the left side of the form -->
             <div class="radio d-flex mb-4">
                 <div class="me-4">
-                    <RadioForm v-model="formType" />
+                    <RadioForm v-model="selectedValue" :options="radioOptions" :fontFamily="'Arial, Helvetica, sans-serif'"
+                        name="movie-options" :fontSize="'15px'" :title="'Add movies by:'" id="RadioForm" />
+
                 </div>
-                <main :class="['main-form', 'rounded-3', 'shadow-lg', 'p-4', { 'small-form': formType === 'value-1' }]"
+                <main :class="['main-form', 'rounded-3', 'shadow-lg', 'p-4', { 'small-form': selectedValue === 'value-1' }]"
                     id="formBox">
                     <h2 class="fs-4 fw-bolder mb-4"><i class='bx bxs-camera-movie'></i> Add Movie</h2>
 
-                    <div v-if="formType === 'value-1'" class="mb-3">
+                    <div v-if="selectedValue === 'value-1'" class="mb-3">
                         <!-- Display single movie name input field if 'Add Movie by Name' is selected -->
                         <label for="movieName" class="form-label"><i class='bx bx-pencil'></i> Movie Name</label>
                         <input id="movieName" v-model="movieName" placeholder="Enter movie name" class="form-control" />
@@ -136,7 +138,7 @@
                     </div>
                 </main>
             </div>
-            
+
         </div>
 
     </div>
@@ -160,7 +162,7 @@ export default {
     },
     data() {
         return {
-            formType: 'value-1', // Default to 'Add Movie by Features'
+            selectedValue: 'value-1', // Default to 'Add Movie by Features'
             movieName: '',
             genres: [],
             cast: [],
@@ -176,6 +178,10 @@ export default {
             actorError: "",
             directorError: "",
             numMoviesError: "",
+            radioOptions: [
+                { label: 'Name', value: 'value-1' },
+                { label: 'Features', value: 'value-2' },// Newer
+            ],
 
         };
     },
@@ -237,7 +243,7 @@ export default {
             const token = localStorage.getItem('token');
 
 
-            if (this.formType === 'value-1') {
+            if (this.selectedValue === 'value-1') {
                 try {
                     const movieTitle = this.movieName.trim();
                     const response = await axios.post(`${API_BASE_URL}/movies/byName`, {}, {
@@ -268,7 +274,7 @@ export default {
                 }
 
 
-            } else if (this.formType === 'value-2') {
+            } else if (this.selectedValue === 'value-2') {
                 try {
 
                     const directorsNames = this.director.trim();
@@ -428,8 +434,10 @@ export default {
 #addMoviesPage {
 
     display: flex;
-    flex-direction: column; /* Ensure proper stacking */
-    justify-content: space-between; /* Space out header, content, and footer */
+    flex-direction: column;
+    /* Ensure proper stacking */
+    justify-content: space-between;
+    /* Space out header, content, and footer */
     background-image: url("../assets/add-movies-background.jpg");
     background-size: cover;
     background-position: center;
@@ -565,5 +573,12 @@ export default {
 
 .form-label {
     font-weight: 500;
+}
+
+#RadioForm{
+    margin-left: 2wh;
+    background-color: rgba(0,0,0,0.6);
+    padding: 30px;
+    border-radius: 10px;
 }
 </style>

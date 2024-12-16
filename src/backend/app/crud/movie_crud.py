@@ -1,16 +1,23 @@
 # backend/app/crud/movie_crud.py
-from sqlmodel import Session, select
-from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, Genre, CastMember, MovieGenre, MovieCast, MovieUser) 
+from sqlmodel import Session, select, extract
+from app.models import (Movie, MovieIn, MovieOut, MovieUpdate, Genre, CastMember, MovieGenre, MovieCast, MovieUser, Comment, User) 
 from typing import List
 from fastapi import File, UploadFile, HTTPException
-from sqlalchemy.sql import func, case, extract
+from sqlalchemy.sql import func
 from app.api.routes.comments_routes import create_thread, delete_thread
+from datetime import datetime, timezone
+from app.crud.user_crud import delete_movie_links
+from sqlalchemy import desc, case
 
 
 
 # Function to create a new movie
 def create_movie(db: Session, movie: MovieIn, file: UploadFile = File(None)) -> MovieOut:
     # Check if a movie with the same title already exists
+    existing_movie = get_movie_by_title(db, movie.title)
+    if existing_movie:
+        raise HTTPException(status_code=400, detail="A movie with this title already exists.")
+    
     # Create new movie instance
     db_movie = Movie(
         title=movie.title,
@@ -69,7 +76,10 @@ def get_movie(db: Session, movie_id: int) -> MovieOut:
 # CRUDs to get different types of list of movies
 def get_movie_by_title(db: Session, movie_title: str) -> MovieOut:
     statement = select(Movie).where(Movie.title == movie_title)
-    return db.execute(statement).scalars().first()
+    movie = db.execute(statement).scalars().first()
+    if movie:
+        return MovieOut.model_validate(movie)  # Use model_validate
+    return None  # If movie not found
 
 def get_movies_sorted_by_release_date(db: Session) -> List[MovieOut]:
     statement = select(Movie).order_by(Movie.release_date)
@@ -202,6 +212,7 @@ def delete_movie(db: Session, movie_id: int) -> bool:
     movie = result[0] if result else None
     if movie:
         delete_thread(db, movie_id)
+        delete_movie_links(db, movie_id)
         db.delete(movie)
         db.commit()
         return True  # Deletion successful
@@ -214,6 +225,7 @@ def delete_movie_by_title(db: Session, movie_title: str) -> bool:
     movie = result[0] if result else None
     if movie:
         delete_thread(db, movie.id)
+        delete_movie_links(db, movie.id)
         db.delete(movie)
         db.commit()
         return True  # Deletion successful
@@ -451,6 +463,108 @@ def remove_movie_rating_by_id(db: Session, movie_id: int, user_id: int):
     
     return movie
 
+from datetime import datetime, timezone
+from typing import Union
+from sqlalchemy.orm import joinedload
+from sqlalchemy import func
+
+
+def format_time_difference(seconds: float) -> str:
+    minutes = 60
+    hours = minutes * 60
+    days = hours * 24
+    weeks = days * 7
+    months = days * 30
+    years = days * 365
+
+    if seconds < minutes:
+        return f"{seconds:.0f} seconds ago"
+    elif seconds < hours:
+        return f"{seconds / minutes:.0f} minutes ago"
+    elif seconds < days:
+        return f"{seconds / hours:.0f} hours ago"
+    elif seconds < weeks:
+        return f"{seconds / days:.0f} days ago"
+    elif seconds < months:
+        return f"{seconds / weeks:.0f} weeks ago"
+    elif seconds < years:
+        return f"{seconds / months:.0f} months ago"
+    else:
+        return f"{seconds / years:.0f} years ago"
+
+
+def get_all_ratings(db: Session, skip: int = 0, limit: int = 100):
+    # Subquery to fetch the earliest comment for a user on a given thread
+    subquery = (
+        db.query(Comment.thread_id, Comment.user_id, Comment.text, Comment.created_at)
+        .distinct(Comment.thread_id, Comment.user_id)
+        .order_by(Comment.thread_id, Comment.user_id, Comment.created_at.asc())
+        .subquery()
+    )
+
+    # Current UTC time for calculating time differences (timezone-aware)
+    current_time = datetime.now(timezone.utc)
+
+    # Query the Movie, MovieUser, and the subquery for the first comment
+    movies_rated = (
+        db.query(
+            Movie.id.label("movie_id"),
+            Movie.title,
+            MovieUser.rating,
+            MovieUser.user_id,
+            
+            User.full_name.label("user_full_name"),
+            User.img_url.label("user_image_url"),
+            User.isPublic.label("isPublic"),
+            Movie.image[0].label("movie_image_url"),
+            subquery.c.text.label("first_comment"),
+            subquery.c.created_at.label("comment_created_at"),
+        )
+        .join(Movie, Movie.id == MovieUser.movie_id)
+        .join(User, User.id == MovieUser.user_id)  # Join with User to get the full_name and image
+        .outerjoin(
+            subquery,
+            (subquery.c.thread_id == Movie.id) & (subquery.c.user_id == MovieUser.user_id)
+        )
+        .filter(MovieUser.rating != None)  # Only include movies with a rating
+        .filter(subquery.c.text != None)  # Ensure there is a first comment
+        .offset(skip)  # Skip the specified number of results
+        .limit(limit)  # Limit the number of results
+        .all()
+    )
+    
+    # Transform the results into the desired format with a human-readable time difference
+    results = []
+    for row in movies_rated:
+        movie_id, title, rating, user_id, full_name, user_image_url,isPublic, movie_image_url, first_comment, comment_created_at = row
+        
+        if comment_created_at:
+            # Ensure the comment creation time is timezone-aware
+            comment_created_at = comment_created_at.replace(tzinfo=timezone.utc)
+            time_since_comment = current_time - comment_created_at
+            # Format as a human-readable string
+            time_since_comment_str = str(format_time_difference(time_since_comment.total_seconds()))
+        else:
+            time_since_comment_str = None
+        
+        results.append({
+            "movie_id": movie_id,
+            "title": title,
+            "rating": rating,
+            "user_id": user_id,
+            "public": isPublic,
+            "full_name": full_name,
+            "user_image_url": user_image_url,  # Include only user profile image URL
+            "movie_image_url": movie_image_url,  # Directly take the first movie image URL
+            "first_comment": first_comment,
+            "time_since_comment": time_since_comment_str,
+        })
+    
+    return results
+
+
+
+    
 # Function to remove the rate a specific movie by a user
 def remove_rate_movie(db: Session, user_id: int, movie_id: int):
     # Check if a relationship already exists

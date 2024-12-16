@@ -32,6 +32,15 @@
           </div>
 
           <div class="form-group">
+            <label for="isPublic">Account Type:</label>
+            <select id="isPublic" v-model="formData.isPublic" required>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+              <option value="only_followers">Only Followers</option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label for="full_name">Name:</label>
             <input id="full_name" type="text" v-model="formData.full_name" required placeholder="Enter your name" />
           </div>
@@ -73,6 +82,7 @@ export default {
         email: '',
         full_name: '',
         profile_picture: '', // URL of the current profile picture
+        isPublic: '', // Default account type
       },
       error: null,
     };
@@ -86,21 +96,23 @@ export default {
 
     // Initial data loading
     axios
-      .get(`${API_BASE_URL}/users/email/${userEmail}`)
-      .then((response) => {
-        const { email, full_name, img_url } = response.data;
+  .get(`${API_BASE_URL}/users/email/${userEmail}`)
+  .then((response) => {
+    const { email, full_name, img_url, isPublic } = response.data;
 
-        // Assign the fetched values to the form
-        this.formData.email = email;
-        this.formData.full_name = full_name;
+    // Assign the fetched values to the form
+    this.formData.email = email;
+    this.formData.full_name = full_name;
+    this.formData.isPublic = isPublic; // Ensure the dropdown reflects this value
+    this.formData.profile_picture = img_url;
 
-        // Use the provided image URL or a default image if it doesn't exist
-        this.formData.profile_picture = img_url;
-      })
-      .catch((error) => {
-        console.error('Error fetching user data:', error);
-        this.error = 'Error fetching user data. Please try again.';
-      });
+    console.log('User data:', this.formData);
+  })
+  .catch((error) => {
+    console.error('Error fetching user data:', error);
+    this.error = 'Error fetching user data. Please try again.';
+  });
+
   },
 
   methods: {
@@ -156,6 +168,10 @@ export default {
       }
       if (this.formData.profile_picture && this.$refs.profilePictureInput.files[0]) {
         formData.append('img', this.$refs.profilePictureInput.files[0]);
+      }
+      if (this.formData.isPublic) {
+        console.log('isPublic:', this.formData.isPublic);
+        formData.append('isPublic', this.formData.isPublic);
       }
 
       // Send the updated data to the backend using Axios
@@ -219,22 +235,28 @@ export default {
 }
 
 .profile-box {
+  position: relative;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  padding: 20px;  /* Reducido el padding para que se adapte mejor en pantallas pequeñas */
+  border-radius: 10px;
+  width: 100%; /* Usamos el 100% del ancho disponible */
+  max-width: 600px; /* Limita el ancho máximo */
+  min-width: 300px; /* Permite que el contenedor se haga pequeño en pantallas muy pequeñas */
+  height: auto; /* La altura se ajustará según el contenido */
+  min-height: 300px; /* Se asegura que el contenedor no se haga demasiado pequeño */
+  color: white;
+  z-index: 20;
+  box-shadow: 0 10px 30px rgba(179, 219, 240, 0.5);
 
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    padding: 40px;
-    border-radius: 10px;
-    width: 750px;
-    height: 550px;
-    color: white;
-    z-index: 20;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Mejora visual */
-    border: 2px solid rgba(255, 255, 255, 0.1); /* Sutileza */
-    margin-bottom: 146px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño del contenedor */
+  overflow: hidden; /* Evita que los elementos se salgan del contenedor */
 
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente (si es necesario) */
 }
 
 
@@ -351,5 +373,46 @@ export default {
 .cancel-btn:hover {
   background: rgba(255, 0, 0, 0.4);
 
+}
+
+/* General styling for the dropdown */
+#isPublic {
+  margin-left:1vw;
+  background-color: #1e1e2f; /* Dark background */
+  color: #ffffff; /* White text */
+  border: 1px solid #444; /* Subtle border */
+  border-radius: 4px; /* Smooth corners */
+  padding: 10px 12px; /* Comfortable padding */
+  font-size: 14px; /* Adjust font size */
+  transition: all 0.3s ease-in-out; /* Smooth transition */
+  appearance: none; /* Remove default browser styles */
+  cursor: pointer;
+}
+
+/* Style the dropdown arrow */
+#isPublic::-ms-expand {
+  display: none; /* Hide the default arrow in IE */
+}
+
+/* On focus or hover */
+#isPublic:focus,
+#isPublic:hover {
+  border-color: #6262f0; /* Add a glowing effect */
+  box-shadow: 0 0 8px rgba(98, 98, 240, 0.5); /* Smooth shadow */
+}
+
+/* Style the options */
+#isPublic option {
+  background-color: #1e1e2f; /* Match the dropdown background */
+  color: #ffffff; /* White text */
+  padding: 10px;
+}
+
+/* Mobile-friendly styles */
+@media (max-width: 600px) {
+  #isPublic {
+    font-size: 16px; /* Slightly larger text for smaller screens */
+    padding: 12px 14px;
+  }
 }
 </style>

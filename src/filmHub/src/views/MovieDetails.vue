@@ -2,6 +2,22 @@
   <div class="home-page">
     <HeaderPage /> <!-- Componente HeaderPage -->
 
+    <!-- Modal de aviso no hay listas creadas -->
+    <div v-if="showNoListModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>You have not created any lists yet.</p>
+        <button @click="closeNoListModal">Ok</button>
+      </div>
+    </div>
+
+    <!-- Modal de aviso pelicula anadida -->
+    <div v-if="showMovieAddedModal" class="modal-premium">
+      <div class="modal-content-premium">
+        <p>Movie successfully added to the list!</p>
+        <button @click="closeMovieAddedModal">Ok</button>
+      </div>
+    </div>
+
     <!-- Banner -->
     <section class="banner" v-if="bannerMovie">
       <div class="carousel-inner">
@@ -11,36 +27,35 @@
 
         <div class="small-cover">
           <!-- Imagen de la portada de la película -->
-          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />
-          
-          <!-- Botón de Wishlist en la esquina superior derecha -->
-          <label class="ui-bookmark wishlist-button">
-            <input
-              type="checkbox"
-              :checked="wishedMovies.includes(bannerMovie.title)"
-              @change="toggleWishlist(bannerMovie.id)"
-              :disabled="userRatedMovies[bannerMovie.title]" 
-            />
-            <div class="bookmark" :class="{ disabled: userRatedMovies[bannerMovie.title] }">
-              <svg viewBox="0 0 32 32">
-                <g>
-                  <path
-                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
-                  ></path>
-                </g>
-              </svg>
-            </div>
-          </label>
+          <img :src="bannerMovie.smallImage" alt="Movie Small Cover" class="small-cover-image" />         
 
         
           <!-- Información de la película -->
           <div class="movie-info">
             <h4>{{ bannerMovie.title }}</h4>
+
+            <!-- Modificado para redireccionarlo a AllMovies según el género -->
             <div class="info-item">
-              <span class="info-title">Genres: </span> <span>{{ bannerMovie.genres.join(", ") }}</span>
+              <span class="info-title">Genres: </span> 
+              <!-- <span>{{ bannerMovie.genres.join(", ") }}</span> -->
+              <span>
+                <span v-for="(genre, index) in bannerMovie.genres" :key="index">
+                  <router-link :to="{ name: 'AllMovies', query: { genre: genre } }" class="genre-link">
+                    {{ genre }}
+                  </router-link>
+                  <span v-if="index < bannerMovie.genres.length - 1">, </span>
+                </span>
+              </span>
+
             </div>
+
+
             <div class="info-item">
-              <span class="info-title">Date: </span> <span>{{ bannerMovie.release_date }}</span>
+              <span class="info-title">Date: </span> <span>
+                <router-link :to="{ name: 'AllMovies', query: { year: bannerMovie.release_date.slice(0,4) } }" class="genre-link">
+                  {{ bannerMovie.release_date }}
+                </router-link>
+              </span>
             </div>
             <div class="info-item">
               <span class="info-title">Country: </span> <span>{{ bannerMovie.country }}</span>
@@ -55,6 +70,52 @@
                 <span>{{ bannerMovie.likes }}</span>
               </div>
             </div>
+
+            <div tabindex="0" class="plusButton">
+              <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+                <g mask="url(#mask0_21_345)">
+                  <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Botón para abrir el modal -->
+            <div tabindex="0" class="plusButton" @click="showAddToListModal">
+              <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+                <g mask="url(#mask0_21_345)">
+                  <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Modal para seleccionar la lista -->
+            <div v-if="showModal" class="modal">
+              <div class="modal-content">
+                <h3>Add Movie to Lists:</h3>
+                <ul>
+                  <!-- Mostrar las listas del usuario -->
+                  <li v-for="(list, index) in userLists" :key="index" class="list-item">
+                    <div class="list-item-content">
+                      <span class="list-name">{{ list.list_name }}</span>
+                      <button type="button" @click="addMovieToList(list.list_name)" class="list-btn">
+                        <svg class="add-icon" viewBox="0 0 24 24" width="16" height="16">
+                          <path
+                            d="M12 5v14m-7-7h14"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            fill="none"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+                <button type="button" @click="showModal = false" class="cancel-btn">Cancel</button>
+              </div>
+            </div>
+
           </div>
         </div>
         
@@ -129,6 +190,27 @@
           </label>
         </div>
 
+        <div class="wish-container"> 
+          <!-- Botón de Wishlist en la esquina superior derecha -->
+          <label class="ui-bookmark wishlist-button">
+            <input
+              type="checkbox"
+              :checked="wishedMovies.includes(bannerMovie.title)"
+              @change="toggleWishlist(bannerMovie.id)"
+              :disabled="userRatedMovies[bannerMovie.title]" 
+            />
+            <div class="bookmark" :class="{ disabled: userRatedMovies[bannerMovie.title] }">
+              <svg viewBox="0 0 32 32">
+                <g>
+                  <path
+                    d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 4 4 1 4-4h14a4 4 4 0 1 4 4z"
+                  ></path>
+                </g>
+              </svg>
+            </div>
+          </label>
+        </div>
+
 
       </div>
     </section>
@@ -151,16 +233,26 @@
         <h4 class="section-title">Cast & Crew</h4>
         <div class="cards-container">
           <!-- Card for Director (Always visible as the first item) -->
+          
           <div class="detail-card">
+            <!-- Modificado para hacer un link hacia allMovies y que se muestren las pelis del Director-->
             <h4>Director</h4>
-            <p>{{ bannerMovie.director }}</p>
+            <p>
+              <router-link :to="{ name: 'AllMovies', query: { director: bannerMovie.director } }" class="genre-link">
+                {{ bannerMovie.director }}
+              </router-link>
+            </p>
           </div>
 
           <!-- Cards for Cast, excluding the director -->
           <div v-for="(actor, index) in bannerMovie.cast" :key="actor" class="detail-card"
             v-show="index < visibleCount">
             <h4>Actor</h4>
-            <p>{{ actor }}</p>
+            <p>
+              <router-link :to="{ name: 'AllMovies', query: { actor: actor } }" class="genre-link">
+              {{ actor }}
+              </router-link>
+            </p>
           </div>
         </div>
         <!-- See More Button -->
@@ -192,7 +284,8 @@
 
 
     <!-- Sección del foro de comentarios -->
-    <section class="comments-section">
+     <!-- He afegit un id per linkejar els reported comments de l'admin-->
+    <section id="comments-section" class="comments-section">
       <div v-if="bannerMovie">
         <h4 class="section-title">Comments</h4>
         <div class="comments-container">
@@ -243,8 +336,6 @@
               <button @click="toggleAddingComment" class="cancel-btn">Cancel</button>
             </div>
           </div>
-
-
 
         </div>
       </div>
@@ -443,6 +534,7 @@ export default {
       visibleCount: 9, // Inicialmente mostrar hasta 9 elementos
       showAll: false, // Para alternar entre mostrar todos los elementos o no
       userId: parseInt(localStorage.getItem('user_id')), // ID del usuario
+      userEmail: localStorage.getItem('userEmail'),
       rating: 0, // Valoración inicial
       userRatedMovies: {}, // Almacenará las películas valoradas por el usuario
       likedMovies: [], // Almacena las películas que el usuario ha marcado como "like"
@@ -460,6 +552,12 @@ export default {
 
       showReportConfirm: false, //controla confirmación de denuncia de comentario
       commentToReport: null,
+
+      showModal: false,  // Inicialmente, el modal está oculto
+      userLists: [], // Las listas del usuario
+      
+      showNoListModal: false,
+      showMovieAddedModal: false,
     };
   },
   computed: {
@@ -744,6 +842,19 @@ export default {
         console.error('Error retrieving related movies:', error);
       }
     },
+
+    scrollToHash() {
+      const hash = this.$route.hash; // Obtén el hash de la URL
+      if (hash) {
+        this.$nextTick(() => {
+          const element = document.querySelector(hash); // Selecciona el elemento por su ID
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' }); // Desplaza suavemente
+          }
+        });
+      }
+    },
+
     async loadMovieData(movieId) {
       try {
         await this.fetchBannerMovie(movieId); // Cargar la película del banner
@@ -760,7 +871,12 @@ export default {
             this.rating = 0;
           }
 
-          this.scrollToTop();
+          if(this.scrollToHash()){
+            this.scrollToHash()
+          }else{
+            this.scrollToTop();
+          }
+          
         }
       } catch (error) {
         console.error('Error loading movie data:', error);
@@ -770,7 +886,6 @@ export default {
     async saveRating(rating) {
       try {
         if (!this.userId) { // Verifica si el userId está disponible
-          alert('You must log in to rate a movie.'); // Muestra advertencia
           this.$router.push('/login');
           return; // Salir del método
         }
@@ -823,7 +938,6 @@ export default {
     async toggleLike(movieId) {
       try {
         if (!this.userId) { // Verifica si el userId está disponible
-          alert('You must log in to give like a movie.'); // Muestra advertencia
           this.$router.push('/login');
           return; // Salir del método
         }
@@ -859,7 +973,6 @@ export default {
     async toggleWishlist(movieId) {
         try {
           if (!this.userId) { // Verifica si el userId está disponible
-            alert('You must log in to add to your wishlist.'); // Muestra advertencia
             this.$router.push('/login');
             return; // Salir del método
           }
@@ -927,6 +1040,95 @@ export default {
         }
       },
 
+      async loadUserLists() {
+        try {
+          const userEmail = this.userEmail;
+
+          if (!userEmail) {
+            alert('No se ha encontrado el correo electrónico del usuario.');
+            return;
+          }
+
+          const endpoint = `${API_BASE_URL}/list-type/get-lists-with-movies/${encodeURIComponent(userEmail)}`;
+          const response = await axios.get(endpoint);
+
+          // Verifica qué se devuelve en la respuesta
+          console.log('Respuesta de la API:', response);
+
+          if (response.status === 200) {
+            // Accede directamente a la respuesta de las listas
+            if (response.data && Array.isArray(response.data)) {
+              this.userLists = response.data; // Asigna las listas directamente si son un array
+              console.log('Listas asignadas:', this.userLists);
+            } else {
+              console.error('Las listas no están en el formato esperado');
+            }
+          } else {
+            console.error('Error: La respuesta no es 200');
+          }
+        } catch (error) {
+          console.error('Error al obtener las listas del usuario:', error);
+        }
+      },
+
+      async showAddToListModal() {
+        try {
+          if (!this.userId) { 
+            // Verifica si el userId está disponible
+            this.$router.push('/login');
+            return; // Salir del método
+          }
+
+          await this.loadUserLists(); // Cargar las listas del usuario
+
+          if (this.userLists.length === 0) {
+            // Si no hay listas creadas
+            this.showNoListModal = true; // Muestra un mensaje en inglés
+            return; // Salir del método
+          }
+
+          // Mostrar modal con las listas si hay al menos una lista
+          this.showModal = true; // Hacer visible el modal
+        } catch (error) {
+          console.error('Error loading user lists for modal:', error);
+        }
+      },
+
+
+      async addMovieToList(listName) {
+
+        try {
+          const userEmail = this.userEmail;
+
+          if (!userEmail) {
+            alert('No se ha encontrado el correo electrónico del usuario.');
+            return;
+          }
+
+          const movieId = this.bannerMovie.id;
+          const endpoint = `${API_BASE_URL}/list-type/add-movie/${encodeURIComponent(userEmail)}/${listName}/${movieId}`;
+          
+          const response = await axios.post(endpoint);
+          
+          if (response.status === 200) {
+            console.log('Movie added to list successfully.');
+            this.showModal = false; // Cerrar el modal después de añadir la película
+            this.showMovieAddedModal = true;
+          }
+        } catch (error) {
+          console.error('Error adding movie to list:', error.response?.data || error.message);
+        }
+      },
+
+      closeNoListModal() {
+        this.showNoListModal = false;  // Cerrar el modal de error
+      },
+
+      closeMovieAddedModal() {
+        this.showMovieAddedModal = false;  // Cerrar el modal de error
+      },
+
+
     scrollToTop() {
       window.scrollTo({
         top: 0,
@@ -935,14 +1137,17 @@ export default {
     },
   },
   mounted() {
+    
     if (this.userId) {
       this.loadUserPreferences().then(() => {
         // Cargar datos de la película después de cargar las preferencias
         this.loadMovieData(this.$route.params.id);
+        this.scrollToHash(); // Desplazarse al hash si existe
       });
     } else {
       console.warn('User ID not found in localStorage.');
       this.loadMovieData(this.$route.params.id);
+      this.scrollToHash(); // Desplazarse al hash si existe
     }
   },
   watch: {
@@ -1006,6 +1211,19 @@ async function generateRecentMovieObject(movieData) {
 
 
 <style scoped>
+.genre-link {
+  text-decoration: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.genre-link:hover {
+  text-decoration: underline;
+  color: white; 
+}
+
+
+
 /* Estilo para comentarios */
 .comments-section {
   margin-top: 30px;
@@ -1645,7 +1863,7 @@ body {
 .star-rating-container {
   position: absolute;
   bottom: 25px;
-  right: 150px;
+  right: 125px;
   z-index: 10;
   opacity: 1;
 }
@@ -1763,6 +1981,15 @@ body {
 .radio input:checked~label svg {
   fill: #ffa723;
 }
+
+.like-container {
+  position: absolute;
+  bottom: 59px;
+  right: 100px;
+  z-index: 10;
+  opacity: 1;
+}
+
 
 .container input {
   position: absolute;
@@ -1992,20 +2219,23 @@ body {
   color: gold;
 }
 
-.ui-bookmark {
-  --icon-size: 65px;
-  --icon-secondary-color: rgb(100, 100, 100, 0.8);
-  --icon-hover-color: rgb(125, 125, 125, 0.9);
-  --icon-primary-color: rgba(0, 157, 255, 0.8);
-  --icon-circle-border: 1px solid var(--icon-primary-color);
-  --icon-circle-size: 90px;
-  --icon-anmt-duration: 0.3s;
-
-  position: absolute; /* O 'fixed' si quieres que se quede visible incluso al hacer scroll */
-  top: -8px;          /* Distancia desde la parte superior de la página */
-  left: 270px;        /* Distancia desde la parte derecha de la página */
+.wish-container {
+  position: absolute;
+  bottom: 21px;
+  right: 375px;
   z-index: 10;
-  
+  opacity: 1;
+}
+
+/* From Uiverse.io by Galahhad */ 
+.ui-bookmark {
+  --icon-size: 33px;
+  --icon-secondary-color: rgb(100, 100, 100, 1);
+  --icon-hover-color: rgba(0, 157, 255, 1);
+  --icon-primary-color: rgba(0, 157, 255, 1);
+  --icon-circle-border: 1px solid var(--icon-primary-color);
+  --icon-circle-size: 35px;
+  --icon-anmt-duration: 0.3s;
 }
 
 .ui-bookmark input {
@@ -2036,7 +2266,6 @@ body {
   -webkit-transform-origin: top;
   -ms-transform-origin: top;
   transform-origin: top;
-
 }
 
 .ui-bookmark .bookmark.disabled {
@@ -2048,31 +2277,29 @@ body {
 .bookmark::after {
   content: "";
   position: absolute;
-  width: 12px;
-  height: 12px;
-  -webkit-box-shadow: 0 90px 0 -4px var(--icon-primary-color),  /* Aumentado a 100px */
-    90px 0 0 -4px var(--icon-primary-color),                    /* Aumentado a 100px */
-    0 -90px 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -90px 0 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -70px 70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    -70px -70px 0 -4px var(--icon-primary-color),                /* Aumentado a 80px */
-    70px -70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    70px 70px 0 -4px var(--icon-primary-color);                  /* Aumentado a 80px */
-  box-shadow: 0 100px 0 -4px var(--icon-primary-color),  /* Aumentado a 100px */
-    90px 0 0 -4px var(--icon-primary-color),                    /* Aumentado a 100px */
-    0 -90px 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -90px 0 0 -4px var(--icon-primary-color),                   /* Aumentado a 100px */
-    -70px 70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    -70px -70px 0 -4px var(--icon-primary-color),                /* Aumentado a 80px */
-    70px -70px 0 -4px var(--icon-primary-color),                 /* Aumentado a 80px */
-    70px 70px 0 -4px var(--icon-primary-color);                  /* Aumentado a 80px */
+  width: 10px;
+  height: 10px;
+  -webkit-box-shadow: 0 30px 0 -4px var(--icon-primary-color),
+    30px 0 0 -4px var(--icon-primary-color),
+    0 -30px 0 -4px var(--icon-primary-color),
+    -30px 0 0 -4px var(--icon-primary-color),
+    -22px 22px 0 -4px var(--icon-primary-color),
+    -22px -22px 0 -4px var(--icon-primary-color),
+    22px -22px 0 -4px var(--icon-primary-color),
+    22px 22px 0 -4px var(--icon-primary-color);
+  box-shadow: 0 30px 0 -4px var(--icon-primary-color),
+    30px 0 0 -4px var(--icon-primary-color),
+    0 -30px 0 -4px var(--icon-primary-color),
+    -30px 0 0 -4px var(--icon-primary-color),
+    -22px 22px 0 -4px var(--icon-primary-color),
+    -22px -22px 0 -4px var(--icon-primary-color),
+    22px -22px 0 -4px var(--icon-primary-color),
+    22px 22px 0 -4px var(--icon-primary-color);
   border-radius: 50%;
   -webkit-transform: scale(0);
   -ms-transform: scale(0);
   transform: scale(0);
 }
-
-
 
 .bookmark::before {
   content: "";
@@ -2198,7 +2425,7 @@ body {
     transform: scale(0);
   }
 
-  40% { 
+  40% {
     opacity: 1;
   }
 
@@ -2233,6 +2460,220 @@ body {
 /* Sin hover ni interacción */
 .wishlist-indicator:hover {
   cursor: default;
+}
+
+
+
+.plusButton {
+  /* Config start */
+  --plus_sideLength: 2rem;
+  --plus_topRightTriangleSideLength: 0.9rem;
+  /* Config end */
+  position: absolute;
+  bottom: 2vh;
+  left: 62%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
+  width: var(--plus_sideLength);
+  height: var(--plus_sideLength);
+  background-color: rgb(0,0,0,0);
+  overflow: hidden;
+  position: absolute;
+  border-radius: 25%;
+}
+
+.plusButton::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-width: 0 var(--plus_topRightTriangleSideLength) var(--plus_topRightTriangleSideLength) 0;
+  border-style: solid;
+  border-color: transparent white transparent transparent;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.2s;
+}
+
+.plusButton:hover {
+  cursor: pointer;
+}
+
+.plusButton:hover::before {
+  --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+}
+
+.plusButton:focus-visible::before {
+  --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+}
+
+.plusButton>.plusIcon {
+  fill: white;
+  width: calc(var(--plus_sideLength) * 0.7);
+  height: calc(var(--plus_sideLength) * 0.7);
+  z-index: 1;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.2s;
+}
+
+.plusButton:hover>.plusIcon {
+  fill: black;
+  transform: rotate(180deg);
+}
+
+.plusButton:focus-visible>.plusIcon {
+  fill: black;
+  transform: rotate(180deg);
+}
+
+
+
+/* Estilo para el modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.modal-content li {
+  margin: 10px 0;
+}
+
+.modal-content {
+  padding: 20px;
+}
+
+.list-item {
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between; /* Espacia los elementos a los extremos */
+  align-items: center;
+}
+
+.list-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Alinea nombre de lista y botón en los extremos */
+  width: 100%; /* Hace que ocupe todo el espacio disponible */
+}
+
+.list-name {
+  font-weight: bold; /* Para destacar el nombre de la lista */
+  margin-right: 5px; /* Espacio entre el nombre de la lista y el botón */
+  margin-left: 25px;
+  margin-top: 10px;
+}
+
+.list-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+  background-color: #4CAF50;
+  border-radius: 25%;
+  margin-right: 30px;
+  display: flex;  /* Flexbox para centrar el contenido */
+  justify-content: center;  /* Centra el ícono horizontalmente */
+  align-items: center;   /* Centra el ícono verticalmente */
+}
+
+/* Estilos para el contenedor del icono */
+.add-icon {
+  width: 20px;   /* Cambia el tamaño del icono */
+  height: 20px;  /* Cambia el tamaño del icono */
+  fill: #ffffff; /* Cambia el color de relleno del icono */
+  transition: fill 0.3s ease; /* Añade una transición suave al color */
+  color: #ffffff;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Modificación de color del icono cuando el usuario pasa el ratón por encima del botón */
+.list-btn:hover .add-icon {
+  fill: #4caf4fbf; /* Cambia el color cuando el ratón pasa sobre el botón */
+}
+
+.list-btn:hover {
+  background-color: #45a049;
+}
+
+
+
+.cancel-btn {
+  background-color: #f44336; /* Rojo para cancelar */
+  color: white;
+  border: none;
+}
+
+.cancel-btn:hover {
+  background-color: #e53835bc;
+}
+
+
+
+/* Estilos del modal de error */
+.modal-premium {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo translúcido */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-content-premium {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+}
+
+.modal-content-premium p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color:white;
+}
+
+.modal-content-premium button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-content-premium button:hover {
+  background-color: #0056b3;
 }
 
 </style>
