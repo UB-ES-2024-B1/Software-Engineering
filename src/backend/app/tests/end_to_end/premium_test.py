@@ -59,10 +59,9 @@ def test_toggle_premium_button_for_logged_in_user(login_user, db_session):
     initial_button_class = premium_button.get_attribute("class")
     assert "premium-button" in initial_button_class, "The button should be in premium mode initially."
 
-    '''user = user_crud.get_user_by_email(db_session, "user2@example.com")
-    print(user)
+    user = user_crud.get_user_by_email(db_session, "user2@example.com")
     assert user.is_premium, "User is not initialy premium"
-    '''
+    
     # Click the button to open the downgrade modal
     premium_button.click()
     time.sleep(2)
@@ -91,10 +90,10 @@ def test_toggle_premium_button_for_logged_in_user(login_user, db_session):
     final_button_class = premium_button.get_attribute("class")
     assert "premium-button" not in final_button_class, "The button did not toggle state as expected."
 
-    '''user = user_crud.get_user_by_email(db_session, "user2@example.com")
-    print(user)
+    db_session.expire(user)
+    user = user_crud.get_user_by_email(db_session, "user2@example.com")
     assert not user.is_premium, "User did not change to non premium in database"
-    '''
+    
     # Click the Premium button again to open the upgrade modal
     premium_button.click()
     time.sleep(2)
@@ -123,8 +122,9 @@ def test_toggle_premium_button_for_logged_in_user(login_user, db_session):
     final_button_class = premium_button.get_attribute("class")
     assert "premium-button" in final_button_class, "The button did not toggle state as expected."
 
-    '''user = user_crud.get_user_by_email(db_session, "user2@example.com")
-    assert user.is_premium, "User is not premium in database"'''
+    db_session.expire(user)
+    user = user_crud.get_user_by_email(db_session, "user2@example.com")
+    assert user.is_premium, "User is not premium in database"
 
 def test_create_new_list_success(login_user, db_session):
     driver = login_user
