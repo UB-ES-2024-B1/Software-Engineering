@@ -50,6 +50,21 @@ class TestExtendedUserCRUD(unittest.TestCase):
         self.assertFalse(result.is_premium)
         self.db.commit.assert_called_once()
         self.db.refresh.assert_called_once()
+    
+    def test_downgrade_to_premium_by_email_user_not_found(self):
+        """Test downgrading a premium user where the user is not found in the database."""
+        # Simulate that no user is found for the given email
+        self.db.query.return_value.filter.return_value.first.return_value = None
+        
+        # Call the function with the test email
+        result = downgrade_to_premium_by_email(self.db, user_email="nonexistent@example.com")
+        
+        # Assert the result is None when the user does not exist
+        self.assertIsNone(result)
+        
+        # Ensure commit and refresh are not called since the user was not found
+        self.db.commit.assert_not_called()
+        self.db.refresh.assert_not_called()
 
     
     def test_create_list_by_email(self):
@@ -82,6 +97,40 @@ class TestExtendedUserCRUD(unittest.TestCase):
         self.assertEqual(result.name, "My List")
         self.assertEqual(result.created_by_user_email, self.fake_premium_user.email)
 
+    def test_create_list_by_email_user_not_premium(self):
+        """Test creating a list for a non-premium user."""
+        fake_non_premium_user = User(email="nonpremium@example.com", full_name="John Doe", is_premium=False, id=3)
+        # Mock database query to return a non-premium user
+        self.db.query.return_value.filter.return_value.first.side_effect = [fake_non_premium_user]
+        
+        # Call the function to test with a non-premium user
+        result = create_list_by_email(self.db, user_email=fake_non_premium_user.email, list_name="My List")
+        
+        # Assert the result is None because the user is not a premium user
+        self.assertIsNone(result)
+        
+        # Ensure that db.add, db.commit, and db.refresh were not called since the user is not premium
+        self.db.add.assert_not_called()
+        self.db.commit.assert_not_called()
+        self.db.refresh.assert_not_called()
+
+    def test_create_list_by_email_list_exists(self):
+        """Test creating a list where a list with the same name already exists for the user."""
+        fake_existing_list = ListType(id=1, name="My List", created_by_user_email=self.fake_premium_user.email, user_id=self.fake_premium_user.id)
+        # Mock database query to return the existing list when checking for an existing list
+        self.db.query.return_value.filter.return_value.first.side_effect = [self.fake_premium_user, fake_existing_list]
+        
+        # Call the function to test with a list name that already exists
+        result = create_list_by_email(self.db, user_email=self.fake_premium_user.email, list_name="My List")
+        
+        # Assert the result is None because a list with the same name already exists
+        self.assertIsNone(result)
+        
+        # Ensure that db.add, db.commit, and db.refresh were not called since the list already exists
+        self.db.add.assert_not_called()
+        self.db.commit.assert_not_called()
+        self.db.refresh.assert_not_called()
+
     def test_create_list_by_email_restricted_name(self):
         """Test creating a list with a restricted name."""
         result = create_list_by_email(self.db, user_email=self.fake_premium_user.email, list_name="Favorite")
@@ -103,6 +152,60 @@ class TestExtendedUserCRUD(unittest.TestCase):
         result = get_list_type_by_name(self.db, name="My List", user_email=self.user_email)
 
         self.assertEqual(result.name, "My List")
+
+    def test_get_list_type_by_name_not_found(self):
+        """Test retrieving a list type by name where no list type exists for the user."""
+        
+        # Mock the database query to return the user and then return None for the list type (no list found)
+        self.db.query.return_value.filter.return_value.first.side_effect = [self.fake_user, None]
+        
+        # Call the function to test with a list name that doesn't exist
+        result = get_list_type_by_name(self.db, name="Nonexistent List", user_email=self.fake_user.email)
+        
+        # Assert the result is None because the list type does not exist
+        self.assertIsNone(result)
+        
+        # Ensure that the database queries were made
+        self.db.query.assert_called()
+        self.db.query.return_value.filter.return_value.first.assert_called()
+
+    def test_get_user_lists_by_email_user_not_found(self):
+        """Test when the user is not found."""
+        
+        # Mock the database query to return None for the user (user does not exist)
+        self.db.query.return_value.filter.return_value.first.return_value = None
+        
+        # Call the function to test with a non-existing user email
+        result = get_user_lists_by_email(self.db, user_email="nonexistent@example.com")
+        
+        # Assert the result is None because the user does not exist
+        self.assertIsNone(result)
+        
+        # Ensure that db.query was called and attempted to find the user
+        self.db.query.assert_called()
+        self.db.query.return_value.filter.return_value.first.assert_called()
+
+    def test_get_user_lists_by_email_user_has_lists(self):
+        """Test when the user exists and has lists."""
+        fake_list_1 = ListType(id=1, name="My List", created_by_user_email=self.fake_user.email, user_id=self.fake_user.id)
+        fake_list_2 = ListType(id=2, name="Another List", created_by_user_email=self.fake_user.email, user_id=self.fake_user.id)
+
+        # Mock the database queries to return the user and the user's lists
+        self.db.query.return_value.filter.return_value.first.return_value = self.fake_user
+        self.db.query.return_value.filter.return_value.all.return_value = [fake_list_1, fake_list_2]
+        
+        # Call the function to test with a user who has lists
+        result = get_user_lists_by_email(self.db, user_email=self.fake_user.email)
+        
+        # Assert the result is a list of lists and contains the expected lists
+        self.assertEqual(len(result), 2)
+        self.assertIn(fake_list_1, result)
+        self.assertIn(fake_list_2, result)
+        
+        # Ensure that db.query and filter were called to fetch the user and the lists
+        self.db.query.assert_called()
+        self.db.query.return_value.filter.return_value.first.assert_called()
+        self.db.query.return_value.filter.return_value.all.assert_called()
 
     def test_get_list_type_by_name_user_not_found(self):
         """Test retrieving a list for a non-existent user."""
@@ -140,7 +243,27 @@ class TestExtendedUserCRUD(unittest.TestCase):
         self.db.commit.assert_called_once()
         self.db.refresh.assert_called_once()
 
-
+    def test_add_movie_to_list_movie_not_found(self):
+        """Test adding a movie to a user's list where the movie is not found."""
+        
+        # Mock the list and movie objects
+        fake_list = ListType(id=1, name="My List", created_by_user_email=self.user_email)
+        
+        # Simulate the behavior when no movie is found (movie query returns None)
+        self.db.query.return_value.filter.return_value.first.side_effect = [fake_list, None]
+        
+        # Call the function to test with a movie ID that doesn't exist
+        result = add_movie_to_list(self.db, user_email=self.user_email, list_name="My List", movie_id=999)
+        
+        # Assert the result is None because the movie does not exist
+        self.assertIsNone(result)
+        
+        # Ensure that the database was queried for the list and the movie, but no further actions were taken
+        self.db.query.assert_called()
+        self.db.query.return_value.filter.return_value.first.assert_called()
+        self.db.add.assert_not_called()  # Make sure no movie was added to the list
+        self.db.commit.assert_not_called()  # Ensure no commit was made
+        self.db.refresh.assert_not_called()  # Ensure no refresh was called
 
     def test_add_movie_to_list_duplicate(self):
         """Test adding a duplicate movie to a user's list."""
@@ -219,6 +342,22 @@ class TestExtendedUserCRUD(unittest.TestCase):
         self.assertEqual(len(result[0]["movies"]), 1)
         self.assertEqual(result[0]["movies"][0]["title"], "Test Movie")
 
+    def test_get_all_lists_with_movies_no_lists(self):
+        """Test when there are no lists for the user, should return an empty list."""
+        
+        # Mock the database query to return no lists for the user (empty list)
+        self.db.query.return_value.filter.return_value.all.return_value = []
+        
+        # Call the function to test with a user who has no lists
+        result = get_all_lists_with_movies(self.db, user_email=self.user_email)
+        
+        # Assert that the result is an empty list because the user has no lists
+        self.assertEqual(result, [])
+        
+        # Ensure the db query was called to fetch the lists
+        self.db.query.assert_called()
+        self.db.query.return_value.filter.return_value.all.assert_called()
+
     def test_delete_list_by_name(self):
         """Test deleting a list by name."""
         fake_list = ListType(id=1, name="My List", created_by_user_email=self.user_email)
@@ -228,6 +367,26 @@ class TestExtendedUserCRUD(unittest.TestCase):
         delete_list_by_name(self.db, user_email=self.user_email, list_name="My List")
 
         self.db.delete.assert_called()
+        self.db.commit.assert_called_once()
+
+    def test_delete_list_by_name_with_related_movies(self):
+        """Test deleting a list by name, with related movies."""
+        
+        # Mock the list and related movie list entries
+        fake_list = ListType(id=1, name="My List", created_by_user_email=self.user_email)
+        fake_movie_list = MovieList(id=1, list_type_id=1, movie_id=1)  # Related movie list entry
+        
+        # Mock the database query behavior to return the fake list and related movie list
+        self.db.query.return_value.filter.return_value.first.side_effect = [fake_list]
+        self.db.query.return_value.filter.return_value.all.return_value = [fake_movie_list]  # Return related movie list
+        
+        # Call the function to test
+        delete_list_by_name(self.db, user_email=self.user_email, list_name="My List")
+        
+        # Assertions to verify the results
+        self.db.delete.assert_called()  # Ensure db.delete was called
+        self.db.delete.assert_any_call(fake_movie_list)  # Ensure the movie list entry was deleted
+        self.db.delete.assert_any_call(fake_list)  # Ensure the list itself was deleted
         self.db.commit.assert_called_once()
 
     def test_remove_movie_from_list_by_email(self):
@@ -243,6 +402,35 @@ class TestExtendedUserCRUD(unittest.TestCase):
         self.db.delete.assert_called_once()
         self.db.commit.assert_called_once()
 
+    def test_remove_movie_from_list_when_list_not_found(self):
+        """Test removing a movie when the list is not found for the user."""
+        
+        # Mock the behavior where no list is found for the given user and list name
+        self.db.query.return_value.filter.return_value.first.return_value = None  # No list found
+        
+        # Call the function to test
+        result = remove_movie_from_list_by_email(self.db, user_email=self.user_email, list_name="My List", movie_id=1)
+
+        # Assertions to verify the results
+        self.assertIsNone(result)  # Should return None when the list is not found
+        self.db.delete.assert_not_called()  # Ensure delete was not called
+        self.db.commit.assert_not_called()  # Ensure commit was not called
+
+    def test_remove_movie_from_list_when_movie_not_in_list(self):
+        """Test removing a movie when the movie is not found in the list."""
+        
+        # Mock the behavior where the list exists, but the movie is not found
+        fake_list = ListType(id=1, name="My List", created_by_user_email=self.user_email)
+        self.db.query.return_value.filter.return_value.first.side_effect = [fake_list, None]  # No MovieList entry
+        
+        # Call the function to test
+        result = remove_movie_from_list_by_email(self.db, user_email=self.user_email, list_name="My List", movie_id=1)
+
+        # Assertions to verify the results
+        self.assertIsNone(result)  # Should return None when the movie is not found in the list
+        self.db.delete.assert_not_called()  # Ensure delete was not called
+        self.db.commit.assert_not_called()  # Ensure commit was not called
+
     def test_delete_movie_links(self):
         """Test deleting all links to a movie."""
         fake_movie = Movie(id=1, title="Movie Title")
@@ -255,3 +443,16 @@ class TestExtendedUserCRUD(unittest.TestCase):
 
         self.assertTrue(result)
         self.db.delete.assert_called()
+
+    def test_delete_movie_links_when_movie_not_found(self):
+        """Test deleting movie links when the movie is not found in the database."""
+        
+        # Mock the behavior where no movie is found
+        self.db.get.return_value = None  # Movie is not found
+        
+        # Call the function to test
+        result = delete_movie_links(self.db, movie_id=1)
+
+        # Assertions to verify the results
+        self.assertFalse(result)  # Should return False when the movie is not found
+        self.db.delete.assert_not_called()  # Ensure delete was not called
