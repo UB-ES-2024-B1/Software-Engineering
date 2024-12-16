@@ -211,7 +211,7 @@ export default {
       }
 
       try {
-        const response = await axios.put('/users/upgrade_premium/${userEmail}');
+        const response = await axios.put(`https://filmhub-backend-prepro.azurewebsites.net/users/upgrade_premium/${userEmail}`);
         if (this.$route.name === 'UserProfile') {
           this.$router.go(); // Recarga solo si estás en UserProfile
         }
@@ -236,7 +236,7 @@ export default {
       }
 
       try {
-        const response = await axios.put('/users/downgrade_premium/${userEmail}');
+        const response = await axios.put(`https://filmhub-backend-prepro.azurewebsites.net/users/downgrade_premium/${userEmail}`);
         if (this.$route.name === 'UserProfile') {
           this.$router.go(); // Recarga solo si estás en UserProfile
         }
