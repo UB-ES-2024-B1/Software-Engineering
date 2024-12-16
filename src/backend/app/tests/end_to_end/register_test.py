@@ -15,8 +15,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 def driver_setup():
     # Define Chrome options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Example: Run in headless mode
+    chrome_options.add_argument("--headless") 
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
 
     # Initialize the WebDriver with options
     driver = webdriver.Chrome(

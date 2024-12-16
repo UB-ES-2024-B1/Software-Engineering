@@ -316,12 +316,14 @@ def get_followers(user_id: int, db: Session = Depends(get_db)):  # Quita los par
 def get_followed_users(user_id: int, db: Session = Depends(get_db)):  # Quita los paréntesis
     followed_users = user_crud.get_followed_users(db, user_id)
     if followed_users ==None:
-        raise HTTPException(status_code=404, detail="User not foundç")
+        raise HTTPException(status_code=404, detail="User not found")
     return followed_users
 
 @router.post("/follow/{user_id}", response_model=FollowOut)
 def follow_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     follow = user_crud.follow_user(db, current_user.id, user_id)
+    if follow ==None:
+        raise HTTPException(status_code=404, detail="User not found")
     return follow
 
 
