@@ -29,3 +29,10 @@ jobs:
       - name: Run tests
         working-directory: src/backend
         run: python -m unittest discover app/crud/tests
+
+      - name: Coverage      
+        working-directory: src/backend
+        run: |
+          pytest --cov=app/crud --cov-report=xml .\app\crud\tests\
+          coverage report -m
+        
