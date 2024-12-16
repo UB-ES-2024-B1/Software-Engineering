@@ -33,6 +33,7 @@ jobs:
       - name: Coverage      
         working-directory: src/backend
         run: |
+          pip install pytest-cov
           pytest --cov=app/crud --cov-report=xml .\app\crud\tests\
           coverage report -m
         
