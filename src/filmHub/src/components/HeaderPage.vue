@@ -115,6 +115,7 @@
 
 <script>
 import axios from 'axios';
+import { API_BASE_URL } from '@/config.js';
 
 export default {
   name: 'HeaderPage',
@@ -156,7 +157,7 @@ export default {
       }
 
       try {
-        const response = await axios.get(`/users/email/${userEmail}`);
+        const response = await axios.get(`${API_BASE_URL}/users/email/${userEmail}`);
         if (response.status === 200) {
           const userData = response.data;
           this.isPremium = userData.is_premium; // Actualizamos el estado
@@ -211,7 +212,7 @@ export default {
       }
 
       try {
-        const response = await axios.put(`https://filmhub-backend-prepro.azurewebsites.net/users/upgrade_premium/${userEmail}`);
+        const response = await axios.put(`${API_BASE_URL}/users/upgrade_premium/${userEmail}`);
         if (this.$route.name === 'UserProfile') {
           this.$router.go(); // Recarga solo si estás en UserProfile
         }
@@ -236,7 +237,7 @@ export default {
       }
 
       try {
-        const response = await axios.put(`https://filmhub-backend-prepro.azurewebsites.net/users/downgrade_premium/${userEmail}`);
+        const response = await axios.put(`${API_BASE_URL}/users/downgrade_premium/${userEmail}`);
         if (this.$route.name === 'UserProfile') {
           this.$router.go(); // Recarga solo si estás en UserProfile
         }
