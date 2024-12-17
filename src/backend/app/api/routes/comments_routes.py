@@ -43,7 +43,7 @@ def create_movie_thread(movie_id: int, session: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Failed to create thread.")
     return thread
 
-@router.get("/threads/{movie_id}/", response_model=List[Thread])
+@router.get("/threads/{movie_id}", response_model=List[Thread])
 def get_threads(movie_id: int, session: Session = Depends(get_db)):
     """
     Retrieve all threads for a specific movie.
@@ -61,7 +61,7 @@ def add_comment(thread_id: int, user_id: int, text: str,session: Session = Depen
         raise HTTPException(status_code=400, detail="Failed to create comment.")
     return comment
 
-@router.get("/threads/{thread_id}/comments/", response_model=List[Comment])
+@router.get("/threads/{thread_id}/comments", response_model=List[Comment])
 def get_thread_comments(thread_id: int, session: Session = Depends(get_db)):
     """
     Retrieve all comments for a specific thread.
@@ -113,7 +113,7 @@ def update_comment_status_endpoint(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.delete("/{comment_id}/", status_code=204)
+@router.delete("/{comment_id}", status_code=204)
 def remove_comment(comment_id: int, session: Session = Depends(get_db)):
     """
     Delete a comment by its ID.
@@ -122,7 +122,7 @@ def remove_comment(comment_id: int, session: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Comment not found.")
 
-@router.delete("/threads/{thread_id}/", status_code=204)
+@router.delete("/threads/{thread_id}", status_code=204)
 def remove_thread(thread_id: int, session: Session = Depends(get_db)):
     """
     Delete a thread and all associated comments.
@@ -131,7 +131,7 @@ def remove_thread(thread_id: int, session: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Thread not found.")
 
-@router.get("/reported/", response_model=List[Comment])
+@router.get("/reported", response_model=List[Comment])
 def get_reported_comments(session: Session = Depends(get_db)):
     """
     Retrieve all comments that have been reported.
@@ -139,7 +139,7 @@ def get_reported_comments(session: Session = Depends(get_db)):
     comments = get_comments_reported(session)
     return comments
 
-@router.get("/reported_by_user/{user_id}/", response_model=List[Comment])
+@router.get("/reported_by_user/{user_id}", response_model=List[Comment])
 def get_reported_comments_by_user(user_id: int, session: Session = Depends(get_db)):
     """
     Retrieve all comments that have been reported by a specific user.
@@ -147,7 +147,7 @@ def get_reported_comments_by_user(user_id: int, session: Session = Depends(get_d
     comments = get_comments_reported_by_user(session, user_id)
     return comments
 
-@router.get("/banned/", response_model=List[Comment])
+@router.get("/banned", response_model=List[Comment])
 def get_banned_comments(session: Session = Depends(get_db)):
     """
     Retrieve all comments that have been banned.
@@ -155,12 +155,12 @@ def get_banned_comments(session: Session = Depends(get_db)):
     comments = get_comments_banned(session)
     return comments
 
-@router.get("/by_user/", response_model=List[Comment])
+@router.get("/by_user", response_model=List[Comment])
 def get_user_comments(user_id:int, session: Session = Depends(get_db)):
     comments = get_comments_by_user(session, user_id)
     return comments
 
-@router.get("/reported/order_by_date/", response_model=List[Comment])
+@router.get("/reported/order_by_date", response_model=List[Comment])
 def get_reported_comments_ordered_by_date(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
     """
     Retrieve all reported comments, ordered by the date they were reported.
@@ -169,7 +169,7 @@ def get_reported_comments_ordered_by_date(session: Session = Depends(get_db)):#,
     return comments
 
 
-@router.get("/reported/order_by_user/", response_model=List[Comment])
+@router.get("/reported/order_by_user", response_model=List[Comment])
 def get_reported_comments_ordered_by_user(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
     """
     Retrieve all reported comments, grouped and ordered by the user who reported them.
@@ -178,7 +178,7 @@ def get_reported_comments_ordered_by_user(session: Session = Depends(get_db)):#,
     return comments
 
 
-@router.get("/reported/order_by_status/", response_model=List[Comment])
+@router.get("/reported/order_by_status", response_model=List[Comment])
 def get_reported_comments_ordered_by_status(session: Session = Depends(get_db)):#, current_user: User = Depends(get_current_user)):
     """
     Retrieve all reported comments, grouped and ordered by their report status.
@@ -186,7 +186,7 @@ def get_reported_comments_ordered_by_status(session: Session = Depends(get_db)):
     comments = get_reported_comments_ordered(session, order_by="status")
     return comments
 
-@router.put("/reported_to_banned/{comment_id}/")
+@router.put("/reported_to_banned/{comment_id}")
 def ban_comment(
     comment_id: int,
     session: Session = Depends(get_db),
@@ -201,7 +201,7 @@ def ban_comment(
     
     return {"message": "Comment banned successfully"}
 
-@router.put("/reported_to_clean/{comment_id}/")
+@router.put("/reported_to_clean/{comment_id}")
 def clean_comment(
     comment_id: int,
     session: Session = Depends(get_db)
@@ -216,7 +216,7 @@ def clean_comment(
     
     return {"message": "Comment banned successfully"}
 
-@router.delete("/reported/{comment_id}/", status_code=204)
+@router.delete("/reported/{comment_id}", status_code=204)
 def delete_reported_comment_endpoint(
     comment_id: int,
     session: Session = Depends(get_db)

@@ -571,7 +571,7 @@ export default {
     async fetchComments() {
       console.log('Fetching comments for movie:', this.bannerMovie.id);
       try {
-        const response = await axios.get(`${API_BASE_URL}/comments/threads/${this.bannerMovie.id}/comments/`, {
+        const response = await axios.get(`${API_BASE_URL}/comments/threads/${this.bannerMovie.id}/comments`, {
           headers: {
             'accept': 'application/json',
           },
@@ -757,7 +757,7 @@ export default {
       try {
         if (this.commentToDeleteIndex !== null) {
           // Realiza la llamada al backend para eliminar el comentario con la `id`
-          await axios.delete(`${API_BASE_URL}/comments/${this.commentToDeleteIndex}/`, {
+          await axios.delete(`${API_BASE_URL}/comments/${this.commentToDeleteIndex}`, {
             headers: {
               'accept': 'application/json',
               'Authorization': `Bearer ${localStorage.getItem('token')}`, // Si es necesario autenticar
