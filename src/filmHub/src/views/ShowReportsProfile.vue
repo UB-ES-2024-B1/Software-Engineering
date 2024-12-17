@@ -226,9 +226,9 @@ export default {
 
         // Establecer la URL según el criterio seleccionado
         if (criteria === 'user') {
-          url = `${API_BASE_URL}/comments/reported/order_by_user/`; // Ordenar por usuario
+          url = `${API_BASE_URL}/comments/reported/order_by_user`; // Ordenar por usuario
         }else if (criteria === 'status') {
-          url = `${API_BASE_URL}/comments/reported/order_by_status/`; // Ordenar por popularidad
+          url = `${API_BASE_URL}/comments/reported/order_by_status`; // Ordenar por popularidad
         } else {
           url = `${API_BASE_URL}/comments/reported/order_by_date`; // Recuperar todos los comentarios sin orden
         }
@@ -300,7 +300,7 @@ export default {
     async showReportedComments() {
       try {
         const userId = this.userData.id; // Asegúrate de tener el ID del usuario cargado
-        const response = await axios.get(`${API_BASE_URL}/comments/reported_by_user/${userId}/`, {
+        const response = await axios.get(`${API_BASE_URL}/comments/reported_by_user/${userId}`, {
           headers: {
             accept: 'application/json',
           },
