@@ -368,10 +368,10 @@ export default {
         
         let endpoint ;
         if (this.selectedState === 'BANNED') {
-          endpoint = `${API_BASE_URL}/comments/reported_to_banned/${commentId}/`;
+          endpoint = `${API_BASE_URL}/comments/reported_to_banned/${commentId}`;
           //Eliminarlo de la peli en la que esta el comentario cuando se bannea
         } else if (this.selectedState === 'CLEAN') {
-          endpoint = `${API_BASE_URL}/comments/reported_to_clean/${commentId}/`;
+          endpoint = `${API_BASE_URL}/comments/reported_to_clean/${commentId}`;
           //Eliminarlo de los comentarios reportados cunado se establece como clean.
         }else{
           throw new Error('Estado seleccionado inválido.');
